@@ -1,9 +1,8 @@
 package de.qucosa.oai.provider.controller;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.sql.Connection;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -18,6 +17,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -64,20 +64,24 @@ public class SetsController {
     
     @POST
     @Path("/add")
-    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addSetsByte(byte[] data) {
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = null;
-        
+    public Response addSetsByte(String input) {
+        ObjectMapper om = new ObjectMapper();
         try {
-            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-            sets = (Set<de.qucosa.oai.provider.persistence.pojos.Set>) ois.readObject();
-            ois.close();
-        } catch (IOException | ClassNotFoundException e1) {
-            e1.printStackTrace();
+            Set<de.qucosa.oai.provider.persistence.pojos.Set> json = om.readValue(input, om.getTypeFactory().constructCollectionType(Set.class, de.qucosa.oai.provider.persistence.pojos.Set.class));
+            Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
+            
+            for (de.qucosa.oai.provider.persistence.pojos.Set set : json) {
+                de.qucosa.oai.provider.persistence.pojos.Set data = new de.qucosa.oai.provider.persistence.pojos.Set();
+                data.setSetSpec(set.getSetSpec());
+                data.setSetName(set.getSetName());
+                data.setDocument(setSpecXml(set));
+                sets.add(data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        
-        sets.size();
         
         return Response.status(200).entity(true).build();
     }
@@ -86,5 +90,32 @@ public class SetsController {
         PersistenceServiceInterface service = new SetService();
         service.setConnection(connection);
         return service;
+    }
+    
+    private Document setSpecXml(de.qucosa.oai.provider.persistence.pojos.Set set) {
+        Document document = null;
+        
+        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        builderFactory.setNamespaceAware(true);
+        
+        try {
+            DocumentBuilder builder = builderFactory.newDocumentBuilder();
+            document = builder.newDocument();
+            Element root = document.createElement("set");
+            
+            Element setSpec = document.createElement("setSpec");
+            setSpec.appendChild(document.createTextNode(set.getSetSpec()));
+            root.appendChild(setSpec);
+            
+            Element setName = document.createElement("setName");
+            setName.appendChild(document.createTextNode(set.getSetName()));
+            root.appendChild(setName);
+            
+            document.appendChild(root);
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+        System.out.println(document.getDocumentElement().getTextContent());
+        return document;
     }
 }

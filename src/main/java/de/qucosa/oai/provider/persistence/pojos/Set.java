@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.w3c.dom.Document;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,8 +21,8 @@ public class Set implements Serializable {
     @JsonProperty("id")
     private Long id;
     
-    @JsonProperty("stespec")
-    private String stespec;
+    @JsonProperty("setSpec")
+    private String setSpec;
     
     @JsonProperty("setName")
     private String setName;
@@ -30,6 +32,9 @@ public class Set implements Serializable {
     
     @JsonProperty("doc")
     private String doc;
+    
+    @JsonProperty("xmldata")
+    private Document document;
 
     @XmlTransient
     public Long getId() {
@@ -41,12 +46,12 @@ public class Set implements Serializable {
     }
 
     @XmlElement
-    public String getStespec() {
-        return stespec;
+    public String getSetSpec() {
+        return setSpec;
     }
 
-    public void setStespec(String stespec) {
-        this.stespec = stespec;
+    public void setSetSpec(String setSpec) {
+        this.setSpec = setSpec;
     }
     
     @XmlElement
@@ -74,5 +79,14 @@ public class Set implements Serializable {
 
     public void setDoc(String doc) {
         this.doc = doc;
+    }
+    
+    @XmlTransient
+    public Document getDocument() {
+        return document;
+    }
+
+    public void setDocument(Document document) {
+        this.document = document;
     }
 }

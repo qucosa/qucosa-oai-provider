@@ -1,12 +1,22 @@
 package de.qucosa.oai.provider.persistence.pojos;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonAutoDetect
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Format {
+    @JsonProperty("id")
     private Long id;
     
+    @JsonProperty("mdprefix")
     private String mdprefix;
     
+    @JsonProperty("method")
     private String method;
     
+    @JsonProperty("lastpolldate")
     private Long lastpolldate;
 
     public Long getId() {

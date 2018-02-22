@@ -1,21 +1,20 @@
 package de.qucosa.oai.provider.jersey.tests;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.sql.Connection;
 import java.util.Set;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.controller.SetsController;
 import de.qucosa.oai.provider.persistence.Connect;
@@ -27,10 +26,14 @@ public class SetsTest extends JerseyTest {
     
     PersistenceServiceInterface service = new SetService();
     
+    @SuppressWarnings("unused")
+    private SetsController setsController = null;
+    
     @Before
-    public void connect() {
+    public void init() {
         connection = new Connect("postgresql", "oaiprovider").connection();
         service.setConnection(connection);
+        setsController = new SetsController();
     }
     
     @Override
@@ -38,20 +41,19 @@ public class SetsTest extends JerseyTest {
         return new ResourceConfig(SetsController.class);
     }
     
+    @SuppressWarnings("unused")
     @Test
     public void postSets_Test() {
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = service.findAll();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutput out = null;
+        ObjectMapper om = new ObjectMapper();
+        File setSpecs = new File("/home/dseelig/opt/oaiprovider/config/list-set-conf.json");
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> json = null;
+        
         try {
-            out = new ObjectOutputStream(baos);
-            out.writeObject(sets);
-            out.flush();
-            baos.close();
-        } catch (IOException e1) {
-            e1.printStackTrace();
+            json = om.readValue(setSpecs, om.getTypeFactory().constructCollectionType(Set.class, de.qucosa.oai.provider.persistence.pojos.Set.class));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         
-        Response response = target("sets/add").request().post(Entity.entity(baos.toByteArray(), MediaType.APPLICATION_OCTET_STREAM));
+        Response response = target("sets/add").request().post(Entity.json(json));
     }
 }

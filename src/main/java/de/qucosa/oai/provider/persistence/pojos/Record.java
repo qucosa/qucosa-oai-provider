@@ -1,16 +1,30 @@
 package de.qucosa.oai.provider.persistence.pojos;
 
+import java.io.Serializable;
 import java.sql.Date;
 
-public class Record {
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonAutoDetect
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Record implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @JsonProperty("id")
     private Long id;
     
+    @JsonProperty("identifierId")
     private Long identifierId;
     
+    @JsonProperty("format")
     private Long format;
     
+    @JsonProperty("moddate")
     private Date moddate;
     
+    @JsonProperty("xmldata")
     private String xmldata;
 
     public Long getId() {

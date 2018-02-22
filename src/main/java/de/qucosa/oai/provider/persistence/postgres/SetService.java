@@ -31,7 +31,7 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
             while(result.next()) {
                 de.qucosa.oai.provider.persistence.pojos.Set set = new de.qucosa.oai.provider.persistence.pojos.Set();
                 set.setId(result.getLong("id"));
-                set.setStespec(result.getString("setspec"));
+                set.setSetSpec(result.getString("setspec"));
                 set.setPredicate(result.getString("predicate"));
                 set.setDoc(result.getString("doc"));
                 sets.add(set);
@@ -74,7 +74,7 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
                 
                 sqlxml.setString(sw.toString());
                 
-                pst.setString(1, set.getStespec());
+                pst.setString(1, set.getSetSpec());
                 pst.setString(2, set.getPredicate());
                 pst.setSQLXML(3, sqlxml);
                 pst.setSQLXML(4, sqlxml);
