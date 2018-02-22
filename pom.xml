@@ -141,6 +141,19 @@
     </dependency>
 
     <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-json-jackson</artifactId>
+      <version>${jersey.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+      <artifactId>jersey-test-framework-provider-jdk-http</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.eclipse.birt.runtime.3_7_1</groupId>
       <artifactId>org.apache.xml.serializer</artifactId>
       <version>${xml.serializer}</version>

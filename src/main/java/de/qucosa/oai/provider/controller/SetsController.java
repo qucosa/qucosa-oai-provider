@@ -1,10 +1,14 @@
 package de.qucosa.oai.provider.controller;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.sql.Connection;
 import java.util.Set;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -56,6 +60,26 @@ public class SetsController {
         }
 
         return Response.status(200).entity(DocumentXmlUtils.resultXml(document)).build();
+    }
+    
+    @POST
+    @Path("/add")
+    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addSetsByte(byte[] data) {
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = null;
+        
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+            sets = (Set<de.qucosa.oai.provider.persistence.pojos.Set>) ois.readObject();
+            ois.close();
+        } catch (IOException | ClassNotFoundException e1) {
+            e1.printStackTrace();
+        }
+        
+        sets.size();
+        
+        return Response.status(200).entity(true).build();
     }
 
     private PersistenceServiceInterface service() {
