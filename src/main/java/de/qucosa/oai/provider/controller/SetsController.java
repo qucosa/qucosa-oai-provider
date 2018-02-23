@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -25,22 +27,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
-import de.qucosa.oai.provider.persistence.postgres.SetService;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 
 @Path("/sets")
-public class SetsController {
+public class SetsController extends ControllerAbstract {
     private Connection connection = new Connect("postgresql", "oaiprovider").connection();
-
+    
+    @Inject
+    private PersistenceServiceInterface setService;
+    
+    @PostConstruct
+    public void init() {
+        setService.setConnection(connection);
+    }
+    
     @SuppressWarnings("unused")
     @GET
     @Path("/ListSets")
     @Produces(MediaType.APPLICATION_XML)
     public Response getSetsXml() throws IOException, SAXException {
-        PersistenceServiceInterface service = service();
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         builderFactory.setNamespaceAware(true);
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = service.findAll();
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = setService.findAll();
         Document document = null;
 
         try {
@@ -68,30 +76,34 @@ public class SetsController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addSetsByte(String input) {
         ObjectMapper om = new ObjectMapper();
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> json = null;
+        
         try {
-            Set<de.qucosa.oai.provider.persistence.pojos.Set> json = om.readValue(input, om.getTypeFactory().constructCollectionType(Set.class, de.qucosa.oai.provider.persistence.pojos.Set.class));
-            Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
-            
-            for (de.qucosa.oai.provider.persistence.pojos.Set set : json) {
-                de.qucosa.oai.provider.persistence.pojos.Set data = new de.qucosa.oai.provider.persistence.pojos.Set();
-                data.setSetSpec(set.getSetSpec());
-                data.setSetName(set.getSetName());
-                data.setDocument(setSpecXml(set));
-                sets.add(data);
-            }
+            json = om.readValue(input, om.getTypeFactory().constructCollectionType(Set.class, de.qucosa.oai.provider.persistence.pojos.Set.class));
         } catch (IOException e) {
             e.printStackTrace();
         }
         
-        return Response.status(200).entity(true).build();
-    }
-
-    private PersistenceServiceInterface service() {
-        PersistenceServiceInterface service = new SetService();
-        service.setConnection(connection);
-        return service;
+        saveSetSpecs(buildSqlSets(json));
+        
+        return Response.status(200).entity(input).build();
     }
     
+    private Set<de.qucosa.oai.provider.persistence.pojos.Set> buildSqlSets(Set<de.qucosa.oai.provider.persistence.pojos.Set> json) {
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
+        
+        for (de.qucosa.oai.provider.persistence.pojos.Set set : json) {
+            de.qucosa.oai.provider.persistence.pojos.Set data = new de.qucosa.oai.provider.persistence.pojos.Set();
+            data.setSetSpec(set.getSetSpec());
+            data.setSetName(set.getSetName());
+            data.setPredicate(set.getPredicate());
+            data.setDocument(setSpecXml(set));
+            sets.add(data);
+        }
+        
+        return sets;
+    }
+
     private Document setSpecXml(de.qucosa.oai.provider.persistence.pojos.Set set) {
         Document document = null;
         
@@ -117,5 +129,9 @@ public class SetsController {
         }
         System.out.println(document.getDocumentElement().getTextContent());
         return document;
+    }
+    
+    private void saveSetSpecs(Set<de.qucosa.oai.provider.persistence.pojos.Set> sets) {
+        setService.update(sets);
     }
 }

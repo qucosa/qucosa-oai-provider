@@ -1,6 +1,6 @@
 package de.qucosa.oai.provider.persistence.postgres;
 
-import java.io.StringWriter;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,12 +9,11 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import org.xml.sax.SAXException;
 
 import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
+import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 
 public class SetService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
     
@@ -58,21 +57,10 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
         try {
             PreparedStatement pst = connection().prepareStatement(sb.toString());
             connection().setAutoCommit(false);
-            JAXBContext jaxbContext = JAXBContext.newInstance(de.qucosa.oai.provider.persistence.pojos.Set.class);;
-            Marshaller marshaller = jaxbContext.createMarshaller();
-            marshaller.setProperty("com.sun.xml.bind.xmlDeclaration", Boolean.FALSE);
             
             for (de.qucosa.oai.provider.persistence.pojos.Set set : data) {
-                StringWriter sw = new StringWriter();
                 SQLXML sqlxml = connection().createSQLXML();
-                
-                try {
-                    marshaller.marshal(set, sw);
-                } catch (JAXBException e) {
-                    e.printStackTrace();
-                }
-                
-                sqlxml.setString(sw.toString());
+                sqlxml.setString(DocumentXmlUtils.resultXml(set.getDocument()));
                 
                 pst.setString(1, set.getSetSpec());
                 pst.setString(2, set.getPredicate());
@@ -84,38 +72,29 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
             pst.executeBatch();
             connection().commit();
             connection().close();
-        } catch (SQLException | JAXBException e) {
+        } catch (SQLException | IOException | SAXException e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public <T> T findById(Long id) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public <T> T findByValues(Set<T> values) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void deleteById(Long id) {
-        // TODO Auto-generated method stub
-        
-    }
+    public void deleteById(Long id) {}
 
     @Override
-    public <T> void deleteByValues(Set<T> values) {
-        // TODO Auto-generated method stub
-        
-    }
+    public <T> void deleteByValues(Set<T> values) {}
 
     @Override
     public <T> Set<T> find(String sqlStmt) {
-        // TODO Auto-generated method stub
         return null;
     }
 }
