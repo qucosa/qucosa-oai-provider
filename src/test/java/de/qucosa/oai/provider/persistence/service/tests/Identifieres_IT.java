@@ -2,24 +2,38 @@ package de.qucosa.oai.provider.persistence.service.tests;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Set;
 
+import javax.servlet.ServletContext;
+import javax.ws.rs.core.Context;
+
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.persistence.pojos.Identifier;
 import de.qucosa.oai.provider.persistence.postgres.IndentifierService;
 
-public class Identifieres_IT {
-    Connection connection = null;
+public class Identifieres_IT extends JerseyTest {
+    @Context
+    private ServletContext context;
     
-    PersistenceServiceInterface service = new IndentifierService();
+    private Connection connection = null;
+    
+    private PersistenceServiceInterface service = new IndentifierService();
     
     @Before
-    public void connect() {
+    @Override
+    public void setUp() {
+        ServiceLocator locator = ServiceLocatorUtilities.bind(new ApplicationBinder());
+        locator.inject(this);
         connection = new Connect("postgresql", "oaiprovider").connection();
         service.setConnection(connection);
     }
@@ -37,6 +51,11 @@ public class Identifieres_IT {
         sb.append("FROM identifier WHERE identifier ~ 'qucosa:\\d+$';");
         Set<Identifier> identifiers = service.find(sb.toString());
         identifiers.size();
+    }
+    
+    @Test
+    public void loadIdentifieresFromFedora_Test() {
+        Set<Identifier> identifiers = new HashSet<>();
     }
     
     @After

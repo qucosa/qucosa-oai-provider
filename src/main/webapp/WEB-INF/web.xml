@@ -3,6 +3,11 @@
   xmlns="http://java.sun.com/xml/ns/javaee"
   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   version="2.5">
+  
+  <listener>
+    <listener-class>de.qucosa.oai.provider.application.ApplicationConfigListener</listener-class>
+  </listener>
+  
   <servlet>
     <servlet-name>provider</servlet-name>
     <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>

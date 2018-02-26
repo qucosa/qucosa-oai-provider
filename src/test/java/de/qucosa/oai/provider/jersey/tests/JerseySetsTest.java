@@ -74,7 +74,7 @@ public class JerseySetsTest extends JerseyTest {
         }
         
         try {
-            Response response = setsController.addSetsByte(om.writeValueAsString(json));
+            Response response = setsController.addSets(om.writeValueAsString(json));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

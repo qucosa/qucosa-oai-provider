@@ -74,7 +74,7 @@ public class SetsController extends ControllerAbstract {
     @Path("/add")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addSetsByte(String input) {
+    public Response addSets(String input) {
         ObjectMapper om = new ObjectMapper();
         Set<de.qucosa.oai.provider.persistence.pojos.Set> json = null;
         
