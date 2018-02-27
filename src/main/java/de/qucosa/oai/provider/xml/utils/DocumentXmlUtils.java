@@ -22,10 +22,10 @@ import org.xml.sax.SAXException;
 
 public class DocumentXmlUtils {
     
-    public static <T> Document document(T source) {
+    public static <T> Document document(T source, boolean namespaceAware) {
         Document document = null;
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        builderFactory.setNamespaceAware(true);
+        builderFactory.setNamespaceAware(namespaceAware);
         
         try {
             DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();

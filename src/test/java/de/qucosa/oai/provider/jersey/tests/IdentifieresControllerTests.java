@@ -1,5 +1,8 @@
 package de.qucosa.oai.provider.jersey.tests;
 
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.support.membermodification.MemberMatcher.method;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -19,9 +22,12 @@ import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.application.ApplicationBinder;
@@ -30,6 +36,8 @@ import de.qucosa.oai.provider.controller.IdentifieresController;
 import de.qucosa.oai.provider.persistence.pojos.Identifier;
 import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(IdentifieresController.class)
 public class IdentifieresControllerTests extends JerseyTestAbstract {
     @Inject
     private IdentifieresController controller;
@@ -50,19 +58,23 @@ public class IdentifieresControllerTests extends JerseyTestAbstract {
         locator.inject(this);
     }
     
+    @SuppressWarnings("unused")
     @Test
     public void findAllIdentifieres_Test() throws IOException, SAXException {
         Response response = controller.listIdentifieres(appContext);
     }
     
     @Test
-    public void addIdentifieres_Test() {
+    public void updateIdentifieres_Test() throws ParseException, Exception {
         ObjectMapper om = new ObjectMapper();
-        try {
-            controller.addIdentifieres(om.writeValueAsString(identifiers()));
-        } catch (JsonProcessingException | ParseException e) {
-            e.printStackTrace();
-        }
+        String json = om.writeValueAsString(identifiers());
+        IdentifieresController ic = PowerMockito.spy(controller);
+        // convert json string to set with identifieres pojo objects
+        when(ic, method(IdentifieresController.class, "buildSqlObjects", String.class)).withArguments(json).thenCallRealMethod();
+        // mock the save identifieres data in database privat method
+        when(ic, method(IdentifieresController.class, "saveIdentifieres", Set.class)).withArguments(identifiers()).thenReturn(null);
+        
+        ic.updateIdentifieres(json);
     }
     
     @Override

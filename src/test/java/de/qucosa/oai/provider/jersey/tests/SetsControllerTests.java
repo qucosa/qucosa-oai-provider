@@ -2,35 +2,28 @@ package de.qucosa.oai.provider.jersey.tests;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
+import java.util.HashMap;
 import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.api.support.membermodification.MemberMatcher;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.qucosa.oai.provider.application.ApplicationConfigListener.DissTermsDao;
 import de.qucosa.oai.provider.controller.SetsController;
-import de.qucosa.oai.provider.persistence.Connect;
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
-import de.qucosa.oai.provider.persistence.postgres.SetService;
 
-public class JerseySetsTest extends JerseyTest {
-    Connection connection = null;
-    
-    PersistenceServiceInterface service = new SetService();
-    
+public class SetsControllerTests extends JerseyTestAbstract {
     @Inject
     private SetsController setsController;
     
@@ -38,8 +31,6 @@ public class JerseySetsTest extends JerseyTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        connection = new Connect("postgresql", "oaiprovider").connection();
-        service.setConnection(connection);
         
         Binder binder = new AbstractBinder() {
             
@@ -56,12 +47,14 @@ public class JerseySetsTest extends JerseyTest {
     @Override
     protected Application configure() {
         ResourceConfig config = new ResourceConfig(SetsController.class);
+        HashMap<String, Object> props = new HashMap<>();
+        props.put("dissConf", new DissTermsDao());
+        config.setProperties(props);
         return config;
     }
     
-    @SuppressWarnings("unused")
     @Test
-    public void saveSets_Test() {
+    public void updateSets_Test() throws Exception {
         setsController.setTest(true);
         ObjectMapper om = new ObjectMapper();
         File setSpecs = new File("/home/dseelig/opt/oaiprovider/config/list-set-conf.json");
@@ -73,10 +66,13 @@ public class JerseySetsTest extends JerseyTest {
             e.printStackTrace();
         }
         
-        try {
-            Response response = setsController.addSets(om.writeValueAsString(json));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        SetsController sc = PowerMockito.spy(setsController);
+        PowerMockito.when(sc, MemberMatcher.method(SetsController.class, "buildSqlSets", String.class))
+            .withArguments(om.writeValueAsString(json))
+            .thenCallRealMethod();
+        PowerMockito.when(sc, MemberMatcher.method(SetsController.class, "saveSetSpecs", Set.class))
+            .withArguments(json)
+            .thenReturn(null);
+        sc.updateSets(om.writeValueAsString(json));
     }
 }

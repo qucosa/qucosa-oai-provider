@@ -13,9 +13,6 @@ public class Format {
     @JsonProperty("mdprefix")
     private String mdprefix;
     
-    @JsonProperty("method")
-    private String method;
-    
     @JsonProperty("lastpolldate")
     private Long lastpolldate;
 
@@ -33,14 +30,6 @@ public class Format {
 
     public void setMdprefix(String mdprefix) {
         this.mdprefix = mdprefix;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
     }
 
     public Long getLastpolldate() {

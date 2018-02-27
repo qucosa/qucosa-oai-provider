@@ -17,6 +17,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -24,16 +25,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.application.ApplicationConfigListener.DissTermsDao;
 import de.qucosa.oai.provider.persistence.Connect;
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.persistence.pojos.Identifier;
+import de.qucosa.oai.provider.persistence.postgres.IndentifierService;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 
 @Path("/identifieres")
+@RequestScoped
 public class IdentifieresController {
     private Connection connection = new Connect("postgresql", "oaiprovider").connection();
     
     @Inject
-    private PersistenceServiceInterface service;
+    private IndentifierService service;
     
     private DissTermsDao termsDao = null;
     
@@ -56,8 +58,8 @@ public class IdentifieresController {
     @Path("/add")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public void addIdentifieres(String input) {
-        
+    public void updateIdentifieres(String input) {
+
         if (!input.isEmpty() && input != null) {
             Set<Identifier> identifiers = buildSqlObjects(input);
             
@@ -81,11 +83,11 @@ public class IdentifieresController {
     }
     
     private void saveIdentifieres(Set<Identifier> data) {
-        
+        service.update(data);
     }
     
     private Document identifieres(Set<Identifier> identifiers) {
-        Document document = DocumentXmlUtils.document(null);
+        Document document = DocumentXmlUtils.document(null, true);
         return document;
     }
 }

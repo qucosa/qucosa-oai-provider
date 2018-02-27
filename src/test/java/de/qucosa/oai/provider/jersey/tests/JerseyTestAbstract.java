@@ -27,6 +27,10 @@ public abstract class JerseyTestAbstract extends JerseyTest {
         return new TestContainerFactory() {
             @Override
             public TestContainer create(URI baseUri, DeploymentContext context) {
+                final URI bu = baseUri;
+                
+                final DeploymentContext co = context;
+                
                 return new TestContainer() {
                     private HttpServer server = null;
                     
@@ -39,9 +43,9 @@ public abstract class JerseyTestAbstract extends JerseyTest {
                     
                     @Override
                     public void start() {
-                        this.baseU = UriBuilder.fromUri(baseUri).path(context.getContextPath()).build();
-                        appContext = new WebappContext("testCt", context.getContextPath());
-                        context.getResourceConfig().register(new AbstractBinder() {
+                        this.baseU = UriBuilder.fromUri(bu).path(co.getContextPath()).build();
+                        appContext = new WebappContext("testCt", co.getContextPath());
+                        co.getResourceConfig().register(new AbstractBinder() {
                             
                             @Override
                             protected void configure() {
@@ -49,9 +53,9 @@ public abstract class JerseyTestAbstract extends JerseyTest {
                             }
                         });
                         
-                        this.server = GrizzlyHttpServerFactory.createHttpServer(this.baseU, context.getResourceConfig(), false);
+                        this.server = GrizzlyHttpServerFactory.createHttpServer(this.baseU, co.getResourceConfig(), false);
                         appContext.deploy(this.server);
-                        Map<String, Object> attrs = context.getResourceConfig().getProperties();
+                        Map<String, Object> attrs = co.getResourceConfig().getProperties();
                         
                         for (Map.Entry<String, Object> entry : attrs.entrySet()) {
                             appContext.setAttribute(entry.getKey(), entry.getValue());
@@ -65,7 +69,7 @@ public abstract class JerseyTestAbstract extends JerseyTest {
                     
                     @Override
                     public URI getBaseUri() {
-                        return baseUri;
+                        return bu;
                     }
                 };
             }

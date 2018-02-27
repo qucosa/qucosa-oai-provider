@@ -28,7 +28,6 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
                 Format format = new Format();
                 format.setId(result.getLong("id"));
                 format.setMdprefix(result.getString("mdprefix"));
-                format.setMethod(result.getString("method"));
                 format.setLastpolldate(new Long(0));
                 formats.add(format);
             }
@@ -52,10 +51,10 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
     public <T> void update(Set<T> sets) {
         Set<Format> formats = (Set<Format>) sets;
         StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO formats (id, mdprefix, method, lastpolldate) \r\n");
-        sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n");
+        sb.append("INSERT INTO formats (id, mdprefix, lastpolldate) \r\n");
+        sb.append("VALUES (nextval('oaiprovider'), ?, ?) \r\n");
         sb.append("ON CONFLICT (mdprefix) \r\n");
-        sb.append("DO UPDATE SET mdprefix = ?, method = ?, lastpolldate = ?; \r\n");
+        sb.append("DO UPDATE SET mdprefix = ?, lastpolldate = ?; \r\n");
         
         try {
             PreparedStatement pst = connection().prepareStatement(sb.toString());
@@ -63,11 +62,9 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
             
             for (Format format : formats) {
                 pst.setString(1, format.getMdprefix());
-                pst.setString(2, format.getMethod());
-                pst.setLong(3, new Long(1));
-                pst.setString(4, format.getMdprefix());
-                pst.setString(5, format.getMethod());
-                pst.setLong(6, new Long(1));
+                pst.setLong(2, new Long(1));
+                pst.setString(3, format.getMdprefix());
+                pst.setLong(4, new Long(1));
                 pst.addBatch();
             }
             

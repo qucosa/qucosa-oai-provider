@@ -14,6 +14,9 @@ public class DissTerms {
 
     @JsonProperty("dissTerms")
     private Set<DissTerm> dissTerms;
+    
+    @JsonProperty("formats")
+    private Set<DissFormat> formats;
 
     public Set<XmlNamspace> getXmlnamespacees() {
         return xmlnamespacees;
@@ -29,6 +32,14 @@ public class DissTerms {
 
     public void setDissTerms(Set<DissTerm> dissTerms) {
         this.dissTerms = dissTerms;
+    }
+    
+    public Set<DissFormat> getFormats() {
+        return formats;
+    }
+
+    public void setFormats(Set<DissFormat> formats) {
+        this.formats = formats;
     }
 
     public static class XmlNamspace {
@@ -100,6 +111,30 @@ public class DissTerms {
 
         public void setTerm(String term) {
             this.term = term;
+        }
+    }
+    
+    public static class DissFormat {
+        @JsonProperty("format")
+        private String format;
+        
+        @JsonProperty("dissType")
+        private String dissType;
+
+        public String getFormat() {
+            return format;
+        }
+
+        public void setFormat(String format) {
+            this.format = format;
+        }
+
+        public String getDissType() {
+            return dissType;
+        }
+
+        public void setDissType(String dissType) {
+            this.dissType = dissType;
         }
     }
 }

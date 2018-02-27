@@ -7,34 +7,40 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.persistence.Connect;
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
+import de.qucosa.oai.provider.persistence.postgres.SetService;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 
 @Path("/sets")
+@RequestScoped
 public class SetsController extends ControllerAbstract {
     private Connection connection = new Connect("postgresql", "oaiprovider").connection();
     
     @Inject
-    private PersistenceServiceInterface setService;
+    private SetService setService;
     
     @PostConstruct
     public void init() {
@@ -45,7 +51,7 @@ public class SetsController extends ControllerAbstract {
     @GET
     @Path("/ListSets")
     @Produces(MediaType.APPLICATION_XML)
-    public Response getSetsXml() throws IOException, SAXException {
+    public Response getSetsXml(@Context ServletContext servletContext) throws IOException, SAXException {
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         builderFactory.setNamespaceAware(true);
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = setService.findAll();
@@ -73,24 +79,21 @@ public class SetsController extends ControllerAbstract {
     @POST
     @Path("/add")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response addSets(String input) {
-        ObjectMapper om = new ObjectMapper();
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> json = null;
+    public void updateSets(String input) throws JsonParseException, JsonMappingException, IOException {
         
-        try {
-            json = om.readValue(input, om.getTypeFactory().constructCollectionType(Set.class, de.qucosa.oai.provider.persistence.pojos.Set.class));
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (input != null && !input.isEmpty()) {
+            Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes = buildSqlSets(input);
+            
+            if (saveRes != null && !saveRes.isEmpty()) {
+                saveSetSpecs(saveRes);
+            }
         }
-        
-        saveSetSpecs(buildSqlSets(json));
-        
-        return Response.status(200).entity(input).build();
     }
     
-    private Set<de.qucosa.oai.provider.persistence.pojos.Set> buildSqlSets(Set<de.qucosa.oai.provider.persistence.pojos.Set> json) {
+    private Set<de.qucosa.oai.provider.persistence.pojos.Set> buildSqlSets(String input) throws JsonParseException, JsonMappingException, IOException {
+        ObjectMapper om = new ObjectMapper();
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> json = om.readValue(input, om.getTypeFactory().constructCollectionType(Set.class, de.qucosa.oai.provider.persistence.pojos.Set.class));
         
         for (de.qucosa.oai.provider.persistence.pojos.Set set : json) {
             de.qucosa.oai.provider.persistence.pojos.Set data = new de.qucosa.oai.provider.persistence.pojos.Set();
