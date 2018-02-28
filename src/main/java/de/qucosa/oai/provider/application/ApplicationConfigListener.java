@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.mapper.DissTerms.DissFormat;
 import de.qucosa.oai.provider.application.mapper.DissTerms.DissTerm;
 import de.qucosa.oai.provider.application.mapper.DissTerms.Term;
 import de.qucosa.oai.provider.application.mapper.DissTerms.XmlNamspace;
@@ -53,7 +54,6 @@ public class ApplicationConfigListener implements ServletContextListener {
             }
         }
 
-        @SuppressWarnings("unused")
         public Map<String, String> getMapXmlNamespaces() {
             HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespacees();
             Map<String, String> map = new HashMap<>();
@@ -65,12 +65,10 @@ public class ApplicationConfigListener implements ServletContextListener {
             return map;
         }
 
-        @SuppressWarnings("unused")
         public Set<XmlNamspace> getSetXmlNamespaces() {
             return xmlNamespaces();
         }
 
-        @SuppressWarnings("unused")
         public XmlNamspace getXmlNamespace(String prefix) {
             XmlNamspace xmlNamspace = null;
 
@@ -84,7 +82,6 @@ public class ApplicationConfigListener implements ServletContextListener {
             return xmlNamspace;
         }
 
-        @SuppressWarnings("unused")
         public Term getTerm(String diss, String name) {
             HashSet<DissTerm> dissTerms = (HashSet<DissTerm>) this.dissTerms.getDissTerms();
             Term term = null;
@@ -117,6 +114,24 @@ public class ApplicationConfigListener implements ServletContextListener {
             }
 
             return term;
+        }
+        
+        public Set<DissFormat> dissFormats() {
+            return dissTerms.getFormats();
+        }
+        
+        public DissFormat dissFormat(String format) {
+            DissFormat dissFormat = null;
+            
+            for (DissFormat df : dissTerms.getFormats()) {
+                
+                if (df.getFormat().equals(format)) {
+                    dissFormat = df;
+                    break;
+                }
+            }
+            
+            return dissFormat;
         }
 
         private Set<XmlNamspace> xmlNamespaces() {

@@ -1,5 +1,7 @@
 package de.qucosa.oai.provider.persistence.pojos;
 
+import java.sql.Timestamp;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,7 +16,10 @@ public class Format {
     private String mdprefix;
     
     @JsonProperty("lastpolldate")
-    private Long lastpolldate;
+    private Timestamp lastpolldate;
+    
+    @JsonProperty("dissType")
+    private String dissType;
 
     public Long getId() {
         return id;
@@ -32,11 +37,19 @@ public class Format {
         this.mdprefix = mdprefix;
     }
 
-    public Long getLastpolldate() {
+    public Timestamp getLastpolldate() {
         return lastpolldate;
     }
 
-    public void setLastpolldate(Long lastpolldate) {
+    public void setLastpolldate(Timestamp lastpolldate) {
         this.lastpolldate = lastpolldate;
+    }
+    
+    public String getDissType() {
+        return dissType;
+    }
+
+    public void setDissType(String dissType) {
+        this.dissType = dissType;
     }
 }

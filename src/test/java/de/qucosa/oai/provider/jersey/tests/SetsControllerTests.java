@@ -15,14 +15,19 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.api.support.membermodification.MemberMatcher;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.application.ApplicationConfigListener.DissTermsDao;
 import de.qucosa.oai.provider.controller.SetsController;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(SetsController.class)
 public class SetsControllerTests extends JerseyTestAbstract {
     @Inject
     private SetsController setsController;
@@ -55,7 +60,6 @@ public class SetsControllerTests extends JerseyTestAbstract {
     
     @Test
     public void updateSets_Test() throws Exception {
-        setsController.setTest(true);
         ObjectMapper om = new ObjectMapper();
         File setSpecs = new File("/home/dseelig/opt/oaiprovider/config/list-set-conf.json");
         Set<de.qucosa.oai.provider.persistence.pojos.Set> json = null;

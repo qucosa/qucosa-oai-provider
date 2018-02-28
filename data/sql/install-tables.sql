@@ -25,7 +25,9 @@ CREATE TABLE public.formats
   id bigint NOT NULL,
   mdprefix character varying(255) NOT NULL,
   lastpolldate timestamp with time zone,
+  disstype character varying(50) NOT NULL,
   CONSTRAINT formats_pkey PRIMARY KEY (id),
+  CONSTRAINT disstype_unique UNIQUE ("dissType"),
   CONSTRAINT mdprefix_unique UNIQUE (mdprefix)
 )
 WITH (

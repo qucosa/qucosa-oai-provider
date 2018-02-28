@@ -72,7 +72,7 @@ public class IdentifieresControllerTests extends JerseyTestAbstract {
         // convert json string to set with identifieres pojo objects
         when(ic, method(IdentifieresController.class, "buildSqlObjects", String.class)).withArguments(json).thenCallRealMethod();
         // mock the save identifieres data in database privat method
-        when(ic, method(IdentifieresController.class, "saveIdentifieres", Set.class)).withArguments(identifiers()).thenReturn(null);
+        PowerMockito.doNothing().when(ic, method(IdentifieresController.class, "saveIdentifieres", Set.class)).withArguments(identifiers());
         
         ic.updateIdentifieres(json);
     }
