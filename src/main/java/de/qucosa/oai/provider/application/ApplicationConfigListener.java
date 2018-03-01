@@ -116,11 +116,15 @@ public class ApplicationConfigListener implements ServletContextListener {
             return term;
         }
         
-        public Set<DissFormat> dissFormats() {
+        public Set<DissTerm> getDissTerms() {
+            return this.dissTerms.getDissTerms();
+        }
+        
+        public Set<DissFormat> formats() {
             return dissTerms.getFormats();
         }
         
-        public DissFormat dissFormat(String format) {
+        public DissFormat format(String format) {
             DissFormat dissFormat = null;
             
             for (DissFormat df : dissTerms.getFormats()) {

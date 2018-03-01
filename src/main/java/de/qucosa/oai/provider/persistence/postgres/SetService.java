@@ -37,7 +37,6 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
             }
             
             result.close();
-            connection().close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -71,7 +70,6 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
             
             pst.executeBatch();
             connection().commit();
-            connection().close();
         } catch (SQLException | IOException | SAXException e) {
             e.printStackTrace();
         }
@@ -96,5 +94,23 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
     @Override
     public <T> Set<T> find(String sqlStmt) {
         return null;
+    }
+
+    @Override
+    public <T> T findByValue(String column, String value) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void update(String sql) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void update(String... value) {
+        // TODO Auto-generated method stub
+        
     }
 }

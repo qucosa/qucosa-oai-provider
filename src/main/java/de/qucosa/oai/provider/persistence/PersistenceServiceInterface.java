@@ -12,7 +12,13 @@ public interface PersistenceServiceInterface {
     
     public <T> void update(Set<T> sets);
     
+    public void update(String sql);
+    
+    public void update(String...value);
+    
     public <T> T findById(Long id);
+    
+    public <T> T findByValue(String column, String value);
     
     public <T> T findByValues(Set<T> values);
     

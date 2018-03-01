@@ -32,7 +32,6 @@ public class IndentifierService extends PersistenceServiceAbstract implements Pe
             }
 
             result.close();
-            connection().close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -63,7 +62,6 @@ public class IndentifierService extends PersistenceServiceAbstract implements Pe
             
             pst.executeBatch();
             connection().commit();
-            connection().close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -109,11 +107,28 @@ public class IndentifierService extends PersistenceServiceAbstract implements Pe
             }
 
             result.close();
-            connection().close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         
         return (Set<T>) identifiers;
+    }
+
+    @Override
+    public <T> T findByValue(String column, String value) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void update(String sql) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void update(String... value) {
+        // TODO Auto-generated method stub
+        
     }
 }

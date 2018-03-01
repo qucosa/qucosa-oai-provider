@@ -37,7 +37,6 @@ public class RecordService extends PersistenceServiceAbstract implements Persist
             }
             
             result.close();
-            connection().close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -85,7 +84,6 @@ public class RecordService extends PersistenceServiceAbstract implements Persist
             
             pst.executeBatch();
             connection().commit();
-            connection().close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -106,4 +104,22 @@ public class RecordService extends PersistenceServiceAbstract implements Persist
 
     @Override
     public <T> void deleteByValues(Set<T> values) {}
+
+    @Override
+    public <T> T findByValue(String column, String value) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void update(String sql) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void update(String... value) {
+        // TODO Auto-generated method stub
+        
+    }
 }

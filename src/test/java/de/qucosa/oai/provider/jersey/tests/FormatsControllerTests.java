@@ -82,7 +82,7 @@ public class FormatsControllerTests extends JerseyTestAbstract {
     }
     
     private Set<Format> formats() {
-        Set<DissFormat> dissFormats = ((DissTermsDao) configure().getProperties().get("dissConf")).dissFormats();
+        Set<DissFormat> dissFormats = ((DissTermsDao) configure().getProperties().get("dissConf")).formats();
         Set<Format> formats = new HashSet<>();
         
         for(DissFormat df : dissFormats) {

@@ -34,7 +34,6 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
             }
             
             result.close();
-            connection().close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -73,7 +72,6 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
             
             pst.executeBatch();
             connection().commit();
-            connection().close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -94,4 +92,43 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
 
     @Override
     public <T> void deleteByValues(Set<T> values) {}
+
+    @Override
+    public <T> T findByValue(String column, String value) {
+        Format format =  new Format();
+        StringBuffer sb = new StringBuffer();
+        sb.append("select id, mdprefix, lastpolldate, disstype from formats where " + column + " = ?;");
+        
+        try {
+            PreparedStatement pst = connection().prepareStatement(sb.toString());
+            connection().setAutoCommit(false);
+            pst.setString(1, value);
+            ResultSet result = pst.executeQuery();
+            
+            while(result.next()) {
+                format.setId(result.getLong("id"));
+                format.setMdprefix(result.getString("mdprefix"));
+                format.setDissType(result.getString("disstype"));
+                format.setLastpolldate(result.getTimestamp("lastpolldate"));
+            }
+            
+            result.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return (T) format;
+    }
+
+    @Override
+    public void update(String sql) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void update(String... value) {
+        // TODO Auto-generated method stub
+        
+    }
 }
