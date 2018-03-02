@@ -18,9 +18,14 @@ public interface PersistenceServiceInterface {
     
     public <T> T findById(Long id);
     
+    @SuppressWarnings("unchecked")
+    public <T> T findByIds(T...values);
+    
     public <T> T findByValue(String column, String value);
     
     public <T> T findByValues(Set<T> values);
+    
+    public <T> T findByValues(String...values);
     
     public void deleteById(Long id);
     

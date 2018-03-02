@@ -1,6 +1,6 @@
 package de.qucosa.oai.provider.persistence.pojos;
 
-public class DisseminationTerms {
+public class DisseminationTerm {
     private Long id;
     
     private Long formatId;

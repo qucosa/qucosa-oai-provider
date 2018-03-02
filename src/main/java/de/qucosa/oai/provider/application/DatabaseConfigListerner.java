@@ -17,7 +17,7 @@ import org.w3c.dom.Element;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.qucosa.oai.provider.application.ApplicationConfigListener.DissTermsDao;
+import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.application.mapper.DissTerms.DissFormat;
 import de.qucosa.oai.provider.application.mapper.DissTerms.DissTerm;
 import de.qucosa.oai.provider.application.mapper.DissTerms.Term;
@@ -39,15 +39,16 @@ public class DatabaseConfigListerner implements ServletContextListener {
     
     private PersistenceServiceInterface service = null;
     
+    private DissTerms dissTerms = new DissTerms();
+    
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         connection = new Connect("postgresql", "oaiprovider").connection();
-        DissTermsDao dissTermsDao = (DissTermsDao) sce.getServletContext().getAttribute("dissConf");
         installSets();
-        installNamespaces(dissTermsDao.getSetXmlNamespaces());
-        installDissPredicates(dissTermsDao.getDissTerms());
-        installFormats(dissTermsDao.formats());
-        installDissTerms(dissTermsDao.getDissTerms());
+        installNamespaces(dissTerms.getSetXmlNamespaces());
+        installDissPredicates(dissTerms.getTerms());
+        installFormats(dissTerms.formats());
+        installDissTerms(dissTerms.getTerms());
         
         try {
             connection.close();

@@ -131,4 +131,16 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
         // TODO Auto-generated method stub
         
     }
+
+    @Override
+    public <T> T findByValues(String... values) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T> T findByIds(T... values) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
