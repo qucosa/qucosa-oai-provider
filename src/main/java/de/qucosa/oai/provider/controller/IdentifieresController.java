@@ -23,7 +23,7 @@ import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.qucosa.oai.provider.application.ApplicationConfigListener.DissTermsDao;
+import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.pojos.Identifier;
 import de.qucosa.oai.provider.persistence.postgres.IndentifierService;
@@ -37,7 +37,7 @@ public class IdentifieresController {
     @Inject
     private IndentifierService service;
     
-    private DissTermsDao termsDao = null;
+    private DissTerms terms = null;
     
     @PostConstruct
     public void init() {
@@ -48,8 +48,8 @@ public class IdentifieresController {
     @Path("/ListIdentifieres")
     @Produces(MediaType.APPLICATION_XML)
     public Response listIdentifieres(@Context ServletContext servletContext) throws IOException, SAXException {
-        termsDao = (DissTermsDao) servletContext.getAttribute("dissConf");
-        termsDao.getMapXmlNamespaces();
+        terms = (DissTerms) servletContext.getAttribute("dissConf");
+        terms.getMapXmlNamespaces();
         Set<Identifier> identifiers = service.findAll();
         Document document = identifieres(identifiers);
         return Response.status(200).entity(DocumentXmlUtils.resultXml(document)).build();
