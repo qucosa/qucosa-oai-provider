@@ -2,6 +2,7 @@ package de.qucosa.oai.provider.application.mapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,25 +22,35 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DissTerms {
+public class DissTerms implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @JsonIgnore
+    private String configPath = null;
+    
     @JsonIgnore
     private DissTermsDao dao = null;
     
-    @JsonProperty("xmlnamespacees")
-    private Set<XmlNamspace> xmlnamespacees;
+    @JsonProperty("xmlnamespaces")
+    private Set<XmlNamspace> xmlnamespaces;
 
     @JsonProperty("dissTerms")
     private Set<DissTerm> dissTerms;
     
     @JsonProperty("formats")
     private Set<DissFormat> formats;
-
-    public Set<XmlNamspace> getXmlnamespacees() {
-        return xmlnamespacees;
+    
+    @JsonCreator
+    public DissTerms(@JsonProperty("configPath") String configPath) {
+        this.configPath = configPath;
     }
 
-    public void setXmlnamespacees(Set<XmlNamspace> xmlnamespacees) {
-        this.xmlnamespacees = xmlnamespacees;
+    public Set<XmlNamspace> getXmlnamespaces() {
+        return xmlnamespaces;
+    }
+
+    public void setXmlnamespaces(Set<XmlNamspace> xmlnamespaces) {
+        this.xmlnamespaces = xmlnamespaces;
     }
 
     public Set<DissTerm> getDissTerms() {
@@ -158,6 +170,7 @@ public class DissTerms {
         return dao().getMapXmlNamespaces();
     }
     
+    @JsonIgnore
     public Set<XmlNamspace> getSetXmlNamespaces() {
         return dao().getSetXmlNamespaces();
     }
@@ -172,18 +185,21 @@ public class DissTerms {
         return dao().getTerm(diss, name);
     }
     
+    @JsonIgnore
     public Set<DissTerm> getTerms() {
         return dao().getDissTerms();
     }
     
+    @JsonIgnore
     public Set<DissFormat> formats() {
         return dao().formats();
     }
     
+    @JsonIgnore
     private DissTermsDao dao() {
         
         if (dao == null) {
-            dao = new DissTermsDao();
+            dao = new DissTermsDao(configPath);
         }
         
         return dao;
@@ -192,11 +208,11 @@ public class DissTerms {
     public static class DissTermsDao {
         private final Logger logger = LoggerFactory.getLogger(DissTermsDao.class);
 
-        DissTerms dissTerms = null;
+        private DissTerms dissTerms = null;
 
-        public DissTermsDao() {
+        public DissTermsDao(String configPath) {
             ObjectMapper om = new ObjectMapper();
-            File file = new File("/home/dseelig/opt/oaiprovider/config/dissemination-config.json");
+            File file = new File(configPath + "dissemination-config.json");
 
             try {
                 dissTerms = om.readValue(Files.readAllBytes(Paths.get(file.getAbsolutePath())), DissTerms.class);
@@ -207,7 +223,7 @@ public class DissTerms {
         }
 
         public Map<String, String> getMapXmlNamespaces() {
-            HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespacees();
+            HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespaces();
             Map<String, String> map = new HashMap<>();
 
             for (XmlNamspace namspace : xmlNamespaces) {
@@ -291,7 +307,7 @@ public class DissTerms {
         }
 
         private Set<XmlNamspace> xmlNamespaces() {
-            HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespacees();
+            HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespaces();
             return xmlNamespaces;
         }
     }
