@@ -23,7 +23,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.qucosa.oai.provider.application.ApplicationConfigListener.DissTermsDao;
+import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.SetsController;
 
 @RunWith(PowerMockRunner.class)
@@ -53,7 +53,7 @@ public class SetsControllerTests extends JerseyTestAbstract {
     protected Application configure() {
         ResourceConfig config = new ResourceConfig(SetsController.class);
         HashMap<String, Object> props = new HashMap<>();
-        props.put("dissConf", new DissTermsDao());
+        props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
         return config;
     }
@@ -61,7 +61,7 @@ public class SetsControllerTests extends JerseyTestAbstract {
     @Test
     public void updateSets_Test() throws Exception {
         ObjectMapper om = new ObjectMapper();
-        File setSpecs = new File("/home/dseelig/opt/oaiprovider/config/list-set-conf.json");
+        File setSpecs = new File("/home/opt/oaiprovider/config/list-set-conf.json");
         Set<de.qucosa.oai.provider.persistence.pojos.Set> json = null;
         
         try {

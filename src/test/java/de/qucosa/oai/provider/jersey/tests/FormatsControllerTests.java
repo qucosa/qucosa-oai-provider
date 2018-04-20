@@ -27,8 +27,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.application.ApplicationBinder;
-import de.qucosa.oai.provider.application.ApplicationConfigListener.DissTermsDao;
+import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.application.mapper.DissTerms.DissFormat;
+import de.qucosa.oai.provider.application.mapper.DissTerms.DissTermsDao;
 import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 
@@ -71,7 +72,7 @@ public class FormatsControllerTests extends JerseyTestAbstract {
     protected Application configure() {
         ResourceConfig config = new ResourceConfig(FormatsController.class);
         HashMap<String, Object> props = new HashMap<>();
-        props.put("dissConf", new DissTermsDao());
+        props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
         return config;
     }
@@ -82,7 +83,8 @@ public class FormatsControllerTests extends JerseyTestAbstract {
     }
     
     private Set<Format> formats() {
-        Set<DissFormat> dissFormats = ((DissTermsDao) configure().getProperties().get("dissConf")).formats();
+        DissTerms dissTerms = (DissTerms) configure().getProperties().get("dissConf");
+        Set<DissFormat> dissFormats = dissTerms.formats();
         Set<Format> formats = new HashSet<>();
         
         for(DissFormat df : dissFormats) {

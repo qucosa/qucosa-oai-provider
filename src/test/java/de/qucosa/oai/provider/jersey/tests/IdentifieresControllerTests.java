@@ -31,7 +31,7 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.application.ApplicationBinder;
-import de.qucosa.oai.provider.application.ApplicationConfigListener.DissTermsDao;
+import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.IdentifieresController;
 import de.qucosa.oai.provider.persistence.pojos.Identifier;
 import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
@@ -81,7 +81,7 @@ public class IdentifieresControllerTests extends JerseyTestAbstract {
     protected Application configure() {
         ResourceConfig config = new ResourceConfig(IdentifieresController.class);
         HashMap<String, Object> props = new HashMap<>();
-        props.put("dissConf", new DissTermsDao());
+        props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
         return config;
     }
