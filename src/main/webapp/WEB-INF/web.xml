@@ -4,6 +4,11 @@
   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
   version="2.5">
   
+  <context-param>
+    <param-name>config.path</param-name>
+    <param-value>/home/opt/oaiprovider/config/</param-value>
+  </context-param>
+  
   <listener>
     <listener-class>de.qucosa.oai.provider.application.ApplicationConfigListener</listener-class>
   </listener>
