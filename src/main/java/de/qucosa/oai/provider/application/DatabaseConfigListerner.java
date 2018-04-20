@@ -39,10 +39,14 @@ public class DatabaseConfigListerner implements ServletContextListener {
     
     private PersistenceServiceInterface service = null;
     
-    private DissTerms dissTerms = new DissTerms();
+    private DissTerms dissTerms = null;
+    
+    private String configPath;
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        configPath = sce.getServletContext().getInitParameter("config.path");
+        dissTerms = (DissTerms) sce.getServletContext().getAttribute("dissConf");
         connection = new Connect("postgresql", "oaiprovider").connection();
         installSets();
         installNamespaces(dissTerms.getSetXmlNamespaces());
@@ -84,7 +88,7 @@ public class DatabaseConfigListerner implements ServletContextListener {
         service = new SetService();
         service.setConnection(connection);
         ObjectMapper om = new ObjectMapper();
-        File setSpecs = new File("/home/dseelig/opt/oaiprovider/config/list-set-conf.json");
+        File setSpecs = new File(configPath + "list-set-conf.json");
         Set<de.qucosa.oai.provider.persistence.pojos.Set> json = null;
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
         
