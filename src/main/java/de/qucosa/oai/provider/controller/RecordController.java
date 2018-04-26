@@ -1,0 +1,61 @@
+package de.qucosa.oai.provider.controller;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
+import de.qucosa.oai.provider.xml.builders.RecordXmlBuilder;
+import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
+import org.glassfish.jersey.process.internal.RequestScoped;
+import org.w3c.dom.Document;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.List;
+
+@Path("/record")
+@RequestScoped
+public class RecordController {
+
+    @Path("/update")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateRecord(String input) {
+        ObjectMapper om = new ObjectMapper();
+        List<RecordTransport> inputData = null;
+
+        try {
+            inputData = om.readValue(input.getBytes("UTF-8"),
+                    om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
+
+            for (RecordTransport record : inputData) {
+                Document recordDoc = new RecordXmlBuilder(record)
+                        .setDissTerms(new DissTerms("/home/opt/qucosa-fcrepo-camel/config/"))
+                        .buildRecord();
+                /**
+                 * @// TODO: 26.04.18
+                 * add save record in database
+                 */
+            }
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
+
+        return Response.status(200).entity(true).build();
+    }
+}
