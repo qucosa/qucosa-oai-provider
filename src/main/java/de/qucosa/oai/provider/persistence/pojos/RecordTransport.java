@@ -2,7 +2,10 @@ package de.qucosa.oai.provider.persistence.pojos;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.databind.deser.std.StringArrayDeserializer;
 import org.w3c.dom.Document;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -19,6 +22,9 @@ public class RecordTransport implements Serializable {
     
     @JsonProperty("prefix")
     private String prefix;
+
+    @JsonProperty("sets")
+    private List<String> sets = new ArrayList<String>();
     
     @JsonProperty("data")
     private Document data;
@@ -44,6 +50,12 @@ public class RecordTransport implements Serializable {
     public void setPrefix(String prefix) {
         this.prefix = prefix;
     }
+
+    public void setSets(List<String> sets) { this.sets = sets; }
+
+    public void setSet(String set) { this.sets.add(set); }
+
+    public List<String> getSets() { return sets; }
 
     public Document getData() {
         return data;
