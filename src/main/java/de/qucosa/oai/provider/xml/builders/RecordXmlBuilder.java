@@ -17,8 +17,8 @@
 package de.qucosa.oai.provider.xml.builders;
 
 import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.json.mapper.SetsConfig;
-import de.qucosa.oai.provider.xml.mapper.MetsXmlMapper;
+import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
+import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -34,42 +34,27 @@ public class RecordXmlBuilder {
 
     private Document recordTemplate = null;
 
+    private RecordTransport record = null;
+
     private DissTerms dissTerms = null;
 
-    private SetsConfig sets = null;
-
-    private String format = null;
-
-    public RecordXmlBuilder(Document dissemination, Document recordTemplate) {
+    public RecordXmlBuilder(Document dissemination, Document recordTemplate, RecordTransport record) {
         this.dissemination = dissemination;
         this.recordTemplate = recordTemplate;
+        this.record = record;
     }
 
-    public Document buildRecord(MetsXmlMapper metsXml) throws XPathExpressionException {
+    public Document buildRecord() throws XPathExpressionException {
         Node importDissemination = recordTemplate.importNode(dissemination.getDocumentElement(), true);
         metadata().appendChild(importDissemination);
-        recordIdentifiere().appendChild(recordTemplate.createTextNode(metsXml.pid()));
-        recordDatestamp().appendChild(recordTemplate.createTextNode(metsXml.lastModDate()));
+        recordIdentifiere().appendChild(recordTemplate.createTextNode(record.getPid()));
+        recordDatestamp().appendChild(recordTemplate.createTextNode(DateTimeConverter.sqlTimestampToString(record.getModified())));
         appendSetSpecs();
         return recordTemplate;
     }
 
-    public RecordXmlBuilder setMetsDocument(Document metsDoc) {
-        return this;
-    }
-
     public RecordXmlBuilder setDissTerms(DissTerms dissTerms) {
         this.dissTerms = dissTerms;
-        return this;
-    }
-
-    public RecordXmlBuilder setSets(SetsConfig sets) {
-        this.sets = sets;
-        return this;
-    }
-
-    public RecordXmlBuilder setFormat(String format) {
-        this.format = format;
         return this;
     }
 
@@ -97,58 +82,18 @@ public class RecordXmlBuilder {
         return metadata;
     }
 
-    private boolean matchTerm(String key, String value) throws XPathExpressionException {
-        DissTerms.Term term = dissTerms.getTerm(key, format);
-        XPath xPath = DocumentXmlUtils.xpath(dissTerms.getMapXmlNamespaces());
-        Node node = null;
-
-        if (term != null) {
-
-            if (!term.getTerm().isEmpty()) {
-                node = (Node) xPath.compile(term.getTerm().replace("$val", value)).evaluate(dissemination, XPathConstants.NODE);
-            }
-        }
-
-        return (node != null) ? true : false;
-    }
-
-    private void addSetSpec(Node header, SetsConfig.Set set) {
+    private void addSetSpec(Node header, String set) {
         Node setSpecElem = recordTemplate.createElement("setSpec");
-        setSpecElem.appendChild(recordTemplate.createTextNode(set.getSetSpec()));
+        setSpecElem.appendChild(recordTemplate.createTextNode(set));
         header.appendChild(setSpecElem);
     }
 
     private void appendSetSpecs() throws XPathExpressionException {
         Node header = recordHeader();
-        List<SetsConfig.Set> setObjects = sets.getSetObjects();
+        List<String> sets = record.getSets();
 
-        for (SetsConfig.Set setObj : setObjects) {
-            String predicateKey = null;
-            String predicateValue = null;
-
-            if (setObj.getPredicate() != null && !setObj.getPredicate().isEmpty()) {
-
-                if (setObj.getPredicate().contains("=")) {
-                    String[] predicate = setObj.getPredicate().split("=");
-                    predicateKey = predicate[0];
-                    predicateValue = predicate[1];
-
-                    if (!predicateValue.contains("/")) {
-
-                        if (matchTerm(predicateKey, predicateValue)) {
-                            addSetSpec(header, setObj);
-                        }
-                    } else {
-                        String[] predicateValues = predicateValue.split("/");
-
-                        if (predicateValues.length > 0) {
-
-                        }
-                    }
-                } else {
-                    predicateKey = setObj.getPredicate();
-                }
-            }
+        for (int i = 0; i < sets.size(); i++) {
+            addSetSpec(header, sets.get(i));
         }
     }
 }
