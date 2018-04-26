@@ -30,8 +30,6 @@ import javax.xml.xpath.XPathExpressionException;
 import java.util.List;
 
 public class RecordXmlBuilder {
-    private Document dissemination = null;
-
     private Document recordTemplate = null;
 
     private RecordTransport record = null;
@@ -40,11 +38,10 @@ public class RecordXmlBuilder {
 
     public RecordXmlBuilder(RecordTransport record) {
         this.record = record;
-        this.dissemination =  DocumentXmlUtils.document(this.record.getData(), true);;
         this.recordTemplate = DocumentXmlUtils.document(getClass().getResourceAsStream("record.xml"), true);
     }
 
-    public Document buildRecord() throws XPathExpressionException {
+    public Document buildRecord(Document dissemination) throws XPathExpressionException {
         Node importDissemination = recordTemplate.importNode(dissemination.getDocumentElement(), true);
         metadata().appendChild(importDissemination);
         recordIdentifiere().appendChild(recordTemplate.createTextNode(record.getPid()));

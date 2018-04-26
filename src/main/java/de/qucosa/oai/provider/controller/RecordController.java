@@ -40,7 +40,7 @@ public class RecordController {
             for (RecordTransport record : inputData) {
                 Document recordDoc = new RecordXmlBuilder(record)
                         .setDissTerms(new DissTerms("/home/opt/qucosa-fcrepo-camel/config/"))
-                        .buildRecord();
+                        .buildRecord(DocumentXmlUtils.document(record.getData(), true));
                 /**
                  * @// TODO: 26.04.18
                  * add save record in database
