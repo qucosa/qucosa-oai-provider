@@ -38,10 +38,10 @@ public class RecordXmlBuilder {
 
     private DissTerms dissTerms = null;
 
-    public RecordXmlBuilder(Document dissemination, Document recordTemplate, RecordTransport record) {
-        this.dissemination = dissemination;
-        this.recordTemplate = recordTemplate;
+    public RecordXmlBuilder(RecordTransport record) {
         this.record = record;
+        this.dissemination =  DocumentXmlUtils.document(this.record.getData(), true);;
+        this.recordTemplate = DocumentXmlUtils.document(getClass().getResourceAsStream("record.xml"), true);
     }
 
     public Document buildRecord() throws XPathExpressionException {
