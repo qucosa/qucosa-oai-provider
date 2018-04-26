@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -47,10 +48,14 @@ public class DocumentXmlUtils {
         
         return document;
     }
-    
-    public static XPath xpath() {
+
+    public static XPath xpath(Map<String, String> namespaces) {
         XPath xPath = XPathFactory.newInstance().newXPath();
-        
+
+        if (namespaces != null && !namespaces.isEmpty()) {
+            xPath.setNamespaceContext(new SimpleNamespaceContext(namespaces));
+        }
+
         return xPath;
     }
     
