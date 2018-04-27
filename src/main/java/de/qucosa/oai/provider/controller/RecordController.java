@@ -33,8 +33,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.xpath.XPathExpressionException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @Path("/record")
@@ -62,14 +62,10 @@ public class RecordController {
                  * add save record in database
                  */
             }
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (XPathExpressionException e) {
-            e.printStackTrace();
+        } catch (JsonParseException | JsonMappingException e) {
+            return Response.status(500).entity("Json cannot parsed or mapped out.").build();
+        } catch (IOException | XPathExpressionException e) {
+            return Response.status(500).entity("A xpath expression is failed.").build();
         }
 
         return Response.status(200).entity(true).build();
