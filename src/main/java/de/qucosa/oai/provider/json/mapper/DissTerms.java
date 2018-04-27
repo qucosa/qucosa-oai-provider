@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-package de.qucosa.oai.provider.application.mapper;
+package de.qucosa.oai.provider.json.mapper;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -26,47 +33,27 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DissTerms implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @JsonIgnore
-    private String configPath = null;
-    
+public class DissTerms {
     @JsonIgnore
     private DissTermsDao dao = null;
-    
-    @JsonProperty("xmlnamespaces")
-    private Set<XmlNamspace> xmlnamespaces;
+
+    @JsonProperty("xmlnamespacees")
+    private Set<XmlNamspace> xmlnamespacees;
 
     @JsonProperty("dissTerms")
     private Set<DissTerm> dissTerms;
-    
+
     @JsonProperty("formats")
     private Set<DissFormat> formats;
-    
-    @JsonCreator
-    public DissTerms(@JsonProperty("configPath") String configPath) {
-        this.configPath = configPath;
+
+    public Set<XmlNamspace> getXmlnamespacees() {
+        return xmlnamespacees;
     }
 
-    public Set<XmlNamspace> getXmlnamespaces() {
-        return xmlnamespaces;
-    }
-
-    public void setXmlnamespaces(Set<XmlNamspace> xmlnamespaces) {
-        this.xmlnamespaces = xmlnamespaces;
+    public void setXmlnamespacees(Set<XmlNamspace> xmlnamespacees) {
+        this.xmlnamespacees = xmlnamespacees;
     }
 
     public Set<DissTerm> getDissTerms() {
@@ -76,13 +63,41 @@ public class DissTerms implements Serializable {
     public void setDissTerms(Set<DissTerm> dissTerms) {
         this.dissTerms = dissTerms;
     }
-    
+
     public Set<DissFormat> getFormats() {
         return formats;
     }
 
     public void setFormats(Set<DissFormat> formats) {
         this.formats = formats;
+    }
+
+    @JsonIgnore
+    public Map<String, String> getMapXmlNamespaces() {
+        return dao().getMapXmlNamespaces();
+    }
+
+    @JsonIgnore
+    public XmlNamspace getXmlNamespace(String prefix) {
+        return dao().getXmlNamespace(prefix);
+    }
+
+    @JsonIgnore
+    public Term getTerm(String diss, String name) {
+        return dao().getTerm(diss, name);
+    }
+
+    public Set<DissFormat> formats() {
+        return dao().dissFormats();
+    }
+
+    private DissTermsDao dao() {
+
+        if (dao == null) {
+            dao = new DissTermsDao();
+        }
+
+        return dao;
     }
 
     public static class XmlNamspace {
@@ -156,11 +171,11 @@ public class DissTerms implements Serializable {
             this.term = term;
         }
     }
-    
+
     public static class DissFormat {
         @JsonProperty("format")
         private String format;
-        
+
         @JsonProperty("dissType")
         private String dissType;
 
@@ -180,55 +195,15 @@ public class DissTerms implements Serializable {
             this.dissType = dissType;
         }
     }
-    
-    @JsonIgnore
-    public Map<String, String> getMapXmlNamespaces() {
-        return dao().getMapXmlNamespaces();
-    }
-    
-    @JsonIgnore
-    public Set<XmlNamspace> getSetXmlNamespaces() {
-        return dao().getSetXmlNamespaces();
-    }
-    
-    @JsonIgnore
-    public XmlNamspace getXmlNamespace(String prefix) {
-        return dao().getXmlNamespace(prefix);
-    }
-    
-    @JsonIgnore
-    public Term getTerm(String diss, String name) {
-        return dao().getTerm(diss, name);
-    }
-    
-    @JsonIgnore
-    public Set<DissTerm> getTerms() {
-        return dao().getDissTerms();
-    }
-    
-    @JsonIgnore
-    public Set<DissFormat> formats() {
-        return dao().formats();
-    }
-    
-    @JsonIgnore
-    private DissTermsDao dao() {
-        
-        if (dao == null) {
-            dao = new DissTermsDao(configPath);
-        }
-        
-        return dao;
-    }
-    
-    public static class DissTermsDao {
+
+    private class DissTermsDao {
         private final Logger logger = LoggerFactory.getLogger(DissTermsDao.class);
 
-        private DissTerms dissTerms = null;
+        DissTerms dissTerms = null;
 
-        public DissTermsDao(String configPath) {
+        public DissTermsDao() {
             ObjectMapper om = new ObjectMapper();
-            File file = new File(configPath + "dissemination-config.json");
+            File file = new File("/home/opt/qucosa-fcrepo-camel/config/dissemination-config.json");
 
             try {
                 dissTerms = om.readValue(Files.readAllBytes(Paths.get(file.getAbsolutePath())), DissTerms.class);
@@ -239,7 +214,7 @@ public class DissTerms implements Serializable {
         }
 
         public Map<String, String> getMapXmlNamespaces() {
-            HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespaces();
+            HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespacees();
             Map<String, String> map = new HashMap<>();
 
             for (XmlNamspace namspace : xmlNamespaces) {
@@ -249,6 +224,7 @@ public class DissTerms implements Serializable {
             return map;
         }
 
+        @SuppressWarnings("unused")
         public Set<XmlNamspace> getSetXmlNamespaces() {
             return xmlNamespaces();
         }
@@ -299,32 +275,30 @@ public class DissTerms implements Serializable {
 
             return term;
         }
-        
-        public Set<DissTerm> getDissTerms() {
-            return this.dissTerms.getDissTerms();
-        }
-        
-        public Set<DissFormat> formats() {
+
+        public Set<DissFormat> dissFormats() {
             return dissTerms.getFormats();
         }
-        
-        public DissFormat format(String format) {
+
+        @SuppressWarnings("unused")
+        public DissFormat dissFormat(String format) {
             DissFormat dissFormat = null;
-            
+
             for (DissFormat df : dissTerms.getFormats()) {
-                
+
                 if (df.getFormat().equals(format)) {
                     dissFormat = df;
                     break;
                 }
             }
-            
+
             return dissFormat;
         }
 
         private Set<XmlNamspace> xmlNamespaces() {
-            HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespaces();
+            HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespacees();
             return xmlNamespaces;
         }
     }
+
 }
