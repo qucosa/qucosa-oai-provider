@@ -38,7 +38,7 @@ public class RecordXmlBuilder {
 
     public RecordXmlBuilder(RecordTransport record) {
         this.record = record;
-        this.recordTemplate = DocumentXmlUtils.document(getClass().getResourceAsStream("record.xml"), true);
+        this.recordTemplate = DocumentXmlUtils.document(getClass().getResourceAsStream("/record.xml"), true);
     }
 
     public Document buildRecord(Document dissemination) throws XPathExpressionException {
