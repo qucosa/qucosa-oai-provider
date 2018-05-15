@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
 import de.qucosa.oai.provider.xml.builders.RecordXmlBuilder;
-import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;
 
@@ -34,7 +33,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @Path("/record")
@@ -56,7 +54,7 @@ public class RecordController {
             for (RecordTransport record : inputData) {
                 Document recordDoc = new RecordXmlBuilder(record)
                         .setDissTerms(new DissTerms("/home/opt/qucosa-fcrepo-camel/config/"))
-                        .buildRecord(DocumentXmlUtils.document(record.getData(), true));
+                        .buildRecord(record.getData());
                 /**
                  * @// TODO: 26.04.18
                  * add save record in database
