@@ -39,7 +39,6 @@ import java.util.List;
 @RequestScoped
 public class RecordController {
 
-    @Path("/update")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
