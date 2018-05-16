@@ -42,7 +42,7 @@ public class RecordController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateRecord(String input) {
+    public Response addRecord(String input) {
         ObjectMapper om = new ObjectMapper();
         List<RecordTransport> inputData = null;
 
