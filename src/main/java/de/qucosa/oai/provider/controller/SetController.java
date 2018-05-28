@@ -52,7 +52,7 @@ import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 
 @Path("/sets")
 @RequestScoped
-public class SetsController extends ControllerAbstract {
+public class SetController {
     private Connection connection = new Connect("postgresql", "oaiprovider").connection();
     
     @Inject
