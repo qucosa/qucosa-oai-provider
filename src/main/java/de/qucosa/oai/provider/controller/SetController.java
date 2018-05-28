@@ -63,39 +63,9 @@ public class SetController {
         setService.setConnection(connection);
     }
     
-    @SuppressWarnings("unused")
-    @GET
-    @Path("/ListSets")
-    @Produces(MediaType.APPLICATION_XML)
-    public Response getSetsXml(@Context ServletContext servletContext) throws IOException, SAXException {
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        builderFactory.setNamespaceAware(true);
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = setService.findAll();
-        Document document = null;
-
-        try {
-            DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
-            document = documentBuilder.newDocument();
-            Node listSets = document.createElement("ListSets");
-            ObjectMapper objectMapper = new ObjectMapper();
-            
-            for (de.qucosa.oai.provider.persistence.pojos.Set set : sets) {
-                Node setNode = document.importNode(DocumentXmlUtils.node(set.getDoc()), true);
-                listSets.appendChild(setNode);
-            }
-            
-            document.appendChild(listSets);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        }
-
-        return Response.status(200).entity(DocumentXmlUtils.resultXml(document)).build();
-    }
-    
     @POST
-    @Path("/add")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void updateSets(String input) throws JsonParseException, JsonMappingException, IOException {
+    public void save(String input) throws JsonParseException, JsonMappingException, IOException {
         
         if (input != null && !input.isEmpty()) {
             Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes = buildSqlSets(input);
