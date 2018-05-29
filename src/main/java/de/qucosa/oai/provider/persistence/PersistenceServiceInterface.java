@@ -24,29 +24,33 @@ import java.sql.SQLException;
 import java.util.Set;
 
 public interface PersistenceServiceInterface {
-    public void setConnection(Connection connection);
+    void setConnection(Connection connection);
     
-    public <T> Set<T> findAll();
+    <T> Set<T> findAll();
     
-    public <T> Set<T> find(String sqlStmt);
+    <T> Set<T> find(String sqlStmt);
     
-    public void update(String sql);
+    void update(String sql);
     
-    public void update(String...value);
+    void update(String...value);
 
-    public <T> void update(T object) throws SQLException, IOException, SAXException;
+    <T> void update(T object) throws SQLException, IOException, SAXException;
 
-    public <T> T findById(Long id);
+    <T> T findById(Long id);
     
-    public <T> T findByIds(T...values);
+    <T> T findByIds(T...values);
     
-    public <T> T findByValue(String column, String value);
+    <T> T findByValue(String column, String value);
     
-    public <T> T findByValues(Set<T> values);
+    <T> T findByValues(Set<T> values);
     
-    public <T> T findByValues(String...values);
+    <T> T findByValues(String...values);
     
-    public void deleteById(Long id);
+    void deleteById(Long id);
+
+    <T> void deleteByKeyValue(String key, T value);
+
+    void deleteByKeyValue(String... paires);
     
-    public <T> void deleteByValues(Set<T> values);
+    <T> void deleteByValues(Set<T> values);
 }
