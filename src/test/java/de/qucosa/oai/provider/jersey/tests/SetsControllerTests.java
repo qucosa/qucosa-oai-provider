@@ -16,14 +16,9 @@
 
 package de.qucosa.oai.provider.jersey.tests;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Application;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.controller.SetController;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
@@ -32,21 +27,24 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.api.support.membermodification.MemberMatcher;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.inject.Inject;
+import javax.ws.rs.core.Application;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Set;
 
-import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.controller.SetsController;
+import static org.powermock.api.mockito.PowerMockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(SetsController.class)
+@PrepareForTest(SetController.class)
 public class SetsControllerTests extends JerseyTestAbstract {
     @Inject
-    private SetsController setsController;
+    private SetController setsController;
     
     @Before
     @Override
@@ -57,7 +55,7 @@ public class SetsControllerTests extends JerseyTestAbstract {
             
             @Override
             protected void configure() {
-                bindAsContract(SetsController.class);
+                bindAsContract(SetController.class);
             }
         };
         
@@ -67,7 +65,7 @@ public class SetsControllerTests extends JerseyTestAbstract {
     
     @Override
     protected Application configure() {
-        ResourceConfig config = new ResourceConfig(SetsController.class);
+        ResourceConfig config = new ResourceConfig(SetController.class);
         HashMap<String, Object> props = new HashMap<>();
         props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
@@ -86,13 +84,11 @@ public class SetsControllerTests extends JerseyTestAbstract {
             e.printStackTrace();
         }
         
-        SetsController sc = PowerMockito.spy(setsController);
-        PowerMockito.when(sc, MemberMatcher.method(SetsController.class, "buildSqlSets", String.class))
-            .withArguments(om.writeValueAsString(json))
-            .thenCallRealMethod();
-        PowerMockito.when(sc, MemberMatcher.method(SetsController.class, "saveSetSpecs", Set.class))
-            .withArguments(json)
-            .thenReturn(null);
-        sc.updateSets(om.writeValueAsString(json));
+        SetController sc = spy(setsController);
+        doCallRealMethod().when(sc, MemberMatcher.method(SetController.class, "buildSqlSets", String.class))
+            .withArguments(om.writeValueAsString(json));
+        doNothing().when(sc, MemberMatcher.method(SetController.class, "saveSetSpecs", Set.class))
+            .withArguments(json);
+        sc.update("", om.writeValueAsString(json));
     }
 }

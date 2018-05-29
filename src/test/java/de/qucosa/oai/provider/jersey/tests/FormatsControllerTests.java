@@ -45,9 +45,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.application.mapper.DissTerms.DissFormat;
-import de.qucosa.oai.provider.application.mapper.DissTerms.DissTermsDao;
 import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.persistence.pojos.Format;
+
+import static org.powermock.api.mockito.PowerMockito.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(FormatsController.class)
@@ -75,11 +76,10 @@ public class FormatsControllerTests extends JerseyTestAbstract {
     public void updateFormats_Test() throws Exception {
         ObjectMapper om = new ObjectMapper();
         String json = om.writeValueAsString(formats());
-        FormatsController fc = PowerMockito.spy(formatsController);
-        PowerMockito.when(fc, MemberMatcher.method(FormatsController.class, "buildSqlSets", String.class))
-            .withArguments(json)
-            .thenCallRealMethod();
-        PowerMockito.doNothing().when(fc, MemberMatcher.method(FormatsController.class, "saveFormats", Set.class))
+        FormatsController fc = spy(formatsController);
+        doCallRealMethod().when(fc, MemberMatcher.method(FormatsController.class, "buildSqlSets", String.class))
+            .withArguments(json);
+        doNothing().when(fc, MemberMatcher.method(FormatsController.class, "saveFormats", Set.class))
             .withArguments(formats());
         fc.updateFormats(om.writeValueAsString(json));
     }

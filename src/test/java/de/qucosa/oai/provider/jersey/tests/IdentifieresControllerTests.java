@@ -16,6 +16,8 @@
 
 package de.qucosa.oai.provider.jersey.tests;
 
+import static org.powermock.api.mockito.PowerMockito.doCallRealMethod;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
 
@@ -86,9 +88,13 @@ public class IdentifieresControllerTests extends JerseyTestAbstract {
         String json = om.writeValueAsString(identifiers());
         IdentifieresController ic = PowerMockito.spy(controller);
         // convert json string to set with identifieres pojo objects
-        when(ic, method(IdentifieresController.class, "buildSqlObjects", String.class)).withArguments(json).thenCallRealMethod();
+        doCallRealMethod()
+                .when(ic, method(IdentifieresController.class, "buildSqlObjects", String.class))
+                .withArguments(json);
         // mock the save identifieres data in database privat method
-        PowerMockito.doNothing().when(ic, method(IdentifieresController.class, "saveIdentifieres", Set.class)).withArguments(identifiers());
+        doNothing()
+                .when(ic, method(IdentifieresController.class, "saveIdentifieres", Set.class))
+                .withArguments(identifiers());
         
         ic.updateIdentifieres(json);
     }
