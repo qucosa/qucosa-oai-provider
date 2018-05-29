@@ -49,6 +49,7 @@ import de.qucosa.oai.provider.persistence.postgres.FormatService;
 import de.qucosa.oai.provider.persistence.postgres.SetService;
 import de.qucosa.oai.provider.persistence.postgres.XmlNamespaceService;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
+import org.xml.sax.SAXException;
 
 public class DatabaseConfigListerner implements ServletContextListener {
     private Connection connection = null;
@@ -64,11 +65,17 @@ public class DatabaseConfigListerner implements ServletContextListener {
         configPath = sce.getServletContext().getInitParameter("config.path");
         dissTerms = (DissTerms) sce.getServletContext().getAttribute("dissConf");
         connection = new Connect("postgresql", "oaiprovider").connection();
-        installSets();
-        installNamespaces(dissTerms.getSetXmlNamespaces());
-        installDissPredicates(dissTerms.getTerms());
-        installFormats(dissTerms.formats());
-        installDissTerms(dissTerms.getTerms());
+
+        try {
+            installSets();
+            installNamespaces(dissTerms.getSetXmlNamespaces());
+            installDissPredicates(dissTerms.getTerms());
+            installFormats(dissTerms.formats());
+            installDissTerms(dissTerms.getTerms());
+        } catch (SQLException | IOException | SAXException e) {
+            e.printStackTrace();
+        }
+
         
         try {
             connection.close();
@@ -82,7 +89,7 @@ public class DatabaseConfigListerner implements ServletContextListener {
         
     }
     
-    private void installFormats(Set<DissFormat> dissFormats) {
+    private void installFormats(Set<DissFormat> dissFormats) throws SQLException, IOException, SAXException {
         service = new FormatService();
         service.setConnection(connection);
         Set<Format> formats = new HashSet<>();
@@ -100,7 +107,7 @@ public class DatabaseConfigListerner implements ServletContextListener {
         }
     }
     
-    private void installSets() {
+    private void installSets() throws SQLException, IOException, SAXException {
         service = new SetService();
         service.setConnection(connection);
         ObjectMapper om = new ObjectMapper();
@@ -140,7 +147,7 @@ public class DatabaseConfigListerner implements ServletContextListener {
         service.update(sets);
     }
     
-    private void installNamespaces(Set<XmlNamspace> sets) {
+    private void installNamespaces(Set<XmlNamspace> sets) throws SQLException, IOException, SAXException {
         service = new XmlNamespaceService();
         service.setConnection(connection);
         Set<XmlNamespace> namespaces = new HashSet<>();
@@ -155,7 +162,7 @@ public class DatabaseConfigListerner implements ServletContextListener {
         service.update(namespaces);
     }
     
-    private void installDissPredicates(Set<DissTerm> terms) {
+    private void installDissPredicates(Set<DissTerm> terms) throws SQLException, IOException, SAXException {
         service = new DisseminationPredicateService();
         service.setConnection(connection);
         Set<DisseminationPredicate> predicates = new HashSet<>();
