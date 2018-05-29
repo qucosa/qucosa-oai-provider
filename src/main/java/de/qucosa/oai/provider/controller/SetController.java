@@ -18,24 +18,23 @@ package de.qucosa.oai.provider.controller;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.servlet.ServletContext;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -44,15 +43,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.postgres.SetService;
-import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 
 @Path("/sets")
 @RequestScoped
 public class SetController {
     private Connection connection = new Connect("postgresql", "oaiprovider").connection();
     
+    private final PersistenceServiceInterface setService;
+
     @Inject
-    private SetService setService;
+    public SetController(SetService setService) {
+        this.setService = setService;
+    }
     
     @PostConstruct
     public void init() {
@@ -61,7 +63,7 @@ public class SetController {
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public void save(String input) throws JsonParseException, JsonMappingException, IOException {
+    public void save(String input) throws JsonParseException, JsonMappingException, IOException, SQLException, SAXException {
         
         if (input != null && !input.isEmpty()) {
             Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes = buildSqlSets(input);
@@ -73,10 +75,36 @@ public class SetController {
     }
 
     @PUT
+    @Path("{setspec}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response update(String input) {
-        return Response.status(200).entity(true).build();
+    public Response update(@PathParam("setspec") String setspec, String input) throws IOException, SQLException, SAXException {
+        ObjectMapper om = new ObjectMapper();
+        de.qucosa.oai.provider.persistence.pojos.Set set = om.readValue(input, de.qucosa.oai.provider.persistence.pojos.Set.class);
+
+        if (!set.getSetSpec().equals(setspec)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Request param setspec and json data setspec are unequal.").build();
+        }
+
+        set.setDocument(setSpecXml(set));
+
+        saveSetSpecs(set);
+
+        return Response.status(Response.Status.OK).entity(true).build();
+    }
+
+    @DELETE
+    @Path("{setspec}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response delete(@PathParam("setspec") String setspec) {
+
+        if (setspec.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The setspec param is failed or empty!").build();
+        }
+
+        setService.deleteByKeyValue("setspec", setspec);
+
+        return Response.status(Response.Status.OK).build();
     }
     
     private Set<de.qucosa.oai.provider.persistence.pojos.Set> buildSqlSets(String input) throws JsonParseException, JsonMappingException, IOException {
@@ -122,8 +150,8 @@ public class SetController {
         System.out.println(document.getDocumentElement().getTextContent());
         return document;
     }
-    
-    private void saveSetSpecs(Set<de.qucosa.oai.provider.persistence.pojos.Set> sets) {
-        setService.update(sets);
+
+    private <T> void saveSetSpecs(T object) throws SQLException, IOException, SAXException {
+        setService.update(object);
     }
 }
