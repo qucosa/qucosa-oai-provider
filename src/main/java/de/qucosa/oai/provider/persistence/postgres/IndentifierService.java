@@ -57,7 +57,7 @@ public class IndentifierService extends PersistenceServiceAbstract implements Pe
     
     @Override
     @SuppressWarnings("unchecked")
-    public <T> void update(Set<T> sets) {
+    public <T> void update(T sets) {
         Set<Identifier> identifiers = (Set<Identifier>) sets;
         StringBuffer sb = new StringBuffer();
         sb.append("INSERT INTO identifier (id, identifier, datestamp) \r\n");
