@@ -16,7 +16,11 @@
 
 package de.qucosa.oai.provider.persistence;
 
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Set;
 
 public interface PersistenceServiceInterface {
@@ -26,15 +30,14 @@ public interface PersistenceServiceInterface {
     
     public <T> Set<T> find(String sqlStmt);
     
-    public <T> void update(Set<T> sets);
-    
     public void update(String sql);
     
     public void update(String...value);
-    
+
+    public <T> void update(T object) throws SQLException, IOException, SAXException;
+
     public <T> T findById(Long id);
     
-    @SuppressWarnings("unchecked")
     public <T> T findByIds(T...values);
     
     public <T> T findByValue(String column, String value);
