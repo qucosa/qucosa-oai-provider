@@ -52,7 +52,7 @@ public class DisseminationTermsService extends PersistenceServiceAbstract implem
     }
 
     @Override
-    public <T> void update(Set<T> sets) {}
+    public <T> void update(T sets) {}
     
     @Override
     public void update(String sql) {}

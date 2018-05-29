@@ -39,7 +39,7 @@ public class DisseminationPredicateService extends PersistenceServiceAbstract im
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> void update(Set<T> sets) {
+    public <T> void update(T sets) {
         StringBuffer sb = new StringBuffer();
         sb.append("insert into dissemination_predicates (id, predicate) values (nextval('oaiprovider'), ?) \r\n");
         sb.append("ON CONFLICT (predicate) DO UPDATE SET \r\n");

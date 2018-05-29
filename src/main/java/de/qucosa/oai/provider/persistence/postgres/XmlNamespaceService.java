@@ -63,7 +63,7 @@ public class XmlNamespaceService extends PersistenceServiceAbstract implements P
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> void update(Set<T> sets) {
+    public <T> void update(T sets) {
         StringBuffer buffer = new StringBuffer();
         buffer.append("INSERT INTO xml_namespaces (id, prefix, url) VALUES (nextval('oaiprovider'), ?, ?) \r\n");
         buffer.append("ON CONFLICT (prefix) DO UPDATE SET \r\n");

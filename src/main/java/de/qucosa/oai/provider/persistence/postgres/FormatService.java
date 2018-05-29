@@ -64,7 +64,7 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> void update(Set<T> sets) {
+    public <T> void update(T sets) {
         Set<Format> formats = (Set<Format>) sets;
         StringBuffer sb = new StringBuffer();
         sb.append("INSERT INTO formats (id, mdprefix, disstype, lastpolldate) \r\n");
