@@ -129,4 +129,16 @@ public class DisseminationTermsService extends PersistenceServiceAbstract implem
         // TODO Auto-generated method stub
         return null;
     }
+
+    @Override
+    public <T> void deleteByKeyValue(String key, T value) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void deleteByKeyValue(String... paires) {
+        // TODO Auto-generated method stub
+        
+    }
 }

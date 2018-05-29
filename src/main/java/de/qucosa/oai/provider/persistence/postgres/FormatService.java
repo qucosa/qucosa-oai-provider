@@ -159,4 +159,16 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
         // TODO Auto-generated method stub
         return null;
     }
+
+    @Override
+    public <T> void deleteByKeyValue(String key, T value) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void deleteByKeyValue(String... paires) {
+        // TODO Auto-generated method stub
+        
+    }
 }

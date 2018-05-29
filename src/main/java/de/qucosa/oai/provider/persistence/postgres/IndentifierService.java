@@ -159,4 +159,16 @@ public class IndentifierService extends PersistenceServiceAbstract implements Pe
         // TODO Auto-generated method stub
         return null;
     }
+
+    @Override
+    public <T> void deleteByKeyValue(String key, T value) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void deleteByKeyValue(String... paires) {
+        // TODO Auto-generated method stub
+        
+    }
 }

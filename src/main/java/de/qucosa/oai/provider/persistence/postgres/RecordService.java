@@ -119,6 +119,16 @@ public class RecordService extends PersistenceServiceAbstract implements Persist
     public void deleteById(Long id) {}
 
     @Override
+    public <T> void deleteByKeyValue(String key, T value) {
+
+    }
+
+    @Override
+    public void deleteByKeyValue(String... paires) {
+
+    }
+
+    @Override
     public <T> void deleteByValues(Set<T> values) {}
 
     @Override
