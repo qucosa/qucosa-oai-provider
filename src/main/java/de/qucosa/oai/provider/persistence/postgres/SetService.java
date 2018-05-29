@@ -33,7 +33,6 @@ import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 
 public class SetService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
     
-    @SuppressWarnings("unchecked")
     public Set<de.qucosa.oai.provider.persistence.pojos.Set> findAll() {
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
         ResultSet result = null;
@@ -60,35 +59,42 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
         return sets;
     }
     
-    @SuppressWarnings("unchecked")
-    public <T> void update(Set<T> sets) {
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> data = (Set<de.qucosa.oai.provider.persistence.pojos.Set>) sets;
+    @Override
+    public <T> void update(T object) throws SQLException, IOException, SAXException {
         StringBuffer sb = new StringBuffer();
         sb.append("INSERT INTO sets (id, setspec, predicate, doc) \r\n");
         sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n");
         sb.append("ON CONFLICT (setspec) \r\n");
         sb.append("DO UPDATE SET doc = ? \r\n");
-        
-        try {
-            PreparedStatement pst = connection().prepareStatement(sb.toString());
-            connection().setAutoCommit(false);
-            
-            for (de.qucosa.oai.provider.persistence.pojos.Set set : data) {
-                SQLXML sqlxml = connection().createSQLXML();
+
+        PreparedStatement pst = connection().prepareStatement(sb.toString());
+        connection().setAutoCommit(false);
+        SQLXML sqlxml = connection().createSQLXML();
+
+        if (object instanceof Set) {
+
+            for (de.qucosa.oai.provider.persistence.pojos.Set set : (Set<de.qucosa.oai.provider.persistence.pojos.Set>) object) {
                 sqlxml.setString(DocumentXmlUtils.resultXml(set.getDocument()));
-                
                 pst.setString(1, set.getSetSpec());
                 pst.setString(2, set.getPredicate());
                 pst.setSQLXML(3, sqlxml);
                 pst.setSQLXML(4, sqlxml);
                 pst.addBatch();
             }
-            
-            pst.executeBatch();
-            connection().commit();
-        } catch (SQLException | IOException | SAXException e) {
-            e.printStackTrace();
         }
+
+        if (object instanceof de.qucosa.oai.provider.persistence.pojos.Set) {
+            de.qucosa.oai.provider.persistence.pojos.Set set = (de.qucosa.oai.provider.persistence.pojos.Set) object;
+            sqlxml.setString(DocumentXmlUtils.resultXml(set.getDocument()));
+            pst.setString(1, set.getSetSpec());
+            pst.setString(2, set.getPredicate());
+            pst.setSQLXML(3, sqlxml);
+            pst.setSQLXML(4, sqlxml);
+            pst.addBatch();
+        }
+
+        pst.executeBatch();
+        connection().commit();
     }
 
     @Override
