@@ -67,7 +67,7 @@ public class RecordService extends PersistenceServiceAbstract implements Persist
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> void update(Set<T> sets) {
+    public <T> void update(T sets) {
         Set<Record> records = (Set<Record>) sets;
         StringBuffer sb = new StringBuffer();
         sb.append("INSERT INTO records (id, identifier_id, format, moddate, xmldata \r\n)");
