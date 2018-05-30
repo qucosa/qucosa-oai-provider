@@ -26,13 +26,13 @@ import org.junit.Test;
 
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
-import de.qucosa.oai.provider.persistence.pojos.Record;
-import de.qucosa.oai.provider.persistence.postgres.RecordService;
+import de.qucosa.oai.provider.persistence.pojos.Disemination;
+import de.qucosa.oai.provider.persistence.postgres.DisseminationService;
 
 public class Record_IT {
     Connection connection = null;
     
-    PersistenceServiceInterface service = new RecordService();
+    PersistenceServiceInterface service = new DisseminationService();
     
     @Before
     public void connect() {
@@ -42,7 +42,7 @@ public class Record_IT {
     
     @Test
     public void findAll_Test() {
-        Set<Record> records = service.findAll();
+        Set<Disemination> records = service.findAll();
         records.size();
     }
     

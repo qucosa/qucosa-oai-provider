@@ -34,8 +34,8 @@ import org.junit.Test;
 import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
-import de.qucosa.oai.provider.persistence.pojos.Identifier;
-import de.qucosa.oai.provider.persistence.postgres.IndentifierService;
+import de.qucosa.oai.provider.persistence.pojos.Record;
+import de.qucosa.oai.provider.persistence.postgres.RecordService;
 
 public class Identifieres_IT extends JerseyTest {
     @Context
@@ -43,7 +43,7 @@ public class Identifieres_IT extends JerseyTest {
     
     private Connection connection = null;
     
-    private PersistenceServiceInterface service = new IndentifierService();
+    private PersistenceServiceInterface service = new RecordService();
     
     @Before
     @Override
@@ -56,7 +56,7 @@ public class Identifieres_IT extends JerseyTest {
     
     @Test
     public void findAll_Test() {
-        Set<Identifier> identifiers = service.findAll();
+        Set<Record> identifiers = service.findAll();
         identifiers.size();
     }
     
@@ -65,13 +65,13 @@ public class Identifieres_IT extends JerseyTest {
         StringBuffer sb = new StringBuffer();
         sb.append("SELECT id, identifier, datestamp, SUBSTRING(identifier, 'qucosa:\\d+$') AS pid \r\n");
         sb.append("FROM identifier WHERE identifier ~ 'qucosa:\\d+$';");
-        Set<Identifier> identifiers = service.find(sb.toString());
+        Set<Record> identifiers = service.find(sb.toString());
         identifiers.size();
     }
     
     @Test
     public void loadIdentifieresFromFedora_Test() {
-        Set<Identifier> identifiers = new HashSet<>();
+        Set<Record> identifiers = new HashSet<>();
     }
     
     @After

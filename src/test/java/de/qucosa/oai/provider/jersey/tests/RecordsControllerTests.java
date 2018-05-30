@@ -51,7 +51,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.RecordController;
-import de.qucosa.oai.provider.persistence.pojos.Identifier;
+import de.qucosa.oai.provider.persistence.pojos.Record;
 import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
 
 @RunWith(PowerMockRunner.class)
@@ -113,17 +113,17 @@ public class RecordsControllerTests extends JerseyTestAbstract {
         return super.getTestContainerFactory();
     }
     
-    private Set<Identifier> identifiers() throws ParseException {
-        Set<Identifier> identifiers = new HashSet<>();
-        Identifier id1 = new Identifier();
+    private Set<Record> identifiers() throws ParseException {
+        Set<Record> identifiers = new HashSet<>();
+        Record id1 = new Record();
         id1.setIdentifier("oai:example.org:qucosa:48672");
         id1.setDatestamp(DateTimeConverter.timestampWithTimezone("2017-12-14T09:42:45Z"));
         
-        Identifier id2 = new Identifier();
+        Record id2 = new Record();
         id2.setIdentifier("oai:example.org:qucosa:48661");
         id2.setDatestamp(DateTimeConverter.timestampWithTimezone("2018-01-09T16:47:36Z"));
         
-        Identifier id3 = new Identifier();
+        Record id3 = new Record();
         id3.setIdentifier("oai:example.org:qucosa:48668");
         id3.setDatestamp(DateTimeConverter.timestampWithTimezone("2017-12-14T09:42:23Z"));
         
