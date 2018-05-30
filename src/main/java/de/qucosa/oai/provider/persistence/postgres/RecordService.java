@@ -16,159 +16,94 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashSet;
-import java.util.Set;
-
 import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.persistence.pojos.Record;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Set;
+
 public class RecordService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
-    @SuppressWarnings("unchecked")
     @Override
-    public Set<Record> findAll() {
-        Set<Record> identifiers = new HashSet<>();
-        ResultSet result = null;
-
-        try {
-            String sql = "SELECT * FROM identifier;";
-            Statement stmt = connection().createStatement();
-            result = stmt.executeQuery(sql);
-
-            while (result.next()) {
-                Record identifier = new Record();
-                identifier.setId(result.getLong("id"));
-                identifier.setDatestamp(result.getTimestamp("datestamp"));
-                identifier.setIdentifier(result.getString("identifier"));
-                identifiers.add(identifier);
-            }
-
-            result.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return identifiers;
-    }
+    public Set<Record> findAll() { return null; }
     
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> void update(T sets) {
-        Set<Record> identifiers = (Set<Record>) sets;
+    public <T> void update(T data) throws SQLException {
         StringBuffer sb = new StringBuffer();
         sb.append("INSERT INTO identifier (id, identifier, datestamp) \r\n");
         sb.append("VALUES (nextval('oaiprovider'), ?, ?) \r\n");
         sb.append("ON CONFLICT (identifier) \r\n");
         sb.append("DO UPDATE SET identifier = ? \r\n");
-        
-        try {
-            PreparedStatement pst = connection().prepareStatement(sb.toString());
-            connection().setAutoCommit(false);
-            
-            for (Record identifier : identifiers) {
-                pst.setString(1, identifier.getIdentifier());
-                pst.setTimestamp(2, identifier.getDatestamp());
-                pst.setString(3, identifier.getIdentifier());
-                pst.addBatch();
+        PreparedStatement pst = connection().prepareStatement(sb.toString());
+        connection().setAutoCommit(false);
+
+        if (data instanceof Set) {
+            Set<Record> records = (Set<Record>) data;
+
+            for (Record record : records) {
+                buildUpdateObject(pst, record);
             }
-            
-            pst.executeBatch();
-            connection().commit();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-    }
 
-    @Override
-    public <T> T findById(Long id) {
-        return null;
-    }
-
-    @Override
-    public <T> T findByValues(Set<T> values) {
-        return null;
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        
-    }
-
-    @Override
-    public <T> void deleteByValues(Set<T> values) {
-        
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> Set<T> find(String sqlStmt) {
-        Set<Record> identifiers = new HashSet<>();
-        ResultSet result = null;
-
-        try {
-            Statement stmt = connection().createStatement();
-            result = stmt.executeQuery(sqlStmt);
-
-            while (result.next()) {
-                Record identifier = new Record();
-                identifier.setId(result.getLong("id"));
-                identifier.setDatestamp(result.getTimestamp("datestamp"));
-                identifier.setIdentifier(result.getString("identifier"));
-                identifier.setPid(result.getString("pid"));
-                identifiers.add(identifier);
-            }
-
-            result.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (data instanceof Record) {
+            buildUpdateObject(pst, (Record) data);
         }
-        
-        return (Set<T>) identifiers;
+
+        pst.executeBatch();
+        connection().commit();
     }
 
     @Override
-    public <T> T findByValue(String column, String value) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> T findById(Long id) { return null; }
+
+    @Override
+    public <T> T findByValues(Set<T> values) { return null; }
+
+    @Override
+    public void deleteById(Long id) { }
+
+    @Override
+    public <T> void deleteByValues(Set<T> values) { }
+
+    @Override
+    public <T> Set<T> find(String sqlStmt) { return null; }
+
+    @Override
+    public <T> T findByValue(String column, String value) { return null; }
+
+    @Override
+    public void update(String sql) { }
+
+    @Override
+    public void update(String... value) { }
+
+    @Override
+    public <T> T findByValues(String... values) { return null; }
+
+    @Override
+    public <T> T findByIds(T... values) { return null; }
+
+    @Override
+    public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+        String sql = "UPDATE records SET deleted = true WHERE " + key + " = ?";
+        PreparedStatement pst = connection().prepareStatement(sql);
+        connection().setAutoCommit(false);
+
+        pst.setString(1, (String) value);
+        pst.addBatch();
+
+        pst.executeBatch();
+        connection().commit();
     }
 
     @Override
-    public void update(String sql) {
-        // TODO Auto-generated method stub
-        
-    }
+    public void deleteByKeyValue(String... paires) { }
 
-    @Override
-    public void update(String... value) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public <T> T findByValues(String... values) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public <T> T findByIds(T... values) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public <T> void deleteByKeyValue(String key, T value) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void deleteByKeyValue(String... paires) {
-        // TODO Auto-generated method stub
-        
+    private void buildUpdateObject(PreparedStatement pst, Record record) throws SQLException {
+        pst.setString(1, record.getIdentifier());
+        pst.setTimestamp(2, record.getDatestamp());
+        pst.setString(3, record.getIdentifier());
+        pst.addBatch();
     }
 }
