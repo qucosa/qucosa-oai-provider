@@ -42,7 +42,7 @@ public class DisseminationController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addRecord(String input) {
+    public Response save(String input) {
         ObjectMapper om = new ObjectMapper();
         List<RecordTransport> inputData = null;
 
