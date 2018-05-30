@@ -16,63 +16,85 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
+import java.io.StringWriter;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLXML;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
 import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
-import de.qucosa.oai.provider.persistence.pojos.Identifier;
+import de.qucosa.oai.provider.persistence.pojos.Disemination;
 
-public class IndentifierService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
+public class DisseminationService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
+
     @SuppressWarnings("unchecked")
     @Override
-    public Set<Identifier> findAll() {
-        Set<Identifier> identifiers = new HashSet<>();
+    public Set<Disemination> findAll() {
+        Set<Disemination> records = new HashSet<>();
         ResultSet result = null;
-
+        String sql = "SELECT id, identifier_id, format, moddate, xmldata FROM records;";
+        
         try {
-            String sql = "SELECT * FROM identifier;";
             Statement stmt = connection().createStatement();
             result = stmt.executeQuery(sql);
-
-            while (result.next()) {
-                Identifier identifier = new Identifier();
-                identifier.setId(result.getLong("id"));
-                identifier.setDatestamp(result.getTimestamp("datestamp"));
-                identifier.setIdentifier(result.getString("identifier"));
-                identifiers.add(identifier);
+            
+            while(result.next()) {
+                Disemination record = new Disemination();
+                record.setId(result.getLong("id"));
+                record.setFormat(result.getLong("format"));
+                record.setIdentifierId(result.getLong("identifier_id"));
+                record.setModdate(result.getDate("moddate"));
+                record.setXmldata(result.getString("xmldata"));
+                records.add(record);
             }
-
+            
             result.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return identifiers;
+        
+        return records;
     }
-    
+
     @Override
+    public <T> Set<T> find(String sqlStmt) {
+        return null;
+    }
+
     @SuppressWarnings("unchecked")
+    @Override
     public <T> void update(T sets) {
-        Set<Identifier> identifiers = (Set<Identifier>) sets;
+        Set<Disemination> records = (Set<Disemination>) sets;
         StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO identifier (id, identifier, datestamp) \r\n");
-        sb.append("VALUES (nextval('oaiprovider'), ?, ?) \r\n");
-        sb.append("ON CONFLICT (identifier) \r\n");
-        sb.append("DO UPDATE SET identifier = ? \r\n");
+        sb.append("INSERT INTO records (id, identifier_id, format, moddate, xmldata \r\n)");
+        sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?, ?) \r\n");
+        sb.append("ON CONFLICT (id) DO UPDATE \r\n");
+        sb.append("SET identifier_id = ?, format = ?, moddate = ?, xmldata = ?;");
         
         try {
             PreparedStatement pst = connection().prepareStatement(sb.toString());
             connection().setAutoCommit(false);
             
-            for (Identifier identifier : identifiers) {
-                pst.setString(1, identifier.getIdentifier());
-                pst.setTimestamp(2, identifier.getDatestamp());
-                pst.setString(3, identifier.getIdentifier());
+            for (Disemination record : records) {
+                StringWriter sw = new StringWriter();
+                sw.write(record.getXmldata());
+                SQLXML sqlxml = connection().createSQLXML();
+                sqlxml.setString(sw.toString());
+                
+                pst.setLong(1, record.getIdentifierId());
+                pst.setLong(2, record.getFormat());
+                pst.setDate(3, record.getModdate());
+                pst.setSQLXML(4, sqlxml);
+                
+                pst.setLong(5, record.getIdentifierId());
+                pst.setLong(6, record.getFormat());
+                pst.setDate(7, record.getModdate());
+                pst.setSQLXML(8, sqlxml);
+                
                 pst.addBatch();
             }
             
@@ -94,41 +116,20 @@ public class IndentifierService extends PersistenceServiceAbstract implements Pe
     }
 
     @Override
-    public void deleteById(Long id) {
-        
+    public void deleteById(Long id) {}
+
+    @Override
+    public <T> void deleteByKeyValue(String key, T value) {
+
     }
 
     @Override
-    public <T> void deleteByValues(Set<T> values) {
-        
+    public void deleteByKeyValue(String... paires) {
+
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> Set<T> find(String sqlStmt) {
-        Set<Identifier> identifiers = new HashSet<>();
-        ResultSet result = null;
-
-        try {
-            Statement stmt = connection().createStatement();
-            result = stmt.executeQuery(sqlStmt);
-
-            while (result.next()) {
-                Identifier identifier = new Identifier();
-                identifier.setId(result.getLong("id"));
-                identifier.setDatestamp(result.getTimestamp("datestamp"));
-                identifier.setIdentifier(result.getString("identifier"));
-                identifier.setPid(result.getString("pid"));
-                identifiers.add(identifier);
-            }
-
-            result.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-        return (Set<T>) identifiers;
-    }
+    public <T> void deleteByValues(Set<T> values) {}
 
     @Override
     public <T> T findByValue(String column, String value) {
@@ -158,17 +159,5 @@ public class IndentifierService extends PersistenceServiceAbstract implements Pe
     public <T> T findByIds(T... values) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    public <T> void deleteByKeyValue(String key, T value) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void deleteByKeyValue(String... paires) {
-        // TODO Auto-generated method stub
-        
     }
 }
