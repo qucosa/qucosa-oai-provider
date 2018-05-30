@@ -48,7 +48,7 @@ public interface PersistenceServiceInterface {
     
     void deleteById(Long id);
 
-    <T> void deleteByKeyValue(String key, T value);
+    <T> void deleteByKeyValue(String key, T value) throws SQLException;
 
     void deleteByKeyValue(String... paires);
     
