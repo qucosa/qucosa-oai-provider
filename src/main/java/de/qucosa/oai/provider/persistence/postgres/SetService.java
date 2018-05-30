@@ -149,9 +149,11 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
     }
 
     @Override
-    public <T> void deleteByKeyValue(String key, T value) {
-        // TODO Auto-generated method stub
-        
+    public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+        String sql = "UPDATE sets SET deleted = true WHERE " + key + " = " + value;
+        Statement stmt = connection().createStatement();
+        stmt.executeUpdate(sql);
+        connection().close();
     }
 
     @Override
