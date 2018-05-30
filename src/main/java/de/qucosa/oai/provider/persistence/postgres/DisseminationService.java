@@ -16,56 +16,26 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
-import java.io.StringWriter;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLXML;
-import java.sql.Statement;
-import java.util.HashSet;
-import java.util.Set;
-
 import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.persistence.pojos.Disemination;
 
+import java.io.StringWriter;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.SQLXML;
+import java.util.Set;
+
 public class DisseminationService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Set<Disemination> findAll() {
-        Set<Disemination> records = new HashSet<>();
-        ResultSet result = null;
-        String sql = "SELECT id, identifier_id, format, moddate, xmldata FROM records;";
-        
-        try {
-            Statement stmt = connection().createStatement();
-            result = stmt.executeQuery(sql);
-            
-            while(result.next()) {
-                Disemination record = new Disemination();
-                record.setId(result.getLong("id"));
-                record.setFormat(result.getLong("format"));
-                record.setIdentifierId(result.getLong("identifier_id"));
-                record.setModdate(result.getDate("moddate"));
-                record.setXmldata(result.getString("xmldata"));
-                records.add(record);
-            }
-            
-            result.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-        return records;
-    }
+    public Set<Disemination> findAll() {return null; }
 
     @Override
     public <T> Set<T> find(String sqlStmt) {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> void update(T sets) {
         Set<Disemination> records = (Set<Disemination>) sets;
@@ -119,45 +89,26 @@ public class DisseminationService extends PersistenceServiceAbstract implements 
     public void deleteById(Long id) {}
 
     @Override
-    public <T> void deleteByKeyValue(String key, T value) {
-
-    }
+    public <T> void deleteByKeyValue(String key, T value) { }
 
     @Override
-    public void deleteByKeyValue(String... paires) {
-
-    }
+    public void deleteByKeyValue(String... paires) { }
 
     @Override
     public <T> void deleteByValues(Set<T> values) {}
 
     @Override
-    public <T> T findByValue(String column, String value) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public <T> T findByValue(String column, String value) { return null; }
 
     @Override
-    public void update(String sql) {
-        // TODO Auto-generated method stub
-        
-    }
+    public void update(String sql) { }
 
     @Override
-    public void update(String... value) {
-        // TODO Auto-generated method stub
-        
-    }
+    public void update(String... value) { }
 
     @Override
-    public <T> T findByValues(String... values) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public <T> T findByValues(String... values) { return null; }
 
     @Override
-    public <T> T findByIds(T... values) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public <T> T findByIds(T... values) { return null; }
 }
