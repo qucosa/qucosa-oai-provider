@@ -6,6 +6,7 @@ CREATE TABLE public.sets
   setspec character varying(500) NOT NULL,
   predicate character varying(50) NOT NULL,
   doc xml,
+  deleted boolean NOT NULL DEFAULT false,
   CONSTRAINT sets_pkey PRIMARY KEY (id),
   CONSTRAINT setspec_unique UNIQUE (setspec)
 )
@@ -24,6 +25,7 @@ CREATE TABLE public.formats
   mdprefix character varying(255) NOT NULL,
   lastpolldate timestamp with time zone,
   disstype character varying(50) NOT NULL,
+  deleted boolean NOT NULL DEFAULT false,
   CONSTRAINT formats_pkey PRIMARY KEY (id),
   CONSTRAINT disstype_unique UNIQUE ("disstype"),
   CONSTRAINT mdprefix_unique UNIQUE (mdprefix)
@@ -42,6 +44,7 @@ CREATE TABLE public.records
   id bigint NOT NULL,
   record character varying(255) NOT NULL,
   datestamp timestamp with time zone,
+  deleted boolean NOT NULL DEFAULT false,
   CONSTRAINT record_pkey PRIMARY KEY (id),
   CONSTRAINT record_unique UNIQUE (record)
 )
@@ -61,6 +64,7 @@ CREATE TABLE public.dissemnitations
   id_format bigint NOT NULL,
   lastmoddate date,
   xmldata xml NOT NULL,
+  deleted boolean NOT NULL DEFAULT false,
   CONSTRAINT dissemnitation_pkey PRIMARY KEY (id),
   CONSTRAINT format_fkey FOREIGN KEY (id_format)
       REFERENCES public.formats (id) MATCH SIMPLE
