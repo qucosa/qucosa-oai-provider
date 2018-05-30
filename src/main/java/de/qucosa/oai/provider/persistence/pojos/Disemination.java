@@ -17,7 +17,7 @@
 package de.qucosa.oai.provider.persistence.pojos;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+import java.sql.Date;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -25,20 +25,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Identifier implements Serializable {
+public class Record implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("id")
     private Long id;
     
-    @JsonProperty("identifier")
-    private String identifier;
+    @JsonProperty("identifierId")
+    private Long identifierId;
     
-    @JsonProperty("datestamp")
-    private Timestamp datestamp;
+    @JsonProperty("format")
+    private Long format;
     
-    @JsonProperty("pid")
-    private String pid;
+    @JsonProperty("moddate")
+    private Date moddate;
+    
+    @JsonProperty("xmldata")
+    private String xmldata;
 
     public Long getId() {
         return id;
@@ -48,27 +51,35 @@ public class Identifier implements Serializable {
         this.id = id;
     }
 
-    public String getIdentifier() {
-        return identifier;
+    public Long getIdentifierId() {
+        return identifierId;
     }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public void setIdentifierId(Long identifierId) {
+        this.identifierId = identifierId;
     }
 
-    public Timestamp getDatestamp() {
-        return datestamp;
+    public Long getFormat() {
+        return format;
     }
 
-    public void setDatestamp(Timestamp datestamp) {
-        this.datestamp = datestamp;
-    }
-    
-    public String getPid() {
-        return pid;
+    public void setFormat(Long format) {
+        this.format = format;
     }
 
-    public void setPid(String pid) {
-        this.pid = pid;
+    public Date getModdate() {
+        return moddate;
+    }
+
+    public void setModdate(Date moddate) {
+        this.moddate = moddate;
+    }
+
+    public String getXmldata() {
+        return xmldata;
+    }
+
+    public void setXmldata(String xmldata) {
+        this.xmldata = xmldata;
     }
 }
