@@ -18,17 +18,14 @@ package de.qucosa.oai.provider.controller;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -56,21 +53,64 @@ public class FormatsController {
         formatService.setConnection(connection);
     }
     
-    @Path("/add")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public void updateFormats(String input) {
-        
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response save(String input) throws SQLException {
+        Set<Format> formats = null;
+
         if (input != null && !input.isEmpty()) {
-            Set<Format> formats = buildSqlSets(input);
-            
-            if (!formats.isEmpty()) {
-                saveFormats(formats);
-            }
+            return Response.status(Response.Status.BAD_REQUEST).entity("Input data is empty!").build();
         }
+
+        formats = buildSqlSets(input);
+
+        if (formats.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Formats build is failed!").build();
+        }
+
+        saveFormats(formats);
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("{name}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("name") String name, String input) throws IOException, SQLException {
+
+        if (name.isEmpty() || name == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The name parameter is failed or empty!").build();
+        }
+
+        ObjectMapper om = new ObjectMapper();
+        Format format = om.readValue(input, Format.class);
+
+        if (format == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Format mapper is null!").build();
+        }
+
+        formatService.update(format);
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @DELETE
+    @Path("{name}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response delete(@PathParam("name") String name) throws SQLException {
+
+        if (name.isEmpty() || name == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The name parameter is failed or empty!").build();
+        }
+
+        formatService.deleteByKeyValue("mdprefix", name);
+
+        return Response.status(Response.Status.OK).build();
     }
     
-    @Path("/listFormats")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response listFormats(@Context ServletContext servletContext) {
@@ -94,7 +134,7 @@ public class FormatsController {
         return formats;
     }
     
-    public void saveFormats(Set<Format> formats) {
+    public void saveFormats(Set<Format> formats) throws SQLException {
         formatService.update(formats);
     }
 }
