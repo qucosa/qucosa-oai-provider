@@ -35,9 +35,9 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.util.List;
 
-@Path("/record")
+@Path("/dissemination")
 @RequestScoped
-public class RecordController {
+public class DisseminationController {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
