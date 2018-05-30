@@ -50,15 +50,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.controller.IdentifieresController;
+import de.qucosa.oai.provider.controller.RecordController;
 import de.qucosa.oai.provider.persistence.pojos.Identifier;
 import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(IdentifieresController.class)
+@PrepareForTest(RecordController.class)
 public class IdentifieresControllerTests extends JerseyTestAbstract {
     @Inject
-    private IdentifieresController controller;
+    private RecordController controller;
     
     @Before
     @Override
@@ -68,7 +68,7 @@ public class IdentifieresControllerTests extends JerseyTestAbstract {
             
             @Override
             protected void configure() {
-                bindAsContract(IdentifieresController.class);
+                bindAsContract(RecordController.class);
             }
         };
         
@@ -86,14 +86,14 @@ public class IdentifieresControllerTests extends JerseyTestAbstract {
     public void updateIdentifieres_Test() throws ParseException, Exception {
         ObjectMapper om = new ObjectMapper();
         String json = om.writeValueAsString(identifiers());
-        IdentifieresController ic = PowerMockito.spy(controller);
+        RecordController ic = PowerMockito.spy(controller);
         // convert json string to set with identifieres pojo objects
         doCallRealMethod()
-                .when(ic, method(IdentifieresController.class, "buildSqlObjects", String.class))
+                .when(ic, method(RecordController.class, "buildSqlObjects", String.class))
                 .withArguments(json);
         // mock the save identifieres data in database privat method
         doNothing()
-                .when(ic, method(IdentifieresController.class, "saveIdentifieres", Set.class))
+                .when(ic, method(RecordController.class, "saveIdentifieres", Set.class))
                 .withArguments(identifiers());
         
         ic.updateIdentifieres(json);
@@ -101,7 +101,7 @@ public class IdentifieresControllerTests extends JerseyTestAbstract {
     
     @Override
     protected Application configure() {
-        ResourceConfig config = new ResourceConfig(IdentifieresController.class);
+        ResourceConfig config = new ResourceConfig(RecordController.class);
         HashMap<String, Object> props = new HashMap<>();
         props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);

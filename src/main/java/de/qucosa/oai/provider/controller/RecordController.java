@@ -16,55 +16,92 @@
 
 package de.qucosa.oai.provider.controller;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
-import de.qucosa.oai.provider.xml.builders.RecordXmlBuilder;
-import org.glassfish.jersey.process.internal.RequestScoped;
-import org.w3c.dom.Document;
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.xpath.XPathExpressionException;
-import java.io.IOException;
-import java.util.List;
 
-@Path("/record")
+import org.glassfish.jersey.process.internal.RequestScoped;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.persistence.Connect;
+import de.qucosa.oai.provider.persistence.pojos.Identifier;
+import de.qucosa.oai.provider.persistence.postgres.IndentifierService;
+import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
+
+@Path("/records")
 @RequestScoped
 public class RecordController {
-
+    private Connection connection = new Connect("postgresql", "oaiprovider").connection();
+    
+    @Inject
+    private IndentifierService service;
+    
+    private DissTerms terms = null;
+    
+    @PostConstruct
+    public void init() {
+        service.setConnection(connection);
+    }
+    
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    public Response listIdentifieres(@Context ServletContext servletContext) throws IOException, SAXException {
+        terms = (DissTerms) servletContext.getAttribute("dissConf");
+        terms.getMapXmlNamespaces();
+        Set<Identifier> identifiers = service.findAll();
+        Document document = identifieres(identifiers);
+        return Response.status(200).entity(DocumentXmlUtils.resultXml(document)).build();
+    }
+    
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response addRecord(String input) {
-        ObjectMapper om = new ObjectMapper();
-        List<RecordTransport> inputData = null;
+    public void updateIdentifieres(String input) {
 
-        try {
-            inputData = om.readValue(input.getBytes("UTF-8"),
-                    om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
-
-            for (RecordTransport record : inputData) {
-                Document recordDoc = new RecordXmlBuilder(record)
-                        .setDissTerms(new DissTerms("/home/opt/qucosa-fcrepo-camel/config/"))
-                        .buildRecord(record.getData());
-                /**
-                 * @// TODO: 26.04.18
-                 * add save record in database
-                 */
+        if (!input.isEmpty() && input != null) {
+            Set<Identifier> identifiers = buildSqlObjects(input);
+            
+            if (!identifiers.isEmpty()) {
+                saveIdentifieres(identifiers);
             }
-        } catch (JsonParseException | JsonMappingException e) {
-            return Response.status(500).entity("Json cannot parsed or mapped out.").build();
-        } catch (IOException | XPathExpressionException e) {
-            return Response.status(500).entity("A xpath expression is failed.").build();
         }
-
-        return Response.status(200).entity(true).build();
+    }
+    
+    private Set<Identifier> buildSqlObjects(String json) {
+        ObjectMapper om = new ObjectMapper();
+        Set<Identifier> identifiers = new HashSet<>();
+        
+        try {
+            identifiers = om.readValue(json, om.getTypeFactory().constructCollectionType(Set.class, Identifier.class));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return identifiers;
+    }
+    
+    private void saveIdentifieres(Set<Identifier> data) {
+        service.update(data);
+    }
+    
+    private Document identifieres(Set<Identifier> identifiers) {
+        Document document = DocumentXmlUtils.document(null, true);
+        return document;
     }
 }
