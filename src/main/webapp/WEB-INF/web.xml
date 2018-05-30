@@ -28,9 +28,6 @@
   <listener>
     <listener-class>de.qucosa.oai.provider.application.ApplicationConfigListener</listener-class>
   </listener>
-  <listener>
-    <listener-class>de.qucosa.oai.provider.application.DatabaseConfigListerner</listener-class>
-  </listener>
   
   <servlet>
     <servlet-name>provider</servlet-name>

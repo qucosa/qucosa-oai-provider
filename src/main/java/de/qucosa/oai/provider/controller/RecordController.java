@@ -53,7 +53,7 @@ public class RecordController {
     @Inject
     private RecordService service;
     
-    private DissTerms terms = null;
+    private DissTerms terms;
     
     @PostConstruct
     public void init() {
