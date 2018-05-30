@@ -41,8 +41,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.persistence.Connect;
-import de.qucosa.oai.provider.persistence.pojos.Identifier;
-import de.qucosa.oai.provider.persistence.postgres.IndentifierService;
+import de.qucosa.oai.provider.persistence.pojos.Record;
+import de.qucosa.oai.provider.persistence.postgres.RecordService;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 
 @Path("/records")
@@ -51,7 +51,7 @@ public class RecordController {
     private Connection connection = new Connect("postgresql", "oaiprovider").connection();
     
     @Inject
-    private IndentifierService service;
+    private RecordService service;
     
     private DissTerms terms = null;
     
@@ -65,7 +65,7 @@ public class RecordController {
     public Response listIdentifieres(@Context ServletContext servletContext) throws IOException, SAXException {
         terms = (DissTerms) servletContext.getAttribute("dissConf");
         terms.getMapXmlNamespaces();
-        Set<Identifier> identifiers = service.findAll();
+        Set<Record> identifiers = service.findAll();
         Document document = identifieres(identifiers);
         return Response.status(200).entity(DocumentXmlUtils.resultXml(document)).build();
     }
@@ -75,7 +75,7 @@ public class RecordController {
     public void updateIdentifieres(String input) {
 
         if (!input.isEmpty() && input != null) {
-            Set<Identifier> identifiers = buildSqlObjects(input);
+            Set<Record> identifiers = buildSqlObjects(input);
             
             if (!identifiers.isEmpty()) {
                 saveIdentifieres(identifiers);
@@ -83,12 +83,12 @@ public class RecordController {
         }
     }
     
-    private Set<Identifier> buildSqlObjects(String json) {
+    private Set<Record> buildSqlObjects(String json) {
         ObjectMapper om = new ObjectMapper();
-        Set<Identifier> identifiers = new HashSet<>();
+        Set<Record> identifiers = new HashSet<>();
         
         try {
-            identifiers = om.readValue(json, om.getTypeFactory().constructCollectionType(Set.class, Identifier.class));
+            identifiers = om.readValue(json, om.getTypeFactory().constructCollectionType(Set.class, Record.class));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -96,11 +96,11 @@ public class RecordController {
         return identifiers;
     }
     
-    private void saveIdentifieres(Set<Identifier> data) {
+    private void saveIdentifieres(Set<Record> data) {
         service.update(data);
     }
     
-    private Document identifieres(Set<Identifier> identifiers) {
+    private Document identifieres(Set<Record> identifiers) {
         Document document = DocumentXmlUtils.document(null, true);
         return document;
     }
