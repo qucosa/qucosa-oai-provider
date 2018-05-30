@@ -56,7 +56,7 @@ import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(RecordController.class)
-public class IdentifieresControllerTests extends JerseyTestAbstract {
+public class RecordsControllerTests extends JerseyTestAbstract {
     @Inject
     private RecordController controller;
     
