@@ -16,34 +16,23 @@
 
 package de.qucosa.oai.provider.controller;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.servlet.ServletContext;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.glassfish.jersey.process.internal.RequestScoped;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.pojos.Record;
 import de.qucosa.oai.provider.persistence.postgres.RecordService;
-import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
+import org.glassfish.jersey.process.internal.RequestScoped;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 @Path("/records")
 @RequestScoped
@@ -60,48 +49,83 @@ public class RecordController {
         service.setConnection(connection);
     }
     
-    @GET
-    @Produces(MediaType.APPLICATION_XML)
-    public Response listIdentifieres(@Context ServletContext servletContext) throws IOException, SAXException {
-        terms = (DissTerms) servletContext.getAttribute("dissConf");
-        terms.getMapXmlNamespaces();
-        Set<Record> identifiers = service.findAll();
-        Document document = identifieres(identifiers);
-        return Response.status(200).entity(DocumentXmlUtils.resultXml(document)).build();
-    }
-    
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public void updateIdentifieres(String input) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response save(String input) throws SQLException {
 
-        if (!input.isEmpty() && input != null) {
-            Set<Record> identifiers = buildSqlObjects(input);
-            
-            if (!identifiers.isEmpty()) {
-                saveIdentifieres(identifiers);
-            }
+        if (input.isEmpty() && input == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The input data object is failed or empty!").build();
         }
+
+        Set<Record> records = buildSqlObjects(input);
+
+        if (records == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Data json mapper object is failed!").build();
+        }
+
+        saveRecords(records);
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("{pid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("pid") String pid, String input) throws IOException, SQLException {
+
+        if (pid.isEmpty() || pid == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("PID parameter is failed or empty!").build();
+        }
+
+        if (input.isEmpty() || input == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Input data is failed or empty!").build();
+        }
+
+        ObjectMapper om = new ObjectMapper();
+        Record record = om.readValue(input, Record.class);
+
+        if (record == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Record json mapper is failed!").build();
+        }
+
+        if (!record.getPid().equals(pid)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Update PID parameter and record PID ar unequal!").build();
+        }
+
+        saveRecords(record);
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @DELETE
+    @Path("{pid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response delete(@PathParam("pid") String pid) throws SQLException {
+
+        if (pid.isEmpty() || pid == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("PID parameter is failed or empty!").build();
+        }
+
+        service.deleteByKeyValue("pid", pid);
+
+        return Response.status(Response.Status.OK).build();
     }
     
     private Set<Record> buildSqlObjects(String json) {
         ObjectMapper om = new ObjectMapper();
-        Set<Record> identifiers = new HashSet<>();
+        Set<Record> records = new HashSet<>();
         
         try {
-            identifiers = om.readValue(json, om.getTypeFactory().constructCollectionType(Set.class, Record.class));
+            records = om.readValue(json, om.getTypeFactory().constructCollectionType(Set.class, Record.class));
         } catch (IOException e) {
             e.printStackTrace();
         }
         
-        return identifiers;
+        return records;
     }
     
-    private void saveIdentifieres(Set<Record> data) {
-        service.update(data);
-    }
-    
-    private Document identifieres(Set<Record> identifiers) {
-        Document document = DocumentXmlUtils.document(null, true);
-        return document;
-    }
+    private <T> void saveRecords(T data) throws SQLException { service.update(data); }
 }
