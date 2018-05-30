@@ -37,6 +37,9 @@ public class Format {
     @JsonProperty("dissType")
     private String dissType;
 
+    @JsonProperty("deleted")
+    private boolean deleted;
+
     public Long getId() {
         return id;
     }
@@ -68,4 +71,8 @@ public class Format {
     public void setDissType(String dissType) {
         this.dissType = dissType;
     }
+
+    public boolean isDeleted() { return deleted; }
+
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
 }

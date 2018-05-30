@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Identifier implements Serializable {
+public class Record implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("id")
@@ -39,6 +39,9 @@ public class Identifier implements Serializable {
     
     @JsonProperty("pid")
     private String pid;
+
+    @JsonProperty("deleted")
+    private boolean deleted;
 
     public Long getId() {
         return id;
@@ -71,4 +74,8 @@ public class Identifier implements Serializable {
     public void setPid(String pid) {
         this.pid = pid;
     }
+
+    public boolean isDeleted() { return deleted; }
+
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
 }
