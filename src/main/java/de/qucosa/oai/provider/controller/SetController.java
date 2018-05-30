@@ -96,7 +96,7 @@ public class SetController {
     @DELETE
     @Path("{setspec}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("setspec") String setspec) {
+    public Response delete(@PathParam("setspec") String setspec) throws SQLException {
 
         if (setspec.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The setspec param is failed or empty!").build();
