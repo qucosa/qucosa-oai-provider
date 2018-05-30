@@ -64,33 +64,29 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> void update(T sets) {
-        Set<Format> formats = (Set<Format>) sets;
+    public <T> void update(T object) throws SQLException {
         StringBuffer sb = new StringBuffer();
         sb.append("INSERT INTO formats (id, mdprefix, disstype, lastpolldate) \r\n");
         sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n");
         sb.append("ON CONFLICT (mdprefix) \r\n");
         sb.append("DO UPDATE SET mdprefix = ?, disstype = ?, lastpolldate = ?; \r\n");
-        
-        try {
-            PreparedStatement pst = connection().prepareStatement(sb.toString());
-            connection().setAutoCommit(false);
-            
+        PreparedStatement pst = connection().prepareStatement(sb.toString());
+        connection().setAutoCommit(false);
+
+        if (object instanceof Set) {
+            Set<Format> formats = (Set<Format>) object;
+
             for (Format format : formats) {
-                pst.setString(1, format.getMdprefix());
-                pst.setString(2, format.getDissType());
-                pst.setTimestamp(3, format.getLastpolldate());
-                pst.setString(4, format.getMdprefix());
-                pst.setString(5, format.getDissType());
-                pst.setTimestamp(6, format.getLastpolldate());
-                pst.addBatch();
+                buildUpdateObject(pst, format);
             }
-            
-            pst.executeBatch();
-            connection().commit();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
+
+        if (object instanceof Format) {
+            buildUpdateObject(pst, (Format) object);
+        }
+
+        pst.executeBatch();
+        connection().commit();
     }
 
     @Override
@@ -113,7 +109,7 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
     public <T> T findByValue(String column, String value) {
         Format format =  new Format();
         StringBuffer sb = new StringBuffer();
-        sb.append("select id, mdprefix, lastpolldate, disstype from formats where " + column + " = ?;");
+        sb.append("SELECT id, mdprefix, lastpolldate, disstype FROM formats WHERE " + column + " = ?;");
         
         try {
             PreparedStatement pst = connection().prepareStatement(sb.toString());
@@ -137,38 +133,34 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
     }
 
     @Override
-    public void update(String sql) {
-        // TODO Auto-generated method stub
-        
+    public void update(String sql) { }
+
+    @Override
+    public void update(String... value) { }
+
+    @Override
+    public <T> T findByValues(String... values) { return null; }
+
+    @Override
+    public <T> T findByIds(T... values) { return null; }
+
+    @Override
+    public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+        String sql = "UPDATE formats SET deleted = true WHERE " + key + " = " + value;
+        Statement stmt = connection().createStatement();
+        stmt.executeUpdate(sql);
     }
 
     @Override
-    public void update(String... value) {
-        // TODO Auto-generated method stub
-        
-    }
+    public void deleteByKeyValue(String... paires) {}
 
-    @Override
-    public <T> T findByValues(String... values) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public <T> T findByIds(T... values) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public <T> void deleteByKeyValue(String key, T value) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void deleteByKeyValue(String... paires) {
-        // TODO Auto-generated method stub
-        
+    private void buildUpdateObject(PreparedStatement pst, Format format) throws SQLException {
+        pst.setString(1, format.getMdprefix());
+        pst.setString(2, format.getDissType());
+        pst.setTimestamp(3, format.getLastpolldate());
+        pst.setString(4, format.getMdprefix());
+        pst.setString(5, format.getDissType());
+        pst.setTimestamp(6, format.getLastpolldate());
+        pst.addBatch();
     }
 }
