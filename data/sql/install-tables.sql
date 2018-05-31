@@ -24,7 +24,6 @@ CREATE TABLE public.formats
   id bigint NOT NULL,
   mdprefix character varying(255) NOT NULL,
   lastpolldate timestamp with time zone,
-  disstype character varying(50) NOT NULL,
   deleted boolean NOT NULL DEFAULT false,
   CONSTRAINT formats_pkey PRIMARY KEY (id),
   CONSTRAINT disstype_unique UNIQUE ("disstype"),
