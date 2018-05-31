@@ -75,12 +75,12 @@ public class FormatsController {
     }
 
     @PUT
-    @Path("{name}")
+    @Path("{mdprefix}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("name") String name, String input) throws IOException, SQLException {
+    public Response update(@PathParam("mdprefix") String mdprefix, String input) throws IOException, SQLException {
 
-        if (name.isEmpty() || name == null) {
+        if (mdprefix.isEmpty() || mdprefix == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The name parameter is failed or empty!").build();
         }
 
@@ -97,23 +97,24 @@ public class FormatsController {
     }
 
     @DELETE
-    @Path("{name}")
+    @Path("{mdprefix}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("name") String name) throws SQLException {
+    public Response delete(@PathParam("mdprefix") String mdprefix) throws SQLException {
 
-        if (name.isEmpty() || name == null) {
+        if (mdprefix.isEmpty() || mdprefix == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The name parameter is failed or empty!").build();
         }
 
-        formatService.deleteByKeyValue("mdprefix", name);
+        formatService.deleteByKeyValue("mdprefix", mdprefix);
 
         return Response.status(Response.Status.OK).build();
     }
     
     @GET
+    @Path("{mdprefix}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response listFormats(@Context ServletContext servletContext) {
+    public Response format(@Context ServletContext servletContext, @PathParam("mdprefix") String mdprefix) {
         return Response.status(200).entity(true).build();
     }
     
