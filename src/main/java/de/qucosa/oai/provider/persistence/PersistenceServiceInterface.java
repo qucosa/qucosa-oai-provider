@@ -25,7 +25,11 @@ import java.util.Set;
 
 public interface PersistenceServiceInterface {
     void setConnection(Connection connection);
-    
+
+    int count(String cntField, String... whereClauses);
+
+    int count(String cntField, String whereColumn, String whereColumnValue) throws SQLException;
+
     <T> Set<T> findAll();
     
     <T> Set<T> find(String sqlStmt);
