@@ -16,6 +16,7 @@
 
 package de.qucosa.oai.provider.application;
 
+import de.qucosa.oai.provider.persistence.postgres.DisseminationService;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 import de.qucosa.oai.provider.persistence.postgres.FormatService;
@@ -29,5 +30,6 @@ public class ApplicationBinder extends AbstractBinder {
         bind(SetService.class).to(SetService.class);
         bind(RecordService.class).to(RecordService.class);
         bind(FormatService.class).to(FormatService.class);
+        bind(DisseminationService.class).to(DisseminationService.class);
     }
 }
