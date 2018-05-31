@@ -63,7 +63,7 @@ public class SetController {
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public void save(String input) throws JsonParseException, JsonMappingException, IOException, SQLException, SAXException {
+    public Response save(String input) throws JsonParseException, JsonMappingException, IOException, SQLException, SAXException {
         
         if (input != null && !input.isEmpty()) {
             Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes = buildSqlSets(input);
@@ -72,6 +72,8 @@ public class SetController {
                 saveSetSpecs(saveRes);
             }
         }
+
+        return Response.status(Response.Status.OK).entity(true).build();
     }
 
     @PUT
