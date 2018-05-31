@@ -67,6 +67,16 @@ public class RecordService extends PersistenceServiceAbstract implements Persist
     public <T> void deleteByValues(Set<T> values) { }
 
     @Override
+    public int count(String cntField, String... whereClauses) {
+        return 0;
+    }
+
+    @Override
+    public int count(String cntField, String whereColumn, String whereColumnValue) {
+        return 0;
+    }
+
+    @Override
     public <T> Set<T> find(String sqlStmt) { return null; }
 
     @Override

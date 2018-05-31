@@ -31,11 +31,11 @@ public class Disemination implements Serializable {
     @JsonProperty("id")
     private Long id;
     
-    @JsonProperty("identifierId")
-    private Long identifierId;
+    @JsonProperty("recordId")
+    private Long recordId;
     
-    @JsonProperty("format")
-    private Long format;
+    @JsonProperty("formatId")
+    private Long formatId;
     
     @JsonProperty("moddate")
     private Date moddate;
@@ -54,20 +54,20 @@ public class Disemination implements Serializable {
         this.id = id;
     }
 
-    public Long getIdentifierId() {
-        return identifierId;
+    public Long getRecordId() {
+        return recordId;
     }
 
-    public void setIdentifierId(Long identifierId) {
-        this.identifierId = identifierId;
+    public void setRecordId(Long recordId) {
+        this.recordId = recordId;
     }
 
-    public Long getFormat() {
-        return format;
+    public Long getFormatId() {
+        return formatId;
     }
 
-    public void setFormat(Long format) {
-        this.format = format;
+    public void setFormatId(Long formatId) {
+        this.formatId = formatId;
     }
 
     public Date getModdate() {

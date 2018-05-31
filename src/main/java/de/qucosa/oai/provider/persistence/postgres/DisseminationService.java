@@ -32,6 +32,16 @@ public class DisseminationService extends PersistenceServiceAbstract implements 
     public Set<Disemination> findAll() {return null; }
 
     @Override
+    public int count(String cntField, String... whereClauses) {
+        return 0;
+    }
+
+    @Override
+    public int count(String cntField, String whereColumn, String whereColumnValue) {
+        return 0;
+    }
+
+    @Override
     public <T> Set<T> find(String sqlStmt) {
         return null;
     }
@@ -55,13 +65,13 @@ public class DisseminationService extends PersistenceServiceAbstract implements 
                 SQLXML sqlxml = connection().createSQLXML();
                 sqlxml.setString(sw.toString());
                 
-                pst.setLong(1, record.getIdentifierId());
-                pst.setLong(2, record.getFormat());
+                pst.setLong(1, record.getRecordId());
+                pst.setLong(2, record.getFormatId());
                 pst.setDate(3, record.getModdate());
                 pst.setSQLXML(4, sqlxml);
                 
-                pst.setLong(5, record.getIdentifierId());
-                pst.setLong(6, record.getFormat());
+                pst.setLong(5, record.getRecordId());
+                pst.setLong(6, record.getFormatId());
                 pst.setDate(7, record.getModdate());
                 pst.setSQLXML(8, sqlxml);
                 

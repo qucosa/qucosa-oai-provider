@@ -29,7 +29,6 @@ import de.qucosa.oai.provider.persistence.pojos.Format;
 
 public class FormatService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
 
-    @SuppressWarnings("unchecked")
     @Override
     public Set<Format> findAll() {
         Set<Format> formats = new HashSet<>();
@@ -58,11 +57,23 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
     }
 
     @Override
-    public <T> Set<T> find(String sqlStmt) {
-        return null;
+    public int count(String cntField, String... whereClauses) { return 0; }
+
+    @Override
+    public int count(String cntField, String whereColumn, String whereColumnValue) throws SQLException {
+        int result = 0;
+        String sql = "SELECT count('" + cntField + "') AS cnt FROM formats WHERE "+ whereColumn + " = '" + whereColumnValue + "'";
+        Statement stmt = connection().createStatement();
+        ResultSet resultQ = stmt.executeQuery(sql);
+        result = resultQ.getInt("cnt");
+        resultQ.close();
+
+        return result;
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
+    public <T> Set<T> find(String sqlStmt) { return null; }
+
     @Override
     public <T> void update(T object) throws SQLException {
         StringBuffer sb = new StringBuffer();
@@ -90,14 +101,10 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
     }
 
     @Override
-    public <T> T findById(Long id) {
-        return null;
-    }
+    public <T> T findById(Long id) { return null; }
 
     @Override
-    public <T> T findByValues(Set<T> values) {
-        return null;
-    }
+    public <T> T findByValues(Set<T> values) { return null; }
 
     @Override
     public void deleteById(Long id) {}

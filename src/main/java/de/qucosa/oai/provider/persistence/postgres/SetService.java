@@ -65,7 +65,7 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
         sb.append("INSERT INTO sets (id, setspec, predicate, doc) \r\n");
         sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n");
         sb.append("ON CONFLICT (setspec) \r\n");
-        sb.append("DO UPDATE SET doc = ? \r\n");
+        sb.append("DO UPDATE SET doc = ?, predicate = ? \r\n");
 
         PreparedStatement pst = connection().prepareStatement(sb.toString());
         connection().setAutoCommit(false);
@@ -79,6 +79,7 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
                 pst.setString(2, set.getPredicate());
                 pst.setSQLXML(3, sqlxml);
                 pst.setSQLXML(4, sqlxml);
+                pst.setString(5, set.getPredicate());
                 pst.addBatch();
             }
         }
@@ -112,6 +113,16 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
 
     @Override
     public <T> void deleteByValues(Set<T> values) {}
+
+    @Override
+    public int count(String cntField, String... whereClauses) {
+        return 0;
+    }
+
+    @Override
+    public int count(String cntField, String whereColumn, String whereColumnValue) {
+        return 0;
+    }
 
     @Override
     public <T> Set<T> find(String sqlStmt) {
