@@ -31,9 +31,6 @@ public class Record implements Serializable {
     @JsonProperty("id")
     private Long id;
     
-    @JsonProperty("identifier")
-    private String identifier;
-    
     @JsonProperty("datestamp")
     private Timestamp datestamp;
     
@@ -49,14 +46,6 @@ public class Record implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
     }
 
     public Timestamp getDatestamp() {
