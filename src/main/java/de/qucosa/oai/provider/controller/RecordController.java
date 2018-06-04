@@ -48,6 +48,23 @@ public class RecordController {
     public void init() {
         service.setConnection(connection);
     }
+
+    @GET
+    @Path("{pid}")
+    public Response find(@PathParam("pid") String pid) throws SQLException {
+
+        if (pid == null || pid.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The pid paramter is failed or empty!").build();
+        }
+
+        Record record = service.findByValue("record", pid);
+
+        if (record == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The mapping object is failed!").build();
+        }
+
+        return Response.status(Response.Status.OK).entity("").build();
+    }
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
