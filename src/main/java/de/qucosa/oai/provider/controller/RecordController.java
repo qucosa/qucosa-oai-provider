@@ -57,31 +57,31 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("The pid paramter is failed or empty!").build();
         }
 
-        Record record = service.findByValue("record", pid);
+        Record record = service.findByValue("pid", pid);
 
-        if (record == null) {
+        if (record.getId() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The mapping object is failed!").build();
         }
 
-        return Response.status(Response.Status.OK).entity("").build();
+        return Response.status(Response.Status.OK).entity(record).build();
     }
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) throws SQLException {
+    public Response save(String input) throws SQLException, IOException {
 
         if (input.isEmpty() && input == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The input data object is failed or empty!").build();
         }
 
-        Set<Record> records = buildSqlObjects(input);
+        Record record = buildSqlObject(input);
 
-        if (records == null) {
+        if (record == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Data json mapper object is failed!").build();
         }
 
-        saveRecords(records);
+        service.update(record);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -111,7 +111,7 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Update PID parameter and record PID ar unequal!").build();
         }
 
-        saveRecords(record);
+        service.update(record);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -131,18 +131,9 @@ public class RecordController {
         return Response.status(Response.Status.OK).build();
     }
     
-    private Set<Record> buildSqlObjects(String json) {
+    private Record buildSqlObject(String json) throws IOException {
         ObjectMapper om = new ObjectMapper();
-        Set<Record> records = new HashSet<>();
-        
-        try {
-            records = om.readValue(json, om.getTypeFactory().constructCollectionType(Set.class, Record.class));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        return records;
+        Record record = om.readValue(json, Record.class);
+        return record;
     }
-    
-    private <T> void saveRecords(T data) throws SQLException { service.update(data); }
 }
