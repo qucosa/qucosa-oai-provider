@@ -29,19 +29,19 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import java.util.List;
 
-public class RecordXmlBuilder {
+public class DisseminationXmlBuilder {
     private Document recordTemplate = null;
 
     private RecordTransport record = null;
 
     private DissTerms dissTerms = null;
 
-    public RecordXmlBuilder(RecordTransport record) {
+    public DisseminationXmlBuilder(RecordTransport record) {
         this.record = record;
         this.recordTemplate = DocumentXmlUtils.document(getClass().getResourceAsStream("/record.xml"), true);
     }
 
-    public Document buildRecord() throws XPathExpressionException {
+    public Document buildDissemination() throws XPathExpressionException {
         Node importDissemination = recordTemplate.importNode(record.getData().getDocumentElement(), true);
         metadata().appendChild(importDissemination);
         recordIdentifiere().appendChild(recordTemplate.createTextNode(record.getPid()));
@@ -50,7 +50,7 @@ public class RecordXmlBuilder {
         return recordTemplate;
     }
 
-    public RecordXmlBuilder setDissTerms(DissTerms dissTerms) {
+    public DisseminationXmlBuilder setDissTerms(DissTerms dissTerms) {
         this.dissTerms = dissTerms;
         return this;
     }
