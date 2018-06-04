@@ -20,11 +20,16 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
+import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
-import de.qucosa.oai.provider.xml.builders.RecordXmlBuilder;
+import de.qucosa.oai.provider.persistence.postgres.DisseminationService;
+import de.qucosa.oai.provider.xml.builders.DisseminationXmlBuilder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -33,37 +38,37 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 @Path("/dissemination")
 @RequestScoped
 public class DisseminationController {
 
+    private PersistenceServiceInterface disseminationService;
+
+    @Inject
+    public DisseminationController (DisseminationService disseminationService) {
+        this.disseminationService = disseminationService;
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) {
-        ObjectMapper om = new ObjectMapper();
-        List<RecordTransport> inputData = null;
+    public Response save(String input) throws IOException, SQLException, SAXException {
 
-        try {
-            inputData = om.readValue(input.getBytes("UTF-8"),
-                    om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
-
-            for (RecordTransport record : inputData) {
-                Document recordDoc = new RecordXmlBuilder(record)
-                        .setDissTerms(new DissTerms("/home/opt/qucosa-fcrepo-camel/config/"))
-                        .buildRecord(record.getData());
-                /**
-                 * @// TODO: 26.04.18
-                 * add save record in database
-                 */
-            }
-        } catch (JsonParseException | JsonMappingException e) {
-            return Response.status(500).entity("Json cannot parsed or mapped out.").build();
-        } catch (IOException | XPathExpressionException e) {
-            return Response.status(500).entity("A xpath expression is failed.").build();
+        if (input.isEmpty() || input == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The input data object is empty or failed!").build();
         }
+
+        ObjectMapper om = new ObjectMapper();
+        Dissemination dissemination = om.readValue(input, Dissemination.class);
+
+        if (dissemination == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The dissemination json object mapping is failed!").build();
+        }
+
+        disseminationService.update(dissemination);
 
         return Response.status(200).entity(true).build();
     }
