@@ -26,7 +26,7 @@ import org.junit.Test;
 
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
-import de.qucosa.oai.provider.persistence.pojos.Disemination;
+import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.postgres.DisseminationService;
 
 public class Record_IT {
@@ -42,7 +42,7 @@ public class Record_IT {
     
     @Test
     public void findAll_Test() {
-        Set<Disemination> records = service.findAll();
+        Set<Dissemination> records = service.findAll();
         records.size();
     }
     
