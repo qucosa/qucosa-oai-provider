@@ -77,10 +77,10 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
     @Override
     public <T> void update(T object) throws SQLException {
         StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO formats (id, mdprefix, disstype, lastpolldate) \r\n");
-        sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n");
+        sb.append("INSERT INTO formats (id, mdprefix, lastpolldate) \r\n");
+        sb.append("VALUES (nextval('oaiprovider'), ?, ?) \r\n");
         sb.append("ON CONFLICT (mdprefix) \r\n");
-        sb.append("DO UPDATE SET mdprefix = ?, disstype = ?, lastpolldate = ?; \r\n");
+        sb.append("DO UPDATE SET mdprefix = ?, lastpolldate = ?; \r\n");
         PreparedStatement pst = connection().prepareStatement(sb.toString());
         connection().setAutoCommit(false);
 
@@ -116,7 +116,7 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
     public <T> T findByValue(String column, String value) {
         Format format =  new Format();
         StringBuffer sb = new StringBuffer();
-        sb.append("SELECT id, mdprefix, lastpolldate, disstype FROM formats WHERE " + column + " = ?;");
+        sb.append("SELECT id, mdprefix, lastpolldate, deleted FROM formats WHERE " + column + " = ?;");
         
         try {
             PreparedStatement pst = connection().prepareStatement(sb.toString());
@@ -127,8 +127,8 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
             while(result.next()) {
                 format.setId(result.getLong("id"));
                 format.setMdprefix(result.getString("mdprefix"));
-                format.setDissType(result.getString("disstype"));
                 format.setLastpolldate(result.getTimestamp("lastpolldate"));
+                format.setDeleted(result.getBoolean("deleted"));
             }
             
             result.close();
@@ -163,11 +163,9 @@ public class FormatService extends PersistenceServiceAbstract implements Persist
 
     private void buildUpdateObject(PreparedStatement pst, Format format) throws SQLException {
         pst.setString(1, format.getMdprefix());
-        pst.setString(2, format.getDissType());
-        pst.setTimestamp(3, format.getLastpolldate());
-        pst.setString(4, format.getMdprefix());
-        pst.setString(5, format.getDissType());
-        pst.setTimestamp(6, format.getLastpolldate());
+        pst.setTimestamp(2, format.getLastpolldate());
+        pst.setString(3, format.getMdprefix());
+        pst.setTimestamp(4, format.getLastpolldate());
         pst.addBatch();
     }
 }

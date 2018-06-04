@@ -32,7 +32,7 @@ public class RecordService extends PersistenceServiceAbstract implements Persist
     @Override
     public <T> void update(T data) throws SQLException {
         StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO record (id, pid, datestamp) \r\n");
+        sb.append("INSERT INTO records (id, pid, datestamp) \r\n");
         sb.append("VALUES (nextval('oaiprovider'), ?, ?) \r\n");
         sb.append("ON CONFLICT (pid) \r\n");
         sb.append("DO UPDATE SET pid = ? \r\n");
@@ -81,20 +81,17 @@ public class RecordService extends PersistenceServiceAbstract implements Persist
     @Override
     public <T> T findByValue(String column, String value) throws SQLException {
         Record record = new Record();
-        String sql = "SELECT id, pid FROM records WHERE " + column + " = ?";
+        String sql = "SELECT id, pid, datestamp, deleted FROM records WHERE " + column + " = ?";
         PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
         pst.setString(1, value);
         ResultSet resultSet = pst.executeQuery();
 
-        if (resultSet != null) {
-
-            while (resultSet.next()) {
-                record.setPid(resultSet.getString("pid"));
-                record.setId(resultSet.getLong("id"));
-                record.setDatestamp(resultSet.getTimestamp("datestamp"));
-                record.setDeleted(resultSet.getBoolean("deleted"));
-            }
+        while (resultSet.next()) {
+            record.setPid(resultSet.getString("pid"));
+            record.setId(resultSet.getLong("id"));
+            record.setDatestamp(resultSet.getTimestamp("datestamp"));
+            record.setDeleted(resultSet.getBoolean("deleted"));
         }
 
         resultSet.close();
