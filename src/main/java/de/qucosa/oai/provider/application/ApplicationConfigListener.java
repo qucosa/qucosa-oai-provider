@@ -16,12 +16,12 @@
 
 package de.qucosa.oai.provider.application;
 
+import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.mapper.SetsConfig;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.application.mapper.SetsConfig;
 
 public class ApplicationConfigListener implements ServletContextListener {
     @Override

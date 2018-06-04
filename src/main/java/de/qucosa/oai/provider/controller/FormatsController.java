@@ -16,11 +16,11 @@
 
 package de.qucosa.oai.provider.controller;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.persistence.Connect;
+import de.qucosa.oai.provider.persistence.pojos.Format;
+import de.qucosa.oai.provider.persistence.postgres.FormatService;
+import org.glassfish.jersey.process.internal.RequestScoped;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -29,16 +29,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.glassfish.jersey.process.internal.RequestScoped;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import de.qucosa.oai.provider.persistence.Connect;
-import de.qucosa.oai.provider.persistence.pojos.Format;
-import de.qucosa.oai.provider.persistence.postgres.FormatService;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 @Path("/formats")
 @RequestScoped

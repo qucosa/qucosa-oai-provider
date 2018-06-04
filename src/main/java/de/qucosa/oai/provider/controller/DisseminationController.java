@@ -16,17 +16,11 @@
 
 package de.qucosa.oai.provider.controller;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
-import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
 import de.qucosa.oai.provider.persistence.postgres.DisseminationService;
-import de.qucosa.oai.provider.xml.builders.DisseminationXmlBuilder;
 import org.glassfish.jersey.process.internal.RequestScoped;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
@@ -36,10 +30,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 @Path("/dissemination")
 @RequestScoped

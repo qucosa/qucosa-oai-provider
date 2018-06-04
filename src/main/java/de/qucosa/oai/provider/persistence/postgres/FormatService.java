@@ -16,16 +16,16 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
+import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
+import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
+import de.qucosa.oai.provider.persistence.pojos.Format;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
-
-import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
-import de.qucosa.oai.provider.persistence.pojos.Format;
 
 public class FormatService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
 

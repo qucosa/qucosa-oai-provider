@@ -16,11 +16,16 @@
 
 package de.qucosa.oai.provider.controller;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.persistence.Connect;
+import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
+import de.qucosa.oai.provider.persistence.postgres.SetService;
+import org.glassfish.jersey.process.internal.RequestScoped;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -30,19 +35,11 @@ import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
-import org.glassfish.jersey.process.internal.RequestScoped;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import de.qucosa.oai.provider.persistence.Connect;
-import de.qucosa.oai.provider.persistence.postgres.SetService;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 @Path("/sets")
 @RequestScoped

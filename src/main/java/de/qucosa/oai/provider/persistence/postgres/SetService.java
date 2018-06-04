@@ -16,20 +16,15 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
-import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLXML;
-import java.sql.Statement;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.xml.sax.SAXException;
-
 import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.sql.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SetService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
     

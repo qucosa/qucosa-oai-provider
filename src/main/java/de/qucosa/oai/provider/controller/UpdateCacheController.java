@@ -20,12 +20,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.application.mapper.SetsConfig;
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 import de.qucosa.oai.provider.persistence.pojos.Record;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
-import de.qucosa.oai.provider.persistence.postgres.FormatService;
 import de.qucosa.oai.provider.xml.builders.DisseminationXmlBuilder;
 import de.qucosa.oai.provider.xml.builders.SetXmlBuilder;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
@@ -33,7 +31,6 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -54,21 +51,14 @@ import java.util.Set;
 @RequestScoped
 public class UpdateCacheController {
 
-    private PersistenceServiceInterface formatService;
-
     private ObjectMapper om = new ObjectMapper();
-
-    @Inject
-    public UpdateCacheController(FormatService formatService) {
-        this.formatService = formatService;
-    }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(@Context ServletContext servletContext, @Context ResourceContext resourceContext, String input) throws IOException, SQLException, SAXException, XPathExpressionException {
 
-        if (input.isEmpty() || input == null) {
+        if (input == null || input.isEmpty()) {
            return Response.status(Response.Status.BAD_REQUEST).entity("Request input data is empty or failed!").build();
         }
 
