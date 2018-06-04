@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.persistence.pojos.Record;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -31,10 +32,10 @@ public class RecordService extends PersistenceServiceAbstract implements Persist
     @Override
     public <T> void update(T data) throws SQLException {
         StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO identifier (id, identifier, datestamp) \r\n");
+        sb.append("INSERT INTO record (id, pid, datestamp) \r\n");
         sb.append("VALUES (nextval('oaiprovider'), ?, ?) \r\n");
-        sb.append("ON CONFLICT (identifier) \r\n");
-        sb.append("DO UPDATE SET identifier = ? \r\n");
+        sb.append("ON CONFLICT (pid) \r\n");
+        sb.append("DO UPDATE SET pid = ? \r\n");
         PreparedStatement pst = connection().prepareStatement(sb.toString());
         connection().setAutoCommit(false);
 
@@ -72,15 +73,34 @@ public class RecordService extends PersistenceServiceAbstract implements Persist
     }
 
     @Override
-    public int count(String cntField, String whereColumn, String whereColumnValue) {
-        return 0;
-    }
+    public int count(String cntField, String whereColumn, String whereColumnValue) { return 0; }
 
     @Override
     public <T> Set<T> find(String sqlStmt) { return null; }
 
     @Override
-    public <T> T findByValue(String column, String value) { return null; }
+    public <T> T findByValue(String column, String value) throws SQLException {
+        Record record = new Record();
+        String sql = "SELECT id, pid FROM records WHERE " + column + " = ?";
+        PreparedStatement pst = connection().prepareStatement(sql);
+        connection().setAutoCommit(false);
+        pst.setString(1, value);
+        ResultSet resultSet = pst.executeQuery();
+
+        if (resultSet != null) {
+
+            while (resultSet.next()) {
+                record.setPid(resultSet.getString("pid"));
+                record.setId(resultSet.getLong("id"));
+                record.setDatestamp(resultSet.getTimestamp("datestamp"));
+                record.setDeleted(resultSet.getBoolean("deleted"));
+            }
+        }
+
+        resultSet.close();
+
+        return (T) record;
+    }
 
     @Override
     public void update(String sql) { }
@@ -111,9 +131,9 @@ public class RecordService extends PersistenceServiceAbstract implements Persist
     public void deleteByKeyValue(String... paires) { }
 
     private void buildUpdateObject(PreparedStatement pst, Record record) throws SQLException {
-        pst.setString(1, record.getIdentifier());
+        pst.setString(1, record.getPid());
         pst.setTimestamp(2, record.getDatestamp());
-        pst.setString(3, record.getIdentifier());
+        pst.setString(3, record.getPid());
         pst.addBatch();
     }
 }
