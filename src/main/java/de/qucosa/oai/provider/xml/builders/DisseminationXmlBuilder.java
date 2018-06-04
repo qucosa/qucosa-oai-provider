@@ -41,8 +41,8 @@ public class RecordXmlBuilder {
         this.recordTemplate = DocumentXmlUtils.document(getClass().getResourceAsStream("/record.xml"), true);
     }
 
-    public Document buildRecord(Document dissemination) throws XPathExpressionException {
-        Node importDissemination = recordTemplate.importNode(dissemination.getDocumentElement(), true);
+    public Document buildRecord() throws XPathExpressionException {
+        Node importDissemination = recordTemplate.importNode(record.getData().getDocumentElement(), true);
         metadata().appendChild(importDissemination);
         recordIdentifiere().appendChild(recordTemplate.createTextNode(record.getPid()));
         recordDatestamp().appendChild(recordTemplate.createTextNode(DateTimeConverter.sqlTimestampToString(record.getModified())));

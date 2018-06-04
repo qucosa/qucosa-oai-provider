@@ -41,7 +41,7 @@ ALTER TABLE public.formats
 CREATE TABLE public.records
 (
   id bigint NOT NULL,
-  record character varying(255) NOT NULL,
+  pid character varying(255) NOT NULL,
   datestamp timestamp with time zone,
   deleted boolean NOT NULL DEFAULT false,
   CONSTRAINT record_pkey PRIMARY KEY (id),
