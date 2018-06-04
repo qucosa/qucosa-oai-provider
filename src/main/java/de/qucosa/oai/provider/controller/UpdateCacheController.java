@@ -18,13 +18,19 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.application.mapper.SetsConfig;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
+import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.Format;
+import de.qucosa.oai.provider.persistence.pojos.Record;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
 import de.qucosa.oai.provider.persistence.postgres.FormatService;
+import de.qucosa.oai.provider.xml.builders.DisseminationXmlBuilder;
 import de.qucosa.oai.provider.xml.builders.SetXmlBuilder;
+import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 import org.glassfish.jersey.process.internal.RequestScoped;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
@@ -37,6 +43,7 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -59,28 +66,109 @@ public class UpdateCacheController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@Context ServletContext servletContext, @Context ResourceContext resourceContext, String input) throws IOException, SQLException, SAXException {
+    public Response update(@Context ServletContext servletContext, @Context ResourceContext resourceContext, String input) throws IOException, SQLException, SAXException, XPathExpressionException {
 
         if (input.isEmpty() || input == null) {
-            Response.status(Response.Status.BAD_REQUEST).entity("Request input data is empty or failed!").build();
+           return Response.status(Response.Status.BAD_REQUEST).entity("Request input data is empty or failed!").build();
         }
 
         List<RecordTransport> inputData = om.readValue(input.getBytes("UTF-8"),
                 om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
         SetController setController = resourceContext.getResource(SetController.class);
-        FormatsController formatsController = resourceContext.getResource(FormatsController.class);
 
         for (RecordTransport rt : inputData) {
-            Response resSet = setController.save(om.writeValueAsString(sets(rt.getSets(), (SetsConfig) servletContext.getAttribute("sets"))));
-            Response resFormat = formatsController.format(servletContext, rt.getPrefix());
-            Format format = (Format) resFormat.getEntity();
+            setController.save(om.writeValueAsString(sets(rt.getSets(), (SetsConfig) servletContext.getAttribute("sets"))));
+            Format format = getFormat(resourceContext, servletContext, rt);
 
             if (format == null) {
-                addFormat(resourceContext, rt);
+                return Response.status(Response.Status.BAD_REQUEST).entity("Get and / or save format prefix is failed!").build();
+            }
+
+            Record record = getRecord(resourceContext, servletContext, rt);
+
+            if (record == null) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Get and / or save record prefix is failed!").build();
+            }
+
+            Document disseminationDocument = new DisseminationXmlBuilder(rt)
+                    .setDissTerms((DissTerms) servletContext.getAttribute("dissConf"))
+                    .buildDissemination();
+
+            if (disseminationDocument == null) {
+                // @todo log datails message of this failed dissemination document build
+                return Response.status(Response.Status.BAD_REQUEST).entity("Dissemination xml document build is failed!").build();
+            }
+
+            if (saveDissemination(resourceContext, format, record, disseminationDocument).getStatus() != 200) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Dissemination save is failed!").build();
             }
         }
 
-        return null;
+        return Response.status(Response.Status.OK).build();
+    }
+
+    private Response saveDissemination(ResourceContext resourceContext, Format format, Record record, Document disseminationDoc) throws IOException, SAXException, SQLException {
+        Dissemination dissemination = new Dissemination();
+        DisseminationController disseminationController = resourceContext.getResource(DisseminationController.class);
+        dissemination.setFormatId(format.getId());
+        dissemination.setRecordId(record.getId());
+        dissemination.setXmldata(DocumentXmlUtils.resultXml(disseminationDoc));
+        return disseminationController.save(om.writeValueAsString(dissemination));
+    }
+
+    /**
+     * Returns an format pojo by mdprefix.
+     * If format object not exists, else returns after save an new format data row.
+     * @param resourceContext
+     * @param servletContext
+     * @param rt
+     * @return Format
+     * @throws SQLException
+     * @throws IOException 
+     */
+    private Format getFormat(ResourceContext resourceContext, ServletContext servletContext, RecordTransport rt) throws SQLException, IOException {
+        FormatsController formatsController = resourceContext.getResource(FormatsController.class);
+        Response resFormat = formatsController.format(servletContext, rt.getPrefix());
+        Format format;
+
+        if (resFormat.getStatus() != 200) {
+            format = new Format();
+            format.setMdprefix(rt.getPrefix());
+            formatsController.save(om.writeValueAsString(format));
+            format = (Format) formatsController.format(servletContext, rt.getPrefix()).getEntity();
+        } else {
+            format = (Format) resFormat.getEntity();
+        }
+
+        return format;
+    }
+
+    /**
+     *  Returns an record pojo by pid.
+     *  If record object not exists, else returns after save an new record data row.
+     * @param resourceContext
+     * @param servletContext
+     * @param rt
+     * @return Record
+     * @throws SQLException
+     * @throws JsonProcessingException
+     */
+    private Record getRecord(ResourceContext resourceContext, ServletContext servletContext, RecordTransport rt) throws SQLException, IOException {
+        Record record;
+        RecordController recordController = resourceContext.getResource(RecordController.class);
+        Response recordResonse = recordController.find(rt.getPid());
+
+        if (recordResonse.getStatus() == 200) {
+            record = (Record) recordResonse.getEntity();
+        } else {
+            record = new Record();
+            record.setPid(rt.getPid());
+            record.setDatestamp(rt.getModified());
+            recordController.save(om.writeValueAsString(record));
+            record = (Record) recordController.find(rt.getPid()).getEntity();
+        }
+
+        return record;
     }
 
     private Set<de.qucosa.oai.provider.persistence.pojos.Set> sets(List<String> sets, SetsConfig setsConfig) {
@@ -88,29 +176,16 @@ public class UpdateCacheController {
 
         for (String setspec : sets) {
             SetsConfig.Set set = setsConfig.getSetObject(setspec);
-            de.qucosa.oai.provider.persistence.pojos.Set updateSet = new de.qucosa.oai.provider.persistence.pojos.Set();
-            updateSet.setSetSpec(set.getSetSpec());
-            updateSet.setPredicate(set.getPredicate());
-            updateSet.setDocument(SetXmlBuilder.build(set));
-            output.add(updateSet);
+
+            if (set != null) {
+                de.qucosa.oai.provider.persistence.pojos.Set updateSet = new de.qucosa.oai.provider.persistence.pojos.Set();
+                updateSet.setSetSpec(set.getSetSpec());
+                updateSet.setPredicate(set.getPredicate());
+                updateSet.setDocument(SetXmlBuilder.build(set));
+                output.add(updateSet);
+            }
         }
 
         return output;
-    }
-
-    private int cntFormat(RecordTransport rt) throws SQLException {
-        return formatService.count("id", "mdprefix", rt.getPrefix());
-    }
-
-    private Format getFormat(RecordTransport rt) {
-        return formatService.findByValue("mdprefix", rt.getPrefix());
-    }
-
-    private Response addFormat(ResourceContext resourceContext, RecordTransport rt) throws SQLException, JsonProcessingException {
-        FormatsController fc = resourceContext.getResource(FormatsController.class);
-        Format format = new Format();
-        format.setMdprefix(rt.getPrefix());
-        Response rb = fc.save(om.writeValueAsString(format));
-        return rb;
     }
 }
