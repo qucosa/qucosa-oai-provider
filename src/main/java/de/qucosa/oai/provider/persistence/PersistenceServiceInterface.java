@@ -44,7 +44,7 @@ public interface PersistenceServiceInterface {
     
     <T> T findByIds(T...values);
     
-    <T> T findByValue(String column, String value);
+    <T> T findByValue(String column, String value) throws SQLException;
     
     <T> T findByValues(Set<T> values);
     
