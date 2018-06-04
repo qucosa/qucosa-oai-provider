@@ -56,20 +56,19 @@ public class FormatsController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) throws SQLException {
-        Set<Format> formats = null;
+    public Response save(String input) throws SQLException, IOException {
 
-        if (input != null && !input.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Input data is empty!").build();
+        if (input == null && input.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Input data is empty or failed!").build();
         }
 
-        formats = buildSqlSets(input);
+        Format format = buildSqlFormat(input);
 
-        if (formats.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Formats build is failed!").build();
+        if (format == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Formats json mapper object is failed!").build();
         }
 
-        saveFormats(formats);
+        formatService.update(format);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -81,11 +80,10 @@ public class FormatsController {
     public Response update(@PathParam("mdprefix") String mdprefix, String input) throws IOException, SQLException {
 
         if (mdprefix.isEmpty() || mdprefix == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The name parameter is failed or empty!").build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
         }
 
-        ObjectMapper om = new ObjectMapper();
-        Format format = om.readValue(input, Format.class);
+        Format format = buildSqlFormat(input);
 
         if (format == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Format mapper is null!").build();
@@ -103,7 +101,7 @@ public class FormatsController {
     public Response delete(@PathParam("mdprefix") String mdprefix) throws SQLException {
 
         if (mdprefix.isEmpty() || mdprefix == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The name parameter is failed or empty!").build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
         }
 
         formatService.deleteByKeyValue("mdprefix", mdprefix);
@@ -115,27 +113,23 @@ public class FormatsController {
     @Path("{mdprefix}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response format(@Context ServletContext servletContext, @PathParam("mdprefix") String mdprefix) {
-        return Response.status(200).entity(true).build();
-    }
-    
-    private Set<Format> buildSqlSets(String input) {
-        Set<Format> formats = new HashSet<>();
-        ObjectMapper om = new ObjectMapper();
-        
-        try {
-            formats = om.readValue(input, om.getTypeFactory().constructCollectionType(Set.class, Format.class));
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        if (mdprefix.isEmpty() || mdprefix == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
         }
-        
-        return formats;
+
+        Format format = formatService.findByValue("mdprefix", mdprefix);
+
+        if (format.getId() == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Format json mapper object is failed!").build();
+        }
+
+        return Response.status(200).entity(format).build();
     }
     
-    public void saveFormats(Set<Format> formats) throws SQLException {
-        formatService.update(formats);
+    private Format buildSqlFormat(String input) throws IOException {
+        ObjectMapper om = new ObjectMapper();
+        Format format = om.readValue(input, Format.class);
+        return format;
     }
 }
