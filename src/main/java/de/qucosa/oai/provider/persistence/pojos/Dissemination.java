@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Disemination implements Serializable {
+public class Dissemination implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("id")
