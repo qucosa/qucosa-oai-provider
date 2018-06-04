@@ -18,7 +18,7 @@ package de.qucosa.oai.provider.persistence.postgres;
 
 import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
-import de.qucosa.oai.provider.persistence.pojos.Disemination;
+import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 
 import java.io.StringWriter;
 import java.sql.PreparedStatement;
@@ -29,7 +29,7 @@ import java.util.Set;
 public class DisseminationService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
 
     @Override
-    public Set<Disemination> findAll() {return null; }
+    public Set<Dissemination> findAll() {return null; }
 
     @Override
     public int count(String cntField, String... whereClauses) {
@@ -47,42 +47,30 @@ public class DisseminationService extends PersistenceServiceAbstract implements 
     }
 
     @Override
-    public <T> void update(T sets) {
-        Set<Disemination> records = (Set<Disemination>) sets;
+    public <T> void update(T object) throws SQLException {
         StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO records (id, identifier_id, format, moddate, xmldata \r\n)");
+        sb.append("INSERT INTO dissemnitations (id, id_record, id_format, lastmoddate, xmldata \r\n)");
         sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?, ?) \r\n");
         sb.append("ON CONFLICT (id) DO UPDATE \r\n");
-        sb.append("SET identifier_id = ?, format = ?, moddate = ?, xmldata = ?;");
-        
-        try {
-            PreparedStatement pst = connection().prepareStatement(sb.toString());
-            connection().setAutoCommit(false);
-            
-            for (Disemination record : records) {
-                StringWriter sw = new StringWriter();
-                sw.write(record.getXmldata());
-                SQLXML sqlxml = connection().createSQLXML();
-                sqlxml.setString(sw.toString());
-                
-                pst.setLong(1, record.getRecordId());
-                pst.setLong(2, record.getFormatId());
-                pst.setDate(3, record.getModdate());
-                pst.setSQLXML(4, sqlxml);
-                
-                pst.setLong(5, record.getRecordId());
-                pst.setLong(6, record.getFormatId());
-                pst.setDate(7, record.getModdate());
-                pst.setSQLXML(8, sqlxml);
-                
-                pst.addBatch();
+        sb.append("SET id_record = ?, id_format = ?, lastmoddate = ?, xmldata = ?;");
+
+        PreparedStatement pst = connection().prepareStatement(sb.toString());
+        connection().setAutoCommit(false);
+
+        if (object instanceof Set) {
+            Set<Dissemination> records = (Set<Dissemination>) object;
+
+            for (Dissemination dissemination : records) {
+                buildUpdateObject(pst, dissemination);
             }
-            
-            pst.executeBatch();
-            connection().commit();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
+
+        if (object instanceof Dissemination) {
+            buildUpdateObject(pst, (Dissemination) object);
+        }
+
+        pst.executeBatch();
+        connection().commit();
     }
 
     @Override
@@ -121,4 +109,23 @@ public class DisseminationService extends PersistenceServiceAbstract implements 
 
     @Override
     public <T> T findByIds(T... values) { return null; }
+
+    private void buildUpdateObject(PreparedStatement pst, Dissemination dissemination) throws SQLException {
+        StringWriter sw = new StringWriter();
+        sw.write(dissemination.getXmldata());
+        SQLXML sqlxml = connection().createSQLXML();
+        sqlxml.setString(sw.toString());
+
+        pst.setLong(1, dissemination.getRecordId());
+        pst.setLong(2, dissemination.getFormatId());
+        pst.setDate(3, dissemination.getModdate());
+        pst.setSQLXML(4, sqlxml);
+
+        pst.setLong(5, dissemination.getRecordId());
+        pst.setLong(6, dissemination.getFormatId());
+        pst.setDate(7, dissemination.getModdate());
+        pst.setSQLXML(8, sqlxml);
+
+        pst.addBatch();
+    }
 }
