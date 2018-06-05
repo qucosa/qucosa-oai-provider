@@ -16,10 +16,7 @@
 
 package de.qucosa.oai.provider.application;
 
-import de.qucosa.oai.provider.persistence.postgres.DisseminationDao;
-import de.qucosa.oai.provider.persistence.postgres.FormatDao;
-import de.qucosa.oai.provider.persistence.postgres.RecordDao;
-import de.qucosa.oai.provider.persistence.postgres.SetDao;
+import de.qucosa.oai.provider.persistence.postgres.*;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 public class ApplicationBinder extends AbstractBinder {
@@ -30,5 +27,6 @@ public class ApplicationBinder extends AbstractBinder {
         bind(RecordDao.class).to(RecordDao.class);
         bind(FormatDao.class).to(FormatDao.class);
         bind(DisseminationDao.class).to(DisseminationDao.class);
+        bind(SetsToRecordDao.class).to(SetsToRecordDao.class);
     }
 }
