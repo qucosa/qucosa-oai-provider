@@ -32,12 +32,12 @@ import org.junit.Test;
 
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
-import de.qucosa.oai.provider.persistence.postgres.SetService;
+import de.qucosa.oai.provider.persistence.postgres.SetDao;
 
 public class Sets_IT {
     Connection connection = null;
     
-    PersistenceServiceInterface service = new SetService();
+    PersistenceServiceInterface service = new SetDao();
     
     @Before
     public void connect() {

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
-import de.qucosa.oai.provider.persistence.postgres.DisseminationService;
+import de.qucosa.oai.provider.persistence.postgres.DisseminationDao;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.xml.sax.SAXException;
 
@@ -44,7 +44,7 @@ public class DisseminationController {
     private PersistenceServiceInterface disseminationService;
 
     @Inject
-    public DisseminationController (DisseminationService disseminationService) {
+    public DisseminationController (DisseminationDao disseminationService) {
         this.disseminationService = disseminationService;
     }
 

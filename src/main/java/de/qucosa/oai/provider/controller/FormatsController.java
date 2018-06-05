@@ -19,7 +19,7 @@ package de.qucosa.oai.provider.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.pojos.Format;
-import de.qucosa.oai.provider.persistence.postgres.FormatService;
+import de.qucosa.oai.provider.persistence.postgres.FormatDao;
 import org.glassfish.jersey.process.internal.RequestScoped;
 
 import javax.annotation.PostConstruct;
@@ -39,7 +39,7 @@ public class FormatsController {
     private Connection connection = new Connect("postgresql", "oaiprovider").connection();
     
     @Inject
-    private FormatService formatService;
+    private FormatDao formatService;
     
     @PostConstruct
     public void init() {

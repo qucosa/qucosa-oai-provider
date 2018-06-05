@@ -35,7 +35,7 @@ import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.persistence.pojos.Record;
-import de.qucosa.oai.provider.persistence.postgres.RecordService;
+import de.qucosa.oai.provider.persistence.postgres.RecordDao;
 
 public class Identifieres_IT extends JerseyTest {
     @Context
@@ -43,7 +43,7 @@ public class Identifieres_IT extends JerseyTest {
     
     private Connection connection = null;
     
-    private PersistenceServiceInterface service = new RecordService();
+    private PersistenceServiceInterface service = new RecordDao();
     
     @Before
     @Override

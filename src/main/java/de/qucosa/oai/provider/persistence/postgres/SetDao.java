@@ -26,7 +26,7 @@ import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SetService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
+public class SetDao extends PersistenceServiceAbstract implements PersistenceServiceInterface {
     
     public Set<de.qucosa.oai.provider.persistence.pojos.Set> findAll() {
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();

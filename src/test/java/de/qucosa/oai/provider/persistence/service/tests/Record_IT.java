@@ -27,12 +27,12 @@ import org.junit.Test;
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
-import de.qucosa.oai.provider.persistence.postgres.DisseminationService;
+import de.qucosa.oai.provider.persistence.postgres.DisseminationDao;
 
 public class Record_IT {
     Connection connection = null;
     
-    PersistenceServiceInterface service = new DisseminationService();
+    PersistenceServiceInterface service = new DisseminationDao();
     
     @Before
     public void connect() {

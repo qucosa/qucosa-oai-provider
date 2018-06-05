@@ -16,19 +16,19 @@
 
 package de.qucosa.oai.provider.application;
 
-import de.qucosa.oai.provider.persistence.postgres.DisseminationService;
-import de.qucosa.oai.provider.persistence.postgres.FormatService;
-import de.qucosa.oai.provider.persistence.postgres.RecordService;
-import de.qucosa.oai.provider.persistence.postgres.SetService;
+import de.qucosa.oai.provider.persistence.postgres.DisseminationDao;
+import de.qucosa.oai.provider.persistence.postgres.FormatDao;
+import de.qucosa.oai.provider.persistence.postgres.RecordDao;
+import de.qucosa.oai.provider.persistence.postgres.SetDao;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 public class ApplicationBinder extends AbstractBinder {
 
     @Override
     protected void configure() {
-        bind(SetService.class).to(SetService.class);
-        bind(RecordService.class).to(RecordService.class);
-        bind(FormatService.class).to(FormatService.class);
-        bind(DisseminationService.class).to(DisseminationService.class);
+        bind(SetDao.class).to(SetDao.class);
+        bind(RecordDao.class).to(RecordDao.class);
+        bind(FormatDao.class).to(FormatDao.class);
+        bind(DisseminationDao.class).to(DisseminationDao.class);
     }
 }

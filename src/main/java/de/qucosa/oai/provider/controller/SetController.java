@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
-import de.qucosa.oai.provider.persistence.postgres.SetService;
+import de.qucosa.oai.provider.persistence.postgres.SetDao;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -49,7 +49,7 @@ public class SetController {
     private final PersistenceServiceInterface setService;
 
     @Inject
-    public SetController(SetService setService) {
+    public SetController(SetDao setService) {
         this.setService = setService;
     }
     

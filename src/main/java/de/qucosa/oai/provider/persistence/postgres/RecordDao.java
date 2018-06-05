@@ -25,7 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 
-public class RecordService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
+public class RecordDao extends PersistenceServiceAbstract implements PersistenceServiceInterface {
     @Override
     public Set<Record> findAll() { return null; }
     

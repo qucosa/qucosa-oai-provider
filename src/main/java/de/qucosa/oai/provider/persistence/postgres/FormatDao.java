@@ -27,7 +27,7 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-public class FormatService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
+public class FormatDao extends PersistenceServiceAbstract implements PersistenceServiceInterface {
 
     @Override
     public Set<Format> findAll() {

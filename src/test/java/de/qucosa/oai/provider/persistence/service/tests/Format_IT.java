@@ -27,12 +27,12 @@ import org.junit.Test;
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.persistence.pojos.Format;
-import de.qucosa.oai.provider.persistence.postgres.FormatService;
+import de.qucosa.oai.provider.persistence.postgres.FormatDao;
 
 public class Format_IT {
     Connection connection = null;
     
-    PersistenceServiceInterface service = new FormatService();
+    PersistenceServiceInterface service = new FormatDao();
     
     @Before
     public void connect() {

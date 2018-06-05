@@ -26,7 +26,7 @@ import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.util.Set;
 
-public class DisseminationService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
+public class DisseminationDao extends PersistenceServiceAbstract implements PersistenceServiceInterface {
 
     @Override
     public Set<Dissemination> findAll() {return null; }

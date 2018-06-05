@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.pojos.Record;
-import de.qucosa.oai.provider.persistence.postgres.RecordService;
+import de.qucosa.oai.provider.persistence.postgres.RecordDao;
 import org.glassfish.jersey.process.internal.RequestScoped;
 
 import javax.annotation.PostConstruct;
@@ -38,7 +38,7 @@ public class RecordController {
     private Connection connection = new Connect("postgresql", "oaiprovider").connection();
     
     @Inject
-    private RecordService service;
+    private RecordDao service;
     
     private DissTerms terms;
     
