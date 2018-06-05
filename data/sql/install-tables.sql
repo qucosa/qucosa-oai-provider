@@ -99,26 +99,6 @@ ALTER TABLE public.sets_to_records
   OWNER TO postgres;
 
 
--- Table: public.records_to_disseminations
--- DROP TABLE public.records_to_disseminations;
-CREATE TABLE public.records_to_disseminations
-(
-  id_record bigint NOT NULL,
-  id_dissemination bigint NOT NULL,
-  CONSTRAINT rtd_record_fkey FOREIGN KEY (id_record)
-      REFERENCES public.records (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT rtd_dissemination_fkey FOREIGN KEY (id_dissemination)
-      REFERENCES public.dissemnitations (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
-)
-WITH (
-  OIDS=FALSE
-);
-ALTER TABLE public.records_to_disseminations
-  OWNER TO postgres;
-
-
 -- Function: public.generate_sets_to_records()
 
 -- DROP FUNCTION public.generate_sets_to_records();
