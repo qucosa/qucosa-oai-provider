@@ -57,4 +57,6 @@ public interface PersistenceServiceInterface {
     void deleteByKeyValue(String... paires);
     
     <T> void deleteByValues(Set<T> values);
+
+    void runProcedure() throws SQLException;
 }
