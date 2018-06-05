@@ -49,7 +49,7 @@ public class DisseminationService extends PersistenceServiceAbstract implements 
     @Override
     public <T> void update(T object) throws SQLException {
         StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO dissemnitations (id, id_record, id_format, lastmoddate, xmldata \r\n)");
+        sb.append("INSERT INTO disseminations (id, id_record, id_format, lastmoddate, xmldata \r\n)");
         sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?, ?) \r\n");
         sb.append("ON CONFLICT (id) DO UPDATE \r\n");
         sb.append("SET id_record = ?, id_format = ?, lastmoddate = ?, xmldata = ?;");
