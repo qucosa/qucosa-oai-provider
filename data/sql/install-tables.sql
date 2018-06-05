@@ -117,3 +117,26 @@ WITH (
 );
 ALTER TABLE public.records_to_disseminations
   OWNER TO postgres;
+
+
+-- Function: public.generate_sets_to_records()
+
+-- DROP FUNCTION public.generate_sets_to_records();
+
+CREATE OR REPLACE FUNCTION public.generate_sets_to_records()
+  RETURNS void AS
+$BODY$BEGIN
+  CREATE temp table sets_from_records(id_record bigint, set_spec varchar(150));
+  insert into sets_from_records(id_record, set_spec)
+  SELECT id_record, unnest(xpath('//record/header/setSpec/text()', xmldata)) AS spec FROM disseminations;
+  DELETE FROM sets_to_records;
+  INSERT INTO sets_to_records (id_set, id_record)
+  SELECT s.id, sfr.id_record FROM sets_from_records sfr
+  LEFT JOIN sets s ON s.setspec = sfr.set_spec
+  WHERE s.id is not null;
+  DROP TABLE sets_from_records;
+END;$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION public.generate_sets_to_records()
+  OWNER TO postgres;
