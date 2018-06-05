@@ -22,6 +22,7 @@ import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 
 import java.io.StringWriter;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.util.Set;
@@ -42,33 +43,35 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
     }
 
     @Override
-    public <T> Set<T> find(String sqlStmt) {
-        return null;
-    }
+    public <T> Set<T> find(String sqlStmt) throws SQLException { return null; }
 
     @Override
     public <T> void update(T object) throws SQLException {
+        Dissemination dissemination = (Dissemination) object;
+        PreparedStatement select = connection().prepareCall("SELECT id FROM disseminations WHERE id_record = ? AND id_format = ?;");
+        connection().setAutoCommit(false);
+        select.setLong(1, dissemination.getRecordId());
+        select.setLong(2, dissemination.getFormatId());
+        ResultSet rows = select.executeQuery();
+
+        while (rows.next()) {
+            dissemination.setId(rows.getLong("id"));
+        }
+
+        rows.close();
+
         StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO disseminations (id, id_record, id_format, lastmoddate, xmldata \r\n)");
-        sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?, ?) \r\n");
-        sb.append("ON CONFLICT (id) DO UPDATE \r\n");
-        sb.append("SET id_record = ?, id_format = ?, lastmoddate = ?, xmldata = ?;");
+
+        if (dissemination.getId() != null) {
+            sb.append("UPDATE disseminations SET lastmoddate = ?, xmldata = ? WHERE id = ?;");
+        } else {
+            sb.append("INSERT INTO disseminations (id, id_record, id_format, lastmoddate, xmldata \r\n)");
+            sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?, ?) \r\n");
+        }
 
         PreparedStatement pst = connection().prepareStatement(sb.toString());
         connection().setAutoCommit(false);
-
-        if (object instanceof Set) {
-            Set<Dissemination> records = (Set<Dissemination>) object;
-
-            for (Dissemination dissemination : records) {
-                buildUpdateObject(pst, dissemination);
-            }
-        }
-
-        if (object instanceof Dissemination) {
-            buildUpdateObject(pst, (Dissemination) object);
-        }
-
+        buildUpdateObject(pst, dissemination);
         pst.executeBatch();
         connection().commit();
     }
@@ -116,15 +119,16 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
         SQLXML sqlxml = connection().createSQLXML();
         sqlxml.setString(sw.toString());
 
-        pst.setLong(1, dissemination.getRecordId());
-        pst.setLong(2, dissemination.getFormatId());
-        pst.setDate(3, dissemination.getModdate());
-        pst.setSQLXML(4, sqlxml);
-
-        pst.setLong(5, dissemination.getRecordId());
-        pst.setLong(6, dissemination.getFormatId());
-        pst.setDate(7, dissemination.getModdate());
-        pst.setSQLXML(8, sqlxml);
+        if (dissemination.getId() != null) {
+            pst.setDate(1, dissemination.getModdate());
+            pst.setSQLXML(2, sqlxml);
+            pst.setLong(3, dissemination.getId());
+        } else {
+            pst.setLong(1, dissemination.getRecordId());
+            pst.setLong(2, dissemination.getFormatId());
+            pst.setDate(3, dissemination.getModdate());
+            pst.setSQLXML(4, sqlxml);
+        }
 
         pst.addBatch();
     }
