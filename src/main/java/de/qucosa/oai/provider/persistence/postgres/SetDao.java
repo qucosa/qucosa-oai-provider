@@ -16,8 +16,8 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
-import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 import org.xml.sax.SAXException;
 
@@ -26,7 +26,7 @@ import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SetDao extends PersistenceServiceAbstract implements PersistenceServiceInterface {
+public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
     
     public Set<de.qucosa.oai.provider.persistence.pojos.Set> findAll() {
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
@@ -167,4 +167,7 @@ public class SetDao extends PersistenceServiceAbstract implements PersistenceSer
         // TODO Auto-generated method stub
         
     }
+
+    @Override
+    public void runProcedure() { }
 }

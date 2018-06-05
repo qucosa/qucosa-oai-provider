@@ -18,7 +18,7 @@ package de.qucosa.oai.provider.persistence;
 
 import java.sql.Connection;
 
-public abstract class PersistenceServiceAbstract implements PersistenceServiceInterface {
+public abstract class PersistenceDaoAbstract implements PersistenceDaoInterface {
     private Connection connection;
     
     @Override

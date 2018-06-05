@@ -16,8 +16,8 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
-import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 
 import java.io.StringWriter;
@@ -26,7 +26,7 @@ import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.util.Set;
 
-public class DisseminationDao extends PersistenceServiceAbstract implements PersistenceServiceInterface {
+public class DisseminationDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
 
     @Override
     public Set<Dissemination> findAll() {return null; }
@@ -128,4 +128,7 @@ public class DisseminationDao extends PersistenceServiceAbstract implements Pers
 
         pst.addBatch();
     }
+
+    @Override
+    public void runProcedure() { }
 }

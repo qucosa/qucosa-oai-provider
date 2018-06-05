@@ -16,8 +16,8 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
-import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 
 import java.sql.PreparedStatement;
@@ -27,7 +27,7 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-public class FormatDao extends PersistenceServiceAbstract implements PersistenceServiceInterface {
+public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
 
     @Override
     public Set<Format> findAll() {
@@ -168,4 +168,7 @@ public class FormatDao extends PersistenceServiceAbstract implements Persistence
         pst.setTimestamp(4, format.getLastpolldate());
         pst.addBatch();
     }
+
+    @Override
+    public void runProcedure() { }
 }

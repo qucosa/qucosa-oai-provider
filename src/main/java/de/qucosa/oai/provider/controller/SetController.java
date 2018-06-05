@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persistence.Connect;
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.postgres.SetDao;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;
@@ -46,7 +46,7 @@ import java.util.Set;
 public class SetController {
     private Connection connection = new Connect("postgresql", "oaiprovider").connection();
     
-    private final PersistenceServiceInterface setService;
+    private final PersistenceDaoInterface setService;
 
     @Inject
     public SetController(SetDao setService) {

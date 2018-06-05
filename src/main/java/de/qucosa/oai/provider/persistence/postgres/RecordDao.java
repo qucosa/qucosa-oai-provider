@@ -16,8 +16,8 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
-import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Record;
 
 import java.sql.PreparedStatement;
@@ -25,7 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 
-public class RecordDao extends PersistenceServiceAbstract implements PersistenceServiceInterface {
+public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
     @Override
     public Set<Record> findAll() { return null; }
     
@@ -133,4 +133,7 @@ public class RecordDao extends PersistenceServiceAbstract implements Persistence
         pst.setString(3, record.getPid());
         pst.addBatch();
     }
+
+    @Override
+    public void runProcedure() { }
 }

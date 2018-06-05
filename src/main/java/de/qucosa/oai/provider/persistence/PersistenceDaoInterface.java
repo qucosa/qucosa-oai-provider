@@ -23,7 +23,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Set;
 
-public interface PersistenceServiceInterface {
+public interface PersistenceDaoInterface {
     void setConnection(Connection connection);
 
     int count(String cntField, String... whereClauses);
