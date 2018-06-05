@@ -20,10 +20,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.application.mapper.SetsConfig;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 import de.qucosa.oai.provider.persistence.pojos.Record;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
+import de.qucosa.oai.provider.persistence.postgres.SetsToRecordDao;
 import de.qucosa.oai.provider.xml.builders.DisseminationXmlBuilder;
 import de.qucosa.oai.provider.xml.builders.SetXmlBuilder;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
@@ -31,6 +33,7 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -52,6 +55,13 @@ import java.util.Set;
 public class UpdateCacheController {
 
     private ObjectMapper om = new ObjectMapper();
+
+    private PersistenceDaoInterface setsToRecordDao;
+
+    @Inject
+    public UpdateCacheController(SetsToRecordDao setsToRecordDao) {
+        this.setsToRecordDao = setsToRecordDao;
+    }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -93,6 +103,8 @@ public class UpdateCacheController {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Dissemination save is failed!").build();
             }
         }
+
+        setsToRecordDao.runProcedure();
 
         return Response.status(Response.Status.OK).build();
     }
