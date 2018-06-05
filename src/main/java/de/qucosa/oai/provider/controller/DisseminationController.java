@@ -17,12 +17,14 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.postgres.DisseminationService;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.xml.sax.SAXException;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -31,17 +33,24 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 @Path("/dissemination")
 @RequestScoped
 public class DisseminationController {
+    private Connection connection = new Connect("postgresql", "oaiprovider").connection();
 
     private PersistenceServiceInterface disseminationService;
 
     @Inject
     public DisseminationController (DisseminationService disseminationService) {
         this.disseminationService = disseminationService;
+    }
+
+    @PostConstruct
+    public void init() {
+        disseminationService.setConnection(connection);
     }
 
     @POST
