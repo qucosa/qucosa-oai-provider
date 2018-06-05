@@ -83,7 +83,7 @@ public class DocumentXmlUtils {
         Element element = null;
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         builderFactory.setNamespaceAware(true);
-        Document document = null;
+        Document document;
         
         try {
             DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
@@ -101,7 +101,7 @@ public class DocumentXmlUtils {
         Element element = null;
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         builderFactory.setNamespaceAware(true);
-        Document document = null;
+        Document document;
         
         try {
             DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();

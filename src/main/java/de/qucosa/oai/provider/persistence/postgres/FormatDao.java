@@ -32,7 +32,7 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     @Override
     public Set<Format> findAll() {
         Set<Format> formats = new HashSet<>();
-        ResultSet result = null;
+        ResultSet result;
         String sql = "SELECT * FROM formats;";
 
         try {
@@ -61,7 +61,7 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
 
     @Override
     public int count(String cntField, String whereColumn, String whereColumnValue) throws SQLException {
-        int result = 0;
+        int result;
         String sql = "SELECT count('" + cntField + "') AS cnt FROM formats WHERE "+ whereColumn + " = '" + whereColumnValue + "'";
         Statement stmt = connection().createStatement();
         ResultSet resultQ = stmt.executeQuery(sql);

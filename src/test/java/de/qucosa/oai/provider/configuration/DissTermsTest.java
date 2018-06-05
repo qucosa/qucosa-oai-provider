@@ -22,12 +22,12 @@ import org.junit.Test;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 
 public class DissTermsTest {
-    private String path = "/home/opt/oaiprovider/config/";
-    
+
     private DissTerms dissTerms = null;
     
     @Before
     public void setUp() {
+        String path = "/home/opt/oaiprovider/config/";
         dissTerms = new DissTerms(path);
     }
     

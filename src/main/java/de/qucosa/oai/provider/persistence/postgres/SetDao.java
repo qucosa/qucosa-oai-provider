@@ -30,7 +30,7 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
     
     public Set<de.qucosa.oai.provider.persistence.pojos.Set> findAll() {
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
-        ResultSet result = null;
+        ResultSet result;
         String sql = "SELECT id, setspec, predicate, doc, XPATH('//setSpec', doc) AS setspecnode FROM sets;";
 
         try {

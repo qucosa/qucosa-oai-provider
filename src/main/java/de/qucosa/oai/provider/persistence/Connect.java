@@ -30,7 +30,7 @@ public class Connect {
 
     private Connection connection = null;
     
-    private String dbName = null;
+    private String dbName;
     
     private String user = null;
     

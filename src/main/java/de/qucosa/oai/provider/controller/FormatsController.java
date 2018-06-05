@@ -72,7 +72,7 @@ public class FormatsController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(@PathParam("mdprefix") String mdprefix, String input) throws IOException, SQLException {
 
-        if (mdprefix.isEmpty() || mdprefix == null) {
+        if (mdprefix.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
         }
 
@@ -93,7 +93,7 @@ public class FormatsController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response delete(@PathParam("mdprefix") String mdprefix) throws SQLException {
 
-        if (mdprefix.isEmpty() || mdprefix == null) {
+        if (mdprefix.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
         }
 
@@ -107,7 +107,7 @@ public class FormatsController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response format(@Context ServletContext servletContext, @PathParam("mdprefix") String mdprefix) {
 
-        if (mdprefix.isEmpty() || mdprefix == null) {
+        if (mdprefix.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
         }
 
@@ -122,7 +122,6 @@ public class FormatsController {
     
     private Format buildSqlFormat(String input) throws IOException {
         ObjectMapper om = new ObjectMapper();
-        Format format = om.readValue(input, Format.class);
-        return format;
+        return om.readValue(input, Format.class);
     }
 }

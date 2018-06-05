@@ -35,7 +35,6 @@ import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.api.support.membermodification.MemberMatcher;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -81,7 +80,7 @@ public class FormatsControllerTests extends JerseyTestAbstract {
             .withArguments(json);
         doNothing().when(fc, MemberMatcher.method(FormatsController.class, "saveFormats", Set.class))
             .withArguments(formats());
-        fc.updateFormats(om.writeValueAsString(json));
+        fc.save(om.writeValueAsString(json));
     }
     
     @Override

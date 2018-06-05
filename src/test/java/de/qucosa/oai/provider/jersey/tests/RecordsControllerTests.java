@@ -18,10 +18,8 @@ package de.qucosa.oai.provider.jersey.tests;
 
 import static org.powermock.api.mockito.PowerMockito.doCallRealMethod;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +27,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.Binder;
@@ -44,7 +41,6 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -76,12 +72,6 @@ public class RecordsControllerTests extends JerseyTestAbstract {
         locator.inject(this);
     }
     
-    @SuppressWarnings("unused")
-    @Test
-    public void findAllIdentifieres_Test() throws IOException, SAXException {
-        Response response = controller.listIdentifieres(appContext);
-    }
-    
     @Test
     public void updateIdentifieres_Test() throws ParseException, Exception {
         ObjectMapper om = new ObjectMapper();
@@ -96,7 +86,7 @@ public class RecordsControllerTests extends JerseyTestAbstract {
                 .when(ic, method(RecordController.class, "saveIdentifieres", Set.class))
                 .withArguments(identifiers());
         
-        ic.updateIdentifieres(json);
+        ic.save(json);
     }
     
     @Override
@@ -116,15 +106,15 @@ public class RecordsControllerTests extends JerseyTestAbstract {
     private Set<Record> identifiers() throws ParseException {
         Set<Record> identifiers = new HashSet<>();
         Record id1 = new Record();
-        id1.setIdentifier("oai:example.org:qucosa:48672");
+        id1.setPid("qucosa:48672");
         id1.setDatestamp(DateTimeConverter.timestampWithTimezone("2017-12-14T09:42:45Z"));
         
         Record id2 = new Record();
-        id2.setIdentifier("oai:example.org:qucosa:48661");
+        id2.setPid("qucosa:48661");
         id2.setDatestamp(DateTimeConverter.timestampWithTimezone("2018-01-09T16:47:36Z"));
         
         Record id3 = new Record();
-        id3.setIdentifier("oai:example.org:qucosa:48668");
+        id3.setPid("qucosa:48668");
         id3.setDatestamp(DateTimeConverter.timestampWithTimezone("2017-12-14T09:42:23Z"));
         
         identifiers.add(id1);

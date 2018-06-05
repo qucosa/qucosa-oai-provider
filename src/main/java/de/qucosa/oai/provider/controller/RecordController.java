@@ -69,10 +69,6 @@ public class RecordController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response save(String input) throws SQLException, IOException {
 
-        if (input.isEmpty() && input == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The input data object is failed or empty!").build();
-        }
-
         Record record = buildSqlObject(input);
 
         if (record == null) {
@@ -90,11 +86,11 @@ public class RecordController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(@PathParam("pid") String pid, String input) throws IOException, SQLException {
 
-        if (pid.isEmpty() || pid == null) {
+        if (pid.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("PID parameter is failed or empty!").build();
         }
 
-        if (input.isEmpty() || input == null) {
+        if (input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Input data is failed or empty!").build();
         }
 
@@ -120,7 +116,7 @@ public class RecordController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response delete(@PathParam("pid") String pid) throws SQLException {
 
-        if (pid.isEmpty() || pid == null) {
+        if (pid.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("PID parameter is failed or empty!").build();
         }
 
@@ -131,7 +127,6 @@ public class RecordController {
     
     private Record buildSqlObject(String json) throws IOException {
         ObjectMapper om = new ObjectMapper();
-        Record record = om.readValue(json, Record.class);
-        return record;
+        return om.readValue(json, Record.class);
     }
 }

@@ -146,7 +146,7 @@ public class SetController {
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
-        System.out.println(document.getDocumentElement().getTextContent());
+
         return document;
     }
 

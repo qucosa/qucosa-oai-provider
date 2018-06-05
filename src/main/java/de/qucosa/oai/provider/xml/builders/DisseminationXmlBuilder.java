@@ -30,9 +30,9 @@ import javax.xml.xpath.XPathExpressionException;
 import java.util.List;
 
 public class DisseminationXmlBuilder {
-    private Document recordTemplate = null;
+    private Document recordTemplate;
 
-    private RecordTransport record = null;
+    private RecordTransport record;
 
     private DissTerms dissTerms = null;
 
@@ -57,26 +57,22 @@ public class DisseminationXmlBuilder {
 
     private Node recordHeader() throws XPathExpressionException {
         XPath xPath = DocumentXmlUtils.xpath(dissTerms.getMapXmlNamespaces());
-        Node header = (Node) xPath.compile("//record/header").evaluate(recordTemplate, XPathConstants.NODE);
-        return header;
+        return (Node) xPath.compile("//record/header").evaluate(recordTemplate, XPathConstants.NODE);
     }
 
     private Node recordIdentifiere() throws XPathExpressionException {
         XPath xPath = DocumentXmlUtils.xpath(dissTerms.getMapXmlNamespaces());
-        Node identifier = (Node) xPath.compile("//record/header/identifier").evaluate(recordTemplate, XPathConstants.NODE);
-        return identifier;
+        return (Node) xPath.compile("//record/header/identifier").evaluate(recordTemplate, XPathConstants.NODE);
     }
 
     private Node recordDatestamp() throws XPathExpressionException {
         XPath xPath = DocumentXmlUtils.xpath(dissTerms.getMapXmlNamespaces());
-        Node datestamp = (Node) xPath.compile("//record/header/datestamp").evaluate(recordTemplate, XPathConstants.NODE);
-        return datestamp;
+        return (Node) xPath.compile("//record/header/datestamp").evaluate(recordTemplate, XPathConstants.NODE);
     }
 
     private Element metadata() throws XPathExpressionException {
         XPath xPath = DocumentXmlUtils.xpath(dissTerms.getMapXmlNamespaces());
-        Element metadata = (Element) xPath.compile("//record/metadata").evaluate(recordTemplate, XPathConstants.NODE);
-        return metadata;
+        return (Element) xPath.compile("//record/metadata").evaluate(recordTemplate, XPathConstants.NODE);
     }
 
     private void addSetSpec(Node header, String set) {

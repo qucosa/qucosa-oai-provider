@@ -37,7 +37,7 @@ public class DissTerms implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @JsonIgnore
-    private String configPath = null;
+    private String configPath;
     
     @JsonIgnore
     private DissTermsDao dao = null;
@@ -318,8 +318,7 @@ public class DissTerms implements Serializable {
         }
 
         private Set<XmlNamspace> xmlNamespaces() {
-            HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespaces();
-            return xmlNamespaces;
+            return dissTerms.getXmlnamespaces();
         }
     }
 }

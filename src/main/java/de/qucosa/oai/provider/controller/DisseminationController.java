@@ -58,7 +58,7 @@ public class DisseminationController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response save(String input) throws IOException, SQLException, SAXException {
 
-        if (input.isEmpty() || input == null) {
+        if (input == null || input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The input data object is empty or failed!").build();
         }
 
