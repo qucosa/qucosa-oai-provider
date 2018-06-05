@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.application.mapper.SetsConfig;
+import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.Format;
@@ -33,6 +34,7 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
@@ -45,6 +47,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +57,8 @@ import java.util.Set;
 @RequestScoped
 public class UpdateCacheController {
 
+    private Connection connection = new Connect("postgresql", "oaiprovider").connection();
+
     private ObjectMapper om = new ObjectMapper();
 
     private PersistenceDaoInterface setsToRecordDao;
@@ -61,6 +66,11 @@ public class UpdateCacheController {
     @Inject
     public UpdateCacheController(SetsToRecordDao setsToRecordDao) {
         this.setsToRecordDao = setsToRecordDao;
+    }
+
+    @PostConstruct
+    public void init() {
+        setsToRecordDao.setConnection(connection);
     }
 
     @POST
