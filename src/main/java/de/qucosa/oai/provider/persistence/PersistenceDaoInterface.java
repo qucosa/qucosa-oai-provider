@@ -32,7 +32,7 @@ public interface PersistenceDaoInterface {
 
     <T> Set<T> findAll();
     
-    <T> Set<T> find(String sqlStmt);
+    <T> Set<T> find(String sqlStmt) throws SQLException;
     
     void update(String sql);
     
