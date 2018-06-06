@@ -42,7 +42,7 @@ import static org.powermock.api.mockito.PowerMockito.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(SetController.class)
-public class SetsControllerTests extends JerseyTestAbstract {
+public class SetsControllerTestJerseyTest extends AbstractJerseyTest {
     @Inject
     private SetController setsController;
     

@@ -34,7 +34,7 @@ import org.glassfish.jersey.test.spi.TestContainer;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 
-public abstract class JerseyTestAbstract extends JerseyTest {
+public abstract class AbstractJerseyTest extends JerseyTest {
     @Context
     protected WebappContext appContext;
     

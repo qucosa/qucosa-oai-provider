@@ -17,75 +17,77 @@
 package de.qucosa.oai.provider.jersey.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.FormatsController;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Format;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.Binder;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import de.qucosa.oai.provider.persistence.postgres.FormatDao;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.spi.TestContainerException;
-import org.glassfish.jersey.test.spi.TestContainerFactory;
-import org.junit.Before;
+import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import javax.inject.Inject;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 
-import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(FormatsController.class)
-public class FormatsControllerTest extends JerseyTestAbstract {
-    @Inject
+
+//@RunWith(PowerMockRunner.class)
+//@PrepareForTest(FormatsController.class)
+public class FormatsControllerTestJerseyTest extends JerseyTest {
+    private PersistenceDaoInterface formatDao;
+
     private FormatsController formatsController;
     
-    @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        Binder binder = new AbstractBinder() {
-            
-            @Override
-            protected void configure() {
-
-                bindAsContract(FormatsController.class);
-            }
-        };
-        
-        ServiceLocator locator = ServiceLocatorUtilities.bind(binder, new ApplicationBinder());
-        locator.inject(this);
-    }
+//    @Before
+//    @Override
+//    public void setUp() throws Exception {
+//        super.setUp();
+//        Binder binder = new AbstractBinder() {
+//
+//            @Override
+//            protected void configure() {
+//                bindAsContract(FormatsController.class);
+//            }
+//        };
+//
+//        ServiceLocator locator = ServiceLocatorUtilities.bind(binder, new ApplicationBinder());
+//        locator.inject(this);
+//    }
     
     @Test
     public void updateFormats_Test() throws Exception {
         ObjectMapper om = new ObjectMapper();
         String json = om.writeValueAsString(format());
-        FormatsController fc = spy(formatsController);
-        fc.save(json);
+        doNothing().when(formatDao.update(format()));
     }
-    
+
     @Override
     protected Application configure() {
+        formatDao = mock(FormatDao.class);
+        formatsController = new FormatsController((FormatDao) formatDao);
+
         ResourceConfig config = new ResourceConfig(FormatsController.class);
         HashMap<String, Object> props = new HashMap<>();
         props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
         return config;
     }
-    
+
     @Override
-    protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
-        return super.getTestContainerFactory();
+    protected URI getBaseUri() {
+        return UriBuilder.fromUri(super.getBaseUri()).path("formats").build();
     }
+
+    //    @Override
+//    protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
+//        return super.getTestContainerFactory();
+//    }
     
     private Format format() {
         Format fm = new Format();
