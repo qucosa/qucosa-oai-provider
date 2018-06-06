@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package de.qucosa.oai.provider.jersey.tests;
+package de.qucosa.oai.provider.jersey.controller;
 
-import java.sql.Timestamp;
-import java.util.Date;
+import static org.powermock.api.mockito.PowerMockito.doCallRealMethod;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.powermock.api.support.membermodification.MemberMatcher.method;
+
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +38,7 @@ import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.support.membermodification.MemberMatcher;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -43,17 +46,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.application.mapper.DissTerms.DissFormat;
-import de.qucosa.oai.provider.controller.FormatsController;
-import de.qucosa.oai.provider.persistence.pojos.Format;
-
-import static org.powermock.api.mockito.PowerMockito.*;
+import de.qucosa.oai.provider.controller.RecordController;
+import de.qucosa.oai.provider.persistence.pojos.Record;
+import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(FormatsController.class)
-public class FormatsControllerTests extends JerseyTestAbstract {
+@PrepareForTest(RecordController.class)
+public class RecordsControllerTests extends JerseyTestAbstract {
     @Inject
-    private FormatsController formatsController;
+    private RecordController controller;
     
     @Before
     @Override
@@ -63,7 +64,7 @@ public class FormatsControllerTests extends JerseyTestAbstract {
             
             @Override
             protected void configure() {
-                bindAsContract(FormatsController.class);
+                bindAsContract(RecordController.class);
             }
         };
         
@@ -72,20 +73,25 @@ public class FormatsControllerTests extends JerseyTestAbstract {
     }
     
     @Test
-    public void updateFormats_Test() throws Exception {
+    public void updateIdentifieres_Test() throws ParseException, Exception {
         ObjectMapper om = new ObjectMapper();
-        String json = om.writeValueAsString(formats());
-        FormatsController fc = spy(formatsController);
-        doCallRealMethod().when(fc, MemberMatcher.method(FormatsController.class, "buildSqlSets", String.class))
-            .withArguments(json);
-        doNothing().when(fc, MemberMatcher.method(FormatsController.class, "saveFormats", Set.class))
-            .withArguments(formats());
-        fc.save(om.writeValueAsString(json));
+        String json = om.writeValueAsString(identifiers());
+        RecordController ic = PowerMockito.spy(controller);
+        // convert json string to set with identifieres pojo objects
+        doCallRealMethod()
+                .when(ic, method(RecordController.class, "buildSqlObjects", String.class))
+                .withArguments(json);
+        // mock the save identifieres data in database privat method
+        doNothing()
+                .when(ic, method(RecordController.class, "saveIdentifieres", Set.class))
+                .withArguments(identifiers());
+        
+        ic.save(json);
     }
     
     @Override
     protected Application configure() {
-        ResourceConfig config = new ResourceConfig(FormatsController.class);
+        ResourceConfig config = new ResourceConfig(RecordController.class);
         HashMap<String, Object> props = new HashMap<>();
         props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
@@ -97,19 +103,24 @@ public class FormatsControllerTests extends JerseyTestAbstract {
         return super.getTestContainerFactory();
     }
     
-    private Set<Format> formats() {
-        DissTerms dissTerms = (DissTerms) configure().getProperties().get("dissConf");
-        Set<DissFormat> dissFormats = dissTerms.formats();
-        Set<Format> formats = new HashSet<>();
+    private Set<Record> identifiers() throws ParseException {
+        Set<Record> identifiers = new HashSet<>();
+        Record id1 = new Record();
+        id1.setPid("qucosa:48672");
+        id1.setDatestamp(DateTimeConverter.timestampWithTimezone("2017-12-14T09:42:45Z"));
         
-        for(DissFormat df : dissFormats) {
-            Format fm = new Format();
-            fm.setMdprefix(df.getFormat());
-            fm.setDissType(df.getDissType());
-            fm.setLastpolldate(new Timestamp(new Date().getTime()));
-            formats.add(fm);
-        }
+        Record id2 = new Record();
+        id2.setPid("qucosa:48661");
+        id2.setDatestamp(DateTimeConverter.timestampWithTimezone("2018-01-09T16:47:36Z"));
         
-        return formats;
+        Record id3 = new Record();
+        id3.setPid("qucosa:48668");
+        id3.setDatestamp(DateTimeConverter.timestampWithTimezone("2017-12-14T09:42:23Z"));
+        
+        identifiers.add(id1);
+        identifiers.add(id2);
+        identifiers.add(id3);
+        
+        return identifiers;
     }
 }

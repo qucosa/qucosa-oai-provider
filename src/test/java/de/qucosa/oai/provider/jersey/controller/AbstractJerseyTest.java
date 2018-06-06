@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.qucosa.oai.provider.jersey.tests;
+package de.qucosa.oai.provider.jersey.controller;
 
 import java.net.URI;
 import java.util.Map;

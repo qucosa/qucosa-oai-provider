@@ -14,81 +14,83 @@
  * limitations under the License.
  */
 
-package de.qucosa.oai.provider.jersey.tests;
+package de.qucosa.oai.provider.jersey.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.controller.SetController;
+import de.qucosa.oai.provider.controller.FormatsController;
+import de.qucosa.oai.provider.persistence.pojos.Format;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.spi.TestContainerException;
+import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.support.membermodification.MemberMatcher;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Application;
-import java.io.File;
-import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
 
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.powermock.api.mockito.PowerMockito.spy;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(SetController.class)
-public class SetsControllerTests extends JerseyTestAbstract {
+@PrepareForTest(FormatsController.class)
+public class FormatsControllerTest extends JerseyTestAbstract {
     @Inject
-    private SetController setsController;
+    private FormatsController formatsController;
     
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        
         Binder binder = new AbstractBinder() {
             
             @Override
             protected void configure() {
-                bindAsContract(SetController.class);
+
+                bindAsContract(FormatsController.class);
             }
         };
         
-        ServiceLocator locator = ServiceLocatorUtilities.bind(binder);
+        ServiceLocator locator = ServiceLocatorUtilities.bind(binder, new ApplicationBinder());
         locator.inject(this);
+    }
+    
+    @Test
+    public void updateFormats_Test() throws Exception {
+        ObjectMapper om = new ObjectMapper();
+        String json = om.writeValueAsString(format());
+        FormatsController fc = spy(formatsController);
+        fc.save(json);
     }
     
     @Override
     protected Application configure() {
-        ResourceConfig config = new ResourceConfig(SetController.class);
+        ResourceConfig config = new ResourceConfig(FormatsController.class);
         HashMap<String, Object> props = new HashMap<>();
         props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
         return config;
     }
     
-    @Test
-    public void updateSets_Test() throws Exception {
-        ObjectMapper om = new ObjectMapper();
-        File setSpecs = new File("/home/opt/oaiprovider/config/list-set-conf.json");
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> json = null;
-        
-        try {
-            json = om.readValue(setSpecs, om.getTypeFactory().constructCollectionType(Set.class, de.qucosa.oai.provider.persistence.pojos.Set.class));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        SetController sc = spy(setsController);
-        doCallRealMethod().when(sc, MemberMatcher.method(SetController.class, "buildSqlSets", String.class))
-            .withArguments(om.writeValueAsString(json));
-        doNothing().when(sc, MemberMatcher.method(SetController.class, "saveSetSpecs", Set.class))
-            .withArguments(json);
-        sc.update("", om.writeValueAsString(json));
+    @Override
+    protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
+        return super.getTestContainerFactory();
+    }
+    
+    private Format format() {
+        Format fm = new Format();
+        fm.setMdprefix("xmetadiss");
+        fm.setLastpolldate(new Timestamp(new Date().getTime()));
+        return fm;
     }
 }
