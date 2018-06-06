@@ -138,7 +138,7 @@ public class UpdateCacheController {
      * @throws SQLException
      * @throws IOException 
      */
-    private Format getFormat(ResourceContext resourceContext, ServletContext servletContext, RecordTransport rt) throws SQLException, IOException {
+    private Format getFormat(ResourceContext resourceContext, ServletContext servletContext, RecordTransport rt) throws SQLException, IOException, SAXException {
         FormatsController formatsController = resourceContext.getResource(FormatsController.class);
         Response resFormat = formatsController.format(servletContext, rt.getPrefix());
         Format format;
