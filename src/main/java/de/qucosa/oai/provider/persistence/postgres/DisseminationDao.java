@@ -46,7 +46,7 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
     public <T> Set<T> find(String sqlStmt) throws SQLException { return null; }
 
     @Override
-    public <T> void update(T object) throws SQLException {
+    public <T> int[] update(T object) throws SQLException {
         Dissemination dissemination = (Dissemination) object;
         PreparedStatement select = connection().prepareCall("SELECT id FROM disseminations WHERE id_record = ? AND id_format = ?;");
         connection().setAutoCommit(false);
@@ -72,8 +72,9 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
         PreparedStatement pst = connection().prepareStatement(sb.toString());
         connection().setAutoCommit(false);
         buildUpdateObject(pst, dissemination);
-        pst.executeBatch();
+        int[] ex = pst.executeBatch();
         connection().commit();
+        return ex;
     }
 
     @Override
@@ -102,10 +103,10 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
     public <T> T findByValue(String column, String value) { return null; }
 
     @Override
-    public void update(String sql) { }
+    public int[] update(String sql) { return null; }
 
     @Override
-    public void update(String... value) { }
+    public int[] update(String... value) { return null; }
 
     @Override
     public <T> T findByValues(String... values) { return null; }

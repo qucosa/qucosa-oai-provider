@@ -34,11 +34,11 @@ public interface PersistenceDaoInterface {
     
     <T> Set<T> find(String sqlStmt) throws SQLException;
     
-    void update(String sql);
+    int[] update(String sql);
     
-    void update(String...value);
+    int[] update(String...value);
 
-    <T> void update(T object) throws SQLException, IOException, SAXException;
+    <T> int[] update(T object) throws SQLException, IOException, SAXException;
 
     <T> T findById(Long id);
     

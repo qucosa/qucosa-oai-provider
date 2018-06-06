@@ -75,7 +75,7 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     public <T> Set<T> find(String sqlStmt) { return null; }
 
     @Override
-    public <T> void update(T object) throws SQLException {
+    public <T> int[] update(T object) throws SQLException {
         StringBuffer sb = new StringBuffer();
         sb.append("INSERT INTO formats (id, mdprefix, lastpolldate) \r\n");
         sb.append("VALUES (nextval('oaiprovider'), ?, ?) \r\n");
@@ -96,8 +96,9 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
             buildUpdateObject(pst, (Format) object);
         }
 
-        pst.executeBatch();
+        int[] ex = pst.executeBatch();
         connection().commit();
+        return ex;
     }
 
     @Override
@@ -140,10 +141,10 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     }
 
     @Override
-    public void update(String sql) { }
+    public int[] update(String sql) { return null; }
 
     @Override
-    public void update(String... value) { }
+    public int[] update(String... value) { return null; }
 
     @Override
     public <T> T findByValues(String... values) { return null; }

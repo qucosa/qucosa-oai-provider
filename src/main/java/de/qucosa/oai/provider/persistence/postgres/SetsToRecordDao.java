@@ -39,13 +39,13 @@ public class SetsToRecordDao extends PersistenceDaoAbstract implements Persisten
     public <T> Set<T> find(String sqlStmt) { return null; }
 
     @Override
-    public void update(String sql) { }
+    public int[] update(String sql) { return null; }
 
     @Override
-    public void update(String... value) { }
+    public int[] update(String... value) { return null; }
 
     @Override
-    public <T> void update(T object) throws SQLException, IOException, SAXException { }
+    public <T> int[] update(T object) throws SQLException, IOException, SAXException { return null; }
 
     @Override
     public <T> T findById(Long id) { return null; }

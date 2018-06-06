@@ -55,7 +55,7 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
     }
     
     @Override
-    public <T> void update(T object) throws SQLException, IOException, SAXException {
+    public <T> int[] update(T object) throws SQLException, IOException, SAXException {
         StringBuffer sb = new StringBuffer();
         sb.append("INSERT INTO sets (id, setspec, predicate, doc) \r\n");
         sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n");
@@ -89,8 +89,9 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
             pst.addBatch();
         }
 
-        pst.executeBatch();
+        int[] ex = pst.executeBatch();
         connection().commit();
+        return ex;
     }
 
     @Override
@@ -131,16 +132,10 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
     }
 
     @Override
-    public void update(String sql) {
-        // TODO Auto-generated method stub
-        
-    }
+    public int[] update(String sql) { return null; }
 
     @Override
-    public void update(String... value) {
-        // TODO Auto-generated method stub
-        
-    }
+    public int[] update(String... value) { return null; }
 
     @Override
     public <T> T findByValues(String... values) {

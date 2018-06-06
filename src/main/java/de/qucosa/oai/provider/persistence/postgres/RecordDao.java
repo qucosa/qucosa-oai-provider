@@ -30,7 +30,7 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
     public Set<Record> findAll() { return null; }
     
     @Override
-    public <T> void update(T data) throws SQLException {
+    public <T> int[] update(T data) throws SQLException {
         StringBuffer sb = new StringBuffer();
         sb.append("INSERT INTO records (id, pid, datestamp) \r\n");
         sb.append("VALUES (nextval('oaiprovider'), ?, ?) \r\n");
@@ -51,8 +51,9 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
             buildUpdateObject(pst, (Record) data);
         }
 
-        pst.executeBatch();
+        int[] ex = pst.executeBatch();
         connection().commit();
+        return ex;
     }
 
     @Override
@@ -100,10 +101,10 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
     }
 
     @Override
-    public void update(String sql) { }
+    public int[] update(String sql) { return null; }
 
     @Override
-    public void update(String... value) { }
+    public int[] update(String... value) { return null; }
 
     @Override
     public <T> T findByValues(String... values) { return null; }
