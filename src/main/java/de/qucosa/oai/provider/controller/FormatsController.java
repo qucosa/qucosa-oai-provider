@@ -18,9 +18,11 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persistence.Connect;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 import de.qucosa.oai.provider.persistence.postgres.FormatDao;
 import org.glassfish.jersey.process.internal.RequestScoped;
+import org.xml.sax.SAXException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -37,19 +39,23 @@ import java.sql.SQLException;
 @RequestScoped
 public class FormatsController {
     private Connection connection = new Connect("postgresql", "oaiprovider").connection();
-    
+
+    private PersistenceDaoInterface formatDao;
+
     @Inject
-    private FormatDao formatService;
+    public FormatsController(FormatDao formatDao) {
+        this.formatDao = formatDao;
+    }
     
     @PostConstruct
     public void init() {
-        formatService.setConnection(connection);
+        formatDao.setConnection(connection);
     }
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) throws SQLException, IOException {
+    public Response save(String input) throws SQLException, IOException, SAXException {
 
         if (input == null && input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Input data is empty or failed!").build();
@@ -61,7 +67,7 @@ public class FormatsController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Formats json mapper object is failed!").build();
         }
 
-        formatService.update(format);
+        formatDao.update(format);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -70,7 +76,7 @@ public class FormatsController {
     @Path("{mdprefix}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("mdprefix") String mdprefix, String input) throws IOException, SQLException {
+    public Response update(@PathParam("mdprefix") String mdprefix, String input) throws IOException, SQLException, SAXException {
 
         if (mdprefix.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
@@ -82,7 +88,7 @@ public class FormatsController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Format mapper is null!").build();
         }
 
-        formatService.update(format);
+        formatDao.update(format);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -97,7 +103,7 @@ public class FormatsController {
             return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
         }
 
-        formatService.deleteByKeyValue("mdprefix", mdprefix);
+        formatDao.deleteByKeyValue("mdprefix", mdprefix);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -105,13 +111,13 @@ public class FormatsController {
     @GET
     @Path("{mdprefix}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response format(@Context ServletContext servletContext, @PathParam("mdprefix") String mdprefix) {
+    public Response format(@Context ServletContext servletContext, @PathParam("mdprefix") String mdprefix) throws SQLException {
 
         if (mdprefix.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
         }
 
-        Format format = formatService.findByValue("mdprefix", mdprefix);
+        Format format = formatDao.findByValue("mdprefix", mdprefix);
 
         if (format.getId() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Format json mapper object is failed!").build();
