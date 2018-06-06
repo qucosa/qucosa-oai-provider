@@ -24,17 +24,22 @@ import de.qucosa.oai.provider.persistence.pojos.Format;
 import de.qucosa.oai.provider.persistence.postgres.FormatDao;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Assert;
 import org.junit.Test;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 
-import static org.mockito.Mockito.doNothing;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 //@RunWith(PowerMockRunner.class)
@@ -62,9 +67,12 @@ public class FormatsControllerTestJerseyTest extends JerseyTest {
     
     @Test
     public void updateFormats_Test() throws Exception {
+        int[] ex = new int[0];
         ObjectMapper om = new ObjectMapper();
         String json = om.writeValueAsString(format());
-        doNothing().when(formatDao.update(format()));
+        when(formatDao.update(format())).thenReturn(ex);
+        Response response = target().path("formats").request().post(Entity.entity(json, MediaType.APPLICATION_JSON));
+        assertEquals(response.getStatus(), 200);
     }
 
     @Override
@@ -76,6 +84,7 @@ public class FormatsControllerTestJerseyTest extends JerseyTest {
         HashMap<String, Object> props = new HashMap<>();
         props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
+        config.registerInstances(formatsController);
         return config;
     }
 
