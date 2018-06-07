@@ -43,7 +43,7 @@ public class FormatsController {
     private PersistenceDaoInterface formatDao;
 
     @Inject
-    public FormatsController(FormatDao formatDao) {
+    public FormatsController(PersistenceDaoInterface formatDao) {
         this.formatDao = formatDao;
     }
     
