@@ -59,7 +59,7 @@ public class SetsControllerTest extends JerseyTest {
     @Test
     public void Retrun_bad_request_response_if_input_is_empty_json_object() {
         Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(""));
-        response.getEntity().toString();
+        response.readEntity(String.class);
         assertEquals(response.getStatus(), 400);
     }
 
