@@ -173,19 +173,12 @@ public class UpdateCacheController {
         return record;
     }
 
-    private Set<de.qucosa.oai.provider.persistence.pojos.Set> sets(List<String> sets, SetsConfig setsConfig) {
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> output = new HashSet<>();
+    private Set<SetsConfig.Set> sets(List<String> sets, SetsConfig setsConfig) {
+        Set<SetsConfig.Set> output = new HashSet<>();
 
         for (String setspec : sets) {
             SetsConfig.Set set = setsConfig.getSetObject(setspec);
-
-            if (set != null) {
-                de.qucosa.oai.provider.persistence.pojos.Set updateSet = new de.qucosa.oai.provider.persistence.pojos.Set();
-                updateSet.setSetSpec(set.getSetSpec());
-                updateSet.setPredicate(set.getPredicate());
-                updateSet.setDocument(SetXmlBuilder.build(set));
-                output.add(updateSet);
-            }
+            output.add(set);
         }
 
         return output;
