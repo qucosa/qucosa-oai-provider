@@ -51,7 +51,7 @@ public class RecordsControllerTest extends JerseyTest {
         ObjectMapper om = new ObjectMapper();
         String json = om.writeValueAsString(record());
         when(psqRepoDao.update(json)).thenReturn(new int[0]);
-        Response response = target().path("records").request().post(Entity.json(record()));
+        Response response = target().path("records").request().header("Content-Type", "application/json").post(Entity.json(record()));
         assertEquals(response.getStatus(), 200);
     }
     

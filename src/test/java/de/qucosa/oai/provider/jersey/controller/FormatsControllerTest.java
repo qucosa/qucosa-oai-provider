@@ -53,7 +53,7 @@ public class FormatsControllerTest extends JerseyTest {
         ObjectMapper om = new ObjectMapper();
         String json = om.writeValueAsString(format());
         when(psqRepoDao.update(format())).thenReturn(ex);
-        Response response = target().path("formats").request().post(Entity.json(format()));
+        Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format()));
         assertEquals(response.getStatus(), 200);
     }
 

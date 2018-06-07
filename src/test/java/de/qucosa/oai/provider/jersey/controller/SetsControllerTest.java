@@ -52,13 +52,13 @@ public class SetsControllerTest extends JerseyTest {
         java.util.Set sets = new HashSet();
         sets.add(set());
         when(psqlDao.update(om.writeValueAsString(sets))).thenReturn(new int[0]);
-        Response response = target().path("sets").request().post(Entity.json(sets));
+        Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(sets));
         assertEquals(response.getStatus(), 200);
     }
 
     @Test
     public void Retrun_bad_request_response_if_input_is_empty_json_object() {
-        Response response = target().path("sets").request().post(Entity.json("{}"));
+        Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(""));
         response.getEntity().toString();
         assertEquals(response.getStatus(), 400);
     }
