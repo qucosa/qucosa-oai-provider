@@ -18,27 +18,21 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Record;
-import de.qucosa.oai.provider.persistence.postgres.RecordDao;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.xml.sax.SAXException;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 @Path("/records")
 @RequestScoped
 public class RecordController {
-    private Connection connection = new Connect("postgresql", "oaiprovider").connection();
-    
     private PersistenceDaoInterface recordDao;
     
     private DissTerms terms;
@@ -48,11 +42,6 @@ public class RecordController {
         this.recordDao = recordDao;
     }
     
-    @PostConstruct
-    public void init() {
-        recordDao.setConnection(connection);
-    }
-
     @GET
     @Path("{pid}")
     public Response find(@PathParam("pid") String pid) throws SQLException {

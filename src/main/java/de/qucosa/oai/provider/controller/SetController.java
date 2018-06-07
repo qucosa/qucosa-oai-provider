@@ -19,7 +19,6 @@ package de.qucosa.oai.provider.controller;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.postgres.SetDao;
 import org.glassfish.jersey.process.internal.RequestScoped;
@@ -27,7 +26,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -36,7 +34,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,18 +41,11 @@ import java.util.Set;
 @Path("/sets")
 @RequestScoped
 public class SetController {
-    private Connection connection = new Connect("postgresql", "oaiprovider").connection();
-    
     private final PersistenceDaoInterface setService;
 
     @Inject
     public SetController(SetDao setService) {
         this.setService = setService;
-    }
-    
-    @PostConstruct
-    public void init() {
-        setService.setConnection(connection);
     }
     
     @POST

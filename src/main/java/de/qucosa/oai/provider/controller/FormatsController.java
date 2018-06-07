@@ -17,14 +17,11 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.persistence.Connect;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Format;
-import de.qucosa.oai.provider.persistence.postgres.FormatDao;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.xml.sax.SAXException;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.ws.rs.*;
@@ -32,24 +29,17 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 @Path("/formats")
 @RequestScoped
 public class FormatsController {
-    private Connection connection = new Connect("postgresql", "oaiprovider").connection();
 
     private PersistenceDaoInterface formatDao;
 
     @Inject
     public FormatsController(PersistenceDaoInterface formatDao) {
         this.formatDao = formatDao;
-    }
-    
-    @PostConstruct
-    public void init() {
-        formatDao.setConnection(connection);
     }
     
     @POST
