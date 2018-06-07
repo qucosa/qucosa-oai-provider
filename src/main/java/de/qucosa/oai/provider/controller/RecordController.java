@@ -19,9 +19,11 @@ package de.qucosa.oai.provider.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.persistence.Connect;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Record;
 import de.qucosa.oai.provider.persistence.postgres.RecordDao;
 import org.glassfish.jersey.process.internal.RequestScoped;
+import org.xml.sax.SAXException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -37,14 +39,18 @@ import java.sql.SQLException;
 public class RecordController {
     private Connection connection = new Connect("postgresql", "oaiprovider").connection();
     
-    @Inject
-    private RecordDao service;
+    private PersistenceDaoInterface recordDao;
     
     private DissTerms terms;
+
+    @Inject
+    public RecordController(PersistenceDaoInterface recordDao) {
+        this.recordDao = recordDao;
+    }
     
     @PostConstruct
     public void init() {
-        service.setConnection(connection);
+        recordDao.setConnection(connection);
     }
 
     @GET
@@ -55,7 +61,7 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("The pid paramter is failed or empty!").build();
         }
 
-        Record record = service.findByValue("pid", pid);
+        Record record = recordDao.findByValue("pid", pid);
 
         if (record.getId() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The mapping object is failed!").build();
@@ -67,7 +73,7 @@ public class RecordController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) throws SQLException, IOException {
+    public Response save(String input) throws SQLException, IOException, SAXException {
 
         Record record = buildSqlObject(input);
 
@@ -75,7 +81,7 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Data json mapper object is failed!").build();
         }
 
-        service.update(record);
+        recordDao.update(record);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -84,7 +90,7 @@ public class RecordController {
     @Path("{pid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("pid") String pid, String input) throws IOException, SQLException {
+    public Response update(@PathParam("pid") String pid, String input) throws IOException, SQLException, SAXException {
 
         if (pid.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("PID parameter is failed or empty!").build();
@@ -105,7 +111,7 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Update PID parameter and record PID ar unequal!").build();
         }
 
-        service.update(record);
+        recordDao.update(record);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -120,7 +126,7 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("PID parameter is failed or empty!").build();
         }
 
-        service.deleteByKeyValue("pid", pid);
+        recordDao.deleteByKeyValue("pid", pid);
 
         return Response.status(Response.Status.OK).build();
     }
