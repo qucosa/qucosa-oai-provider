@@ -21,12 +21,7 @@ import java.sql.Connection;
 public abstract class PersistenceDaoAbstract implements PersistenceDaoInterface {
     private Connection connection;
     
-    @Override
-    public void setConnection(Connection connection) {
-        this.connection = connection;
-    }
-    
     protected Connection connection() {
-        return connection;
+        return new Connect("postgresql", "oaiprovider").connection();
     }
 }
