@@ -16,17 +16,19 @@
 
 package de.qucosa.oai.provider.application;
 
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.postgres.*;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.process.internal.RequestScoped;
 
 public class ApplicationBinder extends AbstractBinder {
 
     @Override
     protected void configure() {
-        bind(SetDao.class).to(SetDao.class);
-        bind(RecordDao.class).to(RecordDao.class);
-        bind(FormatDao.class).to(FormatDao.class);
-        bind(DisseminationDao.class).to(DisseminationDao.class);
-        bind(SetsToRecordDao.class).to(SetsToRecordDao.class);
+        bind(SetDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+        bind(RecordDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+        bind(FormatDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+        bind(DisseminationDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+        bind(SetsToRecordDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
     }
 }
