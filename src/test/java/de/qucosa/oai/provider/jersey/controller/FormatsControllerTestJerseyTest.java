@@ -20,17 +20,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.FormatsController;
+import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Format;
-import de.qucosa.oai.provider.persistence.postgres.FormatDao;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class FormatsControllerTestJerseyTest extends JerseyTest {
-    private PersistenceDaoInterface formatDao;
+    private PersistenceDaoInterface psqRepoDao;
 
     private FormatsController formatsController;
 
@@ -52,18 +52,23 @@ public class FormatsControllerTestJerseyTest extends JerseyTest {
         int[] ex = new int[0];
         ObjectMapper om = new ObjectMapper();
         String json = om.writeValueAsString(format());
-        when(formatDao.update(format())).thenReturn(ex);
+        when(psqRepoDao.update(format())).thenReturn(ex);
         Response response = target().path("formats").request().post(Entity.json(format()));
         assertEquals(response.getStatus(), 200);
     }
 
     @Override
     protected Application configure() {
-        formatDao = mock(FormatDao.class);
-        formatsController = new FormatsController((FormatDao) formatDao);
+        psqRepoDao = mock(PsqlRepository.class);
+        formatsController = new FormatsController((PsqlRepository) psqRepoDao);
 
         ResourceConfig config = new ResourceConfig(FormatsController.class);
-        config.register(new ApplicationBinder());
+        config.register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(PsqlRepository.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+            }
+        });
         HashMap<String, Object> props = new HashMap<>();
         props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
