@@ -16,23 +16,17 @@
 
 package de.qucosa.oai.provider.controller;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.application.mapper.SetsConfig;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
-import de.qucosa.oai.provider.persistence.postgres.SetDao;
+import de.qucosa.oai.provider.xml.builders.SetXmlBuilder;
 import org.glassfish.jersey.process.internal.RequestScoped;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -41,24 +35,29 @@ import java.util.Set;
 @Path("/sets")
 @RequestScoped
 public class SetController {
-    private final PersistenceDaoInterface setService;
+    private PersistenceDaoInterface setDao;
 
     @Inject
-    public SetController(SetDao setService) {
-        this.setService = setService;
+    public SetController(PersistenceDaoInterface setDao) {
+        this.setDao = setDao;
     }
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response save(String input) throws JsonParseException, JsonMappingException, IOException, SQLException, SAXException {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response save(String input) throws IOException, SQLException, SAXException {
         
-        if (input != null && !input.isEmpty()) {
-            Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes = buildSqlSets(input);
-            
-            if (saveRes != null && !saveRes.isEmpty()) {
-                saveSetSpecs(saveRes);
-            }
+        if (input == null || input.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Data json mapper object is failed!").build();
         }
+
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes = buildSqlSets(input);
+
+        if (saveRes == null || saveRes.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The set mapping object is failed!").build();
+        }
+
+        setDao.update(saveRes);
 
         return Response.status(Response.Status.OK).entity(true).build();
     }
@@ -69,15 +68,13 @@ public class SetController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(@PathParam("setspec") String setspec, String input) throws IOException, SQLException, SAXException {
         ObjectMapper om = new ObjectMapper();
-        de.qucosa.oai.provider.persistence.pojos.Set set = om.readValue(input, de.qucosa.oai.provider.persistence.pojos.Set.class);
+        SetsConfig.Set set = om.readValue(input, SetsConfig.Set.class);
 
         if (!set.getSetSpec().equals(setspec)) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Request param setspec and json data setspec are unequal.").build();
         }
 
-        set.setDocument(setSpecXml(set));
-
-        saveSetSpecs(set);
+        setDao.update(buildSqlSets(input));
 
         return Response.status(Response.Status.OK).entity(true).build();
     }
@@ -91,56 +88,25 @@ public class SetController {
             return Response.status(Response.Status.BAD_REQUEST).entity("The setspec param is failed or empty!").build();
         }
 
-        setService.deleteByKeyValue("setspec", setspec);
+        setDao.deleteByKeyValue("setspec", setspec);
 
         return Response.status(Response.Status.OK).build();
     }
     
-    private Set<de.qucosa.oai.provider.persistence.pojos.Set> buildSqlSets(String input) throws JsonParseException, JsonMappingException, IOException {
+    private Set<de.qucosa.oai.provider.persistence.pojos.Set> buildSqlSets(String input) throws IOException {
         ObjectMapper om = new ObjectMapper();
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> json = om.readValue(input, om.getTypeFactory().constructCollectionType(Set.class, de.qucosa.oai.provider.persistence.pojos.Set.class));
+        Set<SetsConfig.Set> json = om.readValue(input, om.getTypeFactory().constructCollectionType(Set.class, SetsConfig.Set.class));
         
-        for (de.qucosa.oai.provider.persistence.pojos.Set set : json) {
+        for (SetsConfig.Set set : json) {
             de.qucosa.oai.provider.persistence.pojos.Set data = new de.qucosa.oai.provider.persistence.pojos.Set();
             data.setSetSpec(set.getSetSpec());
             data.setSetName(set.getSetName());
             data.setPredicate(set.getPredicate());
-            data.setDocument(setSpecXml(set));
+            data.setDocument(SetXmlBuilder.build(set));
             sets.add(data);
         }
         
         return sets;
-    }
-
-    private Document setSpecXml(de.qucosa.oai.provider.persistence.pojos.Set set) {
-        Document document = null;
-        
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        builderFactory.setNamespaceAware(true);
-        
-        try {
-            DocumentBuilder builder = builderFactory.newDocumentBuilder();
-            document = builder.newDocument();
-            Element root = document.createElement("set");
-            
-            Element setSpec = document.createElement("setSpec");
-            setSpec.appendChild(document.createTextNode(set.getSetSpec()));
-            root.appendChild(setSpec);
-            
-            Element setName = document.createElement("setName");
-            setName.appendChild(document.createTextNode(set.getSetName()));
-            root.appendChild(setName);
-            
-            document.appendChild(root);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        }
-
-        return document;
-    }
-
-    private <T> void saveSetSpecs(T object) throws SQLException, IOException, SAXException {
-        setService.update(object);
     }
 }
