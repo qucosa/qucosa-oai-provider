@@ -18,77 +18,75 @@ package de.qucosa.oai.provider.jersey.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.mapper.SetsConfig;
 import de.qucosa.oai.provider.controller.SetController;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.Binder;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.pojos.Set;
+import de.qucosa.oai.provider.xml.builders.SetXmlBuilder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.junit.Before;
+import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.support.membermodification.MemberMatcher;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import javax.inject.Inject;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
-import java.io.File;
-import java.io.IOException;
+import javax.ws.rs.core.Response;
 import java.util.HashMap;
-import java.util.Set;
+import java.util.HashSet;
 
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(SetController.class)
-public class SetsControllerTestJerseyTest extends AbstractJerseyTest {
-    @Inject
+public class SetsControllerTestJerseyTest extends JerseyTest {
     private SetController setsController;
-    
-    @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        
-        Binder binder = new AbstractBinder() {
-            
-            @Override
-            protected void configure() {
-                bindAsContract(SetController.class);
-            }
-        };
-        
-        ServiceLocator locator = ServiceLocatorUtilities.bind(binder);
-        locator.inject(this);
+
+    private PersistenceDaoInterface psqlDao;
+
+    private ObjectMapper om = new ObjectMapper();
+
+    @Test
+    public void Save_successful_set_objects() throws Exception {
+        java.util.Set sets = new HashSet();
+        sets.add(set());
+        when(psqlDao.update(om.writeValueAsString(sets))).thenReturn(new int[0]);
+        Response response = target().path("sets").request().post(Entity.json(sets));
+        assertEquals(response.getStatus(), 200);
     }
-    
+
+    @Test
+    public void Retrun_bad_request_response_if_input_is_empty_json_object() {
+        Response response = target().path("sets").request().post(Entity.json("{}"));
+        response.getEntity().toString();
+        assertEquals(response.getStatus(), 400);
+    }
+
     @Override
     protected Application configure() {
+        psqlDao = mock(PsqlRepository.class);
+        setsController = new SetController((PsqlRepository) psqlDao);
+
         ResourceConfig config = new ResourceConfig(SetController.class);
+        config.register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(PsqlRepository.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+            }
+        });
         HashMap<String, Object> props = new HashMap<>();
         props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
         return config;
     }
-    
-    @Test
-    public void updateSets_Test() throws Exception {
-        ObjectMapper om = new ObjectMapper();
-        File setSpecs = new File("/home/opt/oaiprovider/config/list-set-conf.json");
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> json = null;
-        
-        try {
-            json = om.readValue(setSpecs, om.getTypeFactory().constructCollectionType(Set.class, de.qucosa.oai.provider.persistence.pojos.Set.class));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        SetController sc = spy(setsController);
-        doCallRealMethod().when(sc, MemberMatcher.method(SetController.class, "buildSqlSets", String.class))
-            .withArguments(om.writeValueAsString(json));
-        doNothing().when(sc, MemberMatcher.method(SetController.class, "saveSetSpecs", Set.class))
-            .withArguments(json);
-        sc.update("", om.writeValueAsString(json));
+
+    private SetsConfig.Set set() {
+        SetsConfig.Set setCnf = new SetsConfig.Set();
+        setCnf.setSetSpec("ddc:850");
+        setCnf.setSetName("Italian, Romanian, Rhaeto-Romanic literatures");
+        setCnf.setPredicate("xDDC=850");
+
+        return setCnf;
     }
 }
