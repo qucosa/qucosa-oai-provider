@@ -41,16 +41,16 @@ import java.sql.SQLException;
 public class DisseminationController {
     private Connection connection = new Connect("postgresql", "oaiprovider").connection();
 
-    private PersistenceDaoInterface disseminationService;
+    private PersistenceDaoInterface disseminationDao;
 
     @Inject
-    public DisseminationController (DisseminationDao disseminationService) {
-        this.disseminationService = disseminationService;
+    public DisseminationController (PersistenceDaoInterface disseminationDao) {
+        this.disseminationDao = disseminationDao;
     }
 
     @PostConstruct
     public void init() {
-        disseminationService.setConnection(connection);
+        disseminationDao.setConnection(connection);
     }
 
     @POST
@@ -69,7 +69,7 @@ public class DisseminationController {
             return Response.status(Response.Status.BAD_REQUEST).entity("The dissemination json object mapping is failed!").build();
         }
 
-        disseminationService.update(dissemination);
+        disseminationDao.update(dissemination);
 
         return Response.status(200).entity(true).build();
     }
