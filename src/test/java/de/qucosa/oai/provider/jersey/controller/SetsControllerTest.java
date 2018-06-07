@@ -17,12 +17,13 @@
 package de.qucosa.oai.provider.jersey.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.controller.FormatsController;
+import de.qucosa.oai.provider.application.mapper.SetsConfig;
+import de.qucosa.oai.provider.controller.SetController;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
-import de.qucosa.oai.provider.persistence.pojos.Format;
+import de.qucosa.oai.provider.persistence.pojos.Set;
+import de.qucosa.oai.provider.xml.builders.SetXmlBuilder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -32,37 +33,42 @@ import org.junit.Test;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FormatsControllerTestJerseyTest extends JerseyTest {
-    private PersistenceDaoInterface psqRepoDao;
+public class SetsControllerTest extends JerseyTest {
+    private SetController setsController;
 
-    private FormatsController formatsController;
+    private PersistenceDaoInterface psqlDao;
+
+    private ObjectMapper om = new ObjectMapper();
 
     @Test
-    public void updateFormats_Test() throws Exception {
-        int[] ex = new int[0];
-        ObjectMapper om = new ObjectMapper();
-        String json = om.writeValueAsString(format());
-        when(psqRepoDao.update(format())).thenReturn(ex);
-        Response response = target().path("formats").request().post(Entity.json(format()));
+    public void Save_successful_set_objects() throws Exception {
+        java.util.Set sets = new HashSet();
+        sets.add(set());
+        when(psqlDao.update(om.writeValueAsString(sets))).thenReturn(new int[0]);
+        Response response = target().path("sets").request().post(Entity.json(sets));
         assertEquals(response.getStatus(), 200);
+    }
+
+    @Test
+    public void Retrun_bad_request_response_if_input_is_empty_json_object() {
+        Response response = target().path("sets").request().post(Entity.json("{}"));
+        response.getEntity().toString();
+        assertEquals(response.getStatus(), 400);
     }
 
     @Override
     protected Application configure() {
-        psqRepoDao = mock(PsqlRepository.class);
-        formatsController = new FormatsController((PsqlRepository) psqRepoDao);
+        psqlDao = mock(PsqlRepository.class);
+        setsController = new SetController((PsqlRepository) psqlDao);
 
-        ResourceConfig config = new ResourceConfig(FormatsController.class);
+        ResourceConfig config = new ResourceConfig(SetController.class);
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
@@ -72,19 +78,15 @@ public class FormatsControllerTestJerseyTest extends JerseyTest {
         HashMap<String, Object> props = new HashMap<>();
         props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
-        config.registerInstances(formatsController);
         return config;
     }
 
-    @Override
-    protected URI getBaseUri() {
-        return UriBuilder.fromUri(super.getBaseUri()).path("formats").build();
-    }
+    private SetsConfig.Set set() {
+        SetsConfig.Set setCnf = new SetsConfig.Set();
+        setCnf.setSetSpec("ddc:850");
+        setCnf.setSetName("Italian, Romanian, Rhaeto-Romanic literatures");
+        setCnf.setPredicate("xDDC=850");
 
-    private Format format() {
-        Format fm = new Format();
-        fm.setMdprefix("xmetadiss");
-        fm.setLastpolldate(new Timestamp(new Date().getTime()));
-        return fm;
+        return setCnf;
     }
 }

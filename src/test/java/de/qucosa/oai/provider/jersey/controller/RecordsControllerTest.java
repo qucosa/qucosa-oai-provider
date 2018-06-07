@@ -17,13 +17,14 @@
 package de.qucosa.oai.provider.jersey.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.application.mapper.SetsConfig;
-import de.qucosa.oai.provider.controller.SetController;
+import de.qucosa.oai.provider.controller.RecordController;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
-import de.qucosa.oai.provider.persistence.pojos.Set;
-import de.qucosa.oai.provider.xml.builders.SetXmlBuilder;
+import de.qucosa.oai.provider.persistence.pojos.Record;
+import de.qucosa.oai.provider.persistence.postgres.RecordDao;
+import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -33,42 +34,33 @@ import org.junit.Test;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+import java.text.ParseException;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SetsControllerTestJerseyTest extends JerseyTest {
-    private SetController setsController;
+public class RecordsControllerTest extends JerseyTest {
+    private RecordController recordController;
 
-    private PersistenceDaoInterface psqlDao;
-
-    private ObjectMapper om = new ObjectMapper();
-
+    private PersistenceDaoInterface psqRepoDao;
+    
     @Test
-    public void Save_successful_set_objects() throws Exception {
-        java.util.Set sets = new HashSet();
-        sets.add(set());
-        when(psqlDao.update(om.writeValueAsString(sets))).thenReturn(new int[0]);
-        Response response = target().path("sets").request().post(Entity.json(sets));
+    public void Save_new_record() throws ParseException, Exception {
+        ObjectMapper om = new ObjectMapper();
+        String json = om.writeValueAsString(record());
+        when(psqRepoDao.update(json)).thenReturn(new int[0]);
+        Response response = target().path("records").request().post(Entity.json(record()));
         assertEquals(response.getStatus(), 200);
     }
-
-    @Test
-    public void Retrun_bad_request_response_if_input_is_empty_json_object() {
-        Response response = target().path("sets").request().post(Entity.json("{}"));
-        response.getEntity().toString();
-        assertEquals(response.getStatus(), 400);
-    }
-
+    
     @Override
     protected Application configure() {
-        psqlDao = mock(PsqlRepository.class);
-        setsController = new SetController((PsqlRepository) psqlDao);
+        psqRepoDao = mock(PsqlRepository.class);
+        recordController = new RecordController((PsqlRepository) psqRepoDao);
 
-        ResourceConfig config = new ResourceConfig(SetController.class);
+        ResourceConfig config = new ResourceConfig(RecordController.class);
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
@@ -80,13 +72,11 @@ public class SetsControllerTestJerseyTest extends JerseyTest {
         config.setProperties(props);
         return config;
     }
-
-    private SetsConfig.Set set() {
-        SetsConfig.Set setCnf = new SetsConfig.Set();
-        setCnf.setSetSpec("ddc:850");
-        setCnf.setSetName("Italian, Romanian, Rhaeto-Romanic literatures");
-        setCnf.setPredicate("xDDC=850");
-
-        return setCnf;
+    
+    private Record record() throws ParseException {
+        Record record = new Record();
+        record.setPid("qucosa:48672");
+        record.setDatestamp(DateTimeConverter.timestampWithTimezone("2017-12-14T09:42:45Z"));
+        return record;
     }
 }

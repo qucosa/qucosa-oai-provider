@@ -19,12 +19,10 @@ package de.qucosa.oai.provider.jersey.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.controller.RecordController;
+import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
-import de.qucosa.oai.provider.persistence.pojos.Record;
-import de.qucosa.oai.provider.persistence.postgres.RecordDao;
-import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
+import de.qucosa.oai.provider.persistence.pojos.Format;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -34,33 +32,37 @@ import org.junit.Test;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
-import java.text.ParseException;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RecordsControllerTestJerseyTest extends JerseyTest {
-    private RecordController recordController;
-
+public class FormatsControllerTest extends JerseyTest {
     private PersistenceDaoInterface psqRepoDao;
-    
+
+    private FormatsController formatsController;
+
     @Test
-    public void Save_new_record() throws ParseException, Exception {
+    public void updateFormats_Test() throws Exception {
+        int[] ex = new int[0];
         ObjectMapper om = new ObjectMapper();
-        String json = om.writeValueAsString(record());
-        when(psqRepoDao.update(json)).thenReturn(new int[0]);
-        Response response = target().path("records").request().post(Entity.json(record()));
+        String json = om.writeValueAsString(format());
+        when(psqRepoDao.update(format())).thenReturn(ex);
+        Response response = target().path("formats").request().post(Entity.json(format()));
         assertEquals(response.getStatus(), 200);
     }
-    
+
     @Override
     protected Application configure() {
         psqRepoDao = mock(PsqlRepository.class);
-        recordController = new RecordController((PsqlRepository) psqRepoDao);
+        formatsController = new FormatsController((PsqlRepository) psqRepoDao);
 
-        ResourceConfig config = new ResourceConfig(RecordController.class);
+        ResourceConfig config = new ResourceConfig(FormatsController.class);
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
@@ -70,13 +72,19 @@ public class RecordsControllerTestJerseyTest extends JerseyTest {
         HashMap<String, Object> props = new HashMap<>();
         props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
+        config.registerInstances(formatsController);
         return config;
     }
-    
-    private Record record() throws ParseException {
-        Record record = new Record();
-        record.setPid("qucosa:48672");
-        record.setDatestamp(DateTimeConverter.timestampWithTimezone("2017-12-14T09:42:45Z"));
-        return record;
+
+    @Override
+    protected URI getBaseUri() {
+        return UriBuilder.fromUri(super.getBaseUri()).path("formats").build();
+    }
+
+    private Format format() {
+        Format fm = new Format();
+        fm.setMdprefix("xmetadiss");
+        fm.setLastpolldate(new Timestamp(new Date().getTime()));
+        return fm;
     }
 }
