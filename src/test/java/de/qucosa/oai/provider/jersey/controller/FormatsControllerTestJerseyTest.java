@@ -17,6 +17,7 @@
 package de.qucosa.oai.provider.jersey.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
@@ -41,37 +42,18 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
-//@RunWith(PowerMockRunner.class)
-//@PrepareForTest(FormatsController.class)
 public class FormatsControllerTestJerseyTest extends JerseyTest {
     private PersistenceDaoInterface formatDao;
 
     private FormatsController formatsController;
-    
-//    @Before
-//    @Override
-//    public void setUp() throws Exception {
-//        super.setUp();
-//        Binder binder = new AbstractBinder() {
-//
-//            @Override
-//            protected void configure() {
-//                bindAsContract(FormatsController.class);
-//            }
-//        };
-//
-//        ServiceLocator locator = ServiceLocatorUtilities.bind(binder, new ApplicationBinder());
-//        locator.inject(this);
-//    }
-    
+
     @Test
     public void updateFormats_Test() throws Exception {
         int[] ex = new int[0];
         ObjectMapper om = new ObjectMapper();
         String json = om.writeValueAsString(format());
         when(formatDao.update(format())).thenReturn(ex);
-        Response response = target().path("formats").request().post(Entity.entity(json, MediaType.APPLICATION_JSON));
+        Response response = target().path("formats").request().post(Entity.json(format()));
         assertEquals(response.getStatus(), 200);
     }
 
@@ -81,6 +63,7 @@ public class FormatsControllerTestJerseyTest extends JerseyTest {
         formatsController = new FormatsController((FormatDao) formatDao);
 
         ResourceConfig config = new ResourceConfig(FormatsController.class);
+        config.register(new ApplicationBinder());
         HashMap<String, Object> props = new HashMap<>();
         props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
         config.setProperties(props);
@@ -93,11 +76,6 @@ public class FormatsControllerTestJerseyTest extends JerseyTest {
         return UriBuilder.fromUri(super.getBaseUri()).path("formats").build();
     }
 
-    //    @Override
-//    protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
-//        return super.getTestContainerFactory();
-//    }
-    
     private Format format() {
         Format fm = new Format();
         fm.setMdprefix("xmetadiss");
