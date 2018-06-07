@@ -4,14 +4,10 @@ import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Set;
 
 public class PsqlRepository implements PersistenceDaoInterface {
-    @Override
-    public void setConnection(Connection connection) { }
-
     @Override
     public int count(String cntField, String... whereClauses) {
         return 0;
@@ -29,13 +25,13 @@ public class PsqlRepository implements PersistenceDaoInterface {
     public <T> Set<T> find(String sqlStmt) throws SQLException { return null; }
 
     @Override
-    public int[] update(String sql) { return null; }
+    public int[] update(String sql) { return new int[0]; }
 
     @Override
-    public int[] update(String... value) { return null; }
+    public int[] update(String... value) { return new int[0]; }
 
     @Override
-    public <T> int[] update(T object) throws SQLException, IOException, SAXException { return null; }
+    public <T> int[] update(T object) throws SQLException, IOException, SAXException { return new int[0]; }
 
     @Override
     public <T> T findById(Long id) {
