@@ -17,7 +17,6 @@
 package de.qucosa.oai.provider.jersey.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;

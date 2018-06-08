@@ -27,7 +27,6 @@ import de.qucosa.oai.provider.persistence.pojos.Record;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
 import de.qucosa.oai.provider.persistence.postgres.SetsToRecordDao;
 import de.qucosa.oai.provider.xml.builders.DisseminationXmlBuilder;
-import de.qucosa.oai.provider.xml.builders.SetXmlBuilder;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;

@@ -17,13 +17,11 @@
 package de.qucosa.oai.provider.jersey.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.ApplicationBinder;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.RecordController;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Record;
-import de.qucosa.oai.provider.persistence.postgres.RecordDao;
 import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;

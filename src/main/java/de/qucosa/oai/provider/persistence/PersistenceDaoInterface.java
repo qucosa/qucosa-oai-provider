@@ -19,7 +19,6 @@ package de.qucosa.oai.provider.persistence;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Set;
 
