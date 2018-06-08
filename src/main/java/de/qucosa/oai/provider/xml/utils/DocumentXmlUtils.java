@@ -78,39 +78,25 @@ public class DocumentXmlUtils {
         serialize.serialize(document);
         return stringWriter.toString();
     }
-    
-    public static Element node(InputStream stream) {
-        Element element = null;
+
+    public static <T> Element node(T object) throws ParserConfigurationException, IOException, SAXException {
+        Element element;
+        InputStream stream;
+        Document document;
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         builderFactory.setNamespaceAware(true);
-        Document document;
-        
-        try {
-            DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
-            document = documentBuilder.parse(stream);
-            element = document.getDocumentElement();
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
+
+        if (object instanceof String) {
+            String input = (String) object;
+            stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
+        } else {
+            stream = (InputStream) object;
         }
-        
-        return element;
-    }
-    
-    public static Element node(String input) {
-        InputStream stream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
-        Element element = null;
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        builderFactory.setNamespaceAware(true);
-        Document document;
-        
-        try {
-            DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
-            document = documentBuilder.parse(stream);
-            element = document.getDocumentElement();
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
-        }
-        
+
+        DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+        document = documentBuilder.parse(stream);
+        element = document.getDocumentElement();
+
         return element;
     }
 }
