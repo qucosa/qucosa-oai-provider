@@ -115,11 +115,10 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     @Override
     public <T> T findByValue(String column, String value) {
         Format format =  new Format();
-        StringBuffer sb = new StringBuffer();
-        sb.append("SELECT id, mdprefix, lastpolldate, deleted FROM formats WHERE " + column + " = ?;");
+        String sql = "SELECT id, mdprefix, lastpolldate, deleted FROM formats WHERE " + column + " = ?;";
         
         try {
-            PreparedStatement pst = connection().prepareStatement(sb.toString());
+            PreparedStatement pst = connection().prepareStatement(sql);
             connection().setAutoCommit(false);
             pst.setString(1, value);
             ResultSet result = pst.executeQuery();
