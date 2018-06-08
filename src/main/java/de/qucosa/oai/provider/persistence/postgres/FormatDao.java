@@ -76,12 +76,11 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
 
     @Override
     public <T> int[] update(T object) throws SQLException {
-        StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO formats (id, mdprefix, lastpolldate) \r\n");
-        sb.append("VALUES (nextval('oaiprovider'), ?, ?) \r\n");
-        sb.append("ON CONFLICT (mdprefix) \r\n");
-        sb.append("DO UPDATE SET mdprefix = ?, lastpolldate = ?; \r\n");
-        PreparedStatement pst = connection().prepareStatement(sb.toString());
+        String sql = "INSERT INTO formats (id, mdprefix, lastpolldate) \n";
+        sql+="VALUES (nextval('oaiprovider'), ?, ?) \r\n";
+        sql+="ON CONFLICT (mdprefix) \r\n";
+        sql+="DO UPDATE SET mdprefix = ?, lastpolldate = ?; \r\n";
+        PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
 
         if (object instanceof Set) {

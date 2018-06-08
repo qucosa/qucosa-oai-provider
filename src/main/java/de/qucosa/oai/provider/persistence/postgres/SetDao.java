@@ -56,13 +56,12 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
     
     @Override
     public <T> int[] update(T object) throws SQLException, IOException, SAXException {
-        StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO sets (id, setspec, predicate, doc) \r\n");
-        sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n");
-        sb.append("ON CONFLICT (setspec) \r\n");
-        sb.append("DO UPDATE SET doc = ?, predicate = ? \r\n");
+        String sql = "INSERT INTO sets (id, setspec, predicate, doc) \n";
+        sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n";
+        sql+="ON CONFLICT (setspec) \r\n";
+        sql+="DO UPDATE SET doc = ?, predicate = ? \r\n";
 
-        PreparedStatement pst = connection().prepareStatement(sb.toString());
+        PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
         SQLXML sqlxml = connection().createSQLXML();
 

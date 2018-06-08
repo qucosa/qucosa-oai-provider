@@ -31,12 +31,11 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
     
     @Override
     public <T> int[] update(T data) throws SQLException {
-        StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO records (id, pid, datestamp) \r\n");
-        sb.append("VALUES (nextval('oaiprovider'), ?, ?) \r\n");
-        sb.append("ON CONFLICT (pid) \r\n");
-        sb.append("DO UPDATE SET pid = ? \r\n");
-        PreparedStatement pst = connection().prepareStatement(sb.toString());
+        String sql = "INSERT INTO records (id, pid, datestamp) \n";
+        sql+="VALUES (nextval('oaiprovider'), ?, ?) \r\n";
+        sql+="ON CONFLICT (pid) \r\n";
+        sql+="DO UPDATE SET pid = ? \r\n";
+        PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
 
         if (data instanceof Set) {
