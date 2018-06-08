@@ -40,7 +40,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class RecordsControllerTest extends JerseyTest {
-    private RecordController recordController;
 
     private PersistenceDaoInterface psqRepoDao;
     
@@ -56,7 +55,7 @@ public class RecordsControllerTest extends JerseyTest {
     @Override
     protected Application configure() {
         psqRepoDao = mock(PsqlRepository.class);
-        recordController = new RecordController(psqRepoDao);
+        RecordController recordController = new RecordController(psqRepoDao);
 
         ResourceConfig config = new ResourceConfig(RecordController.class);
         config.register(new AbstractBinder() {

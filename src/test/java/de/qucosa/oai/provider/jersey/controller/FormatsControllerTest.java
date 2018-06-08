@@ -44,8 +44,6 @@ import static org.mockito.Mockito.when;
 public class FormatsControllerTest extends JerseyTest {
     private PersistenceDaoInterface psqRepoDao;
 
-    private FormatsController formatsController;
-
     @Test
     public void updateFormats_Test() throws Exception {
         int[] ex = new int[0];
@@ -59,7 +57,7 @@ public class FormatsControllerTest extends JerseyTest {
     @Override
     protected Application configure() {
         psqRepoDao = mock(PsqlRepository.class);
-        formatsController = new FormatsController(psqRepoDao);
+        FormatsController formatsController = new FormatsController(psqRepoDao);
 
         ResourceConfig config = new ResourceConfig(FormatsController.class);
         config.register(new AbstractBinder() {

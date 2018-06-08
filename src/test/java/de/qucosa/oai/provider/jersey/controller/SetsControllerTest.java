@@ -39,7 +39,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SetsControllerTest extends JerseyTest {
-    private SetController setsController;
 
     private PersistenceDaoInterface psqlDao;
 
@@ -64,7 +63,7 @@ public class SetsControllerTest extends JerseyTest {
     @Override
     protected Application configure() {
         psqlDao = mock(PsqlRepository.class);
-        setsController = new SetController(psqlDao);
+        SetController setsController = new SetController(psqlDao);
 
         ResourceConfig config = new ResourceConfig(SetController.class);
         config.register(new AbstractBinder() {
