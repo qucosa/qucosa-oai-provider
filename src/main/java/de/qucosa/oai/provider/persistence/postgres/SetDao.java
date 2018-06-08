@@ -41,8 +41,6 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
                 de.qucosa.oai.provider.persistence.pojos.Set set = new de.qucosa.oai.provider.persistence.pojos.Set();
                 set.setId(result.getLong("id"));
                 set.setSetSpec(result.getString("setspec"));
-                set.setPredicate(result.getString("predicate"));
-                set.setDoc(result.getString("doc"));
                 sets.add(set);
             }
             
@@ -68,21 +66,16 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
         if (object instanceof Set) {
 
             for (de.qucosa.oai.provider.persistence.pojos.Set set : (Set<de.qucosa.oai.provider.persistence.pojos.Set>) object) {
-                sqlxml.setString(DocumentXmlUtils.resultXml(set.getDocument()));
                 pst.setString(1, set.getSetSpec());
-                pst.setString(2, set.getPredicate());
                 pst.setSQLXML(3, sqlxml);
                 pst.setSQLXML(4, sqlxml);
-                pst.setString(5, set.getPredicate());
                 pst.addBatch();
             }
         }
 
         if (object instanceof de.qucosa.oai.provider.persistence.pojos.Set) {
             de.qucosa.oai.provider.persistence.pojos.Set set = (de.qucosa.oai.provider.persistence.pojos.Set) object;
-            sqlxml.setString(DocumentXmlUtils.resultXml(set.getDocument()));
             pst.setString(1, set.getSetSpec());
-            pst.setString(2, set.getPredicate());
             pst.setSQLXML(3, sqlxml);
             pst.setSQLXML(4, sqlxml);
             pst.addBatch();
