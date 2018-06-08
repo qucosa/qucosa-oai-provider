@@ -59,7 +59,7 @@ public class FormatsControllerTest extends JerseyTest {
     @Override
     protected Application configure() {
         psqRepoDao = mock(PsqlRepository.class);
-        formatsController = new FormatsController((PsqlRepository) psqRepoDao);
+        formatsController = new FormatsController(psqRepoDao);
 
         ResourceConfig config = new ResourceConfig(FormatsController.class);
         config.register(new AbstractBinder() {

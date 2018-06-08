@@ -56,7 +56,7 @@ public class RecordsControllerTest extends JerseyTest {
     @Override
     protected Application configure() {
         psqRepoDao = mock(PsqlRepository.class);
-        recordController = new RecordController((PsqlRepository) psqRepoDao);
+        recordController = new RecordController(psqRepoDao);
 
         ResourceConfig config = new ResourceConfig(RecordController.class);
         config.register(new AbstractBinder() {

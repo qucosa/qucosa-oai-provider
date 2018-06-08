@@ -64,7 +64,7 @@ public class SetsControllerTest extends JerseyTest {
     @Override
     protected Application configure() {
         psqlDao = mock(PsqlRepository.class);
-        setsController = new SetController((PsqlRepository) psqlDao);
+        setsController = new SetController(psqlDao);
 
         ResourceConfig config = new ResourceConfig(SetController.class);
         config.register(new AbstractBinder() {
