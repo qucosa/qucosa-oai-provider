@@ -40,17 +40,13 @@ public class Set implements Serializable {
     
     @JsonProperty("setName")
     private String setName;
-    
-    @JsonProperty("predicate")
-    private String predicate;
-    
-    @JsonProperty("doc")
-    private String doc;
-    
-    @JsonProperty("xmldata")
-    private Document document;
 
-    @XmlTransient
+    @JsonProperty("setDescription")
+    private String setDescription;
+
+    @JsonProperty("deleted")
+    private boolean deleted;
+    
     public Long getId() {
         return id;
     }
@@ -59,7 +55,6 @@ public class Set implements Serializable {
         this.id = id;
     }
 
-    @XmlElement
     public String getSetSpec() {
         return setSpec;
     }
@@ -68,7 +63,6 @@ public class Set implements Serializable {
         this.setSpec = setSpec;
     }
     
-    @XmlElement
     public String getSetName() {
         return setName;
     }
@@ -77,30 +71,11 @@ public class Set implements Serializable {
         this.setName = setName;
     }
 
-    @XmlTransient
-    public String getPredicate() {
-        return predicate;
-    }
+    public String getSetDescription() { return setDescription; }
 
-    public void setPredicate(String predicate) {
-        this.predicate = predicate;
-    }
+    public void setSetDescription(String setDescription) { this.setDescription = setDescription; }
 
-    @XmlTransient
-    public String getDoc() {
-        return doc;
-    }
+    public boolean isDeleted() { return deleted; }
 
-    public void setDoc(String doc) {
-        this.doc = doc;
-    }
-    
-    @XmlTransient
-    public Document getDocument() {
-        return document;
-    }
-
-    public void setDocument(Document document) {
-        this.document = document;
-    }
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
 }
