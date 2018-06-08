@@ -47,7 +47,7 @@ public class FormatsController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response save(String input) throws SQLException, IOException, SAXException {
 
-        if (input == null && input.isEmpty()) {
+        if (input == null || input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Input data is empty or failed!").build();
         }
 
