@@ -16,6 +16,11 @@
 
 package de.qucosa.oai.provider.application.mapper;
 
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -26,23 +31,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DissTerms implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @JsonIgnore
-    private String configPath = null;
+    private String configPath;
     
     @JsonIgnore
     private DissTermsDao dao = null;
@@ -323,8 +318,7 @@ public class DissTerms implements Serializable {
         }
 
         private Set<XmlNamspace> xmlNamespaces() {
-            HashSet<XmlNamspace> xmlNamespaces = (HashSet<XmlNamspace>) dissTerms.getXmlnamespaces();
-            return xmlNamespaces;
+            return dissTerms.getXmlnamespaces();
         }
     }
 }

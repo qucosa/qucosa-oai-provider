@@ -16,55 +16,112 @@
 
 package de.qucosa.oai.provider.controller;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
-import de.qucosa.oai.provider.xml.builders.RecordXmlBuilder;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.pojos.Record;
 import org.glassfish.jersey.process.internal.RequestScoped;
-import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.inject.Inject;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
-import java.util.List;
+import java.sql.SQLException;
 
-@Path("/record")
+@Path("/records")
 @RequestScoped
 public class RecordController {
+    private PersistenceDaoInterface recordDao;
+    
+    private DissTerms terms;
 
+    @Inject
+    public RecordController(PersistenceDaoInterface recordDao) {
+        this.recordDao = recordDao;
+    }
+    
+    @GET
+    @Path("{pid}")
+    public Response find(@PathParam("pid") String pid) throws SQLException {
+
+        if (pid == null || pid.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The pid paramter is failed or empty!").build();
+        }
+
+        Record record = recordDao.findByValue("pid", pid);
+
+        if (record.getId() == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The mapping object is failed!").build();
+        }
+
+        return Response.status(Response.Status.OK).entity(record).build();
+    }
+    
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addRecord(String input) {
-        ObjectMapper om = new ObjectMapper();
-        List<RecordTransport> inputData = null;
+    public Response save(String input) throws SQLException, IOException, SAXException {
 
-        try {
-            inputData = om.readValue(input.getBytes("UTF-8"),
-                    om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
+        Record record = buildSqlObject(input);
 
-            for (RecordTransport record : inputData) {
-                Document recordDoc = new RecordXmlBuilder(record)
-                        .setDissTerms(new DissTerms("/home/opt/qucosa-fcrepo-camel/config/"))
-                        .buildRecord(record.getData());
-                /**
-                 * @// TODO: 26.04.18
-                 * add save record in database
-                 */
-            }
-        } catch (JsonParseException | JsonMappingException e) {
-            return Response.status(500).entity("Json cannot parsed or mapped out.").build();
-        } catch (IOException | XPathExpressionException e) {
-            return Response.status(500).entity("A xpath expression is failed.").build();
+        if (record == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Data json mapper object is failed!").build();
         }
 
-        return Response.status(200).entity(true).build();
+        recordDao.update(record);
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("{pid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("pid") String pid, String input) throws IOException, SQLException, SAXException {
+
+        if (pid.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("PID parameter is failed or empty!").build();
+        }
+
+        if (input.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Input data is failed or empty!").build();
+        }
+
+        ObjectMapper om = new ObjectMapper();
+        Record record = om.readValue(input, Record.class);
+
+        if (record == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Record json mapper is failed!").build();
+        }
+
+        if (!record.getPid().equals(pid)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Update PID parameter and record PID ar unequal!").build();
+        }
+
+        recordDao.update(record);
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @DELETE
+    @Path("{pid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response delete(@PathParam("pid") String pid) throws SQLException {
+
+        if (pid.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("PID parameter is failed or empty!").build();
+        }
+
+        recordDao.deleteByKeyValue("pid", pid);
+
+        return Response.status(Response.Status.OK).build();
+    }
+    
+    private Record buildSqlObject(String json) throws IOException {
+        ObjectMapper om = new ObjectMapper();
+        return om.readValue(json, Record.class);
     }
 }

@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package de.qucosa.oai.provider.persistence;
+package de.qucosa.oai.provider.xml.builders;
 
-import java.sql.Connection;
+import de.qucosa.oai.provider.application.mapper.SetsConfig;
+import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
+import org.w3c.dom.Document;
 
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
+public class SetXmlBuilder {
 
-public abstract class PersistenceServiceAbstract implements PersistenceServiceInterface {
-    private Connection connection;
-    
-    @Override
-    public void setConnection(Connection connection) {
-        this.connection = connection;
-    }
-    
-    protected Connection connection() {
-        return connection;
+    public static Document build(SetsConfig.Set set) {
+        Document setXml = DocumentXmlUtils.document(SetXmlBuilder.class.getResourceAsStream("/set.xml"), true);
+        setXml.getElementsByTagName("setSpec").item(0).appendChild(setXml.createTextNode(set.getSetSpec()));
+        setXml.getElementsByTagName("setName").item(0).appendChild(setXml.createTextNode(set.getSetName()));
+        return setXml;
     }
 }

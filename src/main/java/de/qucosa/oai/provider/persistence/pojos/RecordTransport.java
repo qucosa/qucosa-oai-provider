@@ -16,17 +16,15 @@
 
 package de.qucosa.oai.provider.persistence.pojos;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.w3c.dom.Document;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.fasterxml.jackson.databind.deser.std.StringArrayDeserializer;
-import org.w3c.dom.Document;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -16,27 +16,21 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
+import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
+import org.xml.sax.SAXException;
+
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLXML;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.xml.sax.SAXException;
-
-import de.qucosa.oai.provider.persistence.PersistenceServiceAbstract;
-import de.qucosa.oai.provider.persistence.PersistenceServiceInterface;
-import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
-
-public class SetService extends PersistenceServiceAbstract implements PersistenceServiceInterface {
+public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
     
-    @SuppressWarnings("unchecked")
     public Set<de.qucosa.oai.provider.persistence.pojos.Set> findAll() {
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
-        ResultSet result = null;
+        ResultSet result;
         String sql = "SELECT id, setspec, predicate, doc, XPATH('//setSpec', doc) AS setspecnode FROM sets;";
 
         try {
@@ -60,35 +54,43 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
         return sets;
     }
     
-    @SuppressWarnings("unchecked")
-    public <T> void update(Set<T> sets) {
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> data = (Set<de.qucosa.oai.provider.persistence.pojos.Set>) sets;
-        StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO sets (id, setspec, predicate, doc) \r\n");
-        sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n");
-        sb.append("ON CONFLICT (setspec) \r\n");
-        sb.append("DO UPDATE SET doc = ? \r\n");
-        
-        try {
-            PreparedStatement pst = connection().prepareStatement(sb.toString());
-            connection().setAutoCommit(false);
-            
-            for (de.qucosa.oai.provider.persistence.pojos.Set set : data) {
-                SQLXML sqlxml = connection().createSQLXML();
+    @Override
+    public <T> int[] update(T object) throws SQLException, IOException, SAXException {
+        String sql = "INSERT INTO sets (id, setspec, predicate, doc) \n";
+        sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n";
+        sql+="ON CONFLICT (setspec) \r\n";
+        sql+="DO UPDATE SET doc = ?, predicate = ? \r\n";
+
+        PreparedStatement pst = connection().prepareStatement(sql);
+        connection().setAutoCommit(false);
+        SQLXML sqlxml = connection().createSQLXML();
+
+        if (object instanceof Set) {
+
+            for (de.qucosa.oai.provider.persistence.pojos.Set set : (Set<de.qucosa.oai.provider.persistence.pojos.Set>) object) {
                 sqlxml.setString(DocumentXmlUtils.resultXml(set.getDocument()));
-                
                 pst.setString(1, set.getSetSpec());
                 pst.setString(2, set.getPredicate());
                 pst.setSQLXML(3, sqlxml);
                 pst.setSQLXML(4, sqlxml);
+                pst.setString(5, set.getPredicate());
                 pst.addBatch();
             }
-            
-            pst.executeBatch();
-            connection().commit();
-        } catch (SQLException | IOException | SAXException e) {
-            e.printStackTrace();
         }
+
+        if (object instanceof de.qucosa.oai.provider.persistence.pojos.Set) {
+            de.qucosa.oai.provider.persistence.pojos.Set set = (de.qucosa.oai.provider.persistence.pojos.Set) object;
+            sqlxml.setString(DocumentXmlUtils.resultXml(set.getDocument()));
+            pst.setString(1, set.getSetSpec());
+            pst.setString(2, set.getPredicate());
+            pst.setSQLXML(3, sqlxml);
+            pst.setSQLXML(4, sqlxml);
+            pst.addBatch();
+        }
+
+        int[] ex = pst.executeBatch();
+        connection().commit();
+        return ex;
     }
 
     @Override
@@ -108,6 +110,16 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
     public <T> void deleteByValues(Set<T> values) {}
 
     @Override
+    public int count(String cntField, String... whereClauses) {
+        return 0;
+    }
+
+    @Override
+    public int count(String cntField, String whereColumn, String whereColumnValue) {
+        return 0;
+    }
+
+    @Override
     public <T> Set<T> find(String sqlStmt) {
         return null;
     }
@@ -119,16 +131,10 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
     }
 
     @Override
-    public void update(String sql) {
-        // TODO Auto-generated method stub
-        
-    }
+    public int[] update(String sql) { return null; }
 
     @Override
-    public void update(String... value) {
-        // TODO Auto-generated method stub
-        
-    }
+    public int[] update(String... value) { return null; }
 
     @Override
     public <T> T findByValues(String... values) {
@@ -141,4 +147,21 @@ public class SetService extends PersistenceServiceAbstract implements Persistenc
         // TODO Auto-generated method stub
         return null;
     }
+
+    @Override
+    public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+        String sql = "UPDATE sets SET deleted = true WHERE " + key + " = " + value;
+        Statement stmt = connection().createStatement();
+        stmt.executeUpdate(sql);
+        connection().close();
+    }
+
+    @Override
+    public void deleteByKeyValue(String... paires) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void runProcedure() { }
 }

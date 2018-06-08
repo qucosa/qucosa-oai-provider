@@ -16,29 +16,35 @@
 
 package de.qucosa.oai.provider.persistence.pojos;
 
-import java.io.Serializable;
-import java.sql.Timestamp;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
+import java.sql.Date;
+
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Identifier implements Serializable {
+public class Dissemination implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("id")
     private Long id;
     
-    @JsonProperty("identifier")
-    private String identifier;
+    @JsonProperty("recordId")
+    private Long recordId;
     
-    @JsonProperty("datestamp")
-    private Timestamp datestamp;
+    @JsonProperty("formatId")
+    private Long formatId;
     
-    @JsonProperty("pid")
-    private String pid;
+    @JsonProperty("moddate")
+    private Date moddate;
+    
+    @JsonProperty("xmldata")
+    private String xmldata;
+
+    @JsonProperty("deleted")
+    private boolean deleted;
 
     public Long getId() {
         return id;
@@ -48,27 +54,39 @@ public class Identifier implements Serializable {
         this.id = id;
     }
 
-    public String getIdentifier() {
-        return identifier;
+    public Long getRecordId() {
+        return recordId;
     }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public void setRecordId(Long recordId) {
+        this.recordId = recordId;
     }
 
-    public Timestamp getDatestamp() {
-        return datestamp;
+    public Long getFormatId() {
+        return formatId;
     }
 
-    public void setDatestamp(Timestamp datestamp) {
-        this.datestamp = datestamp;
-    }
-    
-    public String getPid() {
-        return pid;
+    public void setFormatId(Long formatId) {
+        this.formatId = formatId;
     }
 
-    public void setPid(String pid) {
-        this.pid = pid;
+    public Date getModdate() {
+        return moddate;
     }
+
+    public void setModdate(Date moddate) {
+        this.moddate = moddate;
+    }
+
+    public String getXmldata() {
+        return xmldata;
+    }
+
+    public void setXmldata(String xmldata) {
+        this.xmldata = xmldata;
+    }
+
+    public boolean isDeleted() { return deleted; }
+
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
 }

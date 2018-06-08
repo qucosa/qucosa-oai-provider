@@ -14,36 +14,14 @@
  * limitations under the License.
  */
 
-package de.qucosa.oai.provider.persistence.pojos;
+package de.qucosa.oai.provider.persistence;
 
-public class XmlNamespace {
-    private Long id;
+import java.sql.Connection;
+
+public abstract class PersistenceDaoAbstract implements PersistenceDaoInterface {
+    private Connection connection;
     
-    private String prefix;
-    
-    private String url;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getPrefix() {
-        return prefix;
-    }
-
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
+    protected Connection connection() {
+        return new Connect("postgresql", "oaiprovider").connection();
     }
 }

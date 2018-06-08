@@ -16,21 +16,21 @@
 
 package de.qucosa.oai.provider.persistence;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class Connect {
     private Logger logger = LoggerFactory.getLogger(Connect.class);
 
     private Connection connection = null;
     
-    private String dbName = null;
+    private String dbName;
     
     private String user = null;
     

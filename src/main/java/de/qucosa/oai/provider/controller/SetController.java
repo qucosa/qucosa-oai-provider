@@ -1,0 +1,112 @@
+/*
+ * Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package de.qucosa.oai.provider.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.application.mapper.SetsConfig;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.xml.builders.SetXmlBuilder;
+import org.glassfish.jersey.process.internal.RequestScoped;
+import org.xml.sax.SAXException;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
+
+@Path("/sets")
+@RequestScoped
+public class SetController {
+    private PersistenceDaoInterface setDao;
+
+    @Inject
+    public SetController(PersistenceDaoInterface setDao) {
+        this.setDao = setDao;
+    }
+    
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response save(String input) throws IOException, SQLException, SAXException {
+        
+        if (input == null || input.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Data json mapper object is failed!").build();
+        }
+
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes = buildSqlSets(input);
+
+        if (saveRes == null || saveRes.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The set mapping object is failed!").build();
+        }
+
+        setDao.update(saveRes);
+
+        return Response.status(Response.Status.OK).entity(true).build();
+    }
+
+    @PUT
+    @Path("{setspec}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("setspec") String setspec, String input) throws IOException, SQLException, SAXException {
+        ObjectMapper om = new ObjectMapper();
+        SetsConfig.Set set = om.readValue(input, SetsConfig.Set.class);
+
+        if (!set.getSetSpec().equals(setspec)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Request param setspec and json data setspec are unequal.").build();
+        }
+
+        setDao.update(buildSqlSets(input));
+
+        return Response.status(Response.Status.OK).entity(true).build();
+    }
+
+    @DELETE
+    @Path("{setspec}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response delete(@PathParam("setspec") String setspec) throws SQLException {
+
+        if (setspec.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The setspec param is failed or empty!").build();
+        }
+
+        setDao.deleteByKeyValue("setspec", setspec);
+
+        return Response.status(Response.Status.OK).build();
+    }
+    
+    private Set<de.qucosa.oai.provider.persistence.pojos.Set> buildSqlSets(String input) throws IOException {
+        ObjectMapper om = new ObjectMapper();
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
+        Set<SetsConfig.Set> json = om.readValue(input, om.getTypeFactory().constructCollectionType(Set.class, SetsConfig.Set.class));
+        
+        for (SetsConfig.Set set : json) {
+            de.qucosa.oai.provider.persistence.pojos.Set data = new de.qucosa.oai.provider.persistence.pojos.Set();
+            data.setSetSpec(set.getSetSpec());
+            data.setSetName(set.getSetName());
+            data.setPredicate(set.getPredicate());
+            data.setDocument(SetXmlBuilder.build(set));
+            sets.add(data);
+        }
+        
+        return sets;
+    }
+}

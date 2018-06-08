@@ -16,12 +16,12 @@
 
 package de.qucosa.oai.provider.persistence.pojos;
 
-import java.io.Serializable;
-import java.sql.Date;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -31,17 +31,14 @@ public class Record implements Serializable {
     @JsonProperty("id")
     private Long id;
     
-    @JsonProperty("identifierId")
-    private Long identifierId;
+    @JsonProperty("datestamp")
+    private Timestamp datestamp;
     
-    @JsonProperty("format")
-    private Long format;
-    
-    @JsonProperty("moddate")
-    private Date moddate;
-    
-    @JsonProperty("xmldata")
-    private String xmldata;
+    @JsonProperty("pid")
+    private String pid;
+
+    @JsonProperty("deleted")
+    private boolean deleted;
 
     public Long getId() {
         return id;
@@ -51,35 +48,23 @@ public class Record implements Serializable {
         this.id = id;
     }
 
-    public Long getIdentifierId() {
-        return identifierId;
+    public Timestamp getDatestamp() {
+        return datestamp;
     }
 
-    public void setIdentifierId(Long identifierId) {
-        this.identifierId = identifierId;
+    public void setDatestamp(Timestamp datestamp) {
+        this.datestamp = datestamp;
+    }
+    
+    public String getPid() {
+        return pid;
     }
 
-    public Long getFormat() {
-        return format;
+    public void setPid(String pid) {
+        this.pid = pid;
     }
 
-    public void setFormat(Long format) {
-        this.format = format;
-    }
+    public boolean isDeleted() { return deleted; }
 
-    public Date getModdate() {
-        return moddate;
-    }
-
-    public void setModdate(Date moddate) {
-        this.moddate = moddate;
-    }
-
-    public String getXmldata() {
-        return xmldata;
-    }
-
-    public void setXmldata(String xmldata) {
-        this.xmldata = xmldata;
-    }
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
 }

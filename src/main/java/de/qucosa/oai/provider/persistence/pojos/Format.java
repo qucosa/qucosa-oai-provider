@@ -16,11 +16,11 @@
 
 package de.qucosa.oai.provider.persistence.pojos;
 
-import java.sql.Timestamp;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.sql.Timestamp;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -36,6 +36,9 @@ public class Format {
     
     @JsonProperty("dissType")
     private String dissType;
+
+    @JsonProperty("deleted")
+    private boolean deleted;
 
     public Long getId() {
         return id;
@@ -68,4 +71,8 @@ public class Format {
     public void setDissType(String dissType) {
         this.dissType = dissType;
     }
+
+    public boolean isDeleted() { return deleted; }
+
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
 }

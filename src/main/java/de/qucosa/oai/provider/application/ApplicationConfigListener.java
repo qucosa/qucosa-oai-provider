@@ -16,11 +16,12 @@
 
 package de.qucosa.oai.provider.application;
 
+import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.mapper.SetsConfig;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import de.qucosa.oai.provider.application.mapper.DissTerms;
 
 public class ApplicationConfigListener implements ServletContextListener {
     @Override
@@ -33,5 +34,8 @@ public class ApplicationConfigListener implements ServletContextListener {
         ServletContext context = sc.getServletContext();
         DissTerms dissTerms = new DissTerms(context.getInitParameter("config.path"));
         context.setAttribute("dissConf", dissTerms);
+
+        SetsConfig sets = new SetsConfig(context.getInitParameter("config.path"));
+        context.setAttribute("sets", sets);
     }
 }
