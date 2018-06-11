@@ -46,10 +46,8 @@ public class FormatsControllerTest extends JerseyTest {
 
     @Test
     public void updateFormats_Test() throws Exception {
-        int[] ex = new int[0];
         ObjectMapper om = new ObjectMapper();
         String json = om.writeValueAsString(format());
-        when(psqRepoDao.update(format())).thenReturn(ex);
         Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format()));
         assertEquals(response.getStatus(), 200);
     }
@@ -81,7 +79,8 @@ public class FormatsControllerTest extends JerseyTest {
     private Format format() {
         Format fm = new Format();
         fm.setMdprefix("xmetadiss");
-        fm.setLastpolldate(new Timestamp(new Date().getTime()));
+        fm.setSchemaUrl("");
+        fm.setNamespace("");
         return fm;
     }
 }
