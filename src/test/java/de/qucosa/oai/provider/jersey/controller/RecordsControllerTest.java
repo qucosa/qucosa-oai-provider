@@ -16,7 +16,6 @@
 
 package de.qucosa.oai.provider.jersey.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.RecordController;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
@@ -38,7 +37,6 @@ import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class RecordsControllerTest extends JerseyTest {
 
