@@ -102,8 +102,8 @@ public class SetController {
             de.qucosa.oai.provider.persistence.pojos.Set data = new de.qucosa.oai.provider.persistence.pojos.Set();
             data.setSetSpec(set.getSetSpec());
             data.setSetName(set.getSetName());
-            data.setPredicate(set.getPredicate());
-            data.setDocument(SetXmlBuilder.build(set));
+            data.setSetName(set.getSetName());
+            data.setSetDescription(set.getSetDescription());
             sets.add(data);
         }
         
