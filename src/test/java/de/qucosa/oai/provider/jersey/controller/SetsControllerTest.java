@@ -31,12 +31,13 @@ import org.junit.Test;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SetsControllerTest extends JerseyTest {
 
@@ -46,11 +47,22 @@ public class SetsControllerTest extends JerseyTest {
 
     @Test
     public void Save_successful_set_objects() throws Exception {
-        java.util.Set sets = new HashSet();
+        Set<SetsConfig.Set> sets = new HashSet<>();
         sets.add(set());
-        when(psqlDao.update(om.writeValueAsString(sets))).thenReturn(new int[0]);
         Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(sets));
         assertEquals(response.getStatus(), 200);
+        assertEquals(1, response.readEntity(int[].class).length);
+    }
+
+    @Test
+    public void Save_not_successful_set_object_if_setspec_or_setname_is_null_or_empty() {
+        SetsConfig.Set testSet = set();
+        testSet.setSetSpec(null);
+        Set<SetsConfig.Set> sets = new HashSet<>();
+        sets.add(testSet);
+
+        Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(sets));
+        assertEquals(500, response.getStatus());
     }
 
     @Test
@@ -62,14 +74,14 @@ public class SetsControllerTest extends JerseyTest {
 
     @Override
     protected Application configure() {
-        psqlDao = mock(PsqlRepository.class);
+        psqlDao = mock(SetTestDao.class);
         SetController setsController = new SetController(psqlDao);
 
         ResourceConfig config = new ResourceConfig(SetController.class);
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(PsqlRepository.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+                bind(SetTestDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
             }
         });
         HashMap<String, Object> props = new HashMap<>();
@@ -82,8 +94,25 @@ public class SetsControllerTest extends JerseyTest {
         SetsConfig.Set setCnf = new SetsConfig.Set();
         setCnf.setSetSpec("ddc:850");
         setCnf.setSetName("Italian, Romanian, Rhaeto-Romanic literatures");
+        setCnf.setSetDescription("Descrtiption for this test set.");
         setCnf.setPredicate("xDDC=850");
 
         return setCnf;
+    }
+
+    private static class SetTestDao extends PsqlRepository {
+        @Override
+        public <T> int[] update(T object) throws SQLException {
+            Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = (Set<de.qucosa.oai.provider.persistence.pojos.Set>) object;
+
+            for (de.qucosa.oai.provider.persistence.pojos.Set set : sets) {
+
+                if (set.getSetSpec() == null || set.getSetName() == null) {
+                    throw new SQLException("Set data object has null or empty values.");
+                }
+            }
+
+            return new int[1];
+        }
     }
 }
