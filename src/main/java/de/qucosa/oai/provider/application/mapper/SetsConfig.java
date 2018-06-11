@@ -95,6 +95,9 @@ public class SetsConfig {
         @JsonProperty("predicate")
         private String predicate;
 
+        @JsonProperty("setDescription")
+        private String setDescription;
+
         public String getSetSpec() {
             return setSpec;
         }
@@ -118,6 +121,10 @@ public class SetsConfig {
         public void setPredicate(String predicate) {
             this.predicate = predicate;
         }
+
+        public String getSetDescription() { return setDescription; }
+
+        public void setSetDescription(String setDescription) { this.setDescription = setDescription; }
     }
 
     private static class SetSpecDao {
