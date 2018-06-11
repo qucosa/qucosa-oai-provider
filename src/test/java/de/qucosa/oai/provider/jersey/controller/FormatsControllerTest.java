@@ -39,7 +39,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 public class FormatsControllerTest extends JerseyTest {
-    private PersistenceDaoInterface psqRepoDao;
 
     @Test
     public void Create_or_update_format_object_successful() throws Exception {
@@ -73,7 +72,7 @@ public class FormatsControllerTest extends JerseyTest {
 
     @Override
     protected Application configure() {
-        psqRepoDao = mock(FormatTestDao.class);
+        PersistenceDaoInterface psqRepoDao = mock(FormatTestDao.class);
         FormatsController formatsController = new FormatsController(psqRepoDao);
 
         ResourceConfig config = new ResourceConfig(FormatsController.class);

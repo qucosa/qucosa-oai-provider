@@ -40,8 +40,6 @@ import static org.mockito.Mockito.mock;
 
 public class RecordsControllerTest extends JerseyTest {
 
-    private PersistenceDaoInterface psqRepoDao;
-    
     @Test
     public void Save_or_update_record_object_successfulö() throws ParseException, Exception {
         Response response = target().path("records").request().header("Content-Type", "application/json").post(Entity.json(record()));
@@ -50,7 +48,7 @@ public class RecordsControllerTest extends JerseyTest {
     
     @Override
     protected Application configure() {
-        psqRepoDao = mock(RecordTestDao.class);
+        PersistenceDaoInterface psqRepoDao = mock(RecordTestDao.class);
         RecordController recordController = new RecordController(psqRepoDao);
 
         ResourceConfig config = new ResourceConfig(RecordController.class);

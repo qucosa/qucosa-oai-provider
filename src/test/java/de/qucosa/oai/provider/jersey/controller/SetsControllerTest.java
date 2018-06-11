@@ -41,8 +41,6 @@ import static org.mockito.Mockito.mock;
 
 public class SetsControllerTest extends JerseyTest {
 
-    private PersistenceDaoInterface psqlDao;
-
     private ObjectMapper om = new ObjectMapper();
 
     @Test
@@ -74,7 +72,7 @@ public class SetsControllerTest extends JerseyTest {
 
     @Override
     protected Application configure() {
-        psqlDao = mock(SetTestDao.class);
+        PersistenceDaoInterface psqlDao = mock(SetTestDao.class);
         SetController setsController = new SetController(psqlDao);
 
         ResourceConfig config = new ResourceConfig(SetController.class);
