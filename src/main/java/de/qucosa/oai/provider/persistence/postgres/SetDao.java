@@ -27,6 +27,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
+
+    @Override
+    public <T> int[] create(T object) { return new int[0]; }
     
     public Set<de.qucosa.oai.provider.persistence.pojos.Set> findAll() {
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();

@@ -30,6 +30,9 @@ import java.util.Set;
 public class DisseminationDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
 
     @Override
+    public <T> int[] create(T object) { return new int[0]; }
+
+    @Override
     public Set<Dissemination> findAll() {return null; }
 
     @Override

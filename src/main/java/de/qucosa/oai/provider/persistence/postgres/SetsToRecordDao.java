@@ -26,6 +26,10 @@ import java.sql.SQLException;
 import java.util.Set;
 
 public class SetsToRecordDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
+
+    @Override
+    public <T> int[] create(T object) { return new int[0]; }
+
     @Override
     public int count(String cntField, String... whereClauses) { return 0; }
 

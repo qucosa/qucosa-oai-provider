@@ -30,6 +30,9 @@ import java.util.Set;
 public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
 
     @Override
+    public <T> int[] create(T object) { return new int[0]; }
+
+    @Override
     public Set<Format> findAll() {
         Set<Format> formats = new HashSet<>();
         ResultSet result;
