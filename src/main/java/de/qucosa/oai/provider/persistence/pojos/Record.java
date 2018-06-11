@@ -37,6 +37,9 @@ public class Record implements Serializable {
     @JsonProperty("pid")
     private String pid;
 
+    @JsonProperty("uid")
+    private String uid;
+
     @JsonProperty("deleted")
     private boolean deleted;
 
@@ -63,6 +66,10 @@ public class Record implements Serializable {
     public void setPid(String pid) {
         this.pid = pid;
     }
+
+    public String getUid() { return uid; }
+
+    public void setUid(String uid) { this.uid = uid; }
 
     public boolean isDeleted() { return deleted; }
 
