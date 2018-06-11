@@ -57,9 +57,9 @@ public class SetController {
             return Response.status(Response.Status.BAD_REQUEST).entity("The set mapping object is failed!").build();
         }
 
-        setDao.update(saveRes);
+        int[] result = setDao.update(saveRes);
 
-        return Response.status(Response.Status.OK).entity(true).build();
+        return Response.status(Response.Status.OK).entity(result).build();
     }
 
     @PUT
