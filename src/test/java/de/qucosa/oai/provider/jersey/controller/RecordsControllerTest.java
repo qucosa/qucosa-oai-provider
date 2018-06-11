@@ -32,6 +32,7 @@ import org.junit.Test;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.HashMap;
 
@@ -44,24 +45,21 @@ public class RecordsControllerTest extends JerseyTest {
     private PersistenceDaoInterface psqRepoDao;
     
     @Test
-    public void Save_new_record() throws ParseException, Exception {
-        ObjectMapper om = new ObjectMapper();
-        String json = om.writeValueAsString(record());
-        when(psqRepoDao.update(json)).thenReturn(new int[0]);
+    public void Save_or_update_record_object_successfulö() throws ParseException, Exception {
         Response response = target().path("records").request().header("Content-Type", "application/json").post(Entity.json(record()));
-        assertEquals(response.getStatus(), 200);
+        assertEquals(200, response.getStatus());
     }
     
     @Override
     protected Application configure() {
-        psqRepoDao = mock(PsqlRepository.class);
+        psqRepoDao = mock(RecordTestDao.class);
         RecordController recordController = new RecordController(psqRepoDao);
 
         ResourceConfig config = new ResourceConfig(RecordController.class);
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(PsqlRepository.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+                bind(RecordTestDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
             }
         });
         HashMap<String, Object> props = new HashMap<>();
@@ -75,5 +73,12 @@ public class RecordsControllerTest extends JerseyTest {
         record.setPid("qucosa:48672");
         record.setDatestamp(DateTimeConverter.timestampWithTimezone("2017-12-14T09:42:45Z"));
         return record;
+    }
+
+    private static class RecordTestDao extends PsqlRepository {
+        @Override
+        public <T> int[] update(T object) throws SQLException {
+            return super.update(object);
+        }
     }
 }
