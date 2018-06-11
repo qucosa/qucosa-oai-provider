@@ -31,10 +31,10 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
     
     @Override
     public <T> int[] update(T data) throws SQLException {
-        String sql = "INSERT INTO records (id, pid, datestamp) \n";
-        sql+="VALUES (nextval('oaiprovider'), ?, ?) \r\n";
-        sql+="ON CONFLICT (pid) \r\n";
-        sql+="DO UPDATE SET pid = ? \r\n";
+        String sql = "INSERT INTO records (id, pid, uid, datestamp) \n";
+        sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n";
+        sql+="ON CONFLICT (uid) \r\n";
+        sql+="DO UPDATE SET uid = ?\r\n";
         PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
 
@@ -81,7 +81,7 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
     @Override
     public <T> T findByValue(String column, String value) throws SQLException {
         Record record = new Record();
-        String sql = "SELECT id, pid, datestamp, deleted FROM records WHERE " + column + " = ?";
+        String sql = "SELECT id, pid, uid, datestamp, deleted FROM records WHERE " + column + " = ?";
         PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
         pst.setString(1, value);
@@ -89,6 +89,7 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
 
         while (resultSet.next()) {
             record.setPid(resultSet.getString("pid"));
+            record.setUid(resultSet.getString("uid"));
             record.setId(resultSet.getLong("id"));
             record.setDatestamp(resultSet.getTimestamp("datestamp"));
             record.setDeleted(resultSet.getBoolean("deleted"));
@@ -129,8 +130,9 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
 
     private void buildUpdateObject(PreparedStatement pst, Record record) throws SQLException {
         pst.setString(1, record.getPid());
-        pst.setTimestamp(2, record.getDatestamp());
-        pst.setString(3, record.getPid());
+        pst.setString(2, record.getUid());
+        pst.setTimestamp(3, record.getDatestamp());
+        pst.setString(4, record.getPid());
         pst.addBatch();
     }
 
