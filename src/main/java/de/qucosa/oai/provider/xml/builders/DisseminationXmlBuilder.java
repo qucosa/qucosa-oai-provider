@@ -17,6 +17,7 @@
 package de.qucosa.oai.provider.xml.builders;
 
 import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.mapper.SetsConfig;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
 import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
@@ -27,7 +28,7 @@ import org.w3c.dom.Node;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import java.util.List;
+import java.util.Set;
 
 public class DisseminationXmlBuilder {
     private Document recordTemplate;
@@ -83,10 +84,10 @@ public class DisseminationXmlBuilder {
 
     private void appendSetSpecs() throws XPathExpressionException {
         Node header = recordHeader();
-        List<String> sets = record.getSets();
+        Set<SetsConfig.Set> sets = record.getSets();
 
-        for (int i = 0; i < sets.size(); i++) {
-            addSetSpec(header, sets.get(i));
+        for (SetsConfig.Set set : sets) {
+            addSetSpec(header, set.getSetSpec());
         }
     }
 }

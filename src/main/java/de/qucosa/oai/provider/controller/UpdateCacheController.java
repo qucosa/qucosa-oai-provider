@@ -76,7 +76,7 @@ public class UpdateCacheController {
         SetController setController = resourceContext.getResource(SetController.class);
 
         for (RecordTransport rt : inputData) {
-            setController.save(om.writeValueAsString(sets(rt.getSets(), (SetsConfig) servletContext.getAttribute("sets"))));
+            setController.save(om.writeValueAsString(rt.getSets()));
             Format format = getFormat(resourceContext, servletContext, rt);
 
             if (format == null) {
@@ -170,16 +170,5 @@ public class UpdateCacheController {
         }
 
         return record;
-    }
-
-    private Set<SetsConfig.Set> sets(List<String> sets, SetsConfig setsConfig) {
-        Set<SetsConfig.Set> output = new HashSet<>();
-
-        for (String setspec : sets) {
-            SetsConfig.Set set = setsConfig.getSetObject(setspec);
-            output.add(set);
-        }
-
-        return output;
     }
 }
