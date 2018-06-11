@@ -43,14 +43,14 @@ public class RecordController {
     }
     
     @GET
-    @Path("{pid}")
-    public Response find(@PathParam("pid") String pid) throws SQLException {
+    @Path("{uid}")
+    public Response find(@PathParam("uid") String uid) throws SQLException {
 
-        if (pid == null || pid.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The pid paramter is failed or empty!").build();
+        if (uid == null || uid.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The uid paramter is failed or empty!").build();
         }
 
-        Record record = recordDao.findByValue("pid", pid);
+        Record record = recordDao.findByValue("uid", uid);
 
         if (record.getId() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The mapping object is failed!").build();
@@ -70,19 +70,19 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Data json mapper object is failed!").build();
         }
 
-        recordDao.update(record);
+        int[] result = recordDao.update(record);
 
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Response.Status.OK).entity(result).build();
     }
 
     @PUT
-    @Path("{pid}")
+    @Path("{uid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("pid") String pid, String input) throws IOException, SQLException, SAXException {
+    public Response update(@PathParam("uid") String uid, String input) throws IOException, SQLException, SAXException {
 
-        if (pid.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("PID parameter is failed or empty!").build();
+        if (uid.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("UID parameter is failed or empty!").build();
         }
 
         if (input.isEmpty()) {
@@ -96,26 +96,26 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Record json mapper is failed!").build();
         }
 
-        if (!record.getPid().equals(pid)) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Update PID parameter and record PID ar unequal!").build();
+        if (!record.getPid().equals(uid)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Update UID parameter and record PID ar unequal!").build();
         }
 
-        recordDao.update(record);
+        int[] result = recordDao.update(record);
 
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Response.Status.OK).entity(result).build();
     }
 
     @DELETE
-    @Path("{pid}")
+    @Path("{uid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("pid") String pid) throws SQLException {
+    public Response delete(@PathParam("uid") String uid) throws SQLException {
 
-        if (pid.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("PID parameter is failed or empty!").build();
+        if (uid.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("UID parameter is failed or empty!").build();
         }
 
-        recordDao.deleteByKeyValue("pid", pid);
+        recordDao.deleteByKeyValue("uid", uid);
 
         return Response.status(Response.Status.OK).build();
     }
