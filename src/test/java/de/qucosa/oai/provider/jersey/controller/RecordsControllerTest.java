@@ -21,7 +21,6 @@ import de.qucosa.oai.provider.controller.RecordController;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Record;
-import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -67,7 +66,7 @@ public class RecordsControllerTest extends JerseyTest {
     private Record record() throws ParseException {
         Record record = new Record();
         record.setPid("qucosa:48672");
-        record.setDatestamp(DateTimeConverter.timestampWithTimezone("2017-12-14T09:42:45Z"));
+        record.setUid("example:oai:qucosa:48672");
         return record;
     }
 
