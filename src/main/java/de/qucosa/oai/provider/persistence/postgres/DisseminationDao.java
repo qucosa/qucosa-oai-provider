@@ -124,13 +124,13 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
         sqlxml.setString(sw.toString());
 
         if (dissemination.getId() != null) {
-            pst.setDate(1, dissemination.getModdate());
+            pst.setTimestamp(1, dissemination.getLastmoddate());
             pst.setSQLXML(2, sqlxml);
             pst.setLong(3, dissemination.getId());
         } else {
             pst.setLong(1, dissemination.getRecordId());
             pst.setLong(2, dissemination.getFormatId());
-            pst.setDate(3, dissemination.getModdate());
+            pst.setTimestamp(3, dissemination.getLastmoddate());
             pst.setSQLXML(4, sqlxml);
         }
 
