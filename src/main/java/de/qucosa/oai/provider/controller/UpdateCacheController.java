@@ -161,7 +161,6 @@ public class UpdateCacheController {
         } else {
             record = new Record();
             record.setPid(rt.getPid());
-            record.setDatestamp(rt.getModified());
             recordController.save(om.writeValueAsString(record));
             record = (Record) recordController.find(rt.getPid()).getEntity();
         }
