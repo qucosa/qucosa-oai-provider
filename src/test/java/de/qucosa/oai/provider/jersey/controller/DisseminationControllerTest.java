@@ -1,4 +1,44 @@
 package de.qucosa.oai.provider.jersey.controller;
 
-public class DisseminationControllerTest {
+import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.controller.RecordController;
+import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
+import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.process.internal.RequestScoped;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.JerseyTest;
+
+import javax.ws.rs.core.Application;
+import java.sql.SQLException;
+import java.util.HashMap;
+
+import static org.mockito.Mockito.mock;
+
+public class DisseminationControllerTest extends JerseyTest {
+
+    @Override
+    protected Application configure() {
+        PersistenceDaoInterface psqRepoDao = mock(DisseminationControllerTest.DisseminationTestDao.class);
+        RecordController recordController = new RecordController(psqRepoDao);
+
+        ResourceConfig config = new ResourceConfig(RecordController.class);
+        config.register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(DisseminationControllerTest.DisseminationTestDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+            }
+        });
+        HashMap<String, Object> props = new HashMap<>();
+        props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
+        config.setProperties(props);
+        return config;
+    }
+
+    private static class DisseminationTestDao extends PsqlRepository {
+        @Override
+        public <T> int[] update(T object) throws SQLException {
+            return super.update(object);
+        }
+    }
 }
