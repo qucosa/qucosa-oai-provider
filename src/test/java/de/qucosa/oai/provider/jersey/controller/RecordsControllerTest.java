@@ -16,23 +16,30 @@
 
 package de.qucosa.oai.provider.jersey.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.RecordController;
+import de.qucosa.oai.provider.helper.RestControllerContainerFactory;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Record;
+import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.spi.TestContainerException;
+import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -43,6 +50,23 @@ public class RecordsControllerTest extends JerseyTest {
     public void Save_new_record_successful() throws Exception {
         Response response = target().path("records").request().header("Content-Type", "application/json").post(Entity.json(record()));
         assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void Check_if_oaidc_formt_is_exists() throws IOException {
+        List<RecordTransport> inputData = inputData();
+
+        for (RecordTransport rt : inputData) {
+
+            if (rt.getPrefix().equals("oai_dc")) {
+                rt.setPrefix("");
+                break;
+            }
+        }
+
+        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
+        response.readEntity(String.class);
+        assertEquals(400, response.getStatus());
     }
     
     @Override
@@ -62,12 +86,23 @@ public class RecordsControllerTest extends JerseyTest {
         config.setProperties(props);
         return config;
     }
+
+    @Override
+    protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
+        return new RestControllerContainerFactory();
+    }
     
     private Record record() throws ParseException {
         Record record = new Record();
         record.setPid("qucosa:48672");
         record.setUid("example:oai:qucosa:48672");
         return record;
+    }
+
+    private List<RecordTransport> inputData() throws IOException {
+        ObjectMapper om = new ObjectMapper();
+        return om.readValue(getClass().getResourceAsStream("/data/record-transport.json"),
+                om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
     }
 
     private static class RecordTestDao extends PsqlRepository {
