@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
 public class RecordsControllerTest extends JerseyTest {
 
     @Test
-    public void Save_or_update_record_object_successfulö() throws ParseException, Exception {
+    public void Save_new_record_successful() throws Exception {
         Response response = target().path("records").request().header("Content-Type", "application/json").post(Entity.json(record()));
         assertEquals(200, response.getStatus());
     }
