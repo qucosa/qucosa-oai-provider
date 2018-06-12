@@ -43,7 +43,6 @@ CREATE TABLE public.records
   id bigint NOT NULL,
   pid character varying(255) NOT NULL,
   uid character varying(400) NOT NULL,
-  datestamp timestamp with time zone,
   deleted boolean NOT NULL DEFAULT false,
   CONSTRAINT record_pkey PRIMARY KEY (id),
   CONSTRAINT record_unique UNIQUE (pid),
@@ -62,7 +61,7 @@ CREATE TABLE public.disseminations
 (
   id bigint NOT NULL,
   id_format bigint NOT NULL,
-  lastmoddate date,
+  lastmoddate timestamp with time zone,
   xmldata xml NOT NULL,
   deleted boolean NOT NULL DEFAULT false,
   id_record character varying(400) NOT NULL,
