@@ -66,7 +66,14 @@ public class RecordController {
         List<RecordTransport> inputData = om.readValue(input.getBytes("UTF-8"),
                 om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
 
+
+
+        if (!checkIfOaiDcFormatIsExists(inputData)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The oai_dc format is failed in record input data.").build();
+        }
+
         SetController setController = resourceContext.getResource(SetController.class);
+
 
         for (RecordTransport rt : inputData) {
             setController.save(om.writeValueAsString(rt.getSets()));
@@ -105,6 +112,20 @@ public class RecordController {
 //        int[] result = recordDao.update(record);
 
         return Response.status(Response.Status.OK).entity(true).build();
+    }
+
+    private boolean checkIfOaiDcFormatIsExists(List<RecordTransport> inputdData) {
+        boolean isExists = false;
+
+        for (RecordTransport rt : inputdData) {
+
+            if (rt.getPrefix().equals("oai_dc")) {
+                isExists = true;
+                break;
+            }
+        }
+
+        return isExists;
     }
 
     @PUT
