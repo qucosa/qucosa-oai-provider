@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -30,9 +29,6 @@ public class Record implements Serializable {
 
     @JsonProperty("id")
     private Long id;
-    
-    @JsonProperty("datestamp")
-    private Timestamp datestamp;
     
     @JsonProperty("pid")
     private String pid;
@@ -51,14 +47,6 @@ public class Record implements Serializable {
         this.id = id;
     }
 
-    public Timestamp getDatestamp() {
-        return datestamp;
-    }
-
-    public void setDatestamp(Timestamp datestamp) {
-        this.datestamp = datestamp;
-    }
-    
     public String getPid() {
         return pid;
     }
