@@ -48,6 +48,12 @@ public class RecordController {
 
     private PersistenceDaoInterface recordDao;
 
+    @Context
+    private ServletContext servletContext;
+
+    @Context
+    private ResourceContext resourceContext;
+
     @Inject
     public RecordController(PersistenceDaoInterface recordDao) {
         this.recordDao = recordDao;
@@ -57,7 +63,7 @@ public class RecordController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(@Context ServletContext servletContext, @Context ResourceContext resourceContext, String input) throws IOException, SQLException, SAXException, XPathExpressionException {
+    public Response save(String input) throws IOException, SQLException, SAXException, XPathExpressionException {
 
         if (input == null || input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Request input data is empty or failed!").build();
@@ -76,13 +82,13 @@ public class RecordController {
 
         for (RecordTransport rt : inputData) {
             setController.save(om.writeValueAsString(rt.getSets()));
-            Format format = getFormat(resourceContext, servletContext, rt);
+            Format format = format(rt);
 
             if (format == null) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Get and / or save format prefix is failed!").build();
             }
 
-            Record record = getRecord(resourceContext, servletContext, rt);
+            Record record = record(rt);
 
             if (record == null) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Get and / or save record prefix is failed!").build();
@@ -194,7 +200,15 @@ public class RecordController {
 //        return om.readValue(json, Record.class);
 //    }
 
-    private Format getFormat(ResourceContext resourceContext, ServletContext servletContext, RecordTransport rt) throws SQLException, IOException, SAXException {
+    public Format format(RecordTransport rt) throws SQLException, IOException, SAXException {
+        return getFormat(rt);
+    }
+
+    public Record record(RecordTransport rt) throws SQLException, SAXException, XPathExpressionException, IOException {
+        return getRecord(rt);
+    }
+
+    private Format getFormat(RecordTransport rt) throws SQLException, IOException, SAXException {
         FormatsController formatsController = resourceContext.getResource(FormatsController.class);
         Response resFormat = formatsController.format(servletContext, rt.getPrefix());
         Format format;
@@ -211,7 +225,7 @@ public class RecordController {
         return format;
     }
 
-    private Record getRecord(ResourceContext resourceContext, ServletContext servletContext, RecordTransport rt) throws SQLException, IOException, SAXException, XPathExpressionException {
+    private Record getRecord(RecordTransport rt) throws SQLException, IOException, SAXException, XPathExpressionException {
         Record record;
         RecordController recordController = resourceContext.getResource(RecordController.class);
         Response recordResonse = recordController.find(rt.getPid());
@@ -221,7 +235,7 @@ public class RecordController {
         } else {
             record = new Record();
             record.setPid(rt.getPid());
-            recordController.save(servletContext, resourceContext, om.writeValueAsString(record));
+            recordController.save(om.writeValueAsString(record));
             record = (Record) recordController.find(rt.getPid()).getEntity();
         }
 
