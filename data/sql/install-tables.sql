@@ -23,8 +23,8 @@ CREATE TABLE public.formats
 (
   id bigint NOT NULL,
   mdprefix character varying(255) NOT NULL,
-  schemaurl character NOT NULL,
-  namespace character NOT NULL,
+  schemaurl character varying(255) NOT NULL,
+  namespace character varying(255) NOT NULL,
   deleted boolean NOT NULL DEFAULT false,
   CONSTRAINT formats_pkey PRIMARY KEY (id),
   CONSTRAINT mdprefix_unique UNIQUE (mdprefix)
@@ -41,8 +41,8 @@ ALTER TABLE public.formats
 CREATE TABLE public.records
 (
   id bigint NOT NULL,
-  pid character varying(255) NOT NULL,
-  uid character varying(400) NOT NULL,
+  pid character varying(50) NOT NULL,
+  uid character varying(100) NOT NULL,
   deleted boolean NOT NULL DEFAULT false,
   CONSTRAINT record_pkey PRIMARY KEY (id),
   CONSTRAINT record_unique UNIQUE (pid),
@@ -64,7 +64,7 @@ CREATE TABLE public.disseminations
   lastmoddate timestamp with time zone,
   xmldata xml NOT NULL,
   deleted boolean NOT NULL DEFAULT false,
-  id_record character varying(400) NOT NULL,
+  id_record character varying(100) NOT NULL,
   CONSTRAINT dissemination_pkey PRIMARY KEY (id),
   CONSTRAINT dissemination_format_fkey FOREIGN KEY (id_format)
       REFERENCES public.formats (id) MATCH SIMPLE
