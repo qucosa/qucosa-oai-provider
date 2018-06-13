@@ -48,7 +48,7 @@ public class RecordsControllerTest extends JerseyTest {
 
     @Test
     public void Save_new_record_successful() throws Exception {
-        Response response = target().path("records").request().header("Content-Type", "application/json").post(Entity.json(record()));
+        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(record()));
         assertEquals(200, response.getStatus());
     }
 
