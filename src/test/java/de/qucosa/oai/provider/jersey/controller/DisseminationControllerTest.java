@@ -37,7 +37,7 @@ public class DisseminationControllerTest extends JerseyTest {
 
     private static class DisseminationTestDao extends PsqlRepository {
         @Override
-        public <T> int[] update(T object) throws SQLException {
+        public <T> T update(T object) throws SQLException {
             return super.update(object);
         }
     }
