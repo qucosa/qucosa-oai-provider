@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -228,7 +229,26 @@ public class DissTerms implements Serializable {
             try {
                 dissTerms = om.readValue(Files.readAllBytes(Paths.get(file.getAbsolutePath())), DissTerms.class);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.debug("dissemination-conf parse failed.");
+            }
+        }
+
+        public DissTermsDao(InputStream stream) {
+            ObjectMapper om = new ObjectMapper();
+
+            try {
+                dissTerms = om.readValue(stream, DissTerms.class);
+            } catch (IOException e) {
+                logger.debug("dissemination-conf parse failed.");
+            }
+        }
+
+        public DissTermsDao(File file) {
+            ObjectMapper om = new ObjectMapper();
+
+            try {
+                dissTerms = om.readValue(file, DissTerms.class);
+            } catch (IOException e) {
                 logger.debug("dissemination-conf parse failed.");
             }
         }
