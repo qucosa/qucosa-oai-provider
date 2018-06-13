@@ -58,7 +58,7 @@ public class RecordsControllerTest extends JerseyTest {
             }
         });
         HashMap<String, Object> props = new HashMap<>();
-        props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
+        props.put("dissConf", new DissTerms(getClass().getResourceAsStream("/config/dissemination-config.json")));
         config.setProperties(props);
         return config;
     }
