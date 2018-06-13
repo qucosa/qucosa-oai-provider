@@ -30,7 +30,7 @@ import java.util.Set;
 public class DisseminationDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
 
     @Override
-    public <T> int[] create(T object) { return new int[0]; }
+    public <T> T create(T object) { return null; }
 
     @Override
     public Set<Dissemination> findAll() {return null; }
@@ -49,7 +49,7 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
     public <T> Set<T> find(String sqlStmt) throws SQLException { return null; }
 
     @Override
-    public <T> int[] update(T object) throws SQLException {
+    public <T> T update(T object) throws SQLException {
         Dissemination dissemination = (Dissemination) object;
         PreparedStatement select = connection().prepareCall("SELECT id FROM disseminations WHERE id_record = ? AND id_format = ?;");
         connection().setAutoCommit(false);
@@ -77,7 +77,7 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
         buildUpdateObject(pst, dissemination);
         int[] ex = pst.executeBatch();
         connection().commit();
-        return ex;
+        return (T) ex;
     }
 
     @Override
@@ -106,10 +106,10 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
     public <T> T findByValue(String column, String value) { return null; }
 
     @Override
-    public int[] update(String sql) { return null; }
+    public <T> T update(String sql) { return null; }
 
     @Override
-    public int[] update(String... value) { return null; }
+    public <T> T update(String... value) { return null; }
 
     @Override
     public <T> T findByValues(String... values) { return null; }

@@ -30,7 +30,7 @@ import java.util.Set;
 public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
 
     @Override
-    public <T> int[] create(T object) { return new int[0]; }
+    public <T> T create(T object) { return null; }
 
     @Override
     public Set<Format> findAll() {
@@ -70,7 +70,7 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     public <T> Set<T> find(String sqlStmt) { return null; }
 
     @Override
-    public <T> int[] update(T object) throws SQLException {
+    public <T> T update(T object) throws SQLException {
         String sql = "INSERT INTO formats (id, mdprefix, schemaurl, namespace) \n";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n";
         sql+="ON CONFLICT (mdprefix) \r\n";
@@ -92,7 +92,7 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
 
         int[] ex = pst.executeBatch();
         connection().commit();
-        return ex;
+        return (T) ex;
     }
 
     @Override
@@ -135,10 +135,10 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     }
 
     @Override
-    public int[] update(String sql) { return null; }
+    public <T> T update(String sql) { return null; }
 
     @Override
-    public int[] update(String... value) { return null; }
+    public <T> T update(String... value) { return null; }
 
     @Override
     public <T> T findByValues(String... values) { return null; }

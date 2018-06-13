@@ -28,13 +28,13 @@ import java.util.Set;
 public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
 
     @Override
-    public <T> int[] create(T object) { return new int[0]; }
+    public <T> T create(T object) { return null; }
 
     @Override
     public Set<Record> findAll() { return null; }
     
     @Override
-    public <T> int[] update(T data) throws SQLException {
+    public <T> T update(T data) throws SQLException {
         String sql = "INSERT INTO records (id, pid, uid) \n";
         sql+="VALUES (nextval('oaiprovider'), ?, ?) \r\n";
         sql+="ON CONFLICT (uid) \r\n";
@@ -56,7 +56,7 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
 
         int[] ex = pst.executeBatch();
         connection().commit();
-        return ex;
+        return (T) ex;
     }
 
     @Override
@@ -104,10 +104,10 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
     }
 
     @Override
-    public int[] update(String sql) { return null; }
+    public <T> T update(String sql) { return null; }
 
     @Override
-    public int[] update(String... value) { return null; }
+    public <T> T update(String... value) { return null; }
 
     @Override
     public <T> T findByValues(String... values) { return null; }
