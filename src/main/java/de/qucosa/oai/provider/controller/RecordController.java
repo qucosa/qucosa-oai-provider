@@ -74,7 +74,6 @@ public class RecordController {
 
         SetController setController = resourceContext.getResource(SetController.class);
 
-
         for (RecordTransport rt : inputData) {
             setController.save(om.writeValueAsString(rt.getSets()));
             Format format = getFormat(resourceContext, servletContext, rt);
