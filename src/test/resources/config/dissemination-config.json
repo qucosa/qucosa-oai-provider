@@ -91,22 +91,22 @@
   ],
   "formats" : [
     {
-        "format" : "xmetadissplus",
+        "mdprefix" : "xmetadissplus",
         "schemaurl" : "http://www.d-nb.de/standards/xmetadissplus/",
 		"namespace" : "xMetaDiss"
     },
     {
-        "format" : "oai_dc",
+        "mdprefix" : "oai_dc",
         "schemaurl" : "http://www.openarchives.org/OAI/2.0/oai_dc/",
 		"namespace" : "oai_dc"
     },
     {
-        "format" : "epicur",
+        "mdprefix" : "epicur",
         "schemaurl" : "http://www.persistent-identifier.de/xepicur/version1.0/xepicur.xsd",
 		"namespace" : ""
     },
     {
-        "format" : "mets",
+        "mdprefix" : "mets",
         "schemaurl" : "http://www.loc.gov/METS/",
 		"namespace" : "mets"
     }
