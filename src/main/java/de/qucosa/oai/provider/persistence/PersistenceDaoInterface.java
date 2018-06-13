@@ -24,13 +24,13 @@ import java.util.Set;
 
 public interface PersistenceDaoInterface {
 
-    <T> int[] create(T object);
+    <T> T create(T object);
 
-    int[] update(String sql);
-    
-    int[] update(String...value);
+    <T> T update(String sql);
 
-    <T> int[] update(T object) throws SQLException, IOException, SAXException;
+    <T> T update(String...value);
+
+    <T> T update(T object) throws SQLException, IOException, SAXException;
 
     <T> Set<T> findAll();
 
