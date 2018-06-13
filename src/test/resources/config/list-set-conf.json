@@ -1,671 +1,812 @@
 [
   {
-    "setSpec": "has-source-swb:true",
-    "setName": "All records with PPN",
+    "setspec": "has-source-swb:true",
+    "setname": "All records with PPN",
+    "setdescription" : "",
     "predicate": "xSourceSwb=true"
   },
   {
-    "setSpec": "open_access",
-    "setName": "Documents with open access restriction",
+    "setspec": "open_access",
+    "setname": "Documents with open access restriction",
+    "setdescription" : "",
     "predicate": "xOpenAccess=open_access"
   },
   {
-    "setSpec": "ddc:000",
-    "setName": "Generalities, Science",
+    "setspec": "ddc:000",
+    "setname": "Generalities, Science",
+    "setdescription" : "",
     "predicate": "xDDC=000"
   },
   {
-    "setSpec": "ddc:004",
-    "setName": "Data processing Computer science",
+    "setspec": "ddc:004",
+    "setname": "Data processing Computer science",
+    "setdescription" : "",
     "predicate": "xDDC=004"
   },
   {
-    "setSpec": "ddc:010",
-    "setName": "Bibliography",
+    "setspec": "ddc:010",
+    "setname": "Bibliography",
+    "setdescription" : "",
     "predicate": "xDDC=010"
   },
   {
-    "setSpec": "ddc:020",
-    "setName": "Library and information sciences",
+    "setspec": "ddc:020",
+    "setname": "Library and information sciences",
+    "setdescription" : "",
     "predicate": "xDDC=020"
   },
   {
-    "setSpec": "ddc:030",
-    "setName": "General encyclopedic works",
+    "setspec": "ddc:030",
+    "setname": "General encyclopedic works",
+    "setdescription" : "",
     "predicate": "xDDC=030"
   },
   {
-    "setSpec": "ddc:050",
-    "setName": "General serials and their indexes",
+    "setspec": "ddc:050",
+    "setname": "General serials and their indexes",
+    "setdescription" : "",
     "predicate": "xDDC=050"
   },
   {
-    "setSpec": "ddc:060",
-    "setName": "General organization and museology",
+    "setspec": "ddc:060",
+    "setname": "General organization and museology",
+    "setdescription" : "",
     "predicate": "xDDC=060"
   },
   {
-    "setSpec": "ddc:070",
-    "setName": "News media, journalism, publishing",
+    "setspec": "ddc:070",
+    "setname": "News media, journalism, publishing",
+    "setdescription" : "",
     "predicate": "xDDC=070"
   },
   {
-    "setSpec": "ddc:080",
-    "setName": "General collections",
+    "setspec": "ddc:080",
+    "setname": "General collections",
+    "setdescription" : "",
     "predicate": "xDDC=080"
   },
   {
-    "setSpec": "ddc:090",
-    "setName": "Manuscripts and rare books",
+    "setspec": "ddc:090",
+    "setname": "Manuscripts and rare books",
+    "setdescription" : "",
     "predicate": "xDDC=090"
   },
   {
-    "setSpec": "ddc:100",
-    "setName": "Philosophy",
+    "setspec": "ddc:100",
+    "setname": "Philosophy",
+    "setdescription" : "",
     "predicate": "xDDC=100"
   },
   {
-    "setSpec": "ddc:130",
-    "setName": "Paranormal phenomena",
+    "setspec": "ddc:130",
+    "setname": "Paranormal phenomena",
+    "setdescription" : "",
     "predicate": "xDDC=130"
   },
   {
-    "setSpec": "ddc:150",
-    "setName": "Psychology",
+    "setspec": "ddc:150",
+    "setname": "Psychology",
+    "setdescription" : "",
     "predicate": "xDDC=150"
   },
   {
-    "setSpec": "ddc:200",
-    "setName": "Religion",
+    "setspec": "ddc:200",
+    "setname": "Religion",
+    "setdescription" : "",
     "predicate": "xDDC=200"
   },
   {
-    "setSpec": "ddc:220",
-    "setName": "Bible",
+    "setspec": "ddc:220",
+    "setname": "Bible",
+    "setdescription" : "",
     "predicate": "xDDC=220"
   },
   {
-    "setSpec": "ddc:230",
-    "setName": "Christian theology",
+    "setspec": "ddc:230",
+    "setname": "Christian theology",
+    "setdescription" : "",
     "predicate": "xDDC=230"
   },
   {
-    "setSpec": "ddc:290",
-    "setName": "Other and comparative religions",
+    "setspec": "ddc:290",
+    "setname": "Other and comparative religions",
+    "setdescription" : "",
     "predicate": "xDDC=290"
   },
   {
-    "setSpec": "ddc:300",
-    "setName": "Social sciences",
+    "setspec": "ddc:300",
+    "setname": "Social sciences",
+    "setdescription" : "",
     "predicate": "xDDC=300"
   },
   {
-    "setSpec": "ddc:310",
-    "setName": "General statistics",
+    "setspec": "ddc:310",
+    "setname": "General statistics",
+    "setdescription" : "",
     "predicate": "xDDC=310"
   },
   {
-    "setSpec": "ddc:320",
-    "setName": "Political science",
+    "setspec": "ddc:320",
+    "setname": "Political science",
+    "setdescription" : "",
     "predicate": "xDDC=320"
   },
   {
-    "setSpec": "ddc:330",
-    "setName": "Economics",
+    "setspec": "ddc:330",
+    "setname": "Economics",
+    "setdescription" : "",
     "predicate": "xDDC=330"
   },
   {
-    "setSpec": "ddc:333.7",
-    "setName": "Natural ressources, energy and environment",
+    "setspec": "ddc:333.7",
+    "setname": "Natural ressources, energy and environment",
+    "setdescription" : "",
     "predicate": "xDDC=333.7"
   },
   {
-    "setSpec": "ddc:340",
-    "setName": "Law",
+    "setspec": "ddc:340",
+    "setname": "Law",
+    "setdescription" : "",
     "predicate": "xDDC=340"
   },
   {
-    "setSpec": "ddc:350",
-    "setName": "Public administration",
+    "setspec": "ddc:350",
+    "setname": "Public administration",
+    "setdescription" : "",
     "predicate": "xDDC=350"
   },
   {
-    "setSpec": "ddc:355",
-    "setName": "Military science",
+    "setspec": "ddc:355",
+    "setname": "Military science",
+    "setdescription" : "",
     "predicate": "xDDC=355"
   },
   {
-    "setSpec": "ddc:360",
-    "setName": "Social services; association",
+    "setspec": "ddc:360",
+    "setname": "Social services; association",
+    "setdescription" : "",
     "predicate": "xDDC=360"
   },
   {
-    "setSpec": "ddc:370",
-    "setName": "Education",
+    "setspec": "ddc:370",
+    "setname": "Education",
+    "setdescription" : "",
     "predicate": "xDDC=370"
   },
   {
-    "setSpec": "ddc:380",
-    "setName": "Commerce, communications, transport",
+    "setspec": "ddc:380",
+    "setname": "Commerce, communications, transport",
+    "setdescription" : "",
     "predicate": "xDDC=380"
   },
   {
-    "setSpec": "ddc:390",
-    "setName": "Customs, etiquette, folklore",
+    "setspec": "ddc:390",
+    "setname": "Customs, etiquette, folklore",
+    "setdescription" : "",
     "predicate": "xDDC=390"
   },
   {
-    "setSpec": "ddc:400",
-    "setName": "Language, Linguistics",
+    "setspec": "ddc:400",
+    "setname": "Language, Linguistics",
+    "setdescription" : "",
     "predicate": "xDDC=400"
   },
   {
-    "setSpec": "ddc:420",
-    "setName": "English",
+    "setspec": "ddc:420",
+    "setname": "English",
+    "setdescription" : "",
     "predicate": "xDDC=420"
   },
   {
-    "setSpec": "ddc:430",
-    "setName": "Germanic",
+    "setspec": "ddc:430",
+    "setname": "Germanic",
+    "setdescription" : "",
     "predicate": "xDDC=430"
   },
   {
-    "setSpec": "ddc:439",
-    "setName": "Other Germanic languages",
+    "setspec": "ddc:439",
+    "setname": "Other Germanic languages",
+    "setdescription" : "",
     "predicate": "xDDC=439"
   },
   {
-    "setSpec": "ddc:440",
-    "setName": "Romance languages French",
+    "setspec": "ddc:440",
+    "setname": "Romance languages French",
+    "setdescription" : "",
     "predicate": "xDDC=440"
   },
   {
-    "setSpec": "ddc:450",
-    "setName": "Italian, Romanian, Rhaeto-Romantic",
+    "setspec": "ddc:450",
+    "setname": "Italian, Romanian, Rhaeto-Romantic",
+    "setdescription" : "",
     "predicate": "xDDC=450"
   },
   {
-    "setSpec": "ddc:460",
-    "setName": "Spanish and Portugese languages",
+    "setspec": "ddc:460",
+    "setname": "Spanish and Portugese languages",
+    "setdescription" : "",
     "predicate": "xDDC=460"
   },
   {
-    "setSpec": "ddc:470",
-    "setName": "Italic Latin",
+    "setspec": "ddc:470",
+    "setname": "Italic Latin",
+    "setdescription" : "",
     "predicate": "xDDC=470"
   },
   {
-    "setSpec": "ddc:480",
-    "setName": "Hellenic languages Classical Greek",
+    "setspec": "ddc:480",
+    "setname": "Hellenic languages Classical Greek",
+    "setdescription" : "",
     "predicate": "xDDC=480"
   },
   {
-    "setSpec": "ddc:490",
-    "setName": "Other languages",
+    "setspec": "ddc:490",
+    "setname": "Other languages",
+    "setdescription" : "",
     "predicate": "xDDC=490"
   },
   {
-    "setSpec": "ddc:500",
-    "setName": "Natural sciences and mathematics",
+    "setspec": "ddc:500",
+    "setname": "Natural sciences and mathematics",
+    "setdescription" : "",
     "predicate": "xDDC=500"
   },
   {
-    "setSpec": "ddc:510",
-    "setName": "Mathematics",
+    "setspec": "ddc:510",
+    "setname": "Mathematics",
+    "setdescription" : "",
     "predicate": "xDDC=510"
   },
   {
-    "setSpec": "ddc:520",
-    "setName": "Astronomy and allied sciences",
+    "setspec": "ddc:520",
+    "setname": "Astronomy and allied sciences",
+    "setdescription" : "",
     "predicate": "xDDC=520"
   },
   {
-    "setSpec": "ddc:530",
-    "setName": "Physics",
+    "setspec": "ddc:530",
+    "setname": "Physics",
+    "setdescription" : "",
     "predicate": "xDDC=530"
   },
   {
-    "setSpec": "ddc:540",
-    "setName": "Chemistry and allied sciences",
+    "setspec": "ddc:540",
+    "setname": "Chemistry and allied sciences",
+    "setdescription" : "",
     "predicate": "xDDC=540"
   },
   {
-    "setSpec": "ddc:550",
-    "setName": "Earth sciences",
+    "setspec": "ddc:550",
+    "setname": "Earth sciences",
+    "setdescription" : "",
     "predicate": "xDDC=550"
   },
   {
-    "setSpec": "ddc:560",
-    "setName": "Paleontology Paleozoology",
+    "setspec": "ddc:560",
+    "setname": "Paleontology Paleozoology",
+    "setdescription" : "",
     "predicate": "xDDC=560"
   },
   {
-    "setSpec": "ddc:570",
-    "setName": "Life sciences",
+    "setspec": "ddc:570",
+    "setname": "Life sciences",
+    "setdescription" : "",
     "predicate": "xDDC=570"
   },
   {
-    "setSpec": "ddc:580",
-    "setName": "Botanical sciences",
+    "setspec": "ddc:580",
+    "setname": "Botanical sciences",
+    "setdescription" : "",
     "predicate": "xDDC=580"
   },
   {
-    "setSpec": "ddc:590",
-    "setName": "Zoological sciences",
+    "setspec": "ddc:590",
+    "setname": "Zoological sciences",
+    "setdescription" : "",
     "predicate": "xDDC=590"
   },
   {
-    "setSpec": "ddc:600",
-    "setName": "Technology (Applied sciences)",
+    "setspec": "ddc:600",
+    "setname": "Technology (Applied sciences)",
+    "setdescription" : "",
     "predicate": "xDDC=600"
   },
   {
-    "setSpec": "ddc:610",
-    "setName": "Medical sciences Medicine",
+    "setspec": "ddc:610",
+    "setname": "Medical sciences Medicine",
+    "setdescription" : "",
     "predicate": "xDDC=610"
   },
   {
-    "setSpec": "ddc:620",
-    "setName": "Engineering and allied operations",
+    "setspec": "ddc:620",
+    "setname": "Engineering and allied operations",
+    "setdescription" : "",
     "predicate": "xDDC=620"
   },
   {
-    "setSpec": "ddc:630",
-    "setName": "Agriculture",
+    "setspec": "ddc:630",
+    "setname": "Agriculture",
+    "setdescription" : "",
     "predicate": "xDDC=630"
   },
   {
-    "setSpec": "ddc:640",
-    "setName": "Home economics and family living",
+    "setspec": "ddc:640",
+    "setname": "Home economics and family living",
+    "setdescription" : "",
     "predicate": "xDDC=640"
   },
   {
-    "setSpec": "ddc:650",
-    "setName": "Management and auxiliary services",
+    "setspec": "ddc:650",
+    "setname": "Management and auxiliary services",
+    "setdescription" : "",
     "predicate": "xDDC=650"
   },
   {
-    "setSpec": "ddc:660",
-    "setName": "Chemical engineering Technische",
+    "setspec": "ddc:660",
+    "setname": "Chemical engineering Technische",
+    "setdescription" : "",
     "predicate": "xDDC=660"
   },
   {
-    "setSpec": "ddc:670",
-    "setName": "Manufacturing",
+    "setspec": "ddc:670",
+    "setname": "Manufacturing",
+    "setdescription" : "",
     "predicate": "xDDC=670"
   },
   {
-    "setSpec": "ddc:690",
-    "setName": "Buildings",
+    "setspec": "ddc:690",
+    "setname": "Buildings",
+    "setdescription" : "",
     "predicate": "xDDC=690"
   },
   {
-    "setSpec": "ddc:700",
-    "setName": "The arts",
+    "setspec": "ddc:700",
+    "setname": "The arts",
+    "setdescription" : "",
     "predicate": "xDDC=700"
   },
   {
-    "setSpec": "ddc:710",
-    "setName": "Civic and landscape art",
+    "setspec": "ddc:710",
+    "setname": "Civic and landscape art",
+    "setdescription" : "",
     "predicate": "xDDC=710"
   },
   {
-    "setSpec": "ddc:720",
-    "setName": "Architecture",
+    "setspec": "ddc:720",
+    "setname": "Architecture",
+    "setdescription" : "",
     "predicate": "xDDC=720"
   },
   {
-    "setSpec": "ddc:730",
-    "setName": "Plastic arts Sculpture",
+    "setspec": "ddc:730",
+    "setname": "Plastic arts Sculpture",
+    "setdescription" : "",
     "predicate": "xDDC=730"
   },
   {
-    "setSpec": "ddc:740",
-    "setName": "Drawing and decorative arts",
+    "setspec": "ddc:740",
+    "setname": "Drawing and decorative arts",
+    "setdescription" : "",
     "predicate": "xDDC=740"
   },
   {
-    "setSpec": "ddc:741.5",
-    "setName": "Comics, Cartoons",
+    "setspec": "ddc:741.5",
+    "setname": "Comics, Cartoons",
+    "setdescription" : "",
     "predicate": "xDDC=741.5"
   },
   {
-    "setSpec": "ddc:750",
-    "setName": "Painting and paintings",
+    "setspec": "ddc:750",
+    "setname": "Painting and paintings",
+    "setdescription" : "",
     "predicate": "xDDC=750"
   },
   {
-    "setSpec": "ddc:760",
-    "setName": "Graphic arts Printmaking and prints",
+    "setspec": "ddc:760",
+    "setname": "Graphic arts Printmaking and prints",
+    "setdescription" : "",
     "predicate": "xDDC=760"
   },
   {
-    "setSpec": "ddc:770",
-    "setName": "Photography and photographs",
+    "setspec": "ddc:770",
+    "setname": "Photography and photographs",
+    "setdescription" : "",
     "predicate": "xDDC=770"
   },
   {
-    "setSpec": "ddc:780",
-    "setName": "Music",
+    "setspec": "ddc:780",
+    "setname": "Music",
+    "setdescription" : "",
     "predicate": "xDDC=780"
   },
   {
-    "setSpec": "ddc:790",
-    "setName": "Recreational and performing arts",
+    "setspec": "ddc:790",
+    "setname": "Recreational and performing arts",
+    "setdescription" : "",
     "predicate": "xDDC=790"
   },
   {
-    "setSpec": "ddc:791",
-    "setName": "Public performances",
+    "setspec": "ddc:791",
+    "setname": "Public performances",
+    "setdescription" : "",
     "predicate": "xDDC=791"
   },
   {
-    "setSpec": "ddc:792",
-    "setName": "Stage presentations",
+    "setspec": "ddc:792",
+    "setname": "Stage presentations",
+    "setdescription" : "",
     "predicate": "xDDC=792"
   },
   {
-    "setSpec": "ddc:793",
-    "setName": "Indoor games and amusements",
+    "setspec": "ddc:793",
+    "setname": "Indoor games and amusements",
+    "setdescription" : "",
     "predicate": "xDDC=793"
   },
   {
-    "setSpec": "ddc:796",
-    "setName": "Athletic and outdoor sports and games",
+    "setspec": "ddc:796",
+    "setname": "Athletic and outdoor sports and games",
+    "setdescription" : "",
     "predicate": "xDDC=796"
   },
   {
-    "setSpec": "ddc:800",
-    "setName": "Literature and rhetoric",
+    "setspec": "ddc:800",
+    "setname": "Literature and rhetoric",
+    "setdescription" : "",
     "predicate": "xDDC=800"
   },
   {
-    "setSpec": "ddc:810",
-    "setName": "American literature in English",
+    "setspec": "ddc:810",
+    "setname": "American literature in English",
+    "setdescription" : "",
     "predicate": "xDDC=810"
   },
   {
-    "setSpec": "ddc:820",
-    "setName": "English and Old English literatures",
+    "setspec": "ddc:820",
+    "setname": "English and Old English literatures",
+    "setdescription" : "",
     "predicate": "xDDC=820"
   },
   {
-    "setSpec": "ddc:830",
-    "setName": "Literatures of Germanic languages",
+    "setspec": "ddc:830",
+    "setname": "Literatures of Germanic languages",
+    "setdescription" : "",
     "predicate": "xDDC=830"
   },
   {
-    "setSpec": "ddc:839",
-    "setName": "Other Germanic literatures",
+    "setspec": "ddc:839",
+    "setname": "Other Germanic literatures",
+    "setdescription" : "",
     "predicate": "xDDC=839"
   },
   {
-    "setSpec": "ddc:840",
-    "setName": "Literatures of Romance languages",
+    "setspec": "ddc:840",
+    "setname": "Literatures of Romance languages",
+    "setdescription" : "",
     "predicate": "xDDC=840"
   },
   {
-    "setSpec": "ddc:850",
-    "setName": "Italian, Romanian, Rhaeto-Romanic literatures",
+    "setspec": "ddc:850",
+    "setname": "Italian, Romanian, Rhaeto-Romanic literatures",
+    "setdescription" : "",
     "predicate": "xDDC=850"
   },
   {
-    "setSpec": "ddc:860",
-    "setName": "Spanish and Portuguese literatures",
+    "setspec": "ddc:860",
+    "setname": "Spanish and Portuguese literatures",
+    "setdescription" : "",
     "predicate": "xDDC=860"
   },
   {
-    "setSpec": "ddc:870",
-    "setName": "Italic literatures Latin",
+    "setspec": "ddc:870",
+    "setname": "Italic literatures Latin",
+    "setdescription" : "",
     "predicate": "xDDC=870"
   },
   {
-    "setSpec": "ddc:880",
-    "setName": "Hellenic literatures Classical Greek",
+    "setspec": "ddc:880",
+    "setname": "Hellenic literatures Classical Greek",
+    "setdescription" : "",
     "predicate": "xDDC=880"
   },
   {
-    "setSpec": "ddc:890",
-    "setName": "Literatures of other languages",
+    "setspec": "ddc:890",
+    "setname": "Literatures of other languages",
+    "setdescription" : "",
     "predicate": "xDDC=890"
   },
   {
-    "setSpec": "ddc:900",
-    "setName": "Geography and history",
+    "setspec": "ddc:900",
+    "setname": "Geography and history",
+    "setdescription" : "",
     "predicate": "xDDC=900"
   },
   {
-    "setSpec": "ddc:910",
-    "setName": "Geography and travel",
+    "setspec": "ddc:910",
+    "setname": "Geography and travel",
+    "setdescription" : "",
     "predicate": "xDDC=910"
   },
   {
-    "setSpec": "ddc:914.3",
-    "setName": "Geography and travel",
+    "setspec": "ddc:914.3",
+    "setname": "Geography and travel",
+    "setdescription" : "",
     "predicate": "xDDC=914.3"
   },
   {
-    "setSpec": "ddc:920",
-    "setName": "Biography, genealogy, insignia",
+    "setspec": "ddc:920",
+    "setname": "Biography, genealogy, insignia",
+    "setdescription" : "",
     "predicate": "xDDC=920"
   },
   {
-    "setSpec": "ddc:930",
-    "setName": "History of the ancient world",
+    "setspec": "ddc:930",
+    "setname": "History of the ancient world",
+    "setdescription" : "",
     "predicate": "xDDC=930"
   },
   {
-    "setSpec": "ddc:940",
-    "setName": "General history of Europe",
+    "setspec": "ddc:940",
+    "setname": "General history of Europe",
+    "setdescription" : "",
     "predicate": "xDDC=940"
   },
   {
-    "setSpec": "ddc:943",
-    "setName": "General history of Europe Central Europe Germany",
+    "setspec": "ddc:943",
+    "setname": "General history of Europe Central Europe Germany",
+    "setdescription" : "",
     "predicate": "xDDC=943"
   },
   {
-    "setSpec": "ddc:950",
-    "setName": "General history of Asia Far East",
+    "setspec": "ddc:950",
+    "setname": "General history of Asia Far East",
+    "setdescription" : "",
     "predicate": "xDDC=950"
   },
   {
-    "setSpec": "ddc:960",
-    "setName": "General history of Africa",
+    "setspec": "ddc:960",
+    "setname": "General history of Africa",
+    "setdescription" : "",
     "predicate": "xDDC=960"
   },
   {
-    "setSpec": "ddc:970",
-    "setName": "General history of North America",
+    "setspec": "ddc:970",
+    "setname": "General history of North America",
+    "setdescription" : "",
     "predicate": "xDDC=970"
   },
   {
-    "setSpec": "ddc:980",
-    "setName": "General history of South America",
+    "setspec": "ddc:980",
+    "setname": "General history of South America",
+    "setdescription" : "",
     "predicate": "xDDC=980"
   },
   {
-    "setSpec": "ddc:990",
-    "setName": "General history of other areas",
+    "setspec": "ddc:990",
+    "setname": "General history of other areas",
+    "setdescription" : "",
     "predicate": "xDDC=990"
   },
   {
-    "setSpec": "doc-type:annotation",
-    "setName": "Annotation",
+    "setspec": "doc-type:annotation",
+    "setname": "Annotation",
+    "setdescription" : "",
     "predicate": "xDocType=annotation"
   },
   {
-    "setSpec": "doc-type:article",
-    "setName": "Article",
+    "setspec": "doc-type:article",
+    "setname": "Article",
+    "setdescription" : "",
     "predicate": "xDocType=aricle"
   },
   {
-    "setSpec": "doc-type:bachelorThesis",
-    "setName": "BachelorThesis",
+    "setspec": "doc-type:bachelorThesis",
+    "setname": "BachelorThesis",
+    "setdescription" : "",
     "predicate": "xDocType=bachelorThesis"
   },
   {
-    "setSpec": "doc-type:book",
-    "setName": "Book",
+    "setspec": "doc-type:book",
+    "setname": "Book",
+    "setdescription" : "",
     "predicate": "xDocType=book"
   },
   {
-    "setSpec": "doc-type:bookPart",
-    "setName": "BookPart",
+    "setspec": "doc-type:bookPart",
+    "setname": "BookPart",
+    "setdescription" : "",
     "predicate": "xDocType=bookPart"
   },
   {
-    "setSpec": "doc-type:CarthographicMaterial",
-    "setName": "CarthographicMaterial",
+    "setspec": "doc-type:CarthographicMaterial",
+    "setname": "CarthographicMaterial",
+    "setdescription" : "",
     "predicate": "xDocType=CarthographicMaterial"
   },
   {
-    "setSpec": "doc-type:conferenceObject",
-    "setName": "conferenceObject",
+    "setspec": "doc-type:conferenceObject",
+    "setname": "conferenceObject",
+    "setdescription" : "",
     "predicate": "xDocType=conferenceObject"
   },
   {
-    "setSpec": "doc-type:contributionToPeriodical",
-    "setName": "ContributionToPeriodical",
+    "setspec": "doc-type:contributionToPeriodical",
+    "setname": "ContributionToPeriodical",
+    "setdescription" : "",
     "predicate": "xDocType=contributionToPeriodical"
   },
   {
-    "setSpec": "doc-type:CourseMaterial",
-    "setName": "CourseMaterial",
+    "setspec": "doc-type:CourseMaterial",
+    "setname": "CourseMaterial",
+    "setdescription" : "",
     "predicate": "xDocType=CourseMaterial"
   },
   {
-    "setSpec": "doc-type:doctoralThesis",
-    "setName": "DoctoralThesis",
+    "setspec": "doc-type:doctoralThesis",
+    "setname": "DoctoralThesis",
+    "setdescription" : "",
     "predicate": "xDocType=doctoralThesis"
   },
   {
-    "setSpec": "doc-type:Image",
-    "setName": "Image",
+    "setspec": "doc-type:Image",
+    "setname": "Image",
+    "setdescription" : "",
     "predicate": "xDocType=Image"
   },
   {
-    "setSpec": "doc-type:lecture",
-    "setName": "Lecture",
+    "setspec": "doc-type:lecture",
+    "setname": "Lecture",
+    "setdescription" : "",
     "predicate": "xDocType=lecture"
   },
   {
-    "setSpec": "doc-type:Manuscript",
-    "setName": "Manuscript",
+    "setspec": "doc-type:Manuscript",
+    "setname": "Manuscript",
+    "setdescription" : "",
     "predicate": "xDocType=Manuscript"
   },
   {
-    "setSpec": "doc-type:masterThesis",
-    "setName": "MasterThesis",
+    "setspec": "doc-type:masterThesis",
+    "setname": "MasterThesis",
+    "setdescription" : "",
     "predicate": "xDocType=masterThesis"
   },
   {
-    "setSpec": "doc-type:MovingImage",
-    "setName": "MovingImage",
+    "setspec": "doc-type:MovingImage",
+    "setname": "MovingImage",
+    "setdescription" : "",
     "predicate": "xDocType=MovingImage"
   },
   {
-    "setSpec": "doc-type:MusicalNotation",
-    "setName": "MusicalNotation",
+    "setspec": "doc-type:MusicalNotation",
+    "setname": "MusicalNotation",
+    "setdescription" : "",
     "predicate": "xDocType=MusicalNotation"
   },
   {
-    "setSpec": "doc-type:Other",
-    "setName": "Other",
+    "setspec": "doc-type:Other",
+    "setname": "Other",
+    "setdescription" : "",
     "predicate": "xDocType=Other"
   },
   {
-    "setSpec": "doc-type:patent",
-    "setName": "Patent",
+    "setspec": "doc-type:patent",
+    "setname": "Patent",
+    "setdescription" : "",
     "predicate": "xDocType=patent"
   },
   {
-    "setSpec": "doc-type:Periodical",
-    "setName": "Periodical",
+    "setspec": "doc-type:Periodical",
+    "setname": "Periodical",
+    "setdescription" : "",
     "predicate": "xDocType=Periodical"
   },
   {
-    "setSpec": "doc-type:PeriodicalPart",
-    "setName": "PeriodicalPart",
+    "setspec": "doc-type:PeriodicalPart",
+    "setname": "PeriodicalPart",
+    "setdescription" : "",
     "predicate": "xDocType=PeriodicalPart"
   },
   {
-    "setSpec": "doc-type:preprint",
-    "setName": "Preprint",
+    "setspec": "doc-type:preprint",
+    "setname": "Preprint",
+    "setdescription" : "",
     "predicate": "xDocType=preprint"
   },
   {
-    "setSpec": "doc-type:report",
-    "setName": "Report",
+    "setspec": "doc-type:report",
+    "setname": "Report",
+    "setdescription" : "",
     "predicate": "xDocType=report"
   },
   {
-    "setSpec": "doc-type:ResearchData",
-    "setName": "ResearchData",
+    "setspec": "doc-type:ResearchData",
+    "setname": "ResearchData",
+    "setdescription" : "",
     "predicate": "xDocType=ResearchData"
   },
   {
-    "setSpec": "doc-type:review",
-    "setName": "Review",
+    "setspec": "doc-type:review",
+    "setname": "Review",
+    "setdescription" : "",
     "predicate": "xDocType=review"
   },
   {
-    "setSpec": "doc-type:Software",
-    "setName": "Software",
+    "setspec": "doc-type:Software",
+    "setname": "Software",
+    "setdescription" : "",
     "predicate": "xDocType=Software"
   },
   {
-    "setSpec": "doc-type:Sound",
-    "setName": "Sound",
+    "setspec": "doc-type:Sound",
+    "setname": "Sound",
+    "setdescription" : "",
     "predicate": "xDocType=Sound"
   },
   {
-    "setSpec": "doc-type:StillImage",
-    "setName": "StillImage",
+    "setspec": "doc-type:StillImage",
+    "setname": "StillImage",
+    "setdescription" : "",
     "predicate": "xDocType=StillImage"
   },
   {
-    "setSpec": "doc-type:StudyThesis",
-    "setName": "StudyThesis",
+    "setspec": "doc-type:StudyThesis",
+    "setname": "StudyThesis",
+    "setdescription" : "",
     "predicate": "xDocType=StudyThesis"
   },
   {
-    "setSpec": "doc-type:Text",
-    "setName": "Text",
+    "setspec": "doc-type:Text",
+    "setname": "Text",
+    "setdescription" : "",
     "predicate": "xDocType=Text"
   },
   {
-    "setSpec": "doc-type:Website",
-    "setName": "Website",
+    "setspec": "doc-type:Website",
+    "setname": "Website",
+    "setdescription" : "",
     "predicate": "xDocType=Website"
   },
   {
-    "setSpec": "doc-type:workingPaper",
-    "setName": "WorkingPaper",
+    "setspec": "doc-type:workingPaper",
+    "setname": "WorkingPaper",
+    "setdescription" : "",
     "predicate": "xDocType=workingPaper"
   },
   {
-    "setSpec": "status-type:draftVersion",
+    "setspec": "status-type:draftVersion",
+    "setname": "",
+    "setdescription" : "",
     "predicate": "xStatusType=info:eu-repo/semantics/draft"
   },
   {
-    "setSpec": "status-type:submittedVersion",
+    "setspec": "status-type:submittedVersion",
+    "setname": "",
+    "setdescription" : "",
     "predicate": "xStatusType=info:eu-repo/semantics/submittedVersion"
   },
   {
-    "setSpec": "status-type:acceptedVersion",
+    "setspec": "status-type:acceptedVersion",
+    "setname": "",
+    "setdescription" : "",
     "predicate": "xStatusType=info:eu-repo/semantics/acceptedVersion"
   },
   {
-    "setSpec": "status-type:publishedVersion",
+    "setspec": "status-type:publishedVersion",
+    "setname": "",
+    "setdescription" : "",
     "predicate": "xStatusType=info:eu-repo/semantics/publishedVersion"
   },
   {
-    "setSpec": "status-type:updatedVersion",
+    "setspec": "status-type:updatedVersion",
+    "setname": "",
+    "setdescription" : "",
     "predicate": "xStatusType=info:eu-repo/semantics/updatedVersion"
   },
   {
-    "setSpec": "openaire",
+    "setspec": "openaire",
+    "setname": "",
+    "setdescription" : "",
     "predicate": "xOpenAire"
   }
 ]
