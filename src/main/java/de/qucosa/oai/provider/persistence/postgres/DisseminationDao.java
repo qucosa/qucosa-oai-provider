@@ -75,9 +75,9 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
         PreparedStatement pst = connection().prepareStatement(sb.toString());
         connection().setAutoCommit(false);
         buildUpdateObject(pst, dissemination);
-        int[] ex = pst.executeBatch();
+        pst.executeBatch();
         connection().commit();
-        return (T) ex;
+        return object;
     }
 
     @Override

@@ -34,7 +34,7 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
     public Set<Record> findAll() { return null; }
     
     @Override
-    public <T> T update(T data) throws SQLException {
+    public <T> T update(T object) throws SQLException {
         String sql = "INSERT INTO records (id, pid, uid) \n";
         sql+="VALUES (nextval('oaiprovider'), ?, ?) \r\n";
         sql+="ON CONFLICT (uid) \r\n";
@@ -42,21 +42,21 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
         PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
 
-        if (data instanceof Set) {
-            Set<Record> records = (Set<Record>) data;
+        if (object instanceof Set) {
+            Set<Record> records = (Set<Record>) object;
 
             for (Record record : records) {
                 buildUpdateObject(pst, record);
             }
         }
 
-        if (data instanceof Record) {
-            buildUpdateObject(pst, (Record) data);
+        if (object instanceof Record) {
+            buildUpdateObject(pst, (Record) object);
         }
 
-        int[] ex = pst.executeBatch();
+        pst.executeBatch();
         connection().commit();
-        return (T) ex;
+        return object;
     }
 
     @Override

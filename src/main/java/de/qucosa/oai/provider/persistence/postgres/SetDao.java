@@ -86,9 +86,9 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
             pst.addBatch();
         }
 
-        int[] ex = pst.executeBatch();
+        pst.executeBatch();
         connection().commit();
-        return (T) ex;
+        return object;
     }
 
     @Override

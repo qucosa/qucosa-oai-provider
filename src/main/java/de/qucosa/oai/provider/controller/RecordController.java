@@ -70,7 +70,7 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Data json mapper object is failed!").build();
         }
 
-        int[] result = recordDao.update(record);
+        Record result = recordDao.update(record);
 
         return Response.status(Response.Status.OK).entity(result).build();
     }
@@ -100,7 +100,7 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Update UID parameter and record PID ar unequal!").build();
         }
 
-        int[] result = recordDao.update(record);
+        Record result = recordDao.update(record);
 
         return Response.status(Response.Status.OK).entity(result).build();
     }

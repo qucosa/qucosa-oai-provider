@@ -57,7 +57,7 @@ public class FormatsController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Formats json mapper object is failed!").build();
         }
 
-        int[] result = formatDao.update(format);
+        Format result = formatDao.update(format);
 
         return Response.status(Response.Status.OK).entity(result).build();
     }

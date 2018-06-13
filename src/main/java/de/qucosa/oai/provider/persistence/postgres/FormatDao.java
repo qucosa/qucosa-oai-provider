@@ -90,9 +90,9 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
             buildUpdateObject(pst, (Format) object);
         }
 
-        int[] ex = pst.executeBatch();
+        pst.executeBatch();
         connection().commit();
-        return (T) ex;
+        return object;
     }
 
     @Override
