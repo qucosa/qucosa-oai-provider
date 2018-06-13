@@ -100,7 +100,7 @@ public class SetsControllerTest extends JerseyTest {
 
     private static class SetTestDao extends PsqlRepository {
         @Override
-        public <T> int[] update(T object) throws SQLException {
+        public <T> T update(T object) throws SQLException {
             Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = (Set<de.qucosa.oai.provider.persistence.pojos.Set>) object;
 
             for (de.qucosa.oai.provider.persistence.pojos.Set set : sets) {
@@ -110,7 +110,7 @@ public class SetsControllerTest extends JerseyTest {
                 }
             }
 
-            return new int[1];
+            return (T) new int[1];
         }
     }
 }

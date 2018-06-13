@@ -72,8 +72,8 @@ public class RecordsControllerTest extends JerseyTest {
 
     private static class RecordTestDao extends PsqlRepository {
         @Override
-        public <T> int[] update(T object) throws SQLException {
-            return super.update(object);
+        public <T> T update(T object) throws SQLException {
+            return (T) super.update(object);
         }
     }
 }

@@ -104,7 +104,7 @@ public class FormatsControllerTest extends JerseyTest {
 
     private static class FormatTestDao extends PsqlRepository {
         @Override
-        public <T> int[] update(T object) throws SQLException {
+        public <T> T update(T object) throws SQLException {
             Format format = (Format) object;
 
             if (format.getSchemaUrl() == null || format.getNamespace() == null || format.getMdprefix() == null) {
