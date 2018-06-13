@@ -7,14 +7,14 @@
     "data" : "",
     "sets" : [
       {
-        "setSpec": "ddc:980",
-        "setName": "General history of South America",
-        "setDescription" : ""
+        "setspec": "ddc:980",
+        "setname": "General history of South America",
+        "setdescription" : ""
       },
       {
-        "setSpec": "ddc:990",
-        "setName": "General history of other areas",
-        "setDescription" : ""
+        "setspec": "ddc:990",
+        "setname": "General history of other areas",
+        "setdescription" : ""
       }
     ]
   },
@@ -26,14 +26,14 @@
     "data" : "",
     "sets" : [
       {
-        "setSpec": "ddc:980",
-        "setName": "General history of South America",
-        "setDescription" : ""
+        "setspec": "ddc:980",
+        "setname": "General history of South America",
+        "setdescription" : ""
       },
       {
-        "setSpec": "ddc:990",
-        "setName": "General history of other areas",
-        "setDescription" : ""
+        "setspec": "ddc:990",
+        "setname": "General history of other areas",
+        "setdescription" : ""
       }
     ]
   },
@@ -45,14 +45,14 @@
     "data" : "",
     "sets" : [
       {
-        "setSpec": "ddc:980",
-        "setName": "General history of South America",
-        "setDescription" : ""
+        "setspec": "ddc:980",
+        "setname": "General history of South America",
+        "setdescription" : ""
       },
       {
-        "setSpec": "ddc:990",
-        "setName": "General history of other areas",
-        "setDescription" : ""
+        "setspec": "ddc:990",
+        "setname": "General history of other areas",
+        "setdescription" : ""
       }
     ]
   }
