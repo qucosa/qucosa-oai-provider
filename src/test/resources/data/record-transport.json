@@ -4,20 +4,56 @@
     "oaiid" : "oai:example.org:qucosa:55887",
     "prefix" : "oai_dc",
     "modified" : "",
-    "data" : ""
+    "data" : "",
+    "sets" : [
+      {
+        "setSpec": "ddc:980",
+        "setName": "General history of South America",
+        "setDescription" : ""
+      },
+      {
+        "setSpec": "ddc:990",
+        "setName": "General history of other areas",
+        "setDescription" : ""
+      }
+    ]
   },
   {
     "pid" : "qucosa:55886",
     "oaiid" : "oai:example.org:qucosa:55887",
     "prefix" : "xmetadiss",
     "modified" : "",
-    "data" : ""
+    "data" : "",
+    "sets" : [
+      {
+        "setSpec": "ddc:980",
+        "setName": "General history of South America",
+        "setDescription" : ""
+      },
+      {
+        "setSpec": "ddc:990",
+        "setName": "General history of other areas",
+        "setDescription" : ""
+      }
+    ]
   },
   {
     "pid" : "qucosa:55886",
     "oaiid" : "oai:example.org:qucosa:55887",
     "prefix" : "epicur",
     "modified" : "",
-    "data" : ""
+    "data" : "",
+    "sets" : [
+      {
+        "setSpec": "ddc:980",
+        "setName": "General history of South America",
+        "setDescription" : ""
+      },
+      {
+        "setSpec": "ddc:990",
+        "setName": "General history of other areas",
+        "setDescription" : ""
+      }
+    ]
   }
 ]
