@@ -53,7 +53,7 @@ public class RecordsControllerTest extends JerseyTest {
     }
 
     @Test
-    public void Check_if_oaidc_formt_is_exists() throws IOException {
+    public void Check_if_oaidc_formt_is_not_exists() throws IOException {
         List<RecordTransport> inputData = inputData();
 
         for (RecordTransport rt : inputData) {
