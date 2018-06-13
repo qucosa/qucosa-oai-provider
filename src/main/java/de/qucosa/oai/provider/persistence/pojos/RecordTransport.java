@@ -47,7 +47,7 @@ public class RecordTransport implements Serializable {
     @JsonProperty("modified")
     private Timestamp modified;
     
-    @JsonProperty("oaiId")
+    @JsonProperty("oaiid")
     private String oaiId;
 
     public String getPid() {

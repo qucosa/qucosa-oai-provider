@@ -32,13 +32,13 @@ public class Set implements Serializable {
     @JsonProperty("id")
     private Long id;
     
-    @JsonProperty("setSpec")
+    @JsonProperty("setspec")
     private String setSpec;
     
-    @JsonProperty("setName")
+    @JsonProperty("setname")
     private String setName;
 
-    @JsonProperty("setDescription")
+    @JsonProperty("setdescription")
     private String setDescription;
 
     @JsonProperty("deleted")

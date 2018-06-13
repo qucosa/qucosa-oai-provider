@@ -32,10 +32,10 @@ public class Dissemination implements Serializable {
     @JsonProperty("id")
     private Long id;
     
-    @JsonProperty("recordId")
+    @JsonProperty("recordid")
     private Long recordId;
     
-    @JsonProperty("formatId")
+    @JsonProperty("formatid")
     private Long formatId;
 
     @JsonProperty("lastmoddate")

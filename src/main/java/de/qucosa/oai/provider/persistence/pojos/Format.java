@@ -29,7 +29,7 @@ public class Format {
     @JsonProperty("mdprefix")
     private String mdprefix;
 
-    @JsonProperty("schemaUrl")
+    @JsonProperty("schemaurl")
     private String schemaUrl;
 
     @JsonProperty("namespace")
