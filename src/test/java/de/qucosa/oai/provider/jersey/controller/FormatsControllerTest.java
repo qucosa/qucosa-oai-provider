@@ -94,15 +94,15 @@ public class FormatsControllerTest extends JerseyTest {
         return UriBuilder.fromUri(super.getBaseUri()).path("formats").build();
     }
 
-    private Format format() {
+    public static Format format() {
         Format fm = new Format();
-        fm.setMdprefix("xmetadiss");
-        fm.setSchemaUrl("http://www.d-nb.de/standards/xmetadissplus/");
-        fm.setNamespace("xMetaDiss");
+        fm.setMdprefix("oai_dc");
+        fm.setSchemaUrl("http://www.openarchives.org/OAI/2.0/oai_dc/");
+        fm.setNamespace("oai_dc");
         return fm;
     }
 
-    private static class FormatTestDao extends PsqlRepository {
+    public static class FormatTestDao extends PsqlRepository {
         @Override
         public <T> T update(T object) throws SQLException {
             Format format = (Format) object;
@@ -116,6 +116,11 @@ public class FormatsControllerTest extends JerseyTest {
             }
 
             return super.update(object);
+        }
+
+        @Override
+        public <T> T findByValue(String column, String value) throws SQLException {
+            return (T) FormatsControllerTest.format();
         }
     }
 }
