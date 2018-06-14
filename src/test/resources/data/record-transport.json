@@ -2,7 +2,7 @@
   {
     "pid" : "qucosa:55886",
     "oaiid" : "oai:example.org:qucosa:55887",
-    "prefix" : "oai_dc",
+    "mdprefix" : "oai_dc",
     "modified" : "",
     "data" : "",
     "sets" : [
@@ -21,7 +21,7 @@
   {
     "pid" : "qucosa:55886",
     "oaiid" : "oai:example.org:qucosa:55887",
-    "prefix" : "xmetadiss",
+    "mdprefix" : "xmetadiss",
     "modified" : "",
     "data" : "",
     "sets" : [
@@ -40,7 +40,7 @@
   {
     "pid" : "qucosa:55886",
     "oaiid" : "oai:example.org:qucosa:55887",
-    "prefix" : "epicur",
+    "mdprefix" : "epicur",
     "modified" : "",
     "data" : "",
     "sets" : [
