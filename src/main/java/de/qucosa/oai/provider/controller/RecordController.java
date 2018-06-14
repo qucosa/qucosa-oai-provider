@@ -48,12 +48,6 @@ public class RecordController {
 
     private PersistenceDaoInterface recordDao;
 
-    @Context
-    private ServletContext servletContext;
-
-    @Context
-    private ResourceContext resourceContext;
-
     @Inject
     public RecordController(PersistenceDaoInterface recordDao) {
         this.recordDao = recordDao;
@@ -63,7 +57,7 @@ public class RecordController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) throws IOException, SQLException, SAXException, XPathExpressionException {
+    public Response save(@Context ServletContext servletContext, @Context ResourceContext resourceContext, String input) throws IOException, SQLException, SAXException, XPathExpressionException {
 
         if (input == null || input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Request input data is empty or failed!").build();
@@ -71,8 +65,6 @@ public class RecordController {
 
         List<RecordTransport> inputData = om.readValue(input.getBytes("UTF-8"),
                 om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
-
-
 
         if (!checkIfOaiDcFormatIsExists(inputData)) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The oai_dc format is failed in record input data.").build();
@@ -82,16 +74,16 @@ public class RecordController {
 
         for (RecordTransport rt : inputData) {
             setController.save(om.writeValueAsString(rt.getSets()));
-            Format format = format(rt);
+            Format format = format(getFormat(resourceContext.getResource(FormatsController.class), rt));
 
             if (format == null) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Get and / or save format prefix is failed!").build();
+                return Response.status(Response.Status.NOT_FOUND).entity("Get and / or save format prefix is failed!").build();
             }
 
-            Record record = record(rt);
+            Record record = record(servletContext, resourceContext, rt);
 
             if (record == null) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Get and / or save record prefix is failed!").build();
+                return Response.status(Response.Status.NOT_FOUND).entity("Get and / or save record prefix is failed!").build();
             }
 
             Document disseminationDocument = new DisseminationXmlBuilder(rt)
@@ -119,31 +111,13 @@ public class RecordController {
         return Response.status(Response.Status.OK).entity(true).build();
     }
 
-    private boolean checkIfOaiDcFormatIsExists(List<RecordTransport> inputdData) {
-        boolean isExists = false;
-
-        for (RecordTransport rt : inputdData) {
-
-            if (rt.getPrefix().equals("oai_dc")) {
-                isExists = true;
-                break;
-            }
-        }
-
-        return isExists;
-    }
-
     @PUT
     @Path("{uid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(@PathParam("uid") String uid, String input) throws IOException, SQLException, SAXException {
 
-        if (uid.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("UID parameter is failed or empty!").build();
-        }
-
-        if (input.isEmpty()) {
+        if (input == null || input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Input data is failed or empty!").build();
         }
 
@@ -154,8 +128,8 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Record json mapper is failed!").build();
         }
 
-        if (!record.getPid().equals(uid)) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Update UID parameter and record PID ar unequal!").build();
+        if (!record.getUid().equals(uid)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Update UID parameter and record UID ar unequal!").build();
         }
 
         Record result = recordDao.update(record);
@@ -200,24 +174,45 @@ public class RecordController {
 //        return om.readValue(json, Record.class);
 //    }
 
-    public Format format(RecordTransport rt) throws SQLException, IOException, SAXException {
-        return getFormat(rt);
+    public Format format(Format format) {
+        return format;
     }
 
-    public Record record(RecordTransport rt) throws SQLException, SAXException, XPathExpressionException, IOException {
-        return getRecord(rt);
+    public Record record(ServletContext servletContext, ResourceContext resourceContext, RecordTransport rt) throws SQLException, SAXException, XPathExpressionException, IOException {
+        return getRecord(servletContext, resourceContext, rt);
     }
 
-    private Format getFormat(RecordTransport rt) throws SQLException, IOException, SAXException {
-        FormatsController formatsController = resourceContext.getResource(FormatsController.class);
-        Response resFormat = formatsController.format(servletContext, rt.getPrefix());
+    private boolean checkIfOaiDcFormatIsExists(List<RecordTransport> inputdData) {
+        boolean isExists = false;
+
+        for (RecordTransport rt : inputdData) {
+
+            if (rt.getMdprefix().equals("oai_dc")) {
+                isExists = true;
+                break;
+            }
+        }
+
+        return isExists;
+    }
+
+    private Format getFormat(FormatsController formatsController, RecordTransport rt) throws SQLException, IOException, SAXException {
+        Response resFormat = formatsController.format(rt.getMdprefix());
         Format format;
 
         if (resFormat.getStatus() != 200) {
             format = new Format();
-            format.setMdprefix(rt.getPrefix());
+            format.setMdprefix(rt.getMdprefix());
             formatsController.save(om.writeValueAsString(format));
-            format = (Format) formatsController.format(servletContext, rt.getPrefix()).getEntity();
+
+            Response response = formatsController.format(rt.getMdprefix());
+
+            if (response.getEntity() instanceof Format) {
+                format = (Format) formatsController.format(rt.getMdprefix()).getEntity();
+            } else {
+                format = null;
+            }
+
         } else {
             format = (Format) resFormat.getEntity();
         }
@@ -225,18 +220,25 @@ public class RecordController {
         return format;
     }
 
-    private Record getRecord(RecordTransport rt) throws SQLException, IOException, SAXException, XPathExpressionException {
+    private Record getRecord(ServletContext servletContext, ResourceContext resourceContext, RecordTransport rt) throws SQLException, IOException, SAXException, XPathExpressionException {
         Record record;
-        RecordController recordController = resourceContext.getResource(RecordController.class);
-        Response recordResonse = recordController.find(rt.getPid());
+        Response recordResonse = this.find(rt.getPid());
 
-        if (recordResonse.getStatus() == 200) {
-            record = (Record) recordResonse.getEntity();
-        } else {
+        if (recordResonse.getStatus() != 200) {
             record = new Record();
             record.setPid(rt.getPid());
-            recordController.save(om.writeValueAsString(record));
-            record = (Record) recordController.find(rt.getPid()).getEntity();
+            record.setUid(rt.getOaiId());
+//            this.save(servletContext, resourceContext, om.writeValueAsString(record));
+            this.update("", om.writeValueAsString(record));
+            Response response = this.find(rt.getPid());
+
+            if (response.getEntity() instanceof Record) {
+                record = (Record) this.find(rt.getPid()).getEntity();
+            } else {
+                record = null;
+            }
+        } else {
+            record = (Record) recordResonse.getEntity();
         }
 
         return record;
