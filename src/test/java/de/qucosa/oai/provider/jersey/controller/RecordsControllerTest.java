@@ -18,6 +18,7 @@ package de.qucosa.oai.provider.jersey.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.controller.RecordController;
 import de.qucosa.oai.provider.helper.RestControllerContainerFactory;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
@@ -31,6 +32,7 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -43,8 +45,13 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RecordsControllerTest extends JerseyTest {
+
+    private RecordController recordController;
+
+    private FormatsController formatsController;
 
     @Test
     public void Save_new_record_successful() throws Exception {
@@ -53,13 +60,13 @@ public class RecordsControllerTest extends JerseyTest {
     }
 
     @Test
-    public void Check_if_oaidc_formt_is_not_exists() throws IOException {
+    public void Check_if_oaidc_format_is_not_exists() throws IOException {
         List<RecordTransport> inputData = inputData();
 
         for (RecordTransport rt : inputData) {
 
-            if (rt.getPrefix().equals("oai_dc")) {
-                rt.setPrefix("");
+            if (rt.getMdprefix().equals("oai_dc")) {
+                rt.setMdprefix("");
                 break;
             }
         }
@@ -68,17 +75,45 @@ public class RecordsControllerTest extends JerseyTest {
         response.readEntity(String.class);
         assertEquals(400, response.getStatus());
     }
+
+    @Test
+    public void Check_if_format_return_is_null() throws SQLException, IOException, SAXException {
+        List<RecordTransport> inputData = inputData();
+        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void bla() throws IOException {
+        List<RecordTransport> inputData = inputData();
+
+//        for (RecordTransport rt : inputData) {
+//
+//            if (rt.getMdprefix().equals("oai_dc")) {
+//                Format format = new Format();
+//                RecordController rc = mock(RecordController.class);
+//                when(rc.format(any(Format.class))).thenReturn(format);
+//                break;
+//            }
+//        }
+
+        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData()));
+        System.out.println(response.readEntity(String.class));
+    }
     
     @Override
     protected Application configure() {
         PersistenceDaoInterface psqRepoDao = mock(RecordTestDao.class);
-        RecordController recordController = new RecordController(psqRepoDao);
+        recordController = new RecordController(psqRepoDao);
+        formatsController = new FormatsController(new FormatsControllerTest.FormatTestDao());
 
         ResourceConfig config = new ResourceConfig(RecordController.class);
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
                 bind(RecordTestDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+                bind(recordController).to(RecordController.class);
+                bind(formatsController).to(FormatsController.class);
             }
         });
         HashMap<String, Object> props = new HashMap<>();
