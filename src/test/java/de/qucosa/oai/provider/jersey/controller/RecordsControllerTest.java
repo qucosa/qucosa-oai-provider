@@ -82,24 +82,6 @@ public class RecordsControllerTest extends JerseyTest {
         Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
         assertEquals(404, response.getStatus());
     }
-
-    @Test
-    public void bla() throws IOException {
-        List<RecordTransport> inputData = inputData();
-
-//        for (RecordTransport rt : inputData) {
-//
-//            if (rt.getMdprefix().equals("oai_dc")) {
-//                Format format = new Format();
-//                RecordController rc = mock(RecordController.class);
-//                when(rc.format(any(Format.class))).thenReturn(format);
-//                break;
-//            }
-//        }
-
-        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData()));
-        System.out.println(response.readEntity(String.class));
-    }
     
     @Override
     protected Application configure() {
