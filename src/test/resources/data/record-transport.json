@@ -4,7 +4,7 @@
     "oaiid" : "oai:example:org:qucosa:55887",
     "mdprefix" : "oai_dc",
     "modified" : "",
-    "data" : "",
+    "data" : "<oai_dc:dc><dc:title></dc:title><dc:identifier></dc:identifier></oai_dc:dc>",
     "sets" : [
       {
         "setspec": "ddc:980",
@@ -23,7 +23,7 @@
     "oaiid" : "oai:example:org:qucosa:55887",
     "mdprefix" : "xmetadiss",
     "modified" : "",
-    "data" : "",
+    "data" : "<xMetaDiss:xMetaDiss></xMetaDiss:xMetaDiss>",
     "sets" : [
       {
         "setspec": "ddc:980",
