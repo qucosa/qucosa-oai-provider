@@ -98,8 +98,13 @@ public class RecordController {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Dissemination document has been not build.").build();
             }
 
-            if (saveDissemination(resourceContext, format, record, disseminationDocument).getStatus() != 200) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Dissemination save is failed!").build();
+            Response saveDiss = saveDissemination(resourceContext, format, record, disseminationDocument);
+
+            if (saveDiss.getStatus() != 200) {
+
+                if (saveDiss.getStatus() == 400) {
+                    return Response.status(Response.Status.BAD_REQUEST).entity("Dissemination save is failed!").build();
+                }
             }
         }
 
