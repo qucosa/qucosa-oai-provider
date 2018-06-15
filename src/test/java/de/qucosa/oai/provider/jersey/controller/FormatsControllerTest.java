@@ -18,6 +18,7 @@ package de.qucosa.oai.provider.jersey.controller;
 
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.FormatsController;
+import de.qucosa.oai.provider.data.objects.FormatTestData;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Format;
@@ -42,13 +43,13 @@ public class FormatsControllerTest extends JerseyTest {
 
     @Test
     public void Create_or_update_format_object_successful() throws Exception {
-        Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format()));
+        Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(FormatTestData.format()));
         assertEquals(200, response.getStatus());
     }
 
     @Test
     public void Create_or_update_not_successful_format_object_if_has_object_empty_schemaurl() {
-        Format format = format();
+        Format format = FormatTestData.format();
         format.setSchemaUrl("");
         Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format));
         assertEquals(500, response.getStatus());
@@ -56,7 +57,7 @@ public class FormatsControllerTest extends JerseyTest {
 
     @Test
     public void Create_or_update_not_successful_format_object_if_has_object_empty_mdprefix() {
-        Format format = format();
+        Format format = FormatTestData.format();
         format.setMdprefix("");
         Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format));
         assertEquals(500, response.getStatus());
@@ -64,7 +65,7 @@ public class FormatsControllerTest extends JerseyTest {
 
     @Test
     public void Create_or_update_not_successful_format_object_if_has_object_empty_namespace() {
-        Format format = format();
+        Format format = FormatTestData.format();
         format.setNamespace("");
         Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format));
         assertEquals(500, response.getStatus());
@@ -94,14 +95,6 @@ public class FormatsControllerTest extends JerseyTest {
         return UriBuilder.fromUri(super.getBaseUri()).path("formats").build();
     }
 
-    public static Format format() {
-        Format fm = new Format();
-        fm.setMdprefix("oai_dc");
-        fm.setSchemaUrl("http://www.openarchives.org/OAI/2.0/oai_dc/");
-        fm.setNamespace("oai_dc");
-        return fm;
-    }
-
     public static class FormatTestDao extends PsqlRepository {
         @Override
         public <T> T update(T object) throws SQLException {
@@ -120,7 +113,7 @@ public class FormatsControllerTest extends JerseyTest {
 
         @Override
         public <T> T findByValue(String column, String value) throws SQLException {
-            return (T) FormatsControllerTest.format();
+            return (T) FormatTestData.format();
         }
     }
 }
