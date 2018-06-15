@@ -26,6 +26,10 @@ import java.sql.SQLException;
 import java.util.Set;
 
 public class SetsToRecordDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
+
+    @Override
+    public <T> T create(T object) { return null; }
+
     @Override
     public int count(String cntField, String... whereClauses) { return 0; }
 
@@ -39,13 +43,13 @@ public class SetsToRecordDao extends PersistenceDaoAbstract implements Persisten
     public <T> Set<T> find(String sqlStmt) { return null; }
 
     @Override
-    public int[] update(String sql) { return null; }
+    public <T> T update(String sql) { return null; }
 
     @Override
-    public int[] update(String... value) { return null; }
+    public <T> T update(String... value) { return null; }
 
     @Override
-    public <T> int[] update(T object) throws SQLException, IOException, SAXException { return null; }
+    public <T> T update(T object) { return null; }
 
     @Override
     public <T> T findById(Long id) { return null; }

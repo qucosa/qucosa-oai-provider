@@ -19,7 +19,6 @@ package de.qucosa.oai.provider.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.SetsConfig;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
-import de.qucosa.oai.provider.xml.builders.SetXmlBuilder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.xml.sax.SAXException;
 
@@ -57,9 +56,9 @@ public class SetController {
             return Response.status(Response.Status.BAD_REQUEST).entity("The set mapping object is failed!").build();
         }
 
-        setDao.update(saveRes);
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> result = setDao.update(saveRes);
 
-        return Response.status(Response.Status.OK).entity(true).build();
+        return Response.status(Response.Status.OK).entity(result).build();
     }
 
     @PUT
@@ -102,8 +101,8 @@ public class SetController {
             de.qucosa.oai.provider.persistence.pojos.Set data = new de.qucosa.oai.provider.persistence.pojos.Set();
             data.setSetSpec(set.getSetSpec());
             data.setSetName(set.getSetName());
-            data.setPredicate(set.getPredicate());
-            data.setDocument(SetXmlBuilder.build(set));
+            data.setSetName(set.getSetName());
+            data.setSetDescription(set.getSetDescription());
             sets.add(data);
         }
         

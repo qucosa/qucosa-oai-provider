@@ -16,7 +16,6 @@
 
 package de.qucosa.oai.provider.jersey.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
@@ -33,41 +32,58 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.sql.Timestamp;
-import java.util.Date;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class FormatsControllerTest extends JerseyTest {
-    private PersistenceDaoInterface psqRepoDao;
 
     @Test
-    public void updateFormats_Test() throws Exception {
-        int[] ex = new int[0];
-        ObjectMapper om = new ObjectMapper();
-        String json = om.writeValueAsString(format());
-        when(psqRepoDao.update(format())).thenReturn(ex);
+    public void Create_or_update_format_object_successful() throws Exception {
         Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format()));
-        assertEquals(response.getStatus(), 200);
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void Create_or_update_not_successful_format_object_if_has_object_empty_schemaurl() {
+        Format format = format();
+        format.setSchemaUrl("");
+        Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format));
+        assertEquals(500, response.getStatus());
+    }
+
+    @Test
+    public void Create_or_update_not_successful_format_object_if_has_object_empty_mdprefix() {
+        Format format = format();
+        format.setMdprefix("");
+        Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format));
+        assertEquals(500, response.getStatus());
+    }
+
+    @Test
+    public void Create_or_update_not_successful_format_object_if_has_object_empty_namespace() {
+        Format format = format();
+        format.setNamespace("");
+        Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format));
+        assertEquals(500, response.getStatus());
     }
 
     @Override
     protected Application configure() {
-        psqRepoDao = mock(PsqlRepository.class);
+        PersistenceDaoInterface psqRepoDao = mock(FormatTestDao.class);
         FormatsController formatsController = new FormatsController(psqRepoDao);
 
         ResourceConfig config = new ResourceConfig(FormatsController.class);
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(PsqlRepository.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+                bind(FormatTestDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
             }
         });
         HashMap<String, Object> props = new HashMap<>();
-        props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
+        props.put("dissConf", new DissTerms(getClass().getResourceAsStream("/config/dissemination-config.json")));
         config.setProperties(props);
         config.registerInstances(formatsController);
         return config;
@@ -81,7 +97,25 @@ public class FormatsControllerTest extends JerseyTest {
     private Format format() {
         Format fm = new Format();
         fm.setMdprefix("xmetadiss");
-        fm.setLastpolldate(new Timestamp(new Date().getTime()));
+        fm.setSchemaUrl("http://www.d-nb.de/standards/xmetadissplus/");
+        fm.setNamespace("xMetaDiss");
         return fm;
+    }
+
+    private static class FormatTestDao extends PsqlRepository {
+        @Override
+        public <T> T update(T object) throws SQLException {
+            Format format = (Format) object;
+
+            if (format.getSchemaUrl() == null || format.getNamespace() == null || format.getMdprefix() == null) {
+                throw new SQLException("Unauthorized null values in format object.");
+            }
+
+            if(format.getMdprefix().isEmpty() || format.getNamespace().isEmpty() || format.getSchemaUrl().isEmpty()) {
+                throw new SQLException("Unauthorized empty values in format object.");
+            }
+
+            return super.update(object);
+        }
     }
 }

@@ -26,33 +26,37 @@ import java.sql.SQLException;
 import java.util.Set;
 
 public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
+
+    @Override
+    public <T> T create(T object) { return null; }
+
     @Override
     public Set<Record> findAll() { return null; }
     
     @Override
-    public <T> int[] update(T data) throws SQLException {
-        String sql = "INSERT INTO records (id, pid, datestamp) \n";
+    public <T> T update(T object) throws SQLException {
+        String sql = "INSERT INTO records (id, pid, uid) \n";
         sql+="VALUES (nextval('oaiprovider'), ?, ?) \r\n";
-        sql+="ON CONFLICT (pid) \r\n";
-        sql+="DO UPDATE SET pid = ? \r\n";
+        sql+="ON CONFLICT (uid) \r\n";
+        sql+="DO UPDATE SET uid = ?\r\n";
         PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
 
-        if (data instanceof Set) {
-            Set<Record> records = (Set<Record>) data;
+        if (object instanceof Set) {
+            Set<Record> records = (Set<Record>) object;
 
             for (Record record : records) {
                 buildUpdateObject(pst, record);
             }
         }
 
-        if (data instanceof Record) {
-            buildUpdateObject(pst, (Record) data);
+        if (object instanceof Record) {
+            buildUpdateObject(pst, (Record) object);
         }
 
-        int[] ex = pst.executeBatch();
+        pst.executeBatch();
         connection().commit();
-        return ex;
+        return object;
     }
 
     @Override
@@ -81,7 +85,7 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
     @Override
     public <T> T findByValue(String column, String value) throws SQLException {
         Record record = new Record();
-        String sql = "SELECT id, pid, datestamp, deleted FROM records WHERE " + column + " = ?";
+        String sql = "SELECT id, pid, uid, deleted FROM records WHERE " + column + " = ?";
         PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
         pst.setString(1, value);
@@ -89,8 +93,8 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
 
         while (resultSet.next()) {
             record.setPid(resultSet.getString("pid"));
+            record.setUid(resultSet.getString("uid"));
             record.setId(resultSet.getLong("id"));
-            record.setDatestamp(resultSet.getTimestamp("datestamp"));
             record.setDeleted(resultSet.getBoolean("deleted"));
         }
 
@@ -100,10 +104,10 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
     }
 
     @Override
-    public int[] update(String sql) { return null; }
+    public <T> T update(String sql) { return null; }
 
     @Override
-    public int[] update(String... value) { return null; }
+    public <T> T update(String... value) { return null; }
 
     @Override
     public <T> T findByValues(String... values) { return null; }
@@ -129,7 +133,7 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
 
     private void buildUpdateObject(PreparedStatement pst, Record record) throws SQLException {
         pst.setString(1, record.getPid());
-        pst.setTimestamp(2, record.getDatestamp());
+        pst.setString(2, record.getUid());
         pst.setString(3, record.getPid());
         pst.addBatch();
     }

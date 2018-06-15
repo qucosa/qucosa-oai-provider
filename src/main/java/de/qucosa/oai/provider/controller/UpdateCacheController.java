@@ -19,7 +19,6 @@ package de.qucosa.oai.provider.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.application.mapper.SetsConfig;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.Format;
@@ -45,9 +44,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Path("/updatecache")
 @RequestScoped
@@ -76,7 +73,7 @@ public class UpdateCacheController {
         SetController setController = resourceContext.getResource(SetController.class);
 
         for (RecordTransport rt : inputData) {
-            setController.save(om.writeValueAsString(sets(rt.getSets(), (SetsConfig) servletContext.getAttribute("sets"))));
+            setController.save(om.writeValueAsString(rt.getSets()));
             Format format = getFormat(resourceContext, servletContext, rt);
 
             if (format == null) {
@@ -164,22 +161,10 @@ public class UpdateCacheController {
         } else {
             record = new Record();
             record.setPid(rt.getPid());
-            record.setDatestamp(rt.getModified());
             recordController.save(om.writeValueAsString(record));
             record = (Record) recordController.find(rt.getPid()).getEntity();
         }
 
         return record;
-    }
-
-    private Set<SetsConfig.Set> sets(List<String> sets, SetsConfig setsConfig) {
-        Set<SetsConfig.Set> output = new HashSet<>();
-
-        for (String setspec : sets) {
-            SetsConfig.Set set = setsConfig.getSetObject(setspec);
-            output.add(set);
-        }
-
-        return output;
     }
 }

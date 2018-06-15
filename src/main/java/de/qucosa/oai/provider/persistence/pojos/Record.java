@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -31,11 +30,11 @@ public class Record implements Serializable {
     @JsonProperty("id")
     private Long id;
     
-    @JsonProperty("datestamp")
-    private Timestamp datestamp;
-    
     @JsonProperty("pid")
     private String pid;
+
+    @JsonProperty("uid")
+    private String uid;
 
     @JsonProperty("deleted")
     private boolean deleted;
@@ -48,14 +47,6 @@ public class Record implements Serializable {
         this.id = id;
     }
 
-    public Timestamp getDatestamp() {
-        return datestamp;
-    }
-
-    public void setDatestamp(Timestamp datestamp) {
-        this.datestamp = datestamp;
-    }
-    
     public String getPid() {
         return pid;
     }
@@ -63,6 +54,10 @@ public class Record implements Serializable {
     public void setPid(String pid) {
         this.pid = pid;
     }
+
+    public String getUid() { return uid; }
+
+    public void setUid(String uid) { this.uid = uid; }
 
     public boolean isDeleted() { return deleted; }
 

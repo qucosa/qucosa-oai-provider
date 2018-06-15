@@ -30,6 +30,9 @@ import java.util.Set;
 public class DisseminationDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
 
     @Override
+    public <T> T create(T object) { return null; }
+
+    @Override
     public Set<Dissemination> findAll() {return null; }
 
     @Override
@@ -46,7 +49,7 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
     public <T> Set<T> find(String sqlStmt) throws SQLException { return null; }
 
     @Override
-    public <T> int[] update(T object) throws SQLException {
+    public <T> T update(T object) throws SQLException {
         Dissemination dissemination = (Dissemination) object;
         PreparedStatement select = connection().prepareCall("SELECT id FROM disseminations WHERE id_record = ? AND id_format = ?;");
         connection().setAutoCommit(false);
@@ -72,9 +75,9 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
         PreparedStatement pst = connection().prepareStatement(sb.toString());
         connection().setAutoCommit(false);
         buildUpdateObject(pst, dissemination);
-        int[] ex = pst.executeBatch();
+        pst.executeBatch();
         connection().commit();
-        return ex;
+        return object;
     }
 
     @Override
@@ -103,10 +106,10 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
     public <T> T findByValue(String column, String value) { return null; }
 
     @Override
-    public int[] update(String sql) { return null; }
+    public <T> T update(String sql) { return null; }
 
     @Override
-    public int[] update(String... value) { return null; }
+    public <T> T update(String... value) { return null; }
 
     @Override
     public <T> T findByValues(String... values) { return null; }
@@ -121,13 +124,13 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
         sqlxml.setString(sw.toString());
 
         if (dissemination.getId() != null) {
-            pst.setDate(1, dissemination.getModdate());
+            pst.setTimestamp(1, dissemination.getLastmoddate());
             pst.setSQLXML(2, sqlxml);
             pst.setLong(3, dissemination.getId());
         } else {
             pst.setLong(1, dissemination.getRecordId());
             pst.setLong(2, dissemination.getFormatId());
-            pst.setDate(3, dissemination.getModdate());
+            pst.setTimestamp(3, dissemination.getLastmoddate());
             pst.setSQLXML(4, sqlxml);
         }
 

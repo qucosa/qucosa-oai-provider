@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -31,14 +32,14 @@ public class Dissemination implements Serializable {
     @JsonProperty("id")
     private Long id;
     
-    @JsonProperty("recordId")
+    @JsonProperty("recordid")
     private Long recordId;
     
-    @JsonProperty("formatId")
+    @JsonProperty("formatid")
     private Long formatId;
-    
-    @JsonProperty("moddate")
-    private Date moddate;
+
+    @JsonProperty("lastmoddate")
+    private Timestamp lastmoddate;
     
     @JsonProperty("xmldata")
     private String xmldata;
@@ -70,13 +71,9 @@ public class Dissemination implements Serializable {
         this.formatId = formatId;
     }
 
-    public Date getModdate() {
-        return moddate;
-    }
+    public Timestamp getLastmoddate() { return lastmoddate; }
 
-    public void setModdate(Date moddate) {
-        this.moddate = moddate;
-    }
+    public void setLastmoddate(Timestamp lastmoddate) { this.lastmoddate = lastmoddate; }
 
     public String getXmldata() {
         return xmldata;

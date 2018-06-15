@@ -21,11 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,7 +33,10 @@ public class DissTerms implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @JsonIgnore
-    private String configPath;
+    private Logger logger = LoggerFactory.getLogger(DissTerms.class);
+
+    @JsonIgnore
+    private InputStream config;
     
     @JsonIgnore
     private DissTermsDao dao = null;
@@ -52,8 +51,24 @@ public class DissTerms implements Serializable {
     private Set<DissFormat> formats;
     
     @JsonCreator
-    public DissTerms(@JsonProperty("configPath") String configPath) {
-        this.configPath = configPath;
+    public <T> DissTerms(@JsonProperty("config") T config) {
+
+        if (config instanceof String) {
+            this.config = getClass().getResourceAsStream((String) config);
+        }
+
+        if (config instanceof InputStream) {
+            this.config = (InputStream) config;
+        }
+
+        if (config instanceof File) {
+
+            try {
+                this.config = new FileInputStream((File) config);
+            } catch (FileNotFoundException e) {
+                logger.error("dissemination-config.json is not found.", e);
+            }
+        }
     }
 
     public Set<XmlNamspace> getXmlnamespaces() {
@@ -153,27 +168,26 @@ public class DissTerms implements Serializable {
     }
     
     public static class DissFormat {
-        @JsonProperty("format")
-        private String format;
-        
-        @JsonProperty("dissType")
-        private String dissType;
+        @JsonProperty("mdprefix")
+        private String mdprefix;
 
-        public String getFormat() {
-            return format;
-        }
+        @JsonProperty("schemaurl")
+        private String schemaUrl;
 
-        public void setFormat(String format) {
-            this.format = format;
-        }
+        @JsonProperty("namespace")
+        private String namespace;
 
-        public String getDissType() {
-            return dissType;
-        }
+        public String getMdprefix() { return mdprefix; }
 
-        public void setDissType(String dissType) {
-            this.dissType = dissType;
-        }
+        public void setMdprefix(String mdprefix) { this.mdprefix = mdprefix; }
+
+        public String getSchemaUrl() { return schemaUrl; }
+
+        public void setSchemaUrl(String schemaUrl) { this.schemaUrl = schemaUrl; }
+
+        public String getNamespace() { return namespace; }
+
+        public void setNamespace(String namespace) { this.namespace = namespace; }
     }
     
     @JsonIgnore
@@ -205,12 +219,16 @@ public class DissTerms implements Serializable {
     public Set<DissFormat> formats() {
         return dao().formats();
     }
+
+    public DissFormat format(String format) {
+        return dao().format(format);
+    }
     
     @JsonIgnore
     private DissTermsDao dao() {
         
         if (dao == null) {
-            dao = new DissTermsDao(configPath);
+            dao = new DissTermsDao(config);
         }
         
         return dao;
@@ -221,14 +239,12 @@ public class DissTerms implements Serializable {
 
         private DissTerms dissTerms = null;
 
-        public DissTermsDao(String configPath) {
+        public DissTermsDao(InputStream stream) {
             ObjectMapper om = new ObjectMapper();
-            File file = new File(configPath + "dissemination-config.json");
 
             try {
-                dissTerms = om.readValue(Files.readAllBytes(Paths.get(file.getAbsolutePath())), DissTerms.class);
+                dissTerms = om.readValue(stream, DissTerms.class);
             } catch (IOException e) {
-                e.printStackTrace();
                 logger.debug("dissemination-conf parse failed.");
             }
         }
@@ -305,10 +321,10 @@ public class DissTerms implements Serializable {
         
         public DissFormat format(String format) {
             DissFormat dissFormat = null;
-            
+
             for (DissFormat df : dissTerms.getFormats()) {
-                
-                if (df.getFormat().equals(format)) {
+
+                if (df.getMdprefix().equals(format)) {
                     dissFormat = df;
                     break;
                 }

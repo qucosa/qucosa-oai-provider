@@ -19,12 +19,13 @@ package de.qucosa.oai.provider.persistence.pojos;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.qucosa.oai.provider.application.mapper.SetsConfig;
 import org.w3c.dom.Document;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -38,7 +39,7 @@ public class RecordTransport implements Serializable {
     private String prefix;
 
     @JsonProperty("sets")
-    private List<String> sets = new ArrayList<String>();
+    private Set<SetsConfig.Set> sets = new HashSet<>();
     
     @JsonProperty("data")
     private Document data;
@@ -46,7 +47,7 @@ public class RecordTransport implements Serializable {
     @JsonProperty("modified")
     private Timestamp modified;
     
-    @JsonProperty("oaiId")
+    @JsonProperty("oaiid")
     private String oaiId;
 
     public String getPid() {
@@ -65,11 +66,11 @@ public class RecordTransport implements Serializable {
         this.prefix = prefix;
     }
 
-    public void setSets(List<String> sets) { this.sets = sets; }
+    public Set<SetsConfig.Set> getSets() { return sets; }
 
-    public void setSet(String set) { this.sets.add(set); }
+    public void setSets(Set<SetsConfig.Set> sets) { this.sets = sets; }
 
-    public List<String> getSets() { return sets; }
+    public void setSet(SetsConfig.Set set) { sets.add(set); }
 
     public Document getData() {
         return data;

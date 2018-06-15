@@ -16,13 +16,11 @@
 
 package de.qucosa.oai.provider.jersey.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.RecordController;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Record;
-import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -32,40 +30,35 @@ import org.junit.Test;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class RecordsControllerTest extends JerseyTest {
 
-    private PersistenceDaoInterface psqRepoDao;
-    
     @Test
-    public void Save_new_record() throws ParseException, Exception {
-        ObjectMapper om = new ObjectMapper();
-        String json = om.writeValueAsString(record());
-        when(psqRepoDao.update(json)).thenReturn(new int[0]);
+    public void Save_or_update_record_object_successfulö() throws ParseException, Exception {
         Response response = target().path("records").request().header("Content-Type", "application/json").post(Entity.json(record()));
-        assertEquals(response.getStatus(), 200);
+        assertEquals(200, response.getStatus());
     }
     
     @Override
     protected Application configure() {
-        psqRepoDao = mock(PsqlRepository.class);
+        PersistenceDaoInterface psqRepoDao = mock(RecordTestDao.class);
         RecordController recordController = new RecordController(psqRepoDao);
 
         ResourceConfig config = new ResourceConfig(RecordController.class);
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(PsqlRepository.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+                bind(RecordTestDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
             }
         });
         HashMap<String, Object> props = new HashMap<>();
-        props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
+        props.put("dissConf", new DissTerms(getClass().getResourceAsStream("/config/dissemination-config.json")));
         config.setProperties(props);
         return config;
     }
@@ -73,7 +66,14 @@ public class RecordsControllerTest extends JerseyTest {
     private Record record() throws ParseException {
         Record record = new Record();
         record.setPid("qucosa:48672");
-        record.setDatestamp(DateTimeConverter.timestampWithTimezone("2017-12-14T09:42:45Z"));
+        record.setUid("example:oai:qucosa:48672");
         return record;
+    }
+
+    private static class RecordTestDao extends PsqlRepository {
+        @Override
+        public <T> T update(T object) throws SQLException {
+            return (T) super.update(object);
+        }
     }
 }

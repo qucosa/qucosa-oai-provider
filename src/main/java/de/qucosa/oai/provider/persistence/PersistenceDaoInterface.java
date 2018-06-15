@@ -23,19 +23,18 @@ import java.sql.SQLException;
 import java.util.Set;
 
 public interface PersistenceDaoInterface {
-    int count(String cntField, String... whereClauses);
 
-    int count(String cntField, String whereColumn, String whereColumnValue) throws SQLException;
+    <T> T create(T object);
+
+    <T> T update(String sql);
+
+    <T> T update(String...value);
+
+    <T> T update(T object) throws SQLException, IOException, SAXException;
 
     <T> Set<T> findAll();
-    
-    <T> Set<T> find(String sqlStmt) throws SQLException;
-    
-    int[] update(String sql);
-    
-    int[] update(String...value);
 
-    <T> int[] update(T object) throws SQLException, IOException, SAXException;
+    <T> Set<T> find(String sqlStmt) throws SQLException;
 
     <T> T findById(Long id);
     
@@ -54,6 +53,10 @@ public interface PersistenceDaoInterface {
     void deleteByKeyValue(String... paires);
     
     <T> void deleteByValues(Set<T> values);
+
+    int count(String cntField, String... whereClauses);
+
+    int count(String cntField, String whereColumn, String whereColumnValue) throws SQLException;
 
     void runProcedure() throws SQLException;
 }

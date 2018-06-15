@@ -30,6 +30,9 @@ import java.util.Set;
 public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
 
     @Override
+    public <T> T create(T object) { return null; }
+
+    @Override
     public Set<Format> findAll() {
         Set<Format> formats = new HashSet<>();
         ResultSet result;
@@ -43,8 +46,9 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
                 Format format = new Format();
                 format.setId(result.getLong("id"));
                 format.setMdprefix(result.getString("mdprefix"));
-                format.setDissType(result.getString("disstpye"));
-                format.setLastpolldate(result.getTimestamp("lastpolldate"));
+                format.setSchemaUrl(result.getString("schemaurl"));
+                format.setNamespace(result.getString("namespace"));
+                format.setDeleted(result.getBoolean("deleted"));
                 formats.add(format);
             }
             
@@ -60,26 +64,17 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     public int count(String cntField, String... whereClauses) { return 0; }
 
     @Override
-    public int count(String cntField, String whereColumn, String whereColumnValue) throws SQLException {
-        int result;
-        String sql = "SELECT count('" + cntField + "') AS cnt FROM formats WHERE "+ whereColumn + " = '" + whereColumnValue + "'";
-        Statement stmt = connection().createStatement();
-        ResultSet resultQ = stmt.executeQuery(sql);
-        result = resultQ.getInt("cnt");
-        resultQ.close();
-
-        return result;
-    }
+    public int count(String cntField, String whereColumn, String whereColumnValue) throws SQLException { return 0; }
 
     @Override
     public <T> Set<T> find(String sqlStmt) { return null; }
 
     @Override
-    public <T> int[] update(T object) throws SQLException {
-        String sql = "INSERT INTO formats (id, mdprefix, lastpolldate) \n";
-        sql+="VALUES (nextval('oaiprovider'), ?, ?) \r\n";
+    public <T> T update(T object) throws SQLException {
+        String sql = "INSERT INTO formats (id, mdprefix, schemaurl, namespace) \n";
+        sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n";
         sql+="ON CONFLICT (mdprefix) \r\n";
-        sql+="DO UPDATE SET mdprefix = ?, lastpolldate = ?; \r\n";
+        sql+="DO UPDATE SET schemaurl = ?, namespace = ?; \r\n";
         PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
 
@@ -95,9 +90,9 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
             buildUpdateObject(pst, (Format) object);
         }
 
-        int[] ex = pst.executeBatch();
+        pst.executeBatch();
         connection().commit();
-        return ex;
+        return object;
     }
 
     @Override
@@ -115,7 +110,7 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     @Override
     public <T> T findByValue(String column, String value) {
         Format format =  new Format();
-        String sql = "SELECT id, mdprefix, lastpolldate, deleted FROM formats WHERE " + column + " = ?;";
+        String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats WHERE " + column + " = ?;";
         
         try {
             PreparedStatement pst = connection().prepareStatement(sql);
@@ -126,7 +121,8 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
             while(result.next()) {
                 format.setId(result.getLong("id"));
                 format.setMdprefix(result.getString("mdprefix"));
-                format.setLastpolldate(result.getTimestamp("lastpolldate"));
+                format.setSchemaUrl(result.getString("schemaurl"));
+                format.setNamespace(result.getString("namespace"));
                 format.setDeleted(result.getBoolean("deleted"));
             }
             
@@ -139,10 +135,10 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     }
 
     @Override
-    public int[] update(String sql) { return null; }
+    public <T> T update(String sql) { return null; }
 
     @Override
-    public int[] update(String... value) { return null; }
+    public <T> T update(String... value) { return null; }
 
     @Override
     public <T> T findByValues(String... values) { return null; }
@@ -162,9 +158,10 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
 
     private void buildUpdateObject(PreparedStatement pst, Format format) throws SQLException {
         pst.setString(1, format.getMdprefix());
-        pst.setTimestamp(2, format.getLastpolldate());
-        pst.setString(3, format.getMdprefix());
-        pst.setTimestamp(4, format.getLastpolldate());
+        pst.setString(2, format.getSchemaUrl());
+        pst.setString(3, format.getNamespace());
+        pst.setString(4, format.getSchemaUrl());
+        pst.setString(5, format.getNamespace());
         pst.addBatch();
     }
 

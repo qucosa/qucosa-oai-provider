@@ -18,20 +18,23 @@ package de.qucosa.oai.provider.persistence.postgres;
 
 import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
-import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
 public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
+
+    @Override
+    public <T> T create(T object) { return null; }
     
     public Set<de.qucosa.oai.provider.persistence.pojos.Set> findAll() {
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
         ResultSet result;
-        String sql = "SELECT id, setspec, predicate, doc, XPATH('//setSpec', doc) AS setspecnode FROM sets;";
+        String sql = "SELECT id, setspec, setname, setdescription, deleted FROM sets;";
 
         try {
             Statement stmt = connection().createStatement();
@@ -41,8 +44,9 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
                 de.qucosa.oai.provider.persistence.pojos.Set set = new de.qucosa.oai.provider.persistence.pojos.Set();
                 set.setId(result.getLong("id"));
                 set.setSetSpec(result.getString("setspec"));
-                set.setPredicate(result.getString("predicate"));
-                set.setDoc(result.getString("doc"));
+                set.setSetName(result.getString("setname"));
+                set.setSetDescription(result.getString("setdescription"));
+                set.setDeleted(result.getBoolean("deleted"));
                 sets.add(set);
             }
             
@@ -55,42 +59,36 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
     }
     
     @Override
-    public <T> int[] update(T object) throws SQLException, IOException, SAXException {
-        String sql = "INSERT INTO sets (id, setspec, predicate, doc) \n";
+    public <T> T update(T object) throws SQLException {
+        String sql = "INSERT INTO sets (id, setspec, setname, setdescription) \n";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n";
         sql+="ON CONFLICT (setspec) \r\n";
-        sql+="DO UPDATE SET doc = ?, predicate = ? \r\n";
+        sql+="DO UPDATE SET setname = ?, setdescription = ? \r\n";
 
         PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
-        SQLXML sqlxml = connection().createSQLXML();
 
         if (object instanceof Set) {
 
             for (de.qucosa.oai.provider.persistence.pojos.Set set : (Set<de.qucosa.oai.provider.persistence.pojos.Set>) object) {
-                sqlxml.setString(DocumentXmlUtils.resultXml(set.getDocument()));
                 pst.setString(1, set.getSetSpec());
-                pst.setString(2, set.getPredicate());
-                pst.setSQLXML(3, sqlxml);
-                pst.setSQLXML(4, sqlxml);
-                pst.setString(5, set.getPredicate());
+                pst.setString(2, set.getSetName());
+                pst.setString(3, set.getSetDescription());
                 pst.addBatch();
             }
         }
 
         if (object instanceof de.qucosa.oai.provider.persistence.pojos.Set) {
             de.qucosa.oai.provider.persistence.pojos.Set set = (de.qucosa.oai.provider.persistence.pojos.Set) object;
-            sqlxml.setString(DocumentXmlUtils.resultXml(set.getDocument()));
             pst.setString(1, set.getSetSpec());
-            pst.setString(2, set.getPredicate());
-            pst.setSQLXML(3, sqlxml);
-            pst.setSQLXML(4, sqlxml);
+            pst.setString(2, set.getSetName());
+            pst.setString(3, set.getSetDescription());
             pst.addBatch();
         }
 
-        int[] ex = pst.executeBatch();
+        pst.executeBatch();
         connection().commit();
-        return ex;
+        return object;
     }
 
     @Override
@@ -125,28 +123,19 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
     }
 
     @Override
-    public <T> T findByValue(String column, String value) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public <T> T findByValue(String column, String value) { return null; }
 
     @Override
-    public int[] update(String sql) { return null; }
+    public <T> T update(String sql) { return null; }
 
     @Override
-    public int[] update(String... value) { return null; }
+    public <T> T update(String... value) { return null; }
 
     @Override
-    public <T> T findByValues(String... values) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public <T> T findByValues(String... values) { return null; }
 
     @Override
-    public <T> T findByIds(T... values) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public <T> T findByIds(T... values) { return null; }
 
     @Override
     public <T> void deleteByKeyValue(String key, T value) throws SQLException {
@@ -157,10 +146,7 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
     }
 
     @Override
-    public void deleteByKeyValue(String... paires) {
-        // TODO Auto-generated method stub
-        
-    }
+    public void deleteByKeyValue(String... paires) { }
 
     @Override
     public void runProcedure() { }
