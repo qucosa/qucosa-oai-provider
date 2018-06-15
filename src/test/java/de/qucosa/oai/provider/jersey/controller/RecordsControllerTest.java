@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.controller.RecordController;
+import de.qucosa.oai.provider.data.objects.FormatTestData;
+import de.qucosa.oai.provider.data.objects.RecordTestData;
 import de.qucosa.oai.provider.helper.RestControllerContainerFactory;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
@@ -32,20 +34,17 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class RecordsControllerTest extends JerseyTest {
 
@@ -55,7 +54,7 @@ public class RecordsControllerTest extends JerseyTest {
 
     @Test
     public void Save_new_record_successful() throws Exception {
-        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(record()));
+        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(RecordTestData.record()));
         assertEquals(200, response.getStatus());
     }
 
@@ -77,16 +76,26 @@ public class RecordsControllerTest extends JerseyTest {
     }
 
     @Test
-    public void Check_if_format_return_is_null() throws SQLException, IOException, SAXException {
+    public void Format_is_not_found() throws IOException {
         List<RecordTransport> inputData = inputData();
+        FormatTestData.id = null;
         Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
         assertEquals(404, response.getStatus());
+        assertEquals("Format is not found.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Record_is_not_found_because_has_wrong_uid() throws IOException {
+        List<RecordTransport> inputData = inputData();
+        RecordTestData.uid = "bla:blub:qucosa:55887";
+        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
+        assertEquals(404, response.getStatus());
+        assertEquals("Record is not found.", response.readEntity(String.class));
     }
     
     @Override
     protected Application configure() {
-        PersistenceDaoInterface psqRepoDao = mock(RecordTestDao.class);
-        recordController = new RecordController(psqRepoDao);
+        recordController = new RecordController(new RecordTestDao());
         formatsController = new FormatsController(new FormatsControllerTest.FormatTestDao());
 
         ResourceConfig config = new ResourceConfig(RecordController.class);
@@ -108,13 +117,6 @@ public class RecordsControllerTest extends JerseyTest {
     protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
         return new RestControllerContainerFactory();
     }
-    
-    private Record record() throws ParseException {
-        Record record = new Record();
-        record.setPid("qucosa:48672");
-        record.setUid("example:oai:qucosa:48672");
-        return record;
-    }
 
     private List<RecordTransport> inputData() throws IOException {
         ObjectMapper om = new ObjectMapper();
@@ -126,6 +128,21 @@ public class RecordsControllerTest extends JerseyTest {
         @Override
         public <T> T update(T object) throws SQLException {
             return (T) super.update(object);
+        }
+
+        @Override
+        public <T> T findByValue(String column, String value) throws SQLException {
+            Record record = RecordTestData.record();
+            boolean find = false;
+
+            if (column.equals("uid")) {
+
+                if (record.getUid().equals(value)) {
+                    find = true;
+                }
+            }
+
+            return (find) ? (T) record : null;
         }
     }
 }
