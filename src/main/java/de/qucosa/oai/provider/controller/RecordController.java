@@ -40,6 +40,7 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 @Path("/record")
 @RequestScoped
@@ -53,7 +54,6 @@ public class RecordController {
         this.recordDao = recordDao;
     }
 
-    
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -74,16 +74,16 @@ public class RecordController {
 
         for (RecordTransport rt : inputData) {
             setController.save(om.writeValueAsString(rt.getSets()));
-            Format format = format(getFormat(resourceContext.getResource(FormatsController.class), rt));
+            Format format = format(getFormat(servletContext, resourceContext.getResource(FormatsController.class), rt));
 
             if (format == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("Get and / or save format prefix is failed!").build();
+                return Response.status(Response.Status.NOT_FOUND).entity("Format is not found.").build();
             }
 
             Record record = record(servletContext, resourceContext, rt);
 
             if (record == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("Get and / or save record prefix is failed!").build();
+                return Response.status(Response.Status.NOT_FOUND).entity("Record is not found.").build();
             }
 
             Document disseminationDocument = new DisseminationXmlBuilder(rt)
@@ -162,7 +162,7 @@ public class RecordController {
 
         Record record = recordDao.findByValue("uid", uid);
 
-        if (record.getId() == null) {
+        if (record == null || record.getId() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The mapping object is failed!").build();
         }
 
@@ -196,15 +196,26 @@ public class RecordController {
         return isExists;
     }
 
-    private Format getFormat(FormatsController formatsController, RecordTransport rt) throws SQLException, IOException, SAXException {
+    private Format getFormat(ServletContext servletContext, FormatsController formatsController, RecordTransport rt) throws SQLException, IOException, SAXException {
         Response resFormat = formatsController.format(rt.getMdprefix());
         Format format;
 
         if (resFormat.getStatus() != 200) {
             format = new Format();
-            format.setMdprefix(rt.getMdprefix());
-            formatsController.save(om.writeValueAsString(format));
+            DissTerms dissconf = (DissTerms) servletContext.getAttribute("dissConf");
+            Set<DissTerms.DissFormat> formats = dissconf.formats();
 
+            for (DissTerms.DissFormat fm : formats) {
+
+                if (fm.getMdprefix().equals(rt.getMdprefix())) {
+                    format.setMdprefix(fm.getMdprefix());
+                    format.setSchemaUrl(fm.getSchemaUrl());
+                    format.setNamespace(fm.getNamespace());
+                    break;
+                }
+            }
+
+            formatsController.save(om.writeValueAsString(format));
             Response response = formatsController.format(rt.getMdprefix());
 
             if (response.getEntity() instanceof Format) {
@@ -222,7 +233,7 @@ public class RecordController {
 
     private Record getRecord(ServletContext servletContext, ResourceContext resourceContext, RecordTransport rt) throws SQLException, IOException, SAXException, XPathExpressionException {
         Record record;
-        Response recordResonse = this.find(rt.getPid());
+        Response recordResonse = this.find(rt.getOaiId());
 
         if (recordResonse.getStatus() != 200) {
             record = new Record();
