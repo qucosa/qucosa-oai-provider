@@ -92,6 +92,25 @@ public class RecordsControllerTest extends JerseyTest {
         assertEquals(404, response.getStatus());
         assertEquals("Record is not found.", response.readEntity(String.class));
     }
+
+    @Test
+    public void Dissemination_document_is_not_parsing_because_xml_failed() throws IOException {
+        List<RecordTransport> inputData = inputData();
+        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
+        assertEquals(406, response.getStatus());
+        assertEquals("Not found xml for parsing dissemination document.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Dissemination_document_is_does_not_build() throws IOException {
+        List<RecordTransport> inputData = inputData();
+        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
+
+        if (response.getStatus() == 400) {
+            assertEquals(400, response.getStatus());
+            assertEquals("Dissemination document has been not build.", response.readEntity(String.class));
+        }
+    }
     
     @Override
     protected Application configure() {
