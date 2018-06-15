@@ -18,8 +18,10 @@ package de.qucosa.oai.provider.jersey.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.controller.DisseminationController;
 import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.controller.RecordController;
+import de.qucosa.oai.provider.data.objects.DisseminationTestData;
 import de.qucosa.oai.provider.data.objects.FormatTestData;
 import de.qucosa.oai.provider.data.objects.RecordTestData;
 import de.qucosa.oai.provider.helper.RestControllerContainerFactory;
@@ -44,13 +46,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 
 public class RecordsControllerTest extends JerseyTest {
-
-    private RecordController recordController;
-
-    private FormatsController formatsController;
 
     @Test
     public void Save_new_record_successful() throws Exception {
@@ -111,11 +108,22 @@ public class RecordsControllerTest extends JerseyTest {
             assertEquals("Dissemination document has been not build.", response.readEntity(String.class));
         }
     }
+
+    @Test
+    public void Save_Dissemination_is_failed_if_formatid_null() throws IOException {
+        List<RecordTransport> inputData = inputData();
+        DisseminationTestData.formatid = null;
+        DisseminationTestData.xmldata = "<oai_dc></oai_dc>";
+        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
+        response.getStatus();
+        response.readEntity(String.class);
+    }
     
     @Override
     protected Application configure() {
-        recordController = new RecordController(new RecordTestDao());
-        formatsController = new FormatsController(new FormatsControllerTest.FormatTestDao());
+        RecordController recordController = new RecordController(new RecordTestDao());
+        FormatsController formatsController = new FormatsController(new FormatsControllerTest.FormatTestDao());
+        DisseminationController disseminationController = new DisseminationController(new DisseminationControllerTest.DisseminationTestDao());
 
         ResourceConfig config = new ResourceConfig(RecordController.class);
         config.register(new AbstractBinder() {
@@ -124,6 +132,7 @@ public class RecordsControllerTest extends JerseyTest {
                 bind(RecordTestDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
                 bind(recordController).to(RecordController.class);
                 bind(formatsController).to(FormatsController.class);
+                bind(disseminationController).to(DisseminationController.class);
             }
         });
         HashMap<String, Object> props = new HashMap<>();
