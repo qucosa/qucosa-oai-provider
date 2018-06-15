@@ -2,6 +2,7 @@ package de.qucosa.oai.provider.jersey.controller;
 
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.controller.RecordController;
+import de.qucosa.oai.provider.data.objects.DisseminationTestData;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -35,10 +36,11 @@ public class DisseminationControllerTest extends JerseyTest {
         return config;
     }
 
-    private static class DisseminationTestDao extends PsqlRepository {
+    public static class DisseminationTestDao extends PsqlRepository {
+
         @Override
         public <T> T update(T object) throws SQLException {
-            return super.update(object);
+            return (T) DisseminationTestData.dissemination();
         }
     }
 }
