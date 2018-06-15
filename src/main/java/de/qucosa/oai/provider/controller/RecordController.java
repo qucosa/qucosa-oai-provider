@@ -23,7 +23,6 @@ import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 import de.qucosa.oai.provider.persistence.pojos.Record;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
-import de.qucosa.oai.provider.xml.builders.DisseminationXmlBuilder;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;
@@ -86,13 +85,17 @@ public class RecordController {
                 return Response.status(Response.Status.NOT_FOUND).entity("Record is not found.").build();
             }
 
-            Document disseminationDocument = new DisseminationXmlBuilder(rt)
-                    .setDissTerms((DissTerms) servletContext.getAttribute("dissConf"))
-                    .buildDissemination();
+            DisseminationController disseminationController = resourceContext.getResource(DisseminationController.class);
+            Response dissBuild = disseminationController.build(servletContext, rt);
+
+            if (dissBuild.getStatus() != 200) {
+                return dissBuild;
+            }
+
+            Document disseminationDocument = (Document) dissBuild.getEntity();
 
             if (disseminationDocument == null) {
-                // @todo log datails message of this failed dissemination document build
-                return Response.status(Response.Status.BAD_REQUEST).entity("Dissemination xml document build is failed!").build();
+                return Response.status(Response.Status.BAD_REQUEST).entity("Dissemination document has been not build.").build();
             }
 
             if (saveDissemination(resourceContext, format, record, disseminationDocument).getStatus() != 200) {
