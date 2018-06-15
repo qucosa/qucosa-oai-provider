@@ -17,18 +17,22 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
+import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
+import de.qucosa.oai.provider.xml.builders.DisseminationXmlBuilder;
 import org.glassfish.jersey.process.internal.RequestScoped;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.servlet.ServletContext;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -45,7 +49,7 @@ public class DisseminationController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) throws IOException, SQLException, SAXException {
+    public Response save(String input) throws IOException, SAXException {
 
         if (input == null || input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The input data object is empty or failed!").build();
@@ -58,8 +62,40 @@ public class DisseminationController {
             return Response.status(Response.Status.BAD_REQUEST).entity("The dissemination json object mapping is failed!").build();
         }
 
-        disseminationDao.update(dissemination);
+        try {
+            dissemination = disseminationDao.update(dissemination);
+        } catch(SQLException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("The dissemination object uncompleted.").build();
+        }
 
-        return Response.status(200).entity(true).build();
+        return Response.status(200).entity(dissemination).build();
+    }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response build(@Context ServletContext servletContext, RecordTransport rt) throws XPathExpressionException {
+
+        if (rt.getData() == null) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Not found xml for parsing dissemination document.").build();
+        }
+
+        Document disseminationDocument = new DisseminationXmlBuilder(rt)
+                .setDissTerms((DissTerms) servletContext.getAttribute("dissConf"))
+                .buildDissemination();
+
+        if (disseminationDocument == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(disseminationDocument).build();
+        }
+
+        return Response.status(Response.Status.OK).entity(disseminationDocument).build();
+    }
+
+    @GET
+    @Path("{uid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response dissemination(@PathParam("uid") String uid) {
+        return Response.status(Response.Status.OK).entity("").build();
     }
 }
