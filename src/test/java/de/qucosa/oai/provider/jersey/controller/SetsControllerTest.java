@@ -93,8 +93,13 @@ public class SetsControllerTest extends JerseyTest {
     private static class SetTestDao extends PsqlRepository {
 
         @Override
-        public <T> T create(T object) {
+        public <T> T create(T object) throws SQLException {
             SetsConfig.Set inputSet = SetTestData.set();
+
+            if (inputSet.getSetSpec() == null || inputSet.getSetName() == null) {
+                throw new SQLException("Set data object has null or empty values.");
+            }
+
             de.qucosa.oai.provider.persistence.pojos.Set set = new de.qucosa.oai.provider.persistence.pojos.Set();
             set.setSetSpec(inputSet.getSetSpec());
             set.setSetName(inputSet.getSetName());
