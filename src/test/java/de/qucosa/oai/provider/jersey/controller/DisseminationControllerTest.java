@@ -5,6 +5,7 @@ import de.qucosa.oai.provider.controller.RecordController;
 import de.qucosa.oai.provider.data.objects.DisseminationTestData;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -40,7 +41,17 @@ public class DisseminationControllerTest extends JerseyTest {
 
         @Override
         public <T> T update(T object) throws SQLException {
-            return (T) DisseminationTestData.dissemination();
+            Dissemination dissemination = DisseminationTestData.dissemination();
+
+            if (dissemination.getFormatId() == null || dissemination.getFormatId().equals("")) {
+                throw new SQLException("Format ID in dissemination object failed.");
+            }
+
+            if (dissemination.getRecordId() == null || dissemination.getRecordId().equals("")) {
+                throw new SQLException("Format ID in dissemination object failed.");
+            }
+
+            return (T) dissemination;
         }
     }
 }
