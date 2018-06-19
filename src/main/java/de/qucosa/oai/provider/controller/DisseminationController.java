@@ -74,15 +74,21 @@ public class DisseminationController {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response build(@Context ServletContext servletContext, RecordTransport rt) throws XPathExpressionException {
+    public Response build(@Context ServletContext servletContext, RecordTransport rt) {
 
         if (rt.getData() == null) {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Not found xml for parsing dissemination document.").build();
         }
 
-        Document disseminationDocument = new DisseminationXmlBuilder(rt)
-                .setDissTerms((DissTerms) servletContext.getAttribute("dissConf"))
-                .buildDissemination();
+        Document disseminationDocument = null;
+
+        try {
+            disseminationDocument = new DisseminationXmlBuilder(rt)
+                    .setDissTerms((DissTerms) servletContext.getAttribute("dissConf"))
+                    .buildDissemination();
+        } catch (XPathExpressionException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
 
         if (disseminationDocument == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity(disseminationDocument).build();
