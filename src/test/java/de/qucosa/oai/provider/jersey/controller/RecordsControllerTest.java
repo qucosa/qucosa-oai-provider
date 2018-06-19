@@ -115,8 +115,18 @@ public class RecordsControllerTest extends JerseyTest {
         DisseminationTestData.formatid = null;
         DisseminationTestData.xmldata = "<oai_dc></oai_dc>";
         Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
-        response.getStatus();
-        response.readEntity(String.class);
+        assertEquals(406, response.getStatus());
+        assertEquals("Dissemination save is failed", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Save_Dissemination_is_failed_if_recordid_null() throws IOException {
+        List<RecordTransport> inputData = inputData();
+        DisseminationTestData.recordid = null;
+        DisseminationTestData.xmldata = "<oai_dc></oai_dc>";
+        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
+        assertEquals(406, response.getStatus());
+        assertEquals("Dissemination save is failed", response.readEntity(String.class));
     }
     
     @Override
