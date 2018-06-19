@@ -93,6 +93,11 @@ public class RecordsControllerTest extends JerseyTest {
     @Test
     public void Dissemination_document_is_not_parsing_because_xml_failed() throws IOException {
         List<RecordTransport> inputData = inputData();
+
+        for (RecordTransport rt : inputData) {
+            rt.setData(null);
+        }
+
         Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
         assertEquals(406, response.getStatus());
         assertEquals("Not found xml for parsing dissemination document.", response.readEntity(String.class));
@@ -116,7 +121,7 @@ public class RecordsControllerTest extends JerseyTest {
         DisseminationTestData.xmldata = "<oai_dc></oai_dc>";
         Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
         assertEquals(406, response.getStatus());
-        assertEquals("Dissemination save is failed", response.readEntity(String.class));
+        assertEquals("The dissemination object uncompleted.", response.readEntity(String.class));
     }
 
     @Test
@@ -126,7 +131,7 @@ public class RecordsControllerTest extends JerseyTest {
         DisseminationTestData.xmldata = "<oai_dc></oai_dc>";
         Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
         assertEquals(406, response.getStatus());
-        assertEquals("Dissemination save is failed", response.readEntity(String.class));
+        assertEquals("The dissemination object uncompleted.", response.readEntity(String.class));
     }
     
     @Override
