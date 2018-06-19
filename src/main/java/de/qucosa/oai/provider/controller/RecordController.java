@@ -102,19 +102,11 @@ public class RecordController {
 
             if (saveDiss.getStatus() != 200) {
 
-                if (saveDiss.getStatus() == 400) {
-                    return Response.status(Response.Status.BAD_REQUEST).entity("Dissemination save is failed!").build();
+                if (saveDiss.getStatus() == 406) {
+                    return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Dissemination save is failed").build();
                 }
             }
         }
-
-//        Record record = buildSqlObject(input);
-//
-//        if (record == null) {
-//            return Response.status(Response.Status.BAD_REQUEST).entity("Data json mapper object is failed!").build();
-//        }
-//
-//        int[] result = recordDao.update(record);
 
         return Response.status(Response.Status.OK).entity(true).build();
     }
@@ -176,11 +168,6 @@ public class RecordController {
 
         return Response.status(Response.Status.OK).entity(record).build();
     }
-
-//    private Record buildSqlObject(String json) throws IOException {
-//        ObjectMapper om = new ObjectMapper();
-//        return om.readValue(json, Record.class);
-//    }
 
     public Format format(Format format) {
         return format;
