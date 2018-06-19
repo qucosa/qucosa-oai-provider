@@ -103,7 +103,7 @@ public class RecordController {
             if (saveDiss.getStatus() != 200) {
 
                 if (saveDiss.getStatus() == 406) {
-                    return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Dissemination save is failed").build();
+                    return Response.status(Response.Status.NOT_ACCEPTABLE).entity(saveDiss.getEntity()).build();
                 }
             }
         }
@@ -256,6 +256,7 @@ public class RecordController {
         dissemination.setFormatId(format.getId());
         dissemination.setRecordId(record.getId());
         dissemination.setXmldata(DocumentXmlUtils.resultXml(disseminationDoc));
-        return disseminationController.save(om.writeValueAsString(dissemination));
+        Response response = disseminationController.save(om.writeValueAsString(dissemination));
+        return response;
     }
 }
