@@ -24,7 +24,7 @@ import java.util.Set;
 
 public interface PersistenceDaoInterface {
 
-    <T> T create(T object);
+    <T> T create(T object) throws SQLException;
 
     <T> T update(String sql);
 
