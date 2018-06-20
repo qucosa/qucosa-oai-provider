@@ -44,7 +44,7 @@ public class SetController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) throws IOException, SQLException, SAXException {
+    public Response save(String input) throws IOException {
         
         if (input == null || input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Data json mapper object is failed!").build();
@@ -56,7 +56,13 @@ public class SetController {
             return Response.status(Response.Status.BAD_REQUEST).entity("The set mapping object is failed!").build();
         }
 
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> result = setDao.create(saveRes);
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> result = null;
+
+        try {
+            result = setDao.create(saveRes);
+        } catch (SQLException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+        }
 
         return Response.status(Response.Status.OK).entity(result).build();
     }
