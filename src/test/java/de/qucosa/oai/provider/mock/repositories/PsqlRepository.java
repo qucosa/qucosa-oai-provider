@@ -34,7 +34,7 @@ public class PsqlRepository implements PersistenceDaoInterface {
 
     @Override
     public <T> T update(T object) throws SQLException {
-        return (T) object;
+        return object;
     }
 
     @Override

@@ -179,7 +179,7 @@ public class RecordsControllerTest extends JerseyTest {
     private static class RecordTestDao extends PsqlRepository {
         @Override
         public <T> T update(T object) throws SQLException {
-            return (T) super.update(object);
+            return super.update(object);
         }
 
         @Override
