@@ -91,7 +91,7 @@ public class DisseminationController {
         }
 
         if (disseminationDocument == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(disseminationDocument).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(null).build();
         }
 
         return Response.status(Response.Status.OK).entity(disseminationDocument).build();
