@@ -43,11 +43,11 @@ public class DisseminationControllerTest extends JerseyTest {
         public <T> T update(T object) throws SQLException {
             Dissemination dissemination = DisseminationTestData.dissemination();
 
-            if (dissemination.getFormatId() == null || dissemination.getFormatId().equals("")) {
+            if (dissemination.getFormatId() == null) {
                 throw new SQLException("Format ID in dissemination object failed.");
             }
 
-            if (dissemination.getRecordId() == null || dissemination.getRecordId().equals("")) {
+            if (dissemination.getRecordId() == null) {
                 throw new SQLException("Format ID in dissemination object failed.");
             }
 
