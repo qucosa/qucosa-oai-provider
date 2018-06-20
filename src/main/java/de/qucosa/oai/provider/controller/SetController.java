@@ -44,16 +44,18 @@ public class SetController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) throws IOException {
-        
-        if (input == null || input.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Data json mapper object is failed!").build();
+    public Response save(String input) {
+
+        if (input.isEmpty()) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Sets input data is empty.").build();
         }
 
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes = buildSqlSets(input);
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes = null;
 
-        if (saveRes == null || saveRes.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The set mapping object is failed!").build();
+        try {
+            saveRes = buildSqlSets(input);
+        } catch (IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build set objects.").build();
         }
 
         Set<de.qucosa.oai.provider.persistence.pojos.Set> result;
