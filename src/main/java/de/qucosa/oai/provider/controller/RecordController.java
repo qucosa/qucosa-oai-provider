@@ -256,7 +256,6 @@ public class RecordController {
         dissemination.setFormatId(format.getId());
         dissemination.setRecordId(record.getId());
         dissemination.setXmldata(DocumentXmlUtils.resultXml(disseminationDoc));
-        Response response = disseminationController.save(om.writeValueAsString(dissemination));
-        return response;
+        return disseminationController.save(om.writeValueAsString(dissemination));
     }
 }
