@@ -44,6 +44,13 @@ public class SetsControllerTest extends JerseyTest {
     private ObjectMapper om = new ObjectMapper();
 
     @Test
+    public void Save_input_data_is_empty() {
+        Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(""));
+        assertEquals(406, response.getStatus());
+        assertEquals("Sets input data is empty.", response.readEntity(String.class));
+    }
+
+    @Test
     public void Save_successful_set_objects() throws Exception {
         Set<SetsConfig.Set> sets = new HashSet<>();
         sets.add(SetTestData.set());
@@ -78,10 +85,10 @@ public class SetsControllerTest extends JerseyTest {
     }
 
     @Test
-    public void Retrun_bad_request_response_if_input_is_empty_json_object() {
-        Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(""));
-        response.readEntity(String.class);
-        assertEquals(response.getStatus(), 400);
+    public void Response_if_input_is_an_empty_json_object() {
+        Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json("{}"));
+        assertEquals(400, response.getStatus());
+        assertEquals("Cannot build set objects.", response.readEntity(String.class));
     }
 
     @Override
