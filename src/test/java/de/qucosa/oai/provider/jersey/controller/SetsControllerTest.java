@@ -38,7 +38,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 
 public class SetsControllerTest extends JerseyTest {
 
@@ -55,14 +54,27 @@ public class SetsControllerTest extends JerseyTest {
     }
 
     @Test
-    public void Save_not_successful_set_object_if_setspec_or_setname_is_null_or_empty() {
+    public void Save_not_successful_set_object_if_setspec_is_null_or_empty() {
         SetsConfig.Set testSet = SetTestData.set();
         testSet.setSetSpec(null);
         Set<SetsConfig.Set> sets = new HashSet<>();
         sets.add(testSet);
 
         Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(sets));
-        assertEquals(500, response.getStatus());
+        assertEquals(406, response.getStatus());
+        assertEquals("Set data object has null or empty values.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Save_not_successful_set_object_if_setname_is_null_or_empty() {
+        SetsConfig.Set testSet = SetTestData.set();
+        testSet.setSetName(null);
+        Set<SetsConfig.Set> sets = new HashSet<>();
+        sets.add(testSet);
+
+        Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(sets));
+        assertEquals(406, response.getStatus());
+        assertEquals("Set data object has null or empty values.", response.readEntity(String.class));
     }
 
     @Test
@@ -94,20 +106,40 @@ public class SetsControllerTest extends JerseyTest {
 
         @Override
         public <T> T create(T object) throws SQLException {
-            SetsConfig.Set inputSet = SetTestData.set();
+            Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
 
-            if (inputSet.getSetSpec() == null || inputSet.getSetName() == null) {
-                throw new SQLException("Set data object has null or empty values.");
+            if (object instanceof Set) {
+
+                for (de.qucosa.oai.provider.persistence.pojos.Set inputSet : (Set<de.qucosa.oai.provider.persistence.pojos.Set>) object) {
+
+                    if (inputSet.getSetSpec() == null || inputSet.getSetSpec().isEmpty()) {
+                        throw new SQLException("Set data object has null or empty values.");
+                    }
+
+                    if (inputSet.getSetName() == null || inputSet.getSetName().isEmpty()) {
+                        throw new SQLException("Set data object has null or empty values.");
+                    }
+
+                    sets.add(inputSet);
+                }
             }
 
-            de.qucosa.oai.provider.persistence.pojos.Set set = new de.qucosa.oai.provider.persistence.pojos.Set();
-            set.setSetSpec(inputSet.getSetSpec());
-            set.setSetName(inputSet.getSetName());
-            set.setSetDescription(inputSet.getSetDescription());
-            set.setId(1L);
-            return (T) new HashSet<de.qucosa.oai.provider.persistence.pojos.Set>() {{
-                    add(set);
-                }};
+            if (object instanceof de.qucosa.oai.provider.persistence.pojos.Set) {
+                de.qucosa.oai.provider.persistence.pojos.Set inputSet = (de.qucosa.oai.provider.persistence.pojos.Set) object;
+
+                if (inputSet.getSetSpec() == null || inputSet.getSetSpec().isEmpty()) {
+                    throw new SQLException("Set data object has null or empty values.");
+                }
+
+                if (inputSet.getSetName() == null || inputSet.getSetName().isEmpty()) {
+                    throw new SQLException("Set data object has null or empty values.");
+                }
+
+                sets.add(inputSet);
+            }
+
+
+            return (T) sets;
         }
 
         @Override
