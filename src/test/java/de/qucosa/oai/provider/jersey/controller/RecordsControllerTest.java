@@ -49,9 +49,18 @@ import static org.junit.Assert.assertEquals;
 
 public class RecordsControllerTest extends JerseyTest {
 
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        DisseminationTestData.formatid = 1L;
+        DisseminationTestData.recordid = 1L;
+    }
+
     @Test
     public void Save_new_record_successful() throws Exception {
-        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(RecordTestData.record()));
+        List<RecordTransport> inputData = inputData();
+        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
+        response.readEntity(String.class);
         assertEquals(200, response.getStatus());
     }
 
