@@ -56,7 +56,7 @@ public class SetController {
             return Response.status(Response.Status.BAD_REQUEST).entity("The set mapping object is failed!").build();
         }
 
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> result = null;
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> result;
 
         try {
             result = setDao.create(saveRes);

@@ -80,7 +80,7 @@ public class DisseminationController {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Not found xml for parsing dissemination document.").build();
         }
 
-        Document disseminationDocument = null;
+        Document disseminationDocument;
 
         try {
             disseminationDocument = new DisseminationXmlBuilder(rt)

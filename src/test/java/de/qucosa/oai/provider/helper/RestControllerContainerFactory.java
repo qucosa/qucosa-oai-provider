@@ -20,7 +20,7 @@ public class RestControllerContainerFactory implements TestContainerFactory {
 
     public static class RestTestContainer implements TestContainer {
 
-        private URI baseUri = null;
+        private URI baseUri;
 
         private HttpServer server;
 
