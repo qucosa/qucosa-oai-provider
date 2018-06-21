@@ -24,7 +24,6 @@ import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
 import de.qucosa.oai.provider.xml.builders.DisseminationXmlBuilder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
@@ -49,17 +48,19 @@ public class DisseminationController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) throws IOException, SAXException {
+    public Response save(String input) {
 
         if (input == null || input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The input data object is empty or failed!").build();
         }
 
         ObjectMapper om = new ObjectMapper();
-        Dissemination dissemination = om.readValue(input, Dissemination.class);
+        Dissemination dissemination = null;
 
-        if (dissemination == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The dissemination json object mapping is failed!").build();
+        try {
+            dissemination = om.readValue(input, Dissemination.class);
+        } catch (IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build dissemination object.").build();
         }
 
         try {
