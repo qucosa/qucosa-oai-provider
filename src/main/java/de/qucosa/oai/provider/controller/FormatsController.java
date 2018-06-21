@@ -43,55 +43,69 @@ public class FormatsController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) throws SQLException, IOException, SAXException {
+    public Response save(String input) {
+        Format format = null;
 
         if (input == null || input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Input data is empty or failed!").build();
         }
 
-        Format format = buildSqlFormat(input);
+        try {
+            format = buildSqlFormat(input);
+        } catch (IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build format object.").build();
+        }
 
         if (format == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Formats json mapper object is failed!").build();
         }
 
-        Format result = formatDao.update(format);
+        try {
+            format = formatDao.update(format);
+        } catch (SQLException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+        }
 
-        return Response.status(Response.Status.OK).entity(result).build();
+        return Response.status(Response.Status.OK).entity(format).build();
     }
 
     @PUT
     @Path("{mdprefix}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("mdprefix") String mdprefix, String input) throws IOException, SQLException, SAXException {
+    public Response update(@PathParam("mdprefix") String mdprefix, String input) {
+        Format format = null;
 
-        if (mdprefix.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
+        try {
+            format = buildSqlFormat(input);
+        } catch (IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build format object.").build();
         }
 
-        Format format = buildSqlFormat(input);
-
-        if (format == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Format mapper is null!").build();
+        if (!format.getMdprefix().equals(mdprefix)) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Request param mdprefix and json data mdprefix are unequal.").build();
         }
 
-        formatDao.update(format);
+        try {
+            format = formatDao.update(format);
+        } catch (SQLException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+        }
 
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Response.Status.OK).entity(format).build();
     }
 
     @DELETE
     @Path("{mdprefix}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("mdprefix") String mdprefix) throws SQLException {
+    public Response delete(@PathParam("mdprefix") String mdprefix) {
 
-        if (mdprefix.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
+        try {
+            formatDao.deleteByKeyValue("mdprefix", mdprefix);
+        } catch (SQLException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
         }
-
-        formatDao.deleteByKeyValue("mdprefix", mdprefix);
 
         return Response.status(Response.Status.OK).build();
     }
@@ -99,16 +113,13 @@ public class FormatsController {
     @GET
     @Path("{mdprefix}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response format(@PathParam("mdprefix") String mdprefix) throws SQLException {
+    public Response format(@PathParam("mdprefix") String mdprefix) {
+        Format format = null;
 
-        if (mdprefix.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
-        }
-
-        Format format = formatDao.findByValue("mdprefix", mdprefix);
-
-        if (format == null || format.getId() == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Format json mapper object is failed!").build();
+        try {
+            format = formatDao.findByValue("mdprefix", mdprefix);
+        } catch (SQLException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
         }
 
         return Response.status(200).entity(format).build();
