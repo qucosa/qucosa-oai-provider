@@ -73,15 +73,28 @@ public class SetController {
     @Path("{setspec}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("setspec") String setspec, String input) throws IOException, SQLException, SAXException {
+    public Response update(@PathParam("setspec") String setspec, String input) {
         ObjectMapper om = new ObjectMapper();
-        SetsConfig.Set set = om.readValue(input, SetsConfig.Set.class);
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = null;
 
-        if (!set.getSetSpec().equals(setspec)) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Request param setspec and json data setspec are unequal.").build();
+        try {
+            sets = buildSqlSets(input);
+        } catch (IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build set objects.").build();
         }
 
-        setDao.update(buildSqlSets(input));
+        for (de.qucosa.oai.provider.persistence.pojos.Set set : sets) {
+
+            if (!set.getSetSpec().equals(setspec)) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Request param setspec and json data setspec are unequal.").build();
+            }
+        }
+
+        try {
+            setDao.update(sets);
+        } catch (SQLException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+        }
 
         return Response.status(Response.Status.OK).entity(true).build();
     }
