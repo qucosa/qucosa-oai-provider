@@ -29,7 +29,37 @@ import java.util.Set;
 public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
 
     @Override
-    public <T> T create(T object) { return null; }
+    public <T> T create(T object) throws SQLException {
+        String sql = "INSERT INTO sets (id, setspec, setname, setdescription) \n";
+        sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n";
+        sql+="ON CONFLICT (setspec) \r\n";
+        sql+="DO NOTHING";
+
+        PreparedStatement pst = connection().prepareStatement(sql);
+        connection().setAutoCommit(false);
+
+        if (object instanceof Set) {
+
+            for (de.qucosa.oai.provider.persistence.pojos.Set set : (Set<de.qucosa.oai.provider.persistence.pojos.Set>) object) {
+                pst.setString(1, set.getSetSpec());
+                pst.setString(2, set.getSetName());
+                pst.setString(3, set.getSetDescription());
+                pst.addBatch();
+            }
+        }
+
+        if (object instanceof de.qucosa.oai.provider.persistence.pojos.Set) {
+            de.qucosa.oai.provider.persistence.pojos.Set set = (de.qucosa.oai.provider.persistence.pojos.Set) object;
+            pst.setString(1, set.getSetSpec());
+            pst.setString(2, set.getSetName());
+            pst.setString(3, set.getSetDescription());
+            pst.addBatch();
+        }
+
+        pst.executeBatch();
+        connection().commit();
+        return object;
+    }
     
     public Set<de.qucosa.oai.provider.persistence.pojos.Set> findAll() {
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
@@ -74,6 +104,8 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
                 pst.setString(1, set.getSetSpec());
                 pst.setString(2, set.getSetName());
                 pst.setString(3, set.getSetDescription());
+                pst.setString(4, set.getSetName());
+                pst.setString(5, set.getSetDescription());
                 pst.addBatch();
             }
         }
@@ -83,6 +115,8 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDaoInte
             pst.setString(1, set.getSetSpec());
             pst.setString(2, set.getSetName());
             pst.setString(3, set.getSetDescription());
+            pst.setString(4, set.getSetName());
+            pst.setString(5, set.getSetDescription());
             pst.addBatch();
         }
 

@@ -26,8 +26,7 @@ public class DissTermsTest {
     
     @Before
     public void setUp() {
-        String path = "/home/opt/oaiprovider/config/";
-        dissTerms = new DissTerms(path);
+        dissTerms = new DissTerms(getClass().getResourceAsStream("/config/dissemination-config.json"));
     }
     
     @Test

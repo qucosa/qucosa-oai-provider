@@ -101,16 +101,16 @@ public class SetsConfig {
     }
 
     public static class Set {
-        @JsonProperty("setSpec")
+        @JsonProperty("setspec")
         private String setSpec;
 
-        @JsonProperty("setName")
+        @JsonProperty("setname")
         private String setName;
 
         @JsonProperty("predicate")
         private String predicate;
 
-        @JsonProperty("setDescription")
+        @JsonProperty("setdescription")
         private String setDescription;
 
         public String getSetSpec() {

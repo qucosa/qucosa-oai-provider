@@ -23,9 +23,7 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
-import javax.servlet.ServletContext;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -101,7 +99,7 @@ public class FormatsController {
     @GET
     @Path("{mdprefix}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response format(@Context ServletContext servletContext, @PathParam("mdprefix") String mdprefix) throws SQLException {
+    public Response format(@PathParam("mdprefix") String mdprefix) throws SQLException {
 
         if (mdprefix.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The mdprefix parameter is failed or empty!").build();
@@ -109,7 +107,7 @@ public class FormatsController {
 
         Format format = formatDao.findByValue("mdprefix", mdprefix);
 
-        if (format.getId() == null) {
+        if (format == null || format.getId() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Format json mapper object is failed!").build();
         }
 

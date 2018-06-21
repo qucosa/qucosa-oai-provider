@@ -75,9 +75,23 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
         PreparedStatement pst = connection().prepareStatement(sb.toString());
         connection().setAutoCommit(false);
         buildUpdateObject(pst, dissemination);
-        pst.executeBatch();
         connection().commit();
-        return object;
+        int affectedRows = pst.executeUpdate();
+
+        if (affectedRows == 0) {
+            throw new SQLException("Creating user failed, no rows affected.");
+        }
+
+        try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
+
+            if (!generatedKeys.next()) {
+                throw new SQLException("Creating user failed, no ID obtained.");
+            }
+
+            dissemination.setId(generatedKeys.getLong(1));
+        }
+
+        return (T) dissemination;
     }
 
     @Override
@@ -133,8 +147,6 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
             pst.setTimestamp(3, dissemination.getLastmoddate());
             pst.setSQLXML(4, sqlxml);
         }
-
-        pst.addBatch();
     }
 
     @Override

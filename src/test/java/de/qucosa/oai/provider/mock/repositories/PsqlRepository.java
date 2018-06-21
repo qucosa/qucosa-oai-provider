@@ -8,7 +8,7 @@ import java.util.Set;
 public class PsqlRepository implements PersistenceDaoInterface {
 
     @Override
-    public <T> T create(T object) { return null; }
+    public <T> T create(T object) throws SQLException { return null; }
 
     @Override
     public int count(String cntField, String... whereClauses) {
@@ -34,8 +34,7 @@ public class PsqlRepository implements PersistenceDaoInterface {
 
     @Override
     public <T> T update(T object) throws SQLException {
-        int[] result = {1};
-        return (T) ((object != null) ? result : new int[0]);
+        return object;
     }
 
     @Override

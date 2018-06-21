@@ -18,9 +18,7 @@ package de.qucosa.oai.provider.persistence.postgres;
 
 import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.util.Set;
