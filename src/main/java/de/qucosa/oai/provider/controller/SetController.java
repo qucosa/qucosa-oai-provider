@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.SetsConfig;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import org.glassfish.jersey.process.internal.RequestScoped;
-import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -85,7 +84,7 @@ public class SetController {
 
         for (de.qucosa.oai.provider.persistence.pojos.Set set : sets) {
 
-            if (!set.getSetSpec().equals(setspec)) {
+            if (set.getSetSpec() == null || !set.getSetSpec().equals(setspec)) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Request param setspec and json data setspec are unequal.").build();
             }
         }
@@ -102,13 +101,17 @@ public class SetController {
     @DELETE
     @Path("{setspec}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("setspec") String setspec) throws SQLException {
+    public Response delete(@PathParam("setspec") String setspec) {
 
-        if (setspec.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The setspec param is failed or empty!").build();
+        if (setspec == null || setspec.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The setspec param is null or empty.").build();
         }
 
-        setDao.deleteByKeyValue("setspec", setspec);
+        try {
+            setDao.deleteByKeyValue("setspec", setspec);
+        } catch (SQLException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+        }
 
         return Response.status(Response.Status.OK).build();
     }
