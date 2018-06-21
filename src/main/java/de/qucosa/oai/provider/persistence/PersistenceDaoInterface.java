@@ -30,7 +30,7 @@ public interface PersistenceDaoInterface {
 
     <T> T update(String...value);
 
-    <T> T update(T object) throws SQLException, IOException, SAXException;
+    <T> T update(T object) throws SQLException;
 
     <T> Set<T> findAll();
 
