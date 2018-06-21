@@ -187,7 +187,7 @@ public class FormatsControllerTest extends JerseyTest {
         @Override
         public <T> T findByValue(String column, String value) throws SQLException {
 
-            if (!FormatTestData.format().getMdprefix().equals(value)) {
+            if (!FormatTestData.formats().contains(value)) {
                 throw new SQLException("Cannot find format object.");
             }
 
