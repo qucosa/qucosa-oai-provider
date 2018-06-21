@@ -43,6 +43,12 @@ public class SetsControllerTest extends JerseyTest {
 
     private ObjectMapper om = new ObjectMapper();
 
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        SetTestData.setspec = "ddc:850";
+    }
+
     @Test
     public void Save_input_data_is_empty() {
         Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(""));
@@ -89,6 +95,26 @@ public class SetsControllerTest extends JerseyTest {
         Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json("{}"));
         assertEquals(400, response.getStatus());
         assertEquals("Cannot build set objects.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Update_set_object_successful() {
+        Set<SetsConfig.Set> sets = new HashSet() {{
+                add(SetTestData.set());
+            }};
+        Response response = target().path("sets/ddc:850").request().header("Content-Type", "application/json").put(Entity.json(sets));
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void Update_set_if_setspec_param_unequal_to_object_setspec() {
+        SetTestData.setspec = "blablub";
+        Set<SetsConfig.Set> sets = new HashSet() {{
+            add(SetTestData.set());
+        }};
+        Response response = target().path("sets/ddc:850").request().header("Content-Type", "application/json").put(Entity.json(sets));
+        assertEquals(400, response.getStatus());
+        assertEquals("Request param setspec and json data setspec are unequal.", response.readEntity(String.class));
     }
 
     @Override
