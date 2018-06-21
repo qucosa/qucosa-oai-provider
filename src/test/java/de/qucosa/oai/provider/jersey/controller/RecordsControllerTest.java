@@ -82,24 +82,6 @@ public class RecordsControllerTest extends JerseyTest {
     }
 
     @Test
-    public void Format_is_not_found() throws IOException {
-        List<RecordTransport> inputData = inputData();
-        FormatTestData.id = null;
-        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
-        assertEquals(404, response.getStatus());
-        assertEquals("Format is not found.", response.readEntity(String.class));
-    }
-
-    @Test
-    public void Record_is_not_found_because_has_wrong_uid() throws IOException {
-        List<RecordTransport> inputData = inputData();
-        RecordTestData.uid = "bla:blub:qucosa:55887";
-        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
-        assertEquals(404, response.getStatus());
-        assertEquals("Record is not found.", response.readEntity(String.class));
-    }
-
-    @Test
     public void Dissemination_document_is_not_parsing_because_xml_failed() throws IOException {
         List<RecordTransport> inputData = inputData();
 
@@ -185,16 +167,15 @@ public class RecordsControllerTest extends JerseyTest {
         @Override
         public <T> T findByValue(String column, String value) throws SQLException {
             Record record = RecordTestData.record();
-            boolean find = false;
 
             if (column.equals("uid")) {
 
-                if (record.getUid().equals(value)) {
-                    find = true;
+                if (!record.getUid().equals(value)) {
+                    throw new SQLException("Record not found.");
                 }
             }
 
-            return (find) ? (T) record : null;
+            return (T) record;
         }
     }
 }
