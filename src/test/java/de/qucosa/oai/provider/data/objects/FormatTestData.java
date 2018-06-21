@@ -2,6 +2,9 @@ package de.qucosa.oai.provider.data.objects;
 
 import de.qucosa.oai.provider.persistence.pojos.Format;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FormatTestData {
 
     public static Long id = 1L;
@@ -14,6 +17,14 @@ public class FormatTestData {
 
     public static boolean deleted = false;
 
+    public static List<String> formats = new ArrayList<String>() {
+        {
+            add("oai_dc");
+            add("xmetadiss");
+            add("epicur");
+        }
+    };
+
     public static Format format(){
         Format format = new Format();
         format.setId(id);
@@ -22,5 +33,9 @@ public class FormatTestData {
         format.setNamespace(namespace);
         format.setDeleted(deleted);
         return format;
+    }
+
+    public static List<String> formats() {
+        return formats;
     }
 }
