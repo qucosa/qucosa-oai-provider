@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 import org.glassfish.jersey.process.internal.RequestScoped;
-import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;

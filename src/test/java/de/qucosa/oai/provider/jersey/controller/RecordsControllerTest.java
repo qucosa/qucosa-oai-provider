@@ -22,7 +22,6 @@ import de.qucosa.oai.provider.controller.DisseminationController;
 import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.controller.RecordController;
 import de.qucosa.oai.provider.data.objects.DisseminationTestData;
-import de.qucosa.oai.provider.data.objects.FormatTestData;
 import de.qucosa.oai.provider.data.objects.RecordTestData;
 import de.qucosa.oai.provider.helper.RestControllerContainerFactory;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
