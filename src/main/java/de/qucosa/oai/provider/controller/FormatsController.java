@@ -119,7 +119,7 @@ public class FormatsController {
         try {
             format = formatDao.findByValue("mdprefix", mdprefix);
         } catch (SQLException e) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
         }
 
         return Response.status(200).entity(format).build();

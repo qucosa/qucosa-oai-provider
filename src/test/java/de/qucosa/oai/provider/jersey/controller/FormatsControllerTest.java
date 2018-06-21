@@ -136,7 +136,7 @@ public class FormatsControllerTest extends JerseyTest {
     @Test
     public void Find_format_not_successful_if_datarow_not_found() {
         Response response = target().path("formats/blablub").request().header("Content-Type", "application/json").get();
-        assertEquals(406, response.getStatus());
+        assertEquals(404, response.getStatus());
         assertEquals("Cannot find format object.", response.readEntity(String.class));
     }
 
