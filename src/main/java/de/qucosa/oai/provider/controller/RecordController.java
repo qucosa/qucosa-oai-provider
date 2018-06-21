@@ -62,7 +62,7 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Request input data is empty or failed!").build();
         }
 
-        List<RecordTransport> inputData = null;
+        List<RecordTransport> inputData;
 
         try {
             inputData = om.readValue(input.getBytes("UTF-8"),
@@ -138,7 +138,7 @@ public class RecordController {
         }
 
         ObjectMapper om = new ObjectMapper();
-        Record record = null;
+        Record record;
 
         try {
             record = om.readValue(input, Record.class);
@@ -150,7 +150,7 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("Update UID parameter and record UID are unequal!").build();
         }
 
-        Record result = null;
+        Record result;
 
         try {
             result = recordDao.update(record);
@@ -188,7 +188,7 @@ public class RecordController {
             return Response.status(Response.Status.BAD_REQUEST).entity("The uid paramter is failed or empty!").build();
         }
 
-        Record record = null;
+        Record record;
 
         try {
             record = recordDao.findByValue("uid", uid);

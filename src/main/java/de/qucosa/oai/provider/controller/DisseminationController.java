@@ -55,7 +55,7 @@ public class DisseminationController {
         }
 
         ObjectMapper om = new ObjectMapper();
-        Dissemination dissemination = null;
+        Dissemination dissemination;
 
         try {
             dissemination = om.readValue(input, Dissemination.class);

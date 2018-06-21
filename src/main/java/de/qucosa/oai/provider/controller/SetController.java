@@ -49,7 +49,7 @@ public class SetController {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Sets input data is empty.").build();
         }
 
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes = null;
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes;
 
         try {
             saveRes = buildSqlSets(input);
@@ -74,7 +74,7 @@ public class SetController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(@PathParam("setspec") String setspec, String input) {
         ObjectMapper om = new ObjectMapper();
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = null;
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets;
 
         try {
             sets = buildSqlSets(input);

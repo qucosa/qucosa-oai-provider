@@ -43,7 +43,7 @@ public class FormatsController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response save(String input) {
-        Format format = null;
+        Format format;
 
         if (input == null || input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Input data is empty or failed!").build();
@@ -73,7 +73,7 @@ public class FormatsController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response update(@PathParam("mdprefix") String mdprefix, String input) {
-        Format format = null;
+        Format format;
 
         try {
             format = buildSqlFormat(input);
@@ -113,7 +113,7 @@ public class FormatsController {
     @Path("{mdprefix}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response format(@PathParam("mdprefix") String mdprefix) {
-        Format format = null;
+        Format format;
 
         try {
             format = formatDao.findByValue("mdprefix", mdprefix);
