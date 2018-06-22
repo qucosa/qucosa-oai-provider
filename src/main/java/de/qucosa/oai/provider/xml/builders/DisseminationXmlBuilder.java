@@ -16,8 +16,8 @@
 
 package de.qucosa.oai.provider.xml.builders;
 
-import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.application.mapper.SetsConfig;
+import de.qucosa.oai.provider.application.config.DissTermsDao;
+import de.qucosa.oai.provider.application.config.SetConfigMapper;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
 import de.qucosa.oai.provider.persistence.utils.DateTimeConverter;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
@@ -35,7 +35,7 @@ public class DisseminationXmlBuilder {
 
     private RecordTransport record;
 
-    private DissTerms dissTerms = null;
+    private DissTermsDao dissTerms = null;
 
     public DisseminationXmlBuilder(RecordTransport record) {
         this.record = record;
@@ -51,7 +51,7 @@ public class DisseminationXmlBuilder {
         return recordTemplate;
     }
 
-    public DisseminationXmlBuilder setDissTerms(DissTerms dissTerms) {
+    public DisseminationXmlBuilder setDissTerms(DissTermsDao dissTerms) {
         this.dissTerms = dissTerms;
         return this;
     }
@@ -84,9 +84,9 @@ public class DisseminationXmlBuilder {
 
     private void appendSetSpecs() throws XPathExpressionException {
         Node header = recordHeader();
-        Set<SetsConfig.Set> sets = record.getSets();
+        Set<SetConfigMapper.Set> sets = record.getSets();
 
-        for (SetsConfig.Set set : sets) {
+        for (SetConfigMapper.Set set : sets) {
             addSetSpec(header, set.getSetSpec());
         }
     }

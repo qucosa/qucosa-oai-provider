@@ -18,7 +18,6 @@ package de.qucosa.oai.provider.application;
 
 import de.qucosa.oai.provider.application.config.DissTermsDao;
 import de.qucosa.oai.provider.application.config.SetConfigDao;
-import de.qucosa.oai.provider.application.mapper.SetsConfig;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;

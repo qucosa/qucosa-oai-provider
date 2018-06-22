@@ -16,7 +16,7 @@
 
 package de.qucosa.oai.provider.jersey.controller;
 
-import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.config.DissTermsDao;
 import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.data.objects.FormatTestData;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
@@ -51,6 +51,7 @@ public class FormatsControllerTest extends JerseyTest {
 
     @Test
     public void Save_new_format_successful() throws Exception {
+        FormatTestData.id = 1L;
         Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(FormatTestData.format()));
         assertEquals(200, response.getStatus());
     }
@@ -152,7 +153,7 @@ public class FormatsControllerTest extends JerseyTest {
             }
         });
         HashMap<String, Object> props = new HashMap<>();
-        props.put("dissConf", new DissTerms(getClass().getResourceAsStream("/config/dissemination-config.json")));
+        props.put("dissConf", new DissTermsDao(getClass().getResourceAsStream("/config/dissemination-config.json")));
         config.setProperties(props);
         config.registerInstances(formatsController);
         return config;

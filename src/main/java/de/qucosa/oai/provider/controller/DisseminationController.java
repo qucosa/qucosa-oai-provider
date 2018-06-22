@@ -17,7 +17,7 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.config.DissTermsDao;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
@@ -85,7 +85,7 @@ public class DisseminationController {
 
         try {
             disseminationDocument = new DisseminationXmlBuilder(rt)
-                    .setDissTerms((DissTerms) servletContext.getAttribute("dissConf"))
+                    .setDissTerms((DissTermsDao) servletContext.getAttribute("dissConf"))
                     .buildDissemination();
         } catch (XPathExpressionException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();

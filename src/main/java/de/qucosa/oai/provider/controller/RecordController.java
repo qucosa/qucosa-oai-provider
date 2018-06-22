@@ -18,7 +18,8 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.config.DissTermsDao;
+import de.qucosa.oai.provider.application.config.DissTermsMapper;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.Format;
@@ -218,10 +219,10 @@ public class RecordController {
 
         if (resFormat.getStatus() != 200) {
             Format format = new Format();
-            DissTerms dissconf = (DissTerms) servletContext.getAttribute("dissConf");
-            Set<DissTerms.DissFormat> formats = dissconf.formats();
+            DissTermsDao dissconf = (DissTermsDao) servletContext.getAttribute("dissConf");
+            Set<DissTermsMapper.DissFormat> formats = dissconf.getFormats();
 
-            for (DissTerms.DissFormat fm : formats) {
+            for (DissTermsMapper.DissFormat fm : formats) {
 
                 if (fm.getMdprefix().equals(rt.getMdprefix())) {
                     format.setMdprefix(fm.getMdprefix());

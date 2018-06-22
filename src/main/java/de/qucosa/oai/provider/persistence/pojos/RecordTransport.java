@@ -19,7 +19,7 @@ package de.qucosa.oai.provider.persistence.pojos;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.qucosa.oai.provider.application.mapper.SetsConfig;
+import de.qucosa.oai.provider.application.config.SetConfigMapper;
 import org.w3c.dom.Document;
 
 import java.io.Serializable;
@@ -39,7 +39,7 @@ public class RecordTransport implements Serializable {
     private String mdprefix;
 
     @JsonProperty("sets")
-    private Set<SetsConfig.Set> sets = new HashSet<>();
+    private Set<SetConfigMapper.Set> sets = new HashSet<>();
     
     @JsonProperty("data")
     private Document data;
@@ -62,11 +62,11 @@ public class RecordTransport implements Serializable {
 
     public void setMdprefix(String mdprefix) { this.mdprefix = mdprefix; }
 
-    public Set<SetsConfig.Set> getSets() { return sets; }
+    public Set<SetConfigMapper.Set> getSets() { return sets; }
 
-    public void setSets(Set<SetsConfig.Set> sets) { this.sets = sets; }
+    public void setSets(Set<SetConfigMapper.Set> sets) { this.sets = sets; }
 
-    public void setSet(SetsConfig.Set set) { sets.add(set); }
+    public void setSet(SetConfigMapper.Set set) { sets.add(set); }
 
     public Document getData() {
         return data;

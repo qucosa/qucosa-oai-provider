@@ -16,13 +16,13 @@
 
 package de.qucosa.oai.provider.xml.builders;
 
-import de.qucosa.oai.provider.application.mapper.SetsConfig;
+import de.qucosa.oai.provider.application.config.SetConfigMapper;
 import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
 import org.w3c.dom.Document;
 
 public class SetXmlBuilder {
 
-    public static Document build(SetsConfig.Set set) {
+    public static Document build(SetConfigMapper.Set set) {
         Document setXml = DocumentXmlUtils.document(SetXmlBuilder.class.getResourceAsStream("/set.xml"), true);
         setXml.getElementsByTagName("setSpec").item(0).appendChild(setXml.createTextNode(set.getSetSpec()));
         setXml.getElementsByTagName("setName").item(0).appendChild(setXml.createTextNode(set.getSetName()));
