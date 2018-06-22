@@ -17,7 +17,11 @@
 package de.qucosa.oai.provider.application;
 
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
-import de.qucosa.oai.provider.persistence.postgres.*;
+import de.qucosa.oai.provider.persistence.postgres.DisseminationDao;
+import de.qucosa.oai.provider.persistence.postgres.FormatDao;
+import de.qucosa.oai.provider.persistence.postgres.RecordDao;
+import de.qucosa.oai.provider.persistence.postgres.SetDao;
+import de.qucosa.oai.provider.persistence.postgres.SetsToRecordDao;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 
