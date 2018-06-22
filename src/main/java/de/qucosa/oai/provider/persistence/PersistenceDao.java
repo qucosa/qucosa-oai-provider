@@ -29,9 +29,9 @@ public interface PersistenceDao<T> {
 
     T update(T object) throws SQLException;
 
-    Set<T> findAll();
+    T findAll();
 
-    Set<T> find(String sqlStmt) throws SQLException;
+    T find(String sqlStmt) throws SQLException;
 
     T findById(Long id);
     

@@ -27,13 +27,13 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-public class FormatDao extends PersistenceDaoAbstract implements PersistenceDao {
+public class FormatDao<T> implements PersistenceDao<T> {
 
     @Override
-    public <T> T create(T object) { return null; }
+    public T create(T object) { return null; }
 
     @Override
-    public Set<Format> findAll() {
+    public T findAll() {
         Set<Format> formats = new HashSet<>();
         ResultSet result;
         String sql = "SELECT * FROM formats;";
@@ -57,7 +57,7 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDao 
             e.printStackTrace();
         }
         
-        return formats;
+        return (T) formats;
     }
 
     @Override
@@ -67,10 +67,10 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDao 
     public int count(String cntField, String whereColumn, String whereColumnValue) throws SQLException { return 0; }
 
     @Override
-    public <T> Set<T> find(String sqlStmt) { return null; }
+    public Set<T> find(String sqlStmt) { return null; }
 
     @Override
-    public <T> T update(T object) throws SQLException {
+    public T update(T object) throws SQLException {
         Format format = (Format) object;
 
         if (format.getSchemaUrl() == null || format.getNamespace() == null || format.getMdprefix() == null) {
@@ -109,19 +109,19 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDao 
     }
 
     @Override
-    public <T> T findById(Long id) { return null; }
+    public T findById(Long id) { return null; }
 
     @Override
-    public <T> T findByValues(Set<T> values) { return null; }
+    public T findByValues(Set<T> values) { return null; }
 
     @Override
     public void deleteById(Long id) {}
 
     @Override
-    public <T> void deleteByValues(Set<T> values) {}
+    public void deleteByValues(Set<T> values) {}
 
     @Override
-    public <T> T findByValue(String column, String value) throws SQLException {
+    public T findByValue(String column, String value) throws SQLException {
         Format format =  new Format();
         String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats WHERE " + column + " = ?;";
         
@@ -148,19 +148,19 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDao 
     }
 
     @Override
-    public <T> T update(String sql) { return null; }
+    public T update(String sql) { return null; }
 
     @Override
-    public <T> T update(String... value) { return null; }
+    public T update(String... value) { return null; }
 
     @Override
-    public <T> T findByValues(String... values) { return null; }
+    public T findByValues(String... values) { return null; }
 
     @Override
-    public <T> T findByIds(T... values) { return null; }
+    public T findByIds(T... values) { return null; }
 
     @Override
-    public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+    public void deleteByKeyValue(String key, T value) throws SQLException {
         String sql = "UPDATE formats SET deleted = true WHERE " + key + " = ?";
         PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);

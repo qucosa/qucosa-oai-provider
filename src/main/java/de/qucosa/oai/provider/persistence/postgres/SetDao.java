@@ -16,7 +16,6 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
-import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
 import de.qucosa.oai.provider.persistence.PersistenceDao;
 
 import java.sql.PreparedStatement;
@@ -26,10 +25,10 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SetDao extends PersistenceDaoAbstract implements PersistenceDao {
+public class SetDao<T> implements PersistenceDao<T> {
 
     @Override
-    public <T> T create(T object) throws SQLException {
+    public T create(T object) throws SQLException {
         String sql = "INSERT INTO sets (id, setspec, setname, setdescription) \n";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n";
         sql+="ON CONFLICT (setspec) \r\n";
@@ -61,7 +60,7 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDao {
         return object;
     }
     
-    public Set<de.qucosa.oai.provider.persistence.pojos.Set> findAll() {
+    public T findAll() {
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
         ResultSet result;
         String sql = "SELECT id, setspec, setname, setdescription, deleted FROM sets;";
@@ -85,11 +84,11 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDao {
             e.printStackTrace();
         }
         
-        return sets;
+        return (T) sets;
     }
     
     @Override
-    public <T> T update(T object) throws SQLException {
+    public T update(T object) throws SQLException {
         String sql = "INSERT INTO sets (id, setspec, setname, setdescription) \n";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n";
         sql+="ON CONFLICT (setspec) \r\n";
@@ -126,12 +125,12 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDao {
     }
 
     @Override
-    public <T> T findById(Long id) {
+    public T findById(Long id) {
         return null;
     }
 
     @Override
-    public <T> T findByValues(Set<T> values) {
+    public T findByValues(Set<T> values) {
         return null;
     }
 
@@ -139,7 +138,7 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDao {
     public void deleteById(Long id) {}
 
     @Override
-    public <T> void deleteByValues(Set<T> values) {}
+    public void deleteByValues(Set<T> values) {}
 
     @Override
     public int count(String cntField, String... whereClauses) {
@@ -152,27 +151,27 @@ public class SetDao extends PersistenceDaoAbstract implements PersistenceDao {
     }
 
     @Override
-    public <T> Set<T> find(String sqlStmt) {
+    public Set<T> find(String sqlStmt) {
         return null;
     }
 
     @Override
-    public <T> T findByValue(String column, String value) { return null; }
+    public T findByValue(String column, String value) { return null; }
 
     @Override
-    public <T> T update(String sql) { return null; }
+    public T update(String sql) { return null; }
 
     @Override
-    public <T> T update(String... value) { return null; }
+    public T update(String... value) { return null; }
 
     @Override
-    public <T> T findByValues(String... values) { return null; }
+    public T findByValues(String... values) { return null; }
 
     @Override
-    public <T> T findByIds(T... values) { return null; }
+    public T findByIds(T... values) { return null; }
 
     @Override
-    public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+    public void deleteByKeyValue(String key, T value) throws SQLException {
         String sql = "UPDATE sets SET deleted = true WHERE " + key + " = " + value;
         Statement stmt = connection().createStatement();
         stmt.executeUpdate(sql);
