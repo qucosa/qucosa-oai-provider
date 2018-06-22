@@ -22,7 +22,7 @@ import de.qucosa.oai.provider.application.config.SetConfigMapper;
 import de.qucosa.oai.provider.controller.SetController;
 import de.qucosa.oai.provider.data.objects.SetTestData;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -150,7 +150,7 @@ public class SetsControllerTest extends JerseyTest {
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(SetTestDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+                bind(SetTestDao.class).to(PersistenceDao.class).in(RequestScoped.class);
                 bind(setsController).to(SetController.class);
             }
         });

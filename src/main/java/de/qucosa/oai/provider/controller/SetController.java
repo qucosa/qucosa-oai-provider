@@ -18,7 +18,7 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.config.SetConfigMapper;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import org.glassfish.jersey.process.internal.RequestScoped;
 
 import javax.inject.Inject;
@@ -39,10 +39,10 @@ import java.util.Set;
 @Path("/sets")
 @RequestScoped
 public class SetController {
-    private PersistenceDaoInterface setDao;
+    private PersistenceDao setDao;
 
     @Inject
-    public SetController(PersistenceDaoInterface setDao) {
+    public SetController(PersistenceDao setDao) {
         this.setDao = setDao;
     }
     

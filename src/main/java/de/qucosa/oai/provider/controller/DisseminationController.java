@@ -18,7 +18,7 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.config.DissTermsDao;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
 import de.qucosa.oai.provider.xml.builders.DisseminationXmlBuilder;
@@ -43,10 +43,10 @@ import java.sql.SQLException;
 @Path("/dissemination")
 @RequestScoped
 public class DisseminationController {
-    private PersistenceDaoInterface disseminationDao;
+    private PersistenceDao disseminationDao;
 
     @Inject
-    public DisseminationController (PersistenceDaoInterface disseminationDao) {
+    public DisseminationController (PersistenceDao disseminationDao) {
         this.disseminationDao = disseminationDao;
     }
 

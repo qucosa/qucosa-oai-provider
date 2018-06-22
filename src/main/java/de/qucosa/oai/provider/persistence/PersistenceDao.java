@@ -19,7 +19,7 @@ package de.qucosa.oai.provider.persistence;
 import java.sql.SQLException;
 import java.util.Set;
 
-public interface PersistenceDaoInterface {
+public interface PersistenceDao {
 
     <T> T create(T object) throws SQLException;
 

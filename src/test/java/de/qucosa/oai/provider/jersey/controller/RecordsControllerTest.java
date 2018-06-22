@@ -25,7 +25,7 @@ import de.qucosa.oai.provider.data.objects.DisseminationTestData;
 import de.qucosa.oai.provider.data.objects.RecordTestData;
 import de.qucosa.oai.provider.helper.RestControllerContainerFactory;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Record;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -134,7 +134,7 @@ public class RecordsControllerTest extends JerseyTest {
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(RecordTestDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+                bind(RecordTestDao.class).to(PersistenceDao.class).in(RequestScoped.class);
                 bind(recordController).to(RecordController.class);
                 bind(formatsController).to(FormatsController.class);
                 bind(disseminationController).to(DisseminationController.class);

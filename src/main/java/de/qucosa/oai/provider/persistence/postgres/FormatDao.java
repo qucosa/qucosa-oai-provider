@@ -17,7 +17,7 @@
 package de.qucosa.oai.provider.persistence.postgres;
 
 import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 
 import java.sql.PreparedStatement;
@@ -27,7 +27,7 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
+public class FormatDao extends PersistenceDaoAbstract implements PersistenceDao {
 
     @Override
     public <T> T create(T object) { return null; }

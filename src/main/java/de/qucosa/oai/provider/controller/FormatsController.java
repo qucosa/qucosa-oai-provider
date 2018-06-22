@@ -17,7 +17,7 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 import org.glassfish.jersey.process.internal.RequestScoped;
 
@@ -39,10 +39,10 @@ import java.sql.SQLException;
 @RequestScoped
 public class FormatsController {
 
-    private PersistenceDaoInterface formatDao;
+    private PersistenceDao formatDao;
 
     @Inject
-    public FormatsController(PersistenceDaoInterface formatDao) {
+    public FormatsController(PersistenceDao formatDao) {
         this.formatDao = formatDao;
     }
     

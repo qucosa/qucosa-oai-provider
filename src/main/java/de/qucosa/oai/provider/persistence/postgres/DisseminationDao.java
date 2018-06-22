@@ -17,7 +17,7 @@
 package de.qucosa.oai.provider.persistence.postgres;
 
 import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 
 import java.io.StringWriter;
@@ -27,7 +27,7 @@ import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.util.Set;
 
-public class DisseminationDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
+public class DisseminationDao extends PersistenceDaoAbstract implements PersistenceDao {
 
     @Override
     public <T> T create(T object) { return null; }
