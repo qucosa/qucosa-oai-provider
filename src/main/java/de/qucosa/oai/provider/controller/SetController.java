@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.SetsConfig;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import org.glassfish.jersey.process.internal.RequestScoped;
-import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -44,16 +43,18 @@ public class SetController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) throws IOException {
-        
-        if (input == null || input.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Data json mapper object is failed!").build();
+    public Response save(String input) {
+
+        if (input.isEmpty()) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Sets input data is empty.").build();
         }
 
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes = buildSqlSets(input);
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes;
 
-        if (saveRes == null || saveRes.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The set mapping object is failed!").build();
+        try {
+            saveRes = buildSqlSets(input);
+        } catch (IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build set objects.").build();
         }
 
         Set<de.qucosa.oai.provider.persistence.pojos.Set> result;
@@ -71,15 +72,28 @@ public class SetController {
     @Path("{setspec}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("setspec") String setspec, String input) throws IOException, SQLException, SAXException {
+    public Response update(@PathParam("setspec") String setspec, String input) {
         ObjectMapper om = new ObjectMapper();
-        SetsConfig.Set set = om.readValue(input, SetsConfig.Set.class);
+        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets;
 
-        if (!set.getSetSpec().equals(setspec)) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Request param setspec and json data setspec are unequal.").build();
+        try {
+            sets = buildSqlSets(input);
+        } catch (IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build set objects.").build();
         }
 
-        setDao.update(buildSqlSets(input));
+        for (de.qucosa.oai.provider.persistence.pojos.Set set : sets) {
+
+            if (set.getSetSpec() == null || !set.getSetSpec().equals(setspec)) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Request param setspec and json data setspec are unequal.").build();
+            }
+        }
+
+        try {
+            setDao.update(sets);
+        } catch (SQLException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+        }
 
         return Response.status(Response.Status.OK).entity(true).build();
     }
@@ -87,13 +101,17 @@ public class SetController {
     @DELETE
     @Path("{setspec}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("setspec") String setspec) throws SQLException {
+    public Response delete(@PathParam("setspec") String setspec) {
 
-        if (setspec.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The setspec param is failed or empty!").build();
+        if (setspec == null || setspec.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("The setspec param is null or empty.").build();
         }
 
-        setDao.deleteByKeyValue("setspec", setspec);
+        try {
+            setDao.deleteByKeyValue("setspec", setspec);
+        } catch (SQLException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+        }
 
         return Response.status(Response.Status.OK).build();
     }

@@ -71,28 +71,41 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
 
     @Override
     public <T> T update(T object) throws SQLException {
+        Format format = (Format) object;
+
+        if (format.getSchemaUrl() == null || format.getNamespace() == null || format.getMdprefix() == null) {
+            throw new SQLException("Unauthorized null values in format object.");
+        }
+
+        if(format.getMdprefix().isEmpty() || format.getNamespace().isEmpty() || format.getSchemaUrl().isEmpty()) {
+            throw new SQLException("Unauthorized empty values in format object.");
+        }
+
         String sql = "INSERT INTO formats (id, mdprefix, schemaurl, namespace) \n";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n";
         sql+="ON CONFLICT (mdprefix) \r\n";
         sql+="DO UPDATE SET schemaurl = ?, namespace = ?; \r\n";
         PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
-
-        if (object instanceof Set) {
-            Set<Format> formats = (Set<Format>) object;
-
-            for (Format format : formats) {
-                buildUpdateObject(pst, format);
-            }
-        }
-
-        if (object instanceof Format) {
-            buildUpdateObject(pst, (Format) object);
-        }
-
-        pst.executeBatch();
+        buildUpdateObject(pst, (Format) object);
         connection().commit();
-        return object;
+
+        int affectedRows = pst.executeUpdate();
+
+        if (affectedRows == 0) {
+            throw new SQLException("Creating format failed, no rows affected.");
+        }
+
+        try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
+
+            if (!generatedKeys.next()) {
+                throw new SQLException("Creating format failed, no ID obtained.");
+            }
+
+            format.setId(generatedKeys.getLong(1));
+        }
+
+        return (T) format;
     }
 
     @Override
@@ -108,7 +121,7 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     public <T> void deleteByValues(Set<T> values) {}
 
     @Override
-    public <T> T findByValue(String column, String value) {
+    public <T> T findByValue(String column, String value) throws SQLException {
         Format format =  new Format();
         String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats WHERE " + column + " = ?;";
         
@@ -128,7 +141,7 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
             
             result.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new SQLException("Cannot find format object.");
         }
         
         return (T) format;
@@ -148,9 +161,16 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
 
     @Override
     public <T> void deleteByKeyValue(String key, T value) throws SQLException {
-        String sql = "UPDATE formats SET deleted = true WHERE " + key + " = " + value;
-        Statement stmt = connection().createStatement();
-        stmt.executeUpdate(sql);
+        String sql = "UPDATE formats SET deleted = true WHERE " + key + " = ?";
+        PreparedStatement pst = connection().prepareStatement(sql);
+        connection().setAutoCommit(false);
+        pst.setString(1, (String) value);
+        connection().commit();
+        int affectedRows = pst.executeUpdate();
+
+        if (affectedRows == 0) {
+            throw new SQLException("Cannot format mark as deleted, no rows affected.");
+        }
     }
 
     @Override
@@ -162,7 +182,6 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
         pst.setString(3, format.getNamespace());
         pst.setString(4, format.getSchemaUrl());
         pst.setString(5, format.getNamespace());
-        pst.addBatch();
     }
 
     @Override

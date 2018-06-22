@@ -41,34 +41,102 @@ import static org.mockito.Mockito.mock;
 
 public class FormatsControllerTest extends JerseyTest {
 
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        FormatTestData.mdprefix = "oai_dc";
+        FormatTestData.schemaurl = "http://www.openarchives.org/OAI/2.0/oai_dc/";
+        FormatTestData.namespace = "oai_dc";
+    }
+
     @Test
-    public void Create_or_update_format_object_successful() throws Exception {
+    public void Save_new_format_successful() throws Exception {
         Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(FormatTestData.format()));
         assertEquals(200, response.getStatus());
     }
 
     @Test
-    public void Create_or_update_not_successful_format_object_if_has_object_empty_schemaurl() {
-        Format format = FormatTestData.format();
-        format.setSchemaUrl("");
-        Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format));
+    public void Save_format_not_successful_if_schemaurl_property_is_empty() {
+        FormatTestData.schemaurl = "";
+        Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(FormatTestData.format()));
+        assertEquals(406, response.getStatus());
+        assertEquals("Unauthorized empty values in format object.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Save_format_not_successful_if_mdprefix_property_is_empty() {
+        FormatTestData.mdprefix = "";
+        Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(FormatTestData.format()));
+        assertEquals(406, response.getStatus());
+        assertEquals("Unauthorized empty values in format object.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Save_format_not_successful_if_namespace_property_is_empty() {
+        FormatTestData.namespace = "";
+        Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(FormatTestData.format()));
+        assertEquals(406, response.getStatus());
+        assertEquals("Unauthorized empty values in format object.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Update_format_is_not_successful_if_mdprefix_parameter_is_failed() {
+        Response response = target().path("formats/").request().header("Content-Type", "application/json").put(Entity.json(FormatTestData.format()));
+        assertEquals(405, response.getStatus());
+    }
+
+    @Test
+    public void Update_format_is_not_successful_if_cannot_build_format_object() {
+        Response response = target().path("formats/" + FormatTestData.format().getMdprefix()).request().header("Content-Type", "application/json").put(Entity.json(""));
+        assertEquals(400, response.getStatus());
+        assertEquals("Cannot build format object.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Update_format_is_not_successful_if_cannot_build_format_object_is_null() {
+        Response response = target().path("formats/" + FormatTestData.format().getMdprefix()).request().header("Content-Type", "application/json").put(Entity.json("{}"));
         assertEquals(500, response.getStatus());
     }
 
     @Test
-    public void Create_or_update_not_successful_format_object_if_has_object_empty_mdprefix() {
-        Format format = FormatTestData.format();
-        format.setMdprefix("");
-        Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format));
-        assertEquals(500, response.getStatus());
+    public void Update_format_not_successful_if_input_mdprefix_unequal_param_mdprefix() {
+        Response response = target().path("formats/blablub").request().header("Content-Type", "application/json").put(Entity.json(FormatTestData.format()));
+        assertEquals(406, response.getStatus());
+        assertEquals("Request param mdprefix and json data mdprefix are unequal.", response.readEntity(String.class));
     }
 
     @Test
-    public void Create_or_update_not_successful_format_object_if_has_object_empty_namespace() {
-        Format format = FormatTestData.format();
-        format.setNamespace("");
-        Response response = target().path("formats").request().header("Content-Type", "application/json").post(Entity.json(format));
-        assertEquals(500, response.getStatus());
+    public void Update_format_not_successful_in_return_is_id_failed() {
+        FormatTestData.id = null;
+        Response response = target().path("formats/" + FormatTestData.format().getMdprefix()).request().header("Content-Type", "application/json").put(Entity.json(FormatTestData.format()));
+        assertEquals(406, response.getStatus());
+        assertEquals("Cannot save or update format.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Delete_format_not_successful_if_mdprefix_param_is_failed() {
+        Response response = target().path("formats/").request().header("Content-Type", "application/json").delete();
+        assertEquals(405, response.getStatus());
+    }
+
+    @Test
+    public void Delete_format_not_successful_if_mdprefix_not_exists() {
+        Response response = target().path("formats/blablub").request().header("Content-Type", "application/json").delete();
+        assertEquals(406, response.getStatus());
+        assertEquals("Cannot format mark as deleted, no rows affected.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Find_format_not_successful_if_mdprefix_pathparam_failed() {
+        Response response = target().path("formats/").request().header("Content-Type", "application/json").get();
+        assertEquals(405, response.getStatus());
+    }
+
+    @Test
+    public void Find_format_not_successful_if_datarow_not_found() {
+        Response response = target().path("formats/blablub").request().header("Content-Type", "application/json").get();
+        assertEquals(404, response.getStatus());
+        assertEquals("Cannot find format object.", response.readEntity(String.class));
     }
 
     @Override
@@ -101,19 +169,36 @@ public class FormatsControllerTest extends JerseyTest {
             Format format = (Format) object;
 
             if (format.getSchemaUrl() == null || format.getNamespace() == null || format.getMdprefix() == null) {
-                throw new SQLException("Unauthorized null values in format object.");
+                throw new SQLException("Unauthorized empty values in format object.");
             }
 
             if(format.getMdprefix().isEmpty() || format.getNamespace().isEmpty() || format.getSchemaUrl().isEmpty()) {
                 throw new SQLException("Unauthorized empty values in format object.");
             }
 
-            return super.update(object);
+            if (format.getId() == null) {
+                throw new SQLException("Cannot save or update format.");
+            }
+
+            return (T) format;
         }
 
         @Override
         public <T> T findByValue(String column, String value) throws SQLException {
+
+            if (!FormatTestData.formats().contains(value)) {
+                throw new SQLException("Cannot find format object.");
+            }
+
             return (T) FormatTestData.format();
+        }
+
+        @Override
+        public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+
+            if (!FormatTestData.format().getMdprefix().equals(value)) {
+                throw new SQLException("Cannot format mark as deleted, no rows affected.");
+            }
         }
     }
 }

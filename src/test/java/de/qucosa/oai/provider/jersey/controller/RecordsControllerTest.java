@@ -22,7 +22,6 @@ import de.qucosa.oai.provider.controller.DisseminationController;
 import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.controller.RecordController;
 import de.qucosa.oai.provider.data.objects.DisseminationTestData;
-import de.qucosa.oai.provider.data.objects.FormatTestData;
 import de.qucosa.oai.provider.data.objects.RecordTestData;
 import de.qucosa.oai.provider.helper.RestControllerContainerFactory;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
@@ -79,24 +78,6 @@ public class RecordsControllerTest extends JerseyTest {
         Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
         response.readEntity(String.class);
         assertEquals(400, response.getStatus());
-    }
-
-    @Test
-    public void Format_is_not_found() throws IOException {
-        List<RecordTransport> inputData = inputData();
-        FormatTestData.id = null;
-        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
-        assertEquals(404, response.getStatus());
-        assertEquals("Format is not found.", response.readEntity(String.class));
-    }
-
-    @Test
-    public void Record_is_not_found_because_has_wrong_uid() throws IOException {
-        List<RecordTransport> inputData = inputData();
-        RecordTestData.uid = "bla:blub:qucosa:55887";
-        Response response = target().path("record").request().header("Content-Type", "application/json").post(Entity.json(inputData));
-        assertEquals(404, response.getStatus());
-        assertEquals("Record is not found.", response.readEntity(String.class));
     }
 
     @Test
@@ -185,16 +166,15 @@ public class RecordsControllerTest extends JerseyTest {
         @Override
         public <T> T findByValue(String column, String value) throws SQLException {
             Record record = RecordTestData.record();
-            boolean find = false;
 
             if (column.equals("uid")) {
 
-                if (record.getUid().equals(value)) {
-                    find = true;
+                if (!record.getUid().equals(value)) {
+                    throw new SQLException("Record not found.");
                 }
             }
 
-            return (find) ? (T) record : null;
+            return (T) record;
         }
     }
 }

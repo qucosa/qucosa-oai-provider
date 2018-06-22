@@ -16,6 +16,7 @@
 
 package de.qucosa.oai.provider.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.mapper.DissTerms;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
@@ -35,7 +36,6 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -56,14 +56,20 @@ public class RecordController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response save(@Context ServletContext servletContext, @Context ResourceContext resourceContext, String input) throws IOException, SQLException, SAXException, XPathExpressionException {
+    public Response save(@Context ServletContext servletContext, @Context ResourceContext resourceContext, String input) {
 
         if (input == null || input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Request input data is empty or failed!").build();
         }
 
-        List<RecordTransport> inputData = om.readValue(input.getBytes("UTF-8"),
-                om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
+        List<RecordTransport> inputData;
+
+        try {
+            inputData = om.readValue(input.getBytes("UTF-8"),
+                    om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
+        } catch (IOException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Cannot build record transport mapping JSON object.").build();
+        }
 
         if (!checkIfOaiDcFormatIsExists(inputData)) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The oai_dc format is failed in record input data.").build();
@@ -72,18 +78,28 @@ public class RecordController {
         SetController setController = resourceContext.getResource(SetController.class);
 
         for (RecordTransport rt : inputData) {
-            setController.save(om.writeValueAsString(rt.getSets()));
-            Format format = format(getFormat(servletContext, resourceContext.getResource(FormatsController.class), rt));
 
-            if (format == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("Format is not found.").build();
+            try {
+                setController.save(om.writeValueAsString(rt.getSets()));
+            } catch (JsonProcessingException e) {
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Cannot write set json data.").build();
             }
 
-            Record record = record(servletContext, resourceContext, rt);
+            Response responseFormat = format(servletContext, resourceContext.getResource(FormatsController.class), rt);
 
-            if (record == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("Record is not found.").build();
+            if (responseFormat.getStatus() != 200) {
+                return responseFormat;
             }
+
+            Format format = (Format) responseFormat.getEntity();
+
+            Response recordResponse = record(rt);
+
+            if (recordResponse.getStatus() != 200) {
+                return Response.status(recordResponse.getStatus()).entity(recordResponse.getEntity()).build();
+            }
+
+            Record record = (Record) recordResponse.getEntity();
 
             DisseminationController disseminationController = resourceContext.getResource(DisseminationController.class);
             Response dissBuild = disseminationController.build(servletContext, rt);
@@ -115,24 +131,32 @@ public class RecordController {
     @Path("{uid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("uid") String uid, String input) throws IOException, SQLException, SAXException {
+    public Response update(@PathParam("uid") String uid, String input) {
 
         if (input == null || input.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Input data is failed or empty!").build();
         }
 
         ObjectMapper om = new ObjectMapper();
-        Record record = om.readValue(input, Record.class);
+        Record record;
 
-        if (record == null) {
+        try {
+            record = om.readValue(input, Record.class);
+        } catch (IOException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Record json mapper is failed!").build();
         }
 
         if (!record.getUid().equals(uid)) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Update UID parameter and record UID ar unequal!").build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("Update UID parameter and record UID are unequal!").build();
         }
 
-        Record result = recordDao.update(record);
+        Record result;
+
+        try {
+            result = recordDao.update(record);
+        } catch (SQLException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+        }
 
         return Response.status(Response.Status.OK).entity(result).build();
     }
@@ -141,40 +165,38 @@ public class RecordController {
     @Path("{uid}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("uid") String uid) throws SQLException {
+    public Response delete(@PathParam("uid") String uid) {
 
         if (uid.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("UID parameter is failed or empty!").build();
         }
 
-        recordDao.deleteByKeyValue("uid", uid);
+        try {
+            recordDao.deleteByKeyValue("uid", uid);
+        } catch (SQLException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+        }
 
         return Response.status(Response.Status.OK).build();
     }
 
     @GET
     @Path("{uid}")
-    public Response find(@PathParam("uid") String uid) throws SQLException {
+    public Response find(@PathParam("uid") String uid) {
 
         if (uid == null || uid.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("The uid paramter is failed or empty!").build();
         }
 
-        Record record = recordDao.findByValue("uid", uid);
+        Record record;
 
-        if (record == null || record.getId() == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The mapping object is failed!").build();
+        try {
+            record = recordDao.findByValue("uid", uid);
+        } catch (SQLException e) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Record with uid " + uid +" is not found.").build();
         }
 
         return Response.status(Response.Status.OK).entity(record).build();
-    }
-
-    public Format format(Format format) {
-        return format;
-    }
-
-    public Record record(ServletContext servletContext, ResourceContext resourceContext, RecordTransport rt) throws SQLException, SAXException, XPathExpressionException, IOException {
-        return getRecord(servletContext, resourceContext, rt);
     }
 
     private boolean checkIfOaiDcFormatIsExists(List<RecordTransport> inputdData) {
@@ -191,12 +213,11 @@ public class RecordController {
         return isExists;
     }
 
-    private Format getFormat(ServletContext servletContext, FormatsController formatsController, RecordTransport rt) throws SQLException, IOException, SAXException {
+    private Response format(ServletContext servletContext, FormatsController formatsController, RecordTransport rt) {
         Response resFormat = formatsController.format(rt.getMdprefix());
-        Format format;
 
         if (resFormat.getStatus() != 200) {
-            format = new Format();
+            Format format = new Format();
             DissTerms dissconf = (DissTerms) servletContext.getAttribute("dissConf");
             Set<DissTerms.DissFormat> formats = dissconf.formats();
 
@@ -210,52 +231,49 @@ public class RecordController {
                 }
             }
 
-            formatsController.save(om.writeValueAsString(format));
-            Response response = formatsController.format(rt.getMdprefix());
-
-            if (response.getEntity() instanceof Format) {
-                format = (Format) formatsController.format(rt.getMdprefix()).getEntity();
-            } else {
-                format = null;
+            try {
+                resFormat = formatsController.save(om.writeValueAsString(format));
+            } catch (JsonProcessingException e) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build format object for save process.").build();
             }
 
-        } else {
-            format = (Format) resFormat.getEntity();
+            if (resFormat.getStatus() != 200) {
+                return Response.status(resFormat.getStatus()).entity(resFormat.readEntity(String.class)).build();
+            }
         }
 
-        return format;
+        return resFormat;
     }
 
-    private Record getRecord(ServletContext servletContext, ResourceContext resourceContext, RecordTransport rt) throws SQLException, IOException, SAXException, XPathExpressionException {
-        Record record;
+    private Response record(RecordTransport rt) {
         Response recordResonse = this.find(rt.getOaiId());
 
-        if (recordResonse.getStatus() != 200) {
-            record = new Record();
+        if (recordResonse.getStatus() == 404) {
+            Record record = new Record();
             record.setPid(rt.getPid());
             record.setUid(rt.getOaiId());
-//            this.save(servletContext, resourceContext, om.writeValueAsString(record));
-            this.update("", om.writeValueAsString(record));
-            Response response = this.find(rt.getPid());
 
-            if (response.getEntity() instanceof Record) {
-                record = (Record) this.find(rt.getPid()).getEntity();
-            } else {
-                record = null;
+            try {
+                return this.update("", om.writeValueAsString(record));
+            } catch (IOException e) {
+                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Cannot write record json data.").build();
             }
-        } else {
-            record = (Record) recordResonse.getEntity();
         }
 
-        return record;
+        return recordResonse;
     }
 
-    private Response saveDissemination(ResourceContext resourceContext, Format format, Record record, Document disseminationDoc) throws IOException, SAXException, SQLException {
+    private Response saveDissemination(ResourceContext resourceContext, Format format, Record record, Document disseminationDoc) {
         Dissemination dissemination = new Dissemination();
         DisseminationController disseminationController = resourceContext.getResource(DisseminationController.class);
         dissemination.setFormatId(format.getId());
         dissemination.setRecordId(record.getId());
-        dissemination.setXmldata(DocumentXmlUtils.resultXml(disseminationDoc));
-        return disseminationController.save(om.writeValueAsString(dissemination));
+
+        try {
+            dissemination.setXmldata(DocumentXmlUtils.resultXml(disseminationDoc));
+            return disseminationController.save(om.writeValueAsString(dissemination));
+        } catch (SAXException | IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build dissemination object.").build();
+        }
     }
 }

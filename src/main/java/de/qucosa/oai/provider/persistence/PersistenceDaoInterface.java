@@ -16,9 +16,6 @@
 
 package de.qucosa.oai.provider.persistence;
 
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -30,7 +27,7 @@ public interface PersistenceDaoInterface {
 
     <T> T update(String...value);
 
-    <T> T update(T object) throws SQLException, IOException, SAXException;
+    <T> T update(T object) throws SQLException;
 
     <T> Set<T> findAll();
 

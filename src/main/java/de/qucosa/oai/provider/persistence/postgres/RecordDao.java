@@ -41,21 +41,14 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
         sql+="DO UPDATE SET uid = ?\r\n";
         PreparedStatement pst = connection().prepareStatement(sql);
         connection().setAutoCommit(false);
-
-        if (object instanceof Set) {
-            Set<Record> records = (Set<Record>) object;
-
-            for (Record record : records) {
-                buildUpdateObject(pst, record);
-            }
-        }
-
-        if (object instanceof Record) {
-            buildUpdateObject(pst, (Record) object);
-        }
-
-        pst.executeBatch();
+        buildUpdateObject(pst, (Record) object);
         connection().commit();
+        int affectedRows = pst.executeUpdate();
+
+        if (affectedRows == 0) {
+            throw new SQLException("Update record failed, no rows affected.");
+        }
+
         return object;
     }
 
@@ -90,6 +83,11 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
         connection().setAutoCommit(false);
         pst.setString(1, value);
         ResultSet resultSet = pst.executeQuery();
+
+        if (resultSet.getFetchSize() == 0) {
+            resultSet.close();
+            throw new SQLException("Record not found.");
+        }
 
         while (resultSet.next()) {
             record.setPid(resultSet.getString("pid"));
@@ -135,7 +133,6 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
         pst.setString(1, record.getPid());
         pst.setString(2, record.getUid());
         pst.setString(3, record.getPid());
-        pst.addBatch();
     }
 
     @Override

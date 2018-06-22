@@ -43,6 +43,20 @@ public class SetsControllerTest extends JerseyTest {
 
     private ObjectMapper om = new ObjectMapper();
 
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        SetTestData.setspec = "ddc:850";
+        SetTestData.setname = "Italian, Romanian, Rhaeto-Romanic literatures";
+    }
+
+    @Test
+    public void Save_input_data_is_empty() {
+        Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(""));
+        assertEquals(406, response.getStatus());
+        assertEquals("Sets input data is empty.", response.readEntity(String.class));
+    }
+
     @Test
     public void Save_successful_set_objects() throws Exception {
         Set<SetsConfig.Set> sets = new HashSet<>();
@@ -78,10 +92,54 @@ public class SetsControllerTest extends JerseyTest {
     }
 
     @Test
-    public void Retrun_bad_request_response_if_input_is_empty_json_object() {
-        Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(""));
-        response.readEntity(String.class);
-        assertEquals(response.getStatus(), 400);
+    public void Response_if_input_is_an_empty_json_object() {
+        Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json("{}"));
+        assertEquals(400, response.getStatus());
+        assertEquals("Cannot build set objects.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Update_set_object_successful() {
+        Set<SetsConfig.Set> sets = new HashSet() {{
+                add(SetTestData.set());
+            }};
+        Response response = target().path("sets/ddc:850").request().header("Content-Type", "application/json").put(Entity.json(sets));
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void Update_set_if_setspec_param_unequal_to_object_setspec() {
+        SetTestData.setspec = "blablub";
+        Set<SetsConfig.Set> sets = new HashSet() {{
+            add(SetTestData.set());
+        }};
+        Response response = target().path("sets/ddc:850").request().header("Content-Type", "application/json").put(Entity.json(sets));
+        assertEquals(400, response.getStatus());
+        assertEquals("Request param setspec and json data setspec are unequal.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Update_set_if_setname_is_null_or_empty() {
+        SetTestData.setname = null;
+        Set<SetsConfig.Set> sets = new HashSet() {{
+            add(SetTestData.set());
+        }};
+        Response response = target().path("sets/ddc:850").request().header("Content-Type", "application/json").put(Entity.json(sets));
+        assertEquals(406, response.getStatus());
+        assertEquals("Set data object has null or empty values.", response.readEntity(String.class));
+    }
+
+    @Test
+    public void Delete_set_if_setspec_param_failed() {
+        Response response = target().path("sets/").request().header("Content-Type", "application/json").delete();
+        assertEquals(405, response.getStatus());
+    }
+
+    @Test
+    public void Delete_set_if_setspec_param_does_not_exists() {
+        Response response = target().path("sets/blablub").request().header("Content-Type", "application/json").delete();
+        assertEquals(406, response.getStatus());
+        assertEquals("Set with setspec blablub not found.", response.readEntity(String.class));
     }
 
     @Override
@@ -144,13 +202,29 @@ public class SetsControllerTest extends JerseyTest {
 
         @Override
         public <T> T update(T object) throws SQLException {
-            SetsConfig.Set set = SetTestData.set();
+            Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
 
-            if (set.getSetSpec() == null || set.getSetName() == null) {
-                throw new SQLException("Set data object has null or empty values.");
+            if (object instanceof Set) {
+
+                for (de.qucosa.oai.provider.persistence.pojos.Set inputSet : (Set<de.qucosa.oai.provider.persistence.pojos.Set>) object) {
+
+                    if (inputSet.getSetName() == null || inputSet.getSetName().isEmpty()) {
+                        throw new SQLException("Set data object has null or empty values.");
+                    }
+
+                    sets.add(inputSet);
+                }
             }
 
-            return (T) set;
+            return (T) sets;
+        }
+
+        @Override
+        public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+
+            if (!value.equals(SetTestData.set().getSetSpec())) {
+                throw new SQLException("Set with setspec " + value + " not found.");
+            }
         }
     }
 }
