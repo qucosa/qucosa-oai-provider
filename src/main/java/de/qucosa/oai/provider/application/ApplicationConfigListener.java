@@ -16,12 +16,14 @@
 
 package de.qucosa.oai.provider.application;
 
-import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.config.DissTermsDao;
+import de.qucosa.oai.provider.application.config.SetConfigDao;
 import de.qucosa.oai.provider.application.mapper.SetsConfig;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.io.FileNotFoundException;
 
 public class ApplicationConfigListener implements ServletContextListener {
     @Override
@@ -32,10 +34,19 @@ public class ApplicationConfigListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sc) {
         ServletContext context = sc.getServletContext();
-        DissTerms dissTerms = new DissTerms(context.getInitParameter("config.path"));
-        context.setAttribute("dissConf", dissTerms);
 
-        SetsConfig sets = new SetsConfig(context.getInitParameter("config.path"));
-        context.setAttribute("sets", sets);
+        try {
+            DissTermsDao dissTerms = new DissTermsDao(context.getInitParameter("config.path"));
+            context.setAttribute("dissConf", dissTerms);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            SetConfigDao setConfig = new SetConfigDao(context.getInitParameter("config.path"));
+            context.setAttribute("sets", setConfig);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }
