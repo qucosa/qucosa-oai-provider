@@ -67,7 +67,7 @@ public class FormatsController {
         }
 
         try {
-            format = formatDao.update(format);
+            format = (Format) formatDao.update(format);
         } catch (SQLException e) {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
         }
@@ -93,7 +93,7 @@ public class FormatsController {
         }
 
         try {
-            format = formatDao.update(format);
+            format = (Format) formatDao.update(format);
         } catch (SQLException e) {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
         }
@@ -123,7 +123,7 @@ public class FormatsController {
         Format format;
 
         try {
-            format = formatDao.findByValue("mdprefix", mdprefix);
+            format = (Format) formatDao.findByValue("mdprefix", mdprefix);
         } catch (SQLException e) {
             return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
         }

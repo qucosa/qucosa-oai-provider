@@ -69,7 +69,7 @@ public class DisseminationController {
         }
 
         try {
-            dissemination = disseminationDao.update(dissemination);
+            dissemination = (Dissemination) disseminationDao.update(dissemination);
         } catch(SQLException e) {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity("The dissemination object uncompleted.").build();
         }

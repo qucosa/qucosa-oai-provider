@@ -164,9 +164,9 @@ public class FormatsControllerTest extends JerseyTest {
         return UriBuilder.fromUri(super.getBaseUri()).path("formats").build();
     }
 
-    public static class FormatTestDao extends PsqlRepository {
+    public static class FormatTestDao<T> extends PsqlRepository<T> {
         @Override
-        public <T> T update(T object) throws SQLException {
+        public T update(T object) throws SQLException {
             Format format = (Format) object;
 
             if (format.getSchemaUrl() == null || format.getNamespace() == null || format.getMdprefix() == null) {
@@ -185,7 +185,7 @@ public class FormatsControllerTest extends JerseyTest {
         }
 
         @Override
-        public <T> T findByValue(String column, String value) throws SQLException {
+        public T findByValue(String column, String value) throws SQLException {
 
             if (!FormatTestData.formats().contains(value)) {
                 throw new SQLException("Cannot find format object.");
@@ -195,7 +195,7 @@ public class FormatsControllerTest extends JerseyTest {
         }
 
         @Override
-        public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+        public void deleteByKeyValue(String key, T value) throws SQLException {
 
             if (!FormatTestData.format().getMdprefix().equals(value)) {
                 throw new SQLException("Cannot format mark as deleted, no rows affected.");

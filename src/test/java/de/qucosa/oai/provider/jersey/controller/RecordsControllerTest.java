@@ -157,14 +157,14 @@ public class RecordsControllerTest extends JerseyTest {
                 om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
     }
 
-    private static class RecordTestDao extends PsqlRepository {
+    private static class RecordTestDao<T> extends PsqlRepository<T> {
         @Override
-        public <T> T update(T object) throws SQLException {
+        public T update(T object) throws SQLException {
             return super.update(object);
         }
 
         @Override
-        public <T> T findByValue(String column, String value) throws SQLException {
+        public T findByValue(String column, String value) throws SQLException {
             Record record = RecordTestData.record();
 
             if (column.equals("uid")) {

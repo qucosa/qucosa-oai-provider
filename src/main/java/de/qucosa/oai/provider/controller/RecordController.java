@@ -161,7 +161,7 @@ public class RecordController {
         Record result;
 
         try {
-            result = recordDao.update(record);
+            result = (Record) recordDao.update(record);
         } catch (SQLException e) {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
         }
@@ -199,7 +199,7 @@ public class RecordController {
         Record record;
 
         try {
-            record = recordDao.findByValue("uid", uid);
+            record = (Record) recordDao.findByValue("uid", uid);
         } catch (SQLException e) {
             return Response.status(Response.Status.NOT_FOUND).entity("Record with uid " + uid +" is not found.").build();
         }

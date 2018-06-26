@@ -66,7 +66,7 @@ public class SetController {
         Set<de.qucosa.oai.provider.persistence.pojos.Set> result;
 
         try {
-            result = setDao.create(saveRes);
+            result = (Set<de.qucosa.oai.provider.persistence.pojos.Set>) setDao.create(saveRes);
         } catch (SQLException e) {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
         }

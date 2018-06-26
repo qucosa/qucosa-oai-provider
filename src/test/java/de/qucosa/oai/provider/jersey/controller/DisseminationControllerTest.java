@@ -37,10 +37,10 @@ public class DisseminationControllerTest extends JerseyTest {
         return config;
     }
 
-    public static class DisseminationTestDao extends PsqlRepository {
+    public static class DisseminationTestDao<T> extends PsqlRepository<T> {
 
         @Override
-        public <T> T update(T object) throws SQLException {
+        public T update(T object) throws SQLException {
             Dissemination dissemination = DisseminationTestData.dissemination();
 
             if (dissemination.getFormatId() == null) {
