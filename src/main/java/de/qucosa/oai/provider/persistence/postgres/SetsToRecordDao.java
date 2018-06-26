@@ -18,10 +18,18 @@ package de.qucosa.oai.provider.persistence.postgres;
 
 import de.qucosa.oai.provider.persistence.PersistenceDao;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Set;
 
 public class SetsToRecordDao<T> implements PersistenceDao<T> {
+
+    private Connection connection;
+
+    @Override
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
 
     @Override
     public T create(T object) { return null; }

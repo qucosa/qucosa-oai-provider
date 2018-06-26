@@ -2,13 +2,17 @@ package de.qucosa.oai.provider.mock.repositories;
 
 import de.qucosa.oai.provider.persistence.PersistenceDao;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Set;
 
-public class PsqlRepository implements PersistenceDao {
+public class PsqlRepository<T> implements PersistenceDao<T> {
 
     @Override
-    public <T> T create(T object) throws SQLException { return null; }
+    public void setConnection(Connection connection) { }
+
+    @Override
+    public T create(T object) throws SQLException { return null; }
 
     @Override
     public int count(String cntField, String... whereClauses) {
@@ -19,44 +23,42 @@ public class PsqlRepository implements PersistenceDao {
     public int count(String cntField, String whereColumn, String whereColumnValue) throws SQLException { return 0; }
 
     @Override
-    public <T> Set<T> findAll() {
+    public T findAll() {
         return null;
     }
 
     @Override
-    public <T> Set<T> find(String sqlStmt) throws SQLException { return null; }
+    public T find(String sqlStmt) throws SQLException { return null; }
 
     @Override
-    public <T> T update(String sql) { return null; }
+    public T update(String sql) { return null; }
 
     @Override
-    public <T> T update(String... value) { return null; }
+    public T update(String... value) { return null; }
 
     @Override
-    public <T> T update(T object) throws SQLException {
-        return object;
-    }
+    public T update(T object) throws SQLException { return object; }
 
     @Override
-    public <T> T findById(Long id) {
+    public T findById(Long id) {
         return null;
     }
 
     @Override
-    public <T> T findByIds(T... values) {
+    public T findByIds(T... values) {
         return null;
     }
 
     @Override
-    public <T> T findByValue(String column, String value) throws SQLException { return null; }
+    public T findByValue(String column, String value) throws SQLException { return null; }
 
     @Override
-    public <T> T findByValues(Set<T> values) {
+    public T findByValues(Set<T> values) {
         return null;
     }
 
     @Override
-    public <T> T findByValues(String... values) {
+    public T findByValues(String... values) {
         return null;
     }
 
@@ -64,13 +66,13 @@ public class PsqlRepository implements PersistenceDao {
     public void deleteById(Long id) { }
 
     @Override
-    public <T> void deleteByKeyValue(String key, T value) throws SQLException { }
+    public void deleteByKeyValue(String key, T value) throws SQLException { }
 
     @Override
     public void deleteByKeyValue(String... paires) { }
 
     @Override
-    public <T> void deleteByValues(Set<T> values) { }
+    public void deleteByValues(Set<T> values) { }
 
     @Override
     public void runProcedure() throws SQLException { }

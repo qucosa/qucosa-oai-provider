@@ -20,6 +20,7 @@ import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 
 import java.io.StringWriter;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,6 +28,13 @@ import java.sql.SQLXML;
 import java.util.Set;
 
 public class DisseminationDao<T> implements PersistenceDao<T> {
+
+    private Connection connection;
+
+    @Override
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
 
     @Override
     public T create(T object) { return null; }
@@ -50,8 +58,8 @@ public class DisseminationDao<T> implements PersistenceDao<T> {
     @Override
     public T update(T object) throws SQLException {
         Dissemination dissemination = (Dissemination) object;
-        PreparedStatement select = connection().prepareCall("SELECT id FROM disseminations WHERE id_record = ? AND id_format = ?;");
-        connection().setAutoCommit(false);
+        PreparedStatement select = connection.prepareCall("SELECT id FROM disseminations WHERE id_record = ? AND id_format = ?;");
+        connection.setAutoCommit(false);
         select.setLong(1, dissemination.getRecordId());
         select.setLong(2, dissemination.getFormatId());
         ResultSet rows = select.executeQuery();
@@ -71,10 +79,10 @@ public class DisseminationDao<T> implements PersistenceDao<T> {
             sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?, ?) \r\n");
         }
 
-        PreparedStatement pst = connection().prepareStatement(sb.toString());
-        connection().setAutoCommit(false);
+        PreparedStatement pst = connection.prepareStatement(sb.toString());
+        connection.setAutoCommit(false);
         buildUpdateObject(pst, dissemination);
-        connection().commit();
+        connection.commit();
         int affectedRows = pst.executeUpdate();
 
         if (affectedRows == 0) {
@@ -133,7 +141,7 @@ public class DisseminationDao<T> implements PersistenceDao<T> {
     private void buildUpdateObject(PreparedStatement pst, Dissemination dissemination) throws SQLException {
         StringWriter sw = new StringWriter();
         sw.write(dissemination.getXmldata());
-        SQLXML sqlxml = connection().createSQLXML();
+        SQLXML sqlxml = connection.createSQLXML();
         sqlxml.setString(sw.toString());
 
         if (dissemination.getId() != null) {

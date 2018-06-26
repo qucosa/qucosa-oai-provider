@@ -16,16 +16,23 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
-import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
 import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Record;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 
 public class RecordDao<T> implements PersistenceDao<T> {
+
+    private Connection connection;
+
+    @Override
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
 
     @Override
     public T create(T object) { return null; }
@@ -39,10 +46,10 @@ public class RecordDao<T> implements PersistenceDao<T> {
         sql+="VALUES (nextval('oaiprovider'), ?, ?) \r\n";
         sql+="ON CONFLICT (uid) \r\n";
         sql+="DO UPDATE SET uid = ?\r\n";
-        PreparedStatement pst = connection().prepareStatement(sql);
-        connection().setAutoCommit(false);
+        PreparedStatement pst = connection.prepareStatement(sql);
+        connection.setAutoCommit(false);
         buildUpdateObject(pst, (Record) object);
-        connection().commit();
+        connection.commit();
         int affectedRows = pst.executeUpdate();
 
         if (affectedRows == 0) {
@@ -79,8 +86,8 @@ public class RecordDao<T> implements PersistenceDao<T> {
     public T findByValue(String column, String value) throws SQLException {
         Record record = new Record();
         String sql = "SELECT id, pid, uid, deleted FROM records WHERE " + column + " = ?";
-        PreparedStatement pst = connection().prepareStatement(sql);
-        connection().setAutoCommit(false);
+        PreparedStatement pst = connection.prepareStatement(sql);
+        connection.setAutoCommit(false);
         pst.setString(1, value);
         ResultSet resultSet = pst.executeQuery();
 
@@ -116,14 +123,14 @@ public class RecordDao<T> implements PersistenceDao<T> {
     @Override
     public void deleteByKeyValue(String key, T value) throws SQLException {
         String sql = "UPDATE records SET deleted = true WHERE " + key + " = ?";
-        PreparedStatement pst = connection().prepareStatement(sql);
-        connection().setAutoCommit(false);
+        PreparedStatement pst = connection.prepareStatement(sql);
+        connection.setAutoCommit(false);
 
         pst.setString(1, (String) value);
         pst.addBatch();
 
         pst.executeBatch();
-        connection().commit();
+        connection.commit();
     }
 
     @Override
