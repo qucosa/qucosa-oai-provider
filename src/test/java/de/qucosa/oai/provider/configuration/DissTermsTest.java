@@ -16,17 +16,17 @@
 
 package de.qucosa.oai.provider.configuration;
 
-import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.config.DissTermsDao;
 import org.junit.Before;
 import org.junit.Test;
 
 public class DissTermsTest {
 
-    private DissTerms dissTerms = null;
+    private DissTermsDao dissTerms = null;
     
     @Before
     public void setUp() {
-        dissTerms = new DissTerms(getClass().getResourceAsStream("/config/dissemination-config.json"));
+        dissTerms = new DissTermsDao(getClass().getResourceAsStream("/config/dissemination-config.json"));
     }
     
     @Test

@@ -17,12 +17,18 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.mapper.SetsConfig;
+import de.qucosa.oai.provider.application.config.SetConfigMapper;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import org.glassfish.jersey.process.internal.RequestScoped;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -119,9 +125,9 @@ public class SetController {
     private Set<de.qucosa.oai.provider.persistence.pojos.Set> buildSqlSets(String input) throws IOException {
         ObjectMapper om = new ObjectMapper();
         Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
-        Set<SetsConfig.Set> json = om.readValue(input, om.getTypeFactory().constructCollectionType(Set.class, SetsConfig.Set.class));
+        Set<SetConfigMapper.Set> json = om.readValue(input, om.getTypeFactory().constructCollectionType(Set.class, SetConfigMapper.Set.class));
         
-        for (SetsConfig.Set set : json) {
+        for (SetConfigMapper.Set set : json) {
             de.qucosa.oai.provider.persistence.pojos.Set data = new de.qucosa.oai.provider.persistence.pojos.Set();
             data.setSetSpec(set.getSetSpec());
             data.setSetName(set.getSetName());

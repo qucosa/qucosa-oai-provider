@@ -17,8 +17,8 @@
 package de.qucosa.oai.provider.jersey.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.application.mapper.SetsConfig;
+import de.qucosa.oai.provider.application.config.DissTermsDao;
+import de.qucosa.oai.provider.application.config.SetConfigMapper;
 import de.qucosa.oai.provider.controller.SetController;
 import de.qucosa.oai.provider.data.objects.SetTestData;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
@@ -59,7 +59,7 @@ public class SetsControllerTest extends JerseyTest {
 
     @Test
     public void Save_successful_set_objects() throws Exception {
-        Set<SetsConfig.Set> sets = new HashSet<>();
+        Set<SetConfigMapper.Set> sets = new HashSet<>();
         sets.add(SetTestData.set());
         Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(sets));
         Set<de.qucosa.oai.provider.persistence.pojos.Set> result = response.readEntity(Set.class);
@@ -69,9 +69,9 @@ public class SetsControllerTest extends JerseyTest {
 
     @Test
     public void Save_not_successful_set_object_if_setspec_is_null_or_empty() {
-        SetsConfig.Set testSet = SetTestData.set();
+        SetConfigMapper.Set testSet = SetTestData.set();
         testSet.setSetSpec(null);
-        Set<SetsConfig.Set> sets = new HashSet<>();
+        Set<SetConfigMapper.Set> sets = new HashSet<>();
         sets.add(testSet);
 
         Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(sets));
@@ -81,9 +81,9 @@ public class SetsControllerTest extends JerseyTest {
 
     @Test
     public void Save_not_successful_set_object_if_setname_is_null_or_empty() {
-        SetsConfig.Set testSet = SetTestData.set();
+        SetConfigMapper.Set testSet = SetTestData.set();
         testSet.setSetName(null);
-        Set<SetsConfig.Set> sets = new HashSet<>();
+        Set<SetConfigMapper.Set> sets = new HashSet<>();
         sets.add(testSet);
 
         Response response = target().path("sets").request().header("Content-Type", "application/json").post(Entity.json(sets));
@@ -100,7 +100,7 @@ public class SetsControllerTest extends JerseyTest {
 
     @Test
     public void Update_set_object_successful() {
-        Set<SetsConfig.Set> sets = new HashSet() {{
+        Set<SetConfigMapper.Set> sets = new HashSet() {{
                 add(SetTestData.set());
             }};
         Response response = target().path("sets/ddc:850").request().header("Content-Type", "application/json").put(Entity.json(sets));
@@ -110,7 +110,7 @@ public class SetsControllerTest extends JerseyTest {
     @Test
     public void Update_set_if_setspec_param_unequal_to_object_setspec() {
         SetTestData.setspec = "blablub";
-        Set<SetsConfig.Set> sets = new HashSet() {{
+        Set<SetConfigMapper.Set> sets = new HashSet() {{
             add(SetTestData.set());
         }};
         Response response = target().path("sets/ddc:850").request().header("Content-Type", "application/json").put(Entity.json(sets));
@@ -121,7 +121,7 @@ public class SetsControllerTest extends JerseyTest {
     @Test
     public void Update_set_if_setname_is_null_or_empty() {
         SetTestData.setname = null;
-        Set<SetsConfig.Set> sets = new HashSet() {{
+        Set<SetConfigMapper.Set> sets = new HashSet() {{
             add(SetTestData.set());
         }};
         Response response = target().path("sets/ddc:850").request().header("Content-Type", "application/json").put(Entity.json(sets));
@@ -155,7 +155,7 @@ public class SetsControllerTest extends JerseyTest {
             }
         });
         HashMap<String, Object> props = new HashMap<>();
-        props.put("dissConf", new DissTerms(getClass().getResourceAsStream("/config/dissemination-config.json")));
+        props.put("dissConf", new DissTermsDao(getClass().getResourceAsStream("/config/dissemination-config.json")));
         config.setProperties(props);
         return config;
     }

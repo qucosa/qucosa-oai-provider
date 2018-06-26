@@ -1,6 +1,6 @@
 package de.qucosa.oai.provider.jersey.controller;
 
-import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.config.DissTermsDao;
 import de.qucosa.oai.provider.controller.RecordController;
 import de.qucosa.oai.provider.data.objects.DisseminationTestData;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
@@ -32,7 +32,7 @@ public class DisseminationControllerTest extends JerseyTest {
             }
         });
         HashMap<String, Object> props = new HashMap<>();
-        props.put("dissConf", new DissTerms("/home/opt/oaiprovider/config/"));
+        props.put("dissConf", new DissTermsDao(getClass().getResourceAsStream("/config/dissemination-config.json")));
         config.setProperties(props);
         return config;
     }

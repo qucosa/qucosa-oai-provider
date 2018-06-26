@@ -18,7 +18,8 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.config.DissTermsDao;
+import de.qucosa.oai.provider.application.config.DissTermsMapper;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.Format;
@@ -31,7 +32,14 @@ import org.xml.sax.SAXException;
 
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -218,10 +226,10 @@ public class RecordController {
 
         if (resFormat.getStatus() != 200) {
             Format format = new Format();
-            DissTerms dissconf = (DissTerms) servletContext.getAttribute("dissConf");
-            Set<DissTerms.DissFormat> formats = dissconf.formats();
+            DissTermsDao dissconf = (DissTermsDao) servletContext.getAttribute("dissConf");
+            Set<DissTermsMapper.DissFormat> formats = dissconf.getFormats();
 
-            for (DissTerms.DissFormat fm : formats) {
+            for (DissTermsMapper.DissFormat fm : formats) {
 
                 if (fm.getMdprefix().equals(rt.getMdprefix())) {
                     format.setMdprefix(fm.getMdprefix());

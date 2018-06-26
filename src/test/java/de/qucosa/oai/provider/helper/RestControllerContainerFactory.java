@@ -1,7 +1,7 @@
 package de.qucosa.oai.provider.helper;
 
-import de.qucosa.oai.provider.application.mapper.DissTerms;
-import de.qucosa.oai.provider.application.mapper.SetsConfig;
+import de.qucosa.oai.provider.application.config.DissTermsDao;
+import de.qucosa.oai.provider.application.config.SetConfigDao;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.WebappContext;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -36,8 +36,8 @@ public class RestControllerContainerFactory implements TestContainerFactory {
             });
 
             this.server = GrizzlyHttpServerFactory.createHttpServer(this.baseUri, deploymentContext.getResourceConfig(), false);
-            webappContext.setAttribute("dissConf", new DissTerms(getClass().getResourceAsStream("/config/dissemination-config.json")));
-            webappContext.setAttribute("sets", new SetsConfig(getClass().getResourceAsStream("/config/list-set-conf.json")));
+            webappContext.setAttribute("dissConf", new DissTermsDao(getClass().getResourceAsStream("/config/dissemination-config.json")));
+            webappContext.setAttribute("sets", new SetConfigDao(getClass().getResourceAsStream("/config/list-set-conf.json")));
             webappContext.deploy(this.server);
         }
 

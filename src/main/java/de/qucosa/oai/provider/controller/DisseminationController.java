@@ -17,7 +17,7 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.mapper.DissTerms;
+import de.qucosa.oai.provider.application.config.DissTermsDao;
 import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
@@ -27,7 +27,12 @@ import org.w3c.dom.Document;
 
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -85,7 +90,7 @@ public class DisseminationController {
 
         try {
             disseminationDocument = new DisseminationXmlBuilder(rt)
-                    .setDissTerms((DissTerms) servletContext.getAttribute("dissConf"))
+                    .setDissTerms((DissTermsDao) servletContext.getAttribute("dissConf"))
                     .buildDissemination();
         } catch (XPathExpressionException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
