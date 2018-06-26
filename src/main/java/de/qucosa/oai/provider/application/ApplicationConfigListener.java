@@ -25,6 +25,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.FileNotFoundException;
+import java.sql.Connection;
 
 public class ApplicationConfigListener implements ServletContextListener {
 
@@ -44,5 +45,8 @@ public class ApplicationConfigListener implements ServletContextListener {
             logger.error(context.getInitParameter("config.path") + " not found.");
             throw new RuntimeException("Cannot start application.", e);
         }
+
+        Connection connection = new Connect("postgresql", "oaiprovider").connection();
+        context.setAttribute("persistence", connection);
     }
 }
