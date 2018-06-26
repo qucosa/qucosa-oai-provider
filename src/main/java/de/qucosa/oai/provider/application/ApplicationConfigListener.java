@@ -18,6 +18,7 @@ package de.qucosa.oai.provider.application;
 
 import de.qucosa.oai.provider.application.config.DissTermsDao;
 import de.qucosa.oai.provider.application.config.SetConfigDao;
+import de.qucosa.oai.provider.persistence.Connect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
