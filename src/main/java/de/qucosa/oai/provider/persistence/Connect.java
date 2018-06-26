@@ -80,7 +80,7 @@ public class Connect {
             Method method = getClass().getDeclaredMethod(dbType);
             method.invoke(this);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            e.printStackTrace();
+            logger.error("Cannot connect to " + dbType + " databse.", e);
         }
     }
     
@@ -92,11 +92,6 @@ public class Connect {
             connection = DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + dbName, user, passwd);
         } else {
             connection = DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + dbName, "postgres", "");
-        }
-        
-        if (connection == null) {
-            logger.error("Connat connect to the postgres database.");
-            throw new SQLException();
         }
     }
 }
