@@ -16,10 +16,13 @@
 
 package de.qucosa.oai.provider.persistence;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Set;
 
 public interface PersistenceDao<T> {
+
+    void setConnection(Connection connection);
 
     T create(T object) throws SQLException;
 
