@@ -30,27 +30,19 @@ public class ApplicationConfigListener implements ServletContextListener {
 
     private Logger logger = LoggerFactory.getLogger(ApplicationConfigListener.class);
 
-    @Override
-    public void contextDestroyed(ServletContextEvent arg0) {
-        
-    }
+    public void contextDestroyed(ServletContextEvent arg0) { }
 
-    @Override
     public void contextInitialized(ServletContextEvent sc) {
         ServletContext context = sc.getServletContext();
 
         try {
             DissTermsDao dissTerms = new DissTermsDao(context.getInitParameter("config.path"));
             context.setAttribute("dissConf", dissTerms);
-        } catch (FileNotFoundException e) {
-            logger.error(context.getInitParameter("config.path") + " not found.", e);
-        }
-
-        try {
             SetConfigDao setConfig = new SetConfigDao(context.getInitParameter("config.path"));
             context.setAttribute("sets", setConfig);
         } catch (FileNotFoundException e) {
-            logger.error(context.getInitParameter("config.path") + " not found.", e);
+            logger.error(context.getInitParameter("config.path") + " not found.");
+            throw new RuntimeException("Cannot start application.", e);
         }
     }
 }
