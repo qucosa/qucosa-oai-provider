@@ -18,6 +18,8 @@ package de.qucosa.oai.provider.application;
 
 import de.qucosa.oai.provider.application.config.DissTermsDao;
 import de.qucosa.oai.provider.application.config.SetConfigDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -25,6 +27,9 @@ import javax.servlet.ServletContextListener;
 import java.io.FileNotFoundException;
 
 public class ApplicationConfigListener implements ServletContextListener {
+
+    private Logger logger = LoggerFactory.getLogger(ApplicationConfigListener.class);
+
     @Override
     public void contextDestroyed(ServletContextEvent arg0) {
         
@@ -38,14 +43,14 @@ public class ApplicationConfigListener implements ServletContextListener {
             DissTermsDao dissTerms = new DissTermsDao(context.getInitParameter("config.path"));
             context.setAttribute("dissConf", dissTerms);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error(context.getInitParameter("config.path") + " not found.", e);
         }
 
         try {
             SetConfigDao setConfig = new SetConfigDao(context.getInitParameter("config.path"));
             context.setAttribute("sets", setConfig);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error(context.getInitParameter("config.path") + " not found.", e);
         }
     }
 }
