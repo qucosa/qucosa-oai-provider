@@ -19,8 +19,6 @@ package de.qucosa.oai.provider.persistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -76,22 +74,29 @@ public class Connect {
     }
     
     private void execute(String dbType) {
-        try {
-            Method method = getClass().getDeclaredMethod(dbType);
-            method.invoke(this);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            logger.error("Cannot connect to " + dbType + " databse.", e);
+
+        switch (dbType) {
+            case "postgresql":
+                this.postgresql();
+                break;
         }
     }
     
-    @SuppressWarnings("unused")
-    private void postgresql() throws SQLException, ClassNotFoundException {
-        Class.forName("org.postgresql.Driver");
-        
-        if (user != null && passwd != null) {
-            connection = DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + dbName, user, passwd);
-        } else {
-            connection = DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + dbName, "postgres", "");
+    private void postgresql() {
+        try {
+            Class.forName("org.postgresql.Driver");
+
+            if (user != null && passwd != null) {
+                connection = DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + dbName, user, passwd);
+            } else {
+                connection = DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + dbName, "postgres", "");
+            }
+        } catch (ClassNotFoundException e) {
+            logger.error("Cannot find psotgresql driver class.", e);
+            throw new RuntimeException();
+        } catch (SQLException e) {
+            logger.error("Cannot connect to postgres (" + dbName + ") database.", e);
+            throw new RuntimeException();
         }
     }
 }
