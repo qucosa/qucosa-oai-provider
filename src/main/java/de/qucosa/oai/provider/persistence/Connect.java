@@ -75,11 +75,12 @@ public class Connect {
     
     private void execute(String dbType) {
 
-        switch (dbType) {
-            case "postgresql":
-                this.postgresql();
-                break;
+        if (dbType.equals("postgresql")) {
+            this.postgresql();
+            return;
         }
+
+        throw new RuntimeException("Cannot start application, because connection to database failed.");
     }
     
     private void postgresql() {
@@ -93,10 +94,8 @@ public class Connect {
             }
         } catch (ClassNotFoundException e) {
             logger.error("Cannot find psotgresql driver class.", e);
-            throw new RuntimeException();
         } catch (SQLException e) {
             logger.error("Cannot connect to postgres (" + dbName + ") database.", e);
-            throw new RuntimeException();
         }
     }
 }
