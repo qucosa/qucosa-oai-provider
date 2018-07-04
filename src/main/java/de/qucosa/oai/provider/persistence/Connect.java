@@ -76,21 +76,21 @@ public class Connect {
     private void execute(String dbType) {
 
         if (dbType.equals("postgresql")) {
-            this.postgresql(dbType);
-            return;
-        }
 
-        throw new RuntimeException("Cannot start application, because connection to database failed.");
+            try {
+                this.postgresql(dbType);
+            } catch (ClassNotFoundException e) {
+                logger.error("Cannot find " + dbType + " driver class.", e);
+                throw new RuntimeException(e);
+            } catch (SQLException e) {
+                logger.error("Cannot connect to " + dbType + " (" + dbName + ") database.", e);
+                throw new RuntimeException(e);
+            }
+        }
     }
     
-    private void postgresql(String dbType) {
-        try {
-            Class.forName("org.postgresql.Driver");
-            connection = DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + dbName, "postgres", "");
-        } catch (ClassNotFoundException e) {
-            logger.error("Cannot find " + dbType + " driver class.", e);
-        } catch (SQLException e) {
-            logger.error("Cannot connect to " + dbType + " (" + dbName + ") database.", e);
-        }
+    private void postgresql(String dbType) throws ClassNotFoundException, SQLException {
+        Class.forName("org.postgresql.Driver");
+        connection = DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + dbName, "postgres", "");
     }
 }
