@@ -1,5 +1,6 @@
 package de.qucosa.oai.provider.controller;
 
+import de.qucosa.oai.provider.api.sets.SetApi;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ public class SetController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Set> save(@RequestBody Set input) {
+        SetApi setApi = new SetApi(setDao, input);
         return new ResponseEntity<Set>(new Set(), HttpStatus.OK);
     }
 
