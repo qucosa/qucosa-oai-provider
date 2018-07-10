@@ -16,10 +16,10 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
-import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,19 +27,26 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
+public class FormatDao<T> implements PersistenceDao<T> {
+
+    private Connection connection;
 
     @Override
-    public <T> T create(T object) { return null; }
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
 
     @Override
-    public Set<Format> findAll() {
+    public T create(T object) { return null; }
+
+    @Override
+    public T findAll() {
         Set<Format> formats = new HashSet<>();
         ResultSet result;
         String sql = "SELECT * FROM formats;";
 
         try {
-            Statement stmt = connection().createStatement();
+            Statement stmt = connection.createStatement();
             result = stmt.executeQuery(sql);
             
             while(result.next()) {
@@ -57,7 +64,7 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
             e.printStackTrace();
         }
         
-        return formats;
+        return (T) formats;
     }
 
     @Override
@@ -67,10 +74,10 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     public int count(String cntField, String whereColumn, String whereColumnValue) throws SQLException { return 0; }
 
     @Override
-    public <T> Set<T> find(String sqlStmt) { return null; }
+    public T find(String sqlStmt) { return null; }
 
     @Override
-    public <T> T update(T object) throws SQLException {
+    public T update(T object) throws SQLException {
         Format format = (Format) object;
 
         if (format.getSchemaUrl() == null || format.getNamespace() == null || format.getMdprefix() == null) {
@@ -85,10 +92,10 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) \r\n";
         sql+="ON CONFLICT (mdprefix) \r\n";
         sql+="DO UPDATE SET schemaurl = ?, namespace = ?; \r\n";
-        PreparedStatement pst = connection().prepareStatement(sql);
-        connection().setAutoCommit(false);
+        PreparedStatement pst = connection.prepareStatement(sql);
+        connection.setAutoCommit(false);
         buildUpdateObject(pst, (Format) object);
-        connection().commit();
+        connection.commit();
 
         int affectedRows = pst.executeUpdate();
 
@@ -109,25 +116,25 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     }
 
     @Override
-    public <T> T findById(Long id) { return null; }
+    public T findById(Long id) { return null; }
 
     @Override
-    public <T> T findByValues(Set<T> values) { return null; }
+    public T findByValues(Set<T> values) { return null; }
 
     @Override
     public void deleteById(Long id) {}
 
     @Override
-    public <T> void deleteByValues(Set<T> values) {}
+    public void deleteByValues(Set<T> values) {}
 
     @Override
-    public <T> T findByValue(String column, String value) throws SQLException {
+    public T findByValue(String column, String value) throws SQLException {
         Format format =  new Format();
         String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats WHERE " + column + " = ?;";
         
         try {
-            PreparedStatement pst = connection().prepareStatement(sql);
-            connection().setAutoCommit(false);
+            PreparedStatement pst = connection.prepareStatement(sql);
+            connection.setAutoCommit(false);
             pst.setString(1, value);
             ResultSet result = pst.executeQuery();
             
@@ -148,24 +155,24 @@ public class FormatDao extends PersistenceDaoAbstract implements PersistenceDaoI
     }
 
     @Override
-    public <T> T update(String sql) { return null; }
+    public T update(String sql) { return null; }
 
     @Override
-    public <T> T update(String... value) { return null; }
+    public T update(String... value) { return null; }
 
     @Override
-    public <T> T findByValues(String... values) { return null; }
+    public T findByValues(String... values) { return null; }
 
     @Override
-    public <T> T findByIds(T... values) { return null; }
+    public T findByIds(T... values) { return null; }
 
     @Override
-    public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+    public void deleteByKeyValue(String key, T value) throws SQLException {
         String sql = "UPDATE formats SET deleted = true WHERE " + key + " = ?";
-        PreparedStatement pst = connection().prepareStatement(sql);
-        connection().setAutoCommit(false);
+        PreparedStatement pst = connection.prepareStatement(sql);
+        connection.setAutoCommit(false);
         pst.setString(1, (String) value);
-        connection().commit();
+        connection.commit();
         int affectedRows = pst.executeUpdate();
 
         if (affectedRows == 0) {

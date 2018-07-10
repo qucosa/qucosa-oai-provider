@@ -17,7 +17,7 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 import org.glassfish.jersey.process.internal.RequestScoped;
 
@@ -39,10 +39,10 @@ import java.sql.SQLException;
 @RequestScoped
 public class FormatsController {
 
-    private PersistenceDaoInterface formatDao;
+    private PersistenceDao formatDao;
 
     @Inject
-    public FormatsController(PersistenceDaoInterface formatDao) {
+    public FormatsController(PersistenceDao formatDao) {
         this.formatDao = formatDao;
     }
     
@@ -67,7 +67,7 @@ public class FormatsController {
         }
 
         try {
-            format = formatDao.update(format);
+            format = (Format) formatDao.update(format);
         } catch (SQLException e) {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
         }
@@ -93,7 +93,7 @@ public class FormatsController {
         }
 
         try {
-            format = formatDao.update(format);
+            format = (Format) formatDao.update(format);
         } catch (SQLException e) {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
         }
@@ -123,7 +123,7 @@ public class FormatsController {
         Format format;
 
         try {
-            format = formatDao.findByValue("mdprefix", mdprefix);
+            format = (Format) formatDao.findByValue("mdprefix", mdprefix);
         } catch (SQLException e) {
             return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
         }

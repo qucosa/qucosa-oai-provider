@@ -20,7 +20,7 @@ import de.qucosa.oai.provider.application.config.DissTermsDao;
 import de.qucosa.oai.provider.controller.FormatsController;
 import de.qucosa.oai.provider.data.objects.FormatTestData;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
@@ -142,14 +142,14 @@ public class FormatsControllerTest extends JerseyTest {
 
     @Override
     protected Application configure() {
-        PersistenceDaoInterface psqRepoDao = mock(FormatTestDao.class);
+        PersistenceDao psqRepoDao = mock(FormatTestDao.class);
         FormatsController formatsController = new FormatsController(psqRepoDao);
 
         ResourceConfig config = new ResourceConfig(FormatsController.class);
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(FormatTestDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+                bind(FormatTestDao.class).to(PersistenceDao.class).in(RequestScoped.class);
             }
         });
         HashMap<String, Object> props = new HashMap<>();
@@ -164,9 +164,9 @@ public class FormatsControllerTest extends JerseyTest {
         return UriBuilder.fromUri(super.getBaseUri()).path("formats").build();
     }
 
-    public static class FormatTestDao extends PsqlRepository {
+    public static class FormatTestDao<T> extends PsqlRepository<T> {
         @Override
-        public <T> T update(T object) throws SQLException {
+        public T update(T object) throws SQLException {
             Format format = (Format) object;
 
             if (format.getSchemaUrl() == null || format.getNamespace() == null || format.getMdprefix() == null) {
@@ -185,7 +185,7 @@ public class FormatsControllerTest extends JerseyTest {
         }
 
         @Override
-        public <T> T findByValue(String column, String value) throws SQLException {
+        public T findByValue(String column, String value) throws SQLException {
 
             if (!FormatTestData.formats().contains(value)) {
                 throw new SQLException("Cannot find format object.");
@@ -195,7 +195,7 @@ public class FormatsControllerTest extends JerseyTest {
         }
 
         @Override
-        public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+        public void deleteByKeyValue(String key, T value) throws SQLException {
 
             if (!FormatTestData.format().getMdprefix().equals(value)) {
                 throw new SQLException("Cannot format mark as deleted, no rows affected.");

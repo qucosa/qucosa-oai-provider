@@ -16,24 +16,31 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
-import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 
 import java.io.StringWriter;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.util.Set;
 
-public class DisseminationDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
+public class DisseminationDao<T> implements PersistenceDao<T> {
+
+    private Connection connection;
 
     @Override
-    public <T> T create(T object) { return null; }
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
 
     @Override
-    public Set<Dissemination> findAll() {return null; }
+    public T create(T object) { return null; }
+
+    @Override
+    public T findAll() {return null; }
 
     @Override
     public int count(String cntField, String... whereClauses) {
@@ -46,13 +53,13 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
     }
 
     @Override
-    public <T> Set<T> find(String sqlStmt) throws SQLException { return null; }
+    public T find(String sqlStmt) throws SQLException { return null; }
 
     @Override
-    public <T> T update(T object) throws SQLException {
+    public T update(T object) throws SQLException {
         Dissemination dissemination = (Dissemination) object;
-        PreparedStatement select = connection().prepareCall("SELECT id FROM disseminations WHERE id_record = ? AND id_format = ?;");
-        connection().setAutoCommit(false);
+        PreparedStatement select = connection.prepareCall("SELECT id FROM disseminations WHERE id_record = ? AND id_format = ?;");
+        connection.setAutoCommit(false);
         select.setLong(1, dissemination.getRecordId());
         select.setLong(2, dissemination.getFormatId());
         ResultSet rows = select.executeQuery();
@@ -72,10 +79,10 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
             sb.append("VALUES (nextval('oaiprovider'), ?, ?, ?, ?) \r\n");
         }
 
-        PreparedStatement pst = connection().prepareStatement(sb.toString());
-        connection().setAutoCommit(false);
+        PreparedStatement pst = connection.prepareStatement(sb.toString());
+        connection.setAutoCommit(false);
         buildUpdateObject(pst, dissemination);
-        connection().commit();
+        connection.commit();
         int affectedRows = pst.executeUpdate();
 
         if (affectedRows == 0) {
@@ -95,12 +102,12 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
     }
 
     @Override
-    public <T> T findById(Long id) {
+    public T findById(Long id) {
         return null;
     }
 
     @Override
-    public <T> T findByValues(Set<T> values) {
+    public T findByValues(Set<T> values) {
         return null;
     }
 
@@ -108,33 +115,33 @@ public class DisseminationDao extends PersistenceDaoAbstract implements Persiste
     public void deleteById(Long id) {}
 
     @Override
-    public <T> void deleteByKeyValue(String key, T value) { }
+    public void deleteByKeyValue(String key, T value) { }
 
     @Override
     public void deleteByKeyValue(String... paires) { }
 
     @Override
-    public <T> void deleteByValues(Set<T> values) {}
+    public void deleteByValues(Set<T> values) {}
 
     @Override
-    public <T> T findByValue(String column, String value) { return null; }
+    public T findByValue(String column, String value) { return null; }
 
     @Override
-    public <T> T update(String sql) { return null; }
+    public T update(String sql) { return null; }
 
     @Override
-    public <T> T update(String... value) { return null; }
+    public T update(String... value) { return null; }
 
     @Override
-    public <T> T findByValues(String... values) { return null; }
+    public T findByValues(String... values) { return null; }
 
     @Override
-    public <T> T findByIds(T... values) { return null; }
+    public T findByIds(T... values) { return null; }
 
     private void buildUpdateObject(PreparedStatement pst, Dissemination dissemination) throws SQLException {
         StringWriter sw = new StringWriter();
         sw.write(dissemination.getXmldata());
-        SQLXML sqlxml = connection().createSQLXML();
+        SQLXML sqlxml = connection.createSQLXML();
         sqlxml.setString(sw.toString());
 
         if (dissemination.getId() != null) {

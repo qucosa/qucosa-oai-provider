@@ -22,7 +22,7 @@ import de.qucosa.oai.provider.application.config.SetConfigMapper;
 import de.qucosa.oai.provider.controller.SetController;
 import de.qucosa.oai.provider.data.objects.SetTestData;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -150,7 +150,7 @@ public class SetsControllerTest extends JerseyTest {
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(SetTestDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+                bind(SetTestDao.class).to(PersistenceDao.class).in(RequestScoped.class);
                 bind(setsController).to(SetController.class);
             }
         });
@@ -160,10 +160,10 @@ public class SetsControllerTest extends JerseyTest {
         return config;
     }
 
-    private static class SetTestDao extends PsqlRepository {
+    private static class SetTestDao<T> extends PsqlRepository<T> {
 
         @Override
-        public <T> T create(T object) throws SQLException {
+        public T create(T object) throws SQLException {
             Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
 
             if (object instanceof Set) {
@@ -201,7 +201,7 @@ public class SetsControllerTest extends JerseyTest {
         }
 
         @Override
-        public <T> T update(T object) throws SQLException {
+        public T update(T object) throws SQLException {
             Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
 
             if (object instanceof Set) {
@@ -220,7 +220,7 @@ public class SetsControllerTest extends JerseyTest {
         }
 
         @Override
-        public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+        public void deleteByKeyValue(String key, T value) throws SQLException {
 
             if (!value.equals(SetTestData.set().getSetSpec())) {
                 throw new SQLException("Set with setspec " + value + " not found.");

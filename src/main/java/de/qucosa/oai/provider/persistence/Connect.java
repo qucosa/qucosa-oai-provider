@@ -19,8 +19,6 @@ package de.qucosa.oai.provider.persistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -32,7 +30,7 @@ public class Connect {
     
     private String dbName;
     
-    private String user = null;
+    private String user = "postgres";
     
     private String passwd = null;
     
@@ -76,27 +74,23 @@ public class Connect {
     }
     
     private void execute(String dbType) {
-        try {
-            Method method = getClass().getDeclaredMethod(dbType);
-            method.invoke(this);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            e.printStackTrace();
+
+        if (dbType.equals("postgresql")) {
+
+            try {
+                this.postgresql(dbType);
+            } catch (ClassNotFoundException e) {
+                logger.error("Cannot find " + dbType + " driver class.", e);
+                throw new RuntimeException(e);
+            } catch (SQLException e) {
+                logger.error("Cannot connect to " + dbType + " (" + dbName + ") database.", e);
+                throw new RuntimeException(e);
+            }
         }
     }
     
-    @SuppressWarnings("unused")
-    private void postgresql() throws SQLException, ClassNotFoundException {
+    private void postgresql(String dbType) throws ClassNotFoundException, SQLException {
         Class.forName("org.postgresql.Driver");
-        
-        if (user != null && passwd != null) {
-            connection = DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + dbName, user, passwd);
-        } else {
-            connection = DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + dbName, "postgres", "");
-        }
-        
-        if (connection == null) {
-            logger.error("Connat connect to the postgres database.");
-            throw new SQLException();
-        }
+        connection = DriverManager.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + dbName, "postgres", "");
     }
 }

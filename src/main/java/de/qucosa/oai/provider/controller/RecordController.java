@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.application.config.DissTermsDao;
 import de.qucosa.oai.provider.application.config.DissTermsMapper;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Dissemination;
 import de.qucosa.oai.provider.persistence.pojos.Format;
 import de.qucosa.oai.provider.persistence.pojos.Record;
@@ -54,10 +54,10 @@ import java.util.Set;
 public class RecordController {
     private ObjectMapper om = new ObjectMapper();
 
-    private PersistenceDaoInterface recordDao;
+    private PersistenceDao recordDao;
 
     @Inject
-    public RecordController(PersistenceDaoInterface recordDao) {
+    public RecordController(PersistenceDao recordDao) {
         this.recordDao = recordDao;
     }
 
@@ -161,7 +161,7 @@ public class RecordController {
         Record result;
 
         try {
-            result = recordDao.update(record);
+            result = (Record) recordDao.update(record);
         } catch (SQLException e) {
             return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
         }
@@ -199,7 +199,7 @@ public class RecordController {
         Record record;
 
         try {
-            record = recordDao.findByValue("uid", uid);
+            record = (Record) recordDao.findByValue("uid", uid);
         } catch (SQLException e) {
             return Response.status(Response.Status.NOT_FOUND).entity("Record with uid " + uid +" is not found.").build();
         }

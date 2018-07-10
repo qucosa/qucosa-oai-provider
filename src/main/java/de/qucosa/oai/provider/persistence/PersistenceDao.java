@@ -16,40 +16,43 @@
 
 package de.qucosa.oai.provider.persistence;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Set;
 
-public interface PersistenceDaoInterface {
+public interface PersistenceDao<T> {
 
-    <T> T create(T object) throws SQLException;
+    void setConnection(Connection connection);
 
-    <T> T update(String sql);
+    T create(T object) throws SQLException;
 
-    <T> T update(String...value);
+    T update(String sql);
 
-    <T> T update(T object) throws SQLException;
+    T update(String...value);
 
-    <T> Set<T> findAll();
+    T update(T object) throws SQLException;
 
-    <T> Set<T> find(String sqlStmt) throws SQLException;
+    T findAll();
 
-    <T> T findById(Long id);
+    T find(String sqlStmt) throws SQLException;
+
+    T findById(Long id);
     
-    <T> T findByIds(T...values);
+    T findByIds(T...values);
     
-    <T> T findByValue(String column, String value) throws SQLException;
+    T findByValue(String column, String value) throws SQLException;
     
-    <T> T findByValues(Set<T> values);
+    T findByValues(Set<T> values);
     
-    <T> T findByValues(String...values);
+    T findByValues(String...values);
     
     void deleteById(Long id);
 
-    <T> void deleteByKeyValue(String key, T value) throws SQLException;
+    void deleteByKeyValue(String key, T value) throws SQLException;
 
     void deleteByKeyValue(String... paires);
     
-    <T> void deleteByValues(Set<T> values);
+    void deleteByValues(Set<T> values);
 
     int count(String cntField, String... whereClauses);
 

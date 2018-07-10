@@ -25,7 +25,7 @@ import de.qucosa.oai.provider.data.objects.DisseminationTestData;
 import de.qucosa.oai.provider.data.objects.RecordTestData;
 import de.qucosa.oai.provider.helper.RestControllerContainerFactory;
 import de.qucosa.oai.provider.mock.repositories.PsqlRepository;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Record;
 import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -134,7 +134,7 @@ public class RecordsControllerTest extends JerseyTest {
         config.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(RecordTestDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+                bind(RecordTestDao.class).to(PersistenceDao.class).in(RequestScoped.class);
                 bind(recordController).to(RecordController.class);
                 bind(formatsController).to(FormatsController.class);
                 bind(disseminationController).to(DisseminationController.class);
@@ -157,14 +157,14 @@ public class RecordsControllerTest extends JerseyTest {
                 om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
     }
 
-    private static class RecordTestDao extends PsqlRepository {
+    private static class RecordTestDao<T> extends PsqlRepository<T> {
         @Override
-        public <T> T update(T object) throws SQLException {
+        public T update(T object) throws SQLException {
             return super.update(object);
         }
 
         @Override
-        public <T> T findByValue(String column, String value) throws SQLException {
+        public T findByValue(String column, String value) throws SQLException {
             Record record = RecordTestData.record();
 
             if (column.equals("uid")) {

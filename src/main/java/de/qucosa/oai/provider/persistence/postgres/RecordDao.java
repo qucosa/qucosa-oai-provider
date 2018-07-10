@@ -16,33 +16,40 @@
 
 package de.qucosa.oai.provider.persistence.postgres;
 
-import de.qucosa.oai.provider.persistence.PersistenceDaoAbstract;
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.pojos.Record;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 
-public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoInterface {
+public class RecordDao<T> implements PersistenceDao<T> {
+
+    private Connection connection;
 
     @Override
-    public <T> T create(T object) { return null; }
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
 
     @Override
-    public Set<Record> findAll() { return null; }
+    public T create(T object) { return null; }
+
+    @Override
+    public T findAll() { return null; }
     
     @Override
-    public <T> T update(T object) throws SQLException {
+    public T update(T object) throws SQLException {
         String sql = "INSERT INTO records (id, pid, uid) \n";
         sql+="VALUES (nextval('oaiprovider'), ?, ?) \r\n";
         sql+="ON CONFLICT (uid) \r\n";
         sql+="DO UPDATE SET uid = ?\r\n";
-        PreparedStatement pst = connection().prepareStatement(sql);
-        connection().setAutoCommit(false);
+        PreparedStatement pst = connection.prepareStatement(sql);
+        connection.setAutoCommit(false);
         buildUpdateObject(pst, (Record) object);
-        connection().commit();
+        connection.commit();
         int affectedRows = pst.executeUpdate();
 
         if (affectedRows == 0) {
@@ -53,16 +60,16 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
     }
 
     @Override
-    public <T> T findById(Long id) { return null; }
+    public T findById(Long id) { return null; }
 
     @Override
-    public <T> T findByValues(Set<T> values) { return null; }
+    public T findByValues(Set<T> values) { return null; }
 
     @Override
     public void deleteById(Long id) { }
 
     @Override
-    public <T> void deleteByValues(Set<T> values) { }
+    public void deleteByValues(Set<T> values) { }
 
     @Override
     public int count(String cntField, String... whereClauses) {
@@ -73,14 +80,14 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
     public int count(String cntField, String whereColumn, String whereColumnValue) { return 0; }
 
     @Override
-    public <T> Set<T> find(String sqlStmt) { return null; }
+    public T find(String sqlStmt) { return null; }
 
     @Override
-    public <T> T findByValue(String column, String value) throws SQLException {
+    public T findByValue(String column, String value) throws SQLException {
         Record record = new Record();
         String sql = "SELECT id, pid, uid, deleted FROM records WHERE " + column + " = ?";
-        PreparedStatement pst = connection().prepareStatement(sql);
-        connection().setAutoCommit(false);
+        PreparedStatement pst = connection.prepareStatement(sql);
+        connection.setAutoCommit(false);
         pst.setString(1, value);
         ResultSet resultSet = pst.executeQuery();
 
@@ -102,28 +109,28 @@ public class RecordDao extends PersistenceDaoAbstract implements PersistenceDaoI
     }
 
     @Override
-    public <T> T update(String sql) { return null; }
+    public T update(String sql) { return null; }
 
     @Override
-    public <T> T update(String... value) { return null; }
+    public T update(String... value) { return null; }
 
     @Override
-    public <T> T findByValues(String... values) { return null; }
+    public T findByValues(String... values) { return null; }
 
     @Override
-    public <T> T findByIds(T... values) { return null; }
+    public T findByIds(T... values) { return null; }
 
     @Override
-    public <T> void deleteByKeyValue(String key, T value) throws SQLException {
+    public void deleteByKeyValue(String key, T value) throws SQLException {
         String sql = "UPDATE records SET deleted = true WHERE " + key + " = ?";
-        PreparedStatement pst = connection().prepareStatement(sql);
-        connection().setAutoCommit(false);
+        PreparedStatement pst = connection.prepareStatement(sql);
+        connection.setAutoCommit(false);
 
         pst.setString(1, (String) value);
         pst.addBatch();
 
         pst.executeBatch();
-        connection().commit();
+        connection.commit();
     }
 
     @Override

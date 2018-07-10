@@ -16,7 +16,7 @@
 
 package de.qucosa.oai.provider.application;
 
-import de.qucosa.oai.provider.persistence.PersistenceDaoInterface;
+import de.qucosa.oai.provider.persistence.PersistenceDao;
 import de.qucosa.oai.provider.persistence.postgres.DisseminationDao;
 import de.qucosa.oai.provider.persistence.postgres.FormatDao;
 import de.qucosa.oai.provider.persistence.postgres.RecordDao;
@@ -29,10 +29,10 @@ public class ApplicationBinder extends AbstractBinder {
 
     @Override
     protected void configure() {
-        bind(SetDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
-        bind(RecordDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
-        bind(FormatDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
-        bind(DisseminationDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
-        bind(SetsToRecordDao.class).to(PersistenceDaoInterface.class).in(RequestScoped.class);
+        bind(SetDao.class).to(PersistenceDao.class).in(RequestScoped.class);
+        bind(RecordDao.class).to(PersistenceDao.class).in(RequestScoped.class);
+        bind(FormatDao.class).to(PersistenceDao.class).in(RequestScoped.class);
+        bind(DisseminationDao.class).to(PersistenceDao.class).in(RequestScoped.class);
+        bind(SetsToRecordDao.class).to(PersistenceDao.class).in(RequestScoped.class);
     }
 }
