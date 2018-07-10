@@ -1,4 +1,8 @@
 package de.qucosa.oai.provider.persitence.dao.postgres;
 
-public class DisseminationDao {
+import de.qucosa.oai.provider.persitence.Dao;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class DisseminationDao<T> implements Dao<T> {
 }

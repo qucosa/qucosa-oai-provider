@@ -1,4 +1,5 @@
 package de.qucosa.oai.provider.persitence;
 
-public interface Dao {
+public interface Dao<T> {
+
 }

@@ -1,4 +1,4 @@
-package de.qucosa.oai.provider.api.utils;
+package de.qucosa.oai.provider.api.builders;
 
 public class DisseminationXmlBuilder {
 }
