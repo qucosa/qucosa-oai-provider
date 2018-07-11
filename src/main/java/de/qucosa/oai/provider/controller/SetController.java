@@ -24,7 +24,8 @@ public class SetController {
     @ResponseBody
     public ResponseEntity<Set> save(@RequestBody Set input) {
         SetApi setApi = new SetApi(setDao, input);
-        return new ResponseEntity<Set>(new Set(), HttpStatus.OK);
+        Set set = setApi.saveSet();
+        return new ResponseEntity<Set>(set, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{setspec}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
