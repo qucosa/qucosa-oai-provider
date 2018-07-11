@@ -1,9 +1,10 @@
 package de.qucosa.oai.provider.persitence;
 
+import java.sql.SQLException;
 import java.util.Collections;
 
 public interface Dao<T> {
-    public T save(T object);
+    public T save(T object) throws SQLException;
 
     public T save(Collections objects);
 
