@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.SQLException;
+
 @RequestMapping("/sets")
 @RestController
 public class SetController {
@@ -24,7 +26,14 @@ public class SetController {
     @ResponseBody
     public ResponseEntity<Set> save(@RequestBody Set input) {
         SetApi setApi = new SetApi(setDao, input);
-        Set set = setApi.saveSet();
+        Set set = null;
+
+        try {
+            set = setApi.saveSet();
+        } catch (SQLException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
         return new ResponseEntity<Set>(set, HttpStatus.OK);
     }
 

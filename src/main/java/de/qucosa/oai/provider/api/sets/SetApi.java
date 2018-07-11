@@ -6,7 +6,7 @@ import de.qucosa.oai.provider.persitence.dao.postgres.SetDao;
 import de.qucosa.oai.provider.persitence.model.Set;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.util.List;
 
 public class SetApi<T> {
@@ -44,8 +44,8 @@ public class SetApi<T> {
         return inputData;
     }
 
-    public Set saveSet() {
-        return null;
+    public Set saveSet() throws SQLException {
+        return dao.save((Set) getInputData());
     }
 
     public Set updateSet() {
