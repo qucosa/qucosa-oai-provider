@@ -19,7 +19,7 @@ public class SetJson {
 
     private List<de.qucosa.oai.provider.config.mapper.SetJson.Set> mapping;
 
-    private InputStream config;
+    public SetJson() {}
 
     public SetJson(String path) throws FileNotFoundException {
         this(new File(path));
@@ -30,7 +30,6 @@ public class SetJson {
     }
 
     public SetJson(InputStream stream) {
-        config = stream;
         ObjectMapper om = new ObjectMapper();
 
         try {

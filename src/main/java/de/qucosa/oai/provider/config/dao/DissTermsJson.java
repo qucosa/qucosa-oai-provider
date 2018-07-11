@@ -19,9 +19,11 @@ import java.util.Set;
 public class DissTermsJson {
     private Logger logger = LoggerFactory.getLogger(DissTermsJson.class);
 
-    private InputStream config;
-
     private de.qucosa.oai.provider.config.mapper.DissTermsJson mapping;
+
+    public DissTermsJson() throws FileNotFoundException {
+        this("classpath:/config/dissemination-config.json");
+    }
 
     public DissTermsJson(String path) throws FileNotFoundException {
         this(new File(path));
@@ -32,11 +34,10 @@ public class DissTermsJson {
     }
 
     public DissTermsJson(InputStream stream) {
-        this.config = stream;
         ObjectMapper om = new ObjectMapper();
 
         try {
-            mapping = om.readValue(config, de.qucosa.oai.provider.config.mapper.DissTermsJson.class);
+            mapping = om.readValue(stream, de.qucosa.oai.provider.config.mapper.DissTermsJson.class);
         } catch (IOException e) {
             logger.error("Cannot parse dissemination-conf JSON file.", e);
         }
