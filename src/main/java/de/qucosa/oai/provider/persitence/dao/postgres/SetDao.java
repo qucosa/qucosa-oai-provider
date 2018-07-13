@@ -14,8 +14,12 @@ import java.util.Collections;
 
 @Repository
 public class SetDao<T> implements Dao<T> {
-    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public void setDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public T save(T object) throws SQLException {
