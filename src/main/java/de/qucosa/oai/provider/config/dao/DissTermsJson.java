@@ -3,7 +3,7 @@ package de.qucosa.oai.provider.config.dao;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,15 +15,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@Configuration
+//@Configuration
+@Component
 public class DissTermsJson {
     private Logger logger = LoggerFactory.getLogger(DissTermsJson.class);
 
     private de.qucosa.oai.provider.config.mapper.DissTermsJson mapping;
-
-    public DissTermsJson() throws FileNotFoundException {
-        this("classpath:/config/dissemination-config.json");
-    }
 
     public DissTermsJson(String path) throws FileNotFoundException {
         this(new File(path));
