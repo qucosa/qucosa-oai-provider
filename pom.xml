@@ -35,7 +35,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <jackson.version>2.9.2</jackson.version>
-        <psql.version>42.1.4</psql.version>
+        <psql.version>9.1-901.jdbc4</psql.version>
     </properties>
 
     <dependencies>
@@ -79,7 +79,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.postgresql</groupId>
+            <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${psql.version}</version>
         </dependency>
