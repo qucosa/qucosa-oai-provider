@@ -1,8 +1,9 @@
 package de.qucosa.oai.provider.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.sets.SetApi;
-import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.dao.postgres.SetDao;
 import de.qucosa.oai.provider.persitence.model.Set;
 import org.junit.Assert;
 import org.junit.Before;
@@ -10,7 +11,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
@@ -19,13 +21,16 @@ import java.util.Collections;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = ApplicationConfig.class)
+@SpringBootTest
 public class SetApiTest {
     private String sets;
 
     private String set;
 
     private SetApi setApi;
+
+    @Autowired
+    private SetDao setDao;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -57,9 +62,11 @@ public class SetApiTest {
 
     @Test
     public void Save_set_object() throws IOException, SQLException {
-        setApi = new SetApi(set);
-        Set data = setApi.saveSet();
-        Assert.assertNotNull(data);
+        ObjectMapper om = new ObjectMapper();
+        setDao.save(om.readValue(set, Set.class));
+//        setApi = new SetApi(set);
+//        Set data = setApi.saveSet();
+//        Assert.assertNotNull(data);
     }
 
     private static class SetTestDao<T> implements Dao<T> {
