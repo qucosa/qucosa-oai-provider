@@ -36,6 +36,7 @@
         <java.version>1.8</java.version>
         <jackson.version>2.9.2</jackson.version>
         <psql.version>9.1-901.jdbc4</psql.version>
+        <c3p0.version>0.9.5.2</c3p0.version>
     </properties>
 
     <dependencies>
@@ -47,11 +48,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-hateoas</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
 
         <dependency>
@@ -82,6 +78,12 @@
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${psql.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mchange</groupId>
+            <artifactId>c3p0</artifactId>
+            <version>${c3p0.version}</version>
         </dependency>
     </dependencies>
 
