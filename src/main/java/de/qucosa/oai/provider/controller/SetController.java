@@ -71,6 +71,15 @@ public class SetController {
     @RequestMapping(value = "{setspec}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity delete(@PathVariable String setspec) {
-        return new ResponseEntity<Set>(HttpStatus.OK);
+        SetApi setApi = new SetApi(setDao);
+        Long delete;
+
+        try {
+            delete = setApi.deleteSet("setspec", setspec);
+        } catch (SQLException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(delete, HttpStatus.OK);
     }
 }
