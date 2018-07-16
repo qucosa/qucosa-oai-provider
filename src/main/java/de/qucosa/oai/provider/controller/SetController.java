@@ -22,14 +22,29 @@ public class SetController {
     @Autowired
     private Dao setDao;
 
+    @RequestMapping(value = "{setspec}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Set> find(@PathVariable String setspec) {
+        Set set = null;
+        SetApi setApi = new SetApi(setDao);
+
+        try {
+            setApi.find("setspec", setspec);
+        } catch (SQLException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        return new ResponseEntity<Set>(set, HttpStatus.OK);
+    }
+
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Set> save(@RequestBody Set input) {
-        SetApi setApi = new SetApi(setDao, input);
+        SetApi setApi = new SetApi(setDao);
         Set set = null;
 
         try {
-            set = setApi.saveSet();
+            set = setApi.saveSet(input);
         } catch (SQLException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -40,6 +55,15 @@ public class SetController {
     @RequestMapping(value = "{setspec}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Set> update(@RequestBody Set input, @PathVariable String setspec) {
+        SetApi setApi = new SetApi(setDao);
+
+        try {
+            Set set = setApi.updateSet(input, setspec);
+        } catch (Exception e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+        }
+
+
         return new ResponseEntity<Set>(new Set(), HttpStatus.OK);
     }
 
