@@ -9,7 +9,7 @@ public interface Dao<T> {
 
     public T save(Collections objects);
 
-    public T update(T object);
+    public T update(T object) throws SQLException;
 
     public T update(Collections objects);
 
