@@ -1,5 +1,6 @@
 package de.qucosa.oai.provider.persitence;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collections;
 
@@ -16,7 +17,7 @@ public interface Dao<T> {
 
     public T findById(T value);
 
-    public T findByColumnAndValue(String column, T value);
+    public T findByColumnAndValue(String column, T value) throws SQLException;
 
-    public T delete(String column, T value);
+    public T delete(String column, T value) throws SQLException;
 }
