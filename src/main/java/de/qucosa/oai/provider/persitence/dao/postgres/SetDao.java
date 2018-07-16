@@ -60,8 +60,31 @@ public class SetDao<T> implements Dao<T> {
     }
 
     @Override
-    public T update(T object) {
-        return null;
+    public T update(T object) throws SQLException {
+        Set input = (Set) object;
+        String sql = "UPDATE sets SET setname = ?, setdescription = ? where setspec = ?";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setString(1, input.getSetName());
+        ps.setString(2, input.getSetDescription());
+        ps.setString(3, input.getSetSpec());
+        int updateRows = ps.executeUpdate();
+
+        if (updateRows == 0) {
+            throw new SQLException("Update set is failed, no affected rows.");
+        }
+
+        try (ResultSet resultSet = ps.getResultSet()) {
+
+            while (resultSet.next()) {
+                input.setSetId(resultSet.getLong("id"));
+                input.setSetSpec(resultSet.getString("setspec"));
+                input.setSetName(resultSet.getString("setname"));
+                input.setSetDescription(resultSet.getString("setdescription"));
+                input.setDeleted(resultSet.getBoolean("deleted"));
+            }
+        }
+
+        return (T) input;
     }
 
     @Override
