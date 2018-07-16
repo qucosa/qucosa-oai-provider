@@ -10,13 +10,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class SetApi<T> {
-    private Dao<Set> dao;
+    private Dao dao;
 
     private T inputData;
 
     public SetApi(String input) throws IOException {
         ObjectMapper om = new ObjectMapper();
-        dao = new SetDao<Set>();
+        dao = new SetDao<>();
 
         try {
             inputData = om.readValue(input.getBytes("UTF-8"), om.getTypeFactory().constructCollectionType(List.class, Set.class));
@@ -28,6 +28,10 @@ public class SetApi<T> {
                 throw e;
             }
         }
+    }
+
+    public SetApi(Dao<Set> setDao) {
+        this.dao = setDao;
     }
 
     public SetApi(Set input) {
@@ -44,15 +48,27 @@ public class SetApi<T> {
         return inputData;
     }
 
-    public Set saveSet() throws SQLException {
-        return dao.save((Set) getInputData());
+    public Set saveSet(Set input) throws SQLException {
+        return (Set) dao.save(input);
     }
 
-    public Set updateSet() {
-        return null;
+    public Set find(String column, String setspec) throws SQLException {
+        return (Set) dao.findByColumnAndValue(column, setspec);
     }
 
-    public boolean deleteSet() {
-        return true;
+    public Set updateSet(Set input, String setspec) throws Exception {
+        Set output;
+
+        if (!input.getSetSpec().equals(setspec)) {
+            throw new Exception("Prameter setspec is unequal with setpec from set object.");
+        }
+
+        output = (Set) dao.update(input);
+
+        return output;
+    }
+
+    public Long deleteSet(String column, String setspec) throws SQLException {
+        return (Long) dao.delete(column, setspec);
     }
 }
