@@ -56,15 +56,16 @@ public class SetController {
     @ResponseBody
     public ResponseEntity<Set> update(@RequestBody Set input, @PathVariable String setspec) {
         SetApi setApi = new SetApi(setDao);
+        Set set = null;
 
         try {
-            Set set = setApi.updateSet(input, setspec);
+            set = setApi.updateSet(input, setspec);
         } catch (Exception e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
 
 
-        return new ResponseEntity<Set>(new Set(), HttpStatus.OK);
+        return new ResponseEntity<Set>(set, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{setspec}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
