@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
+import java.util.List;
 
 @RequestMapping("/sets")
 @RestController
@@ -22,11 +23,28 @@ public class SetController {
     @Autowired
     private Dao setDao;
 
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<Set>> findAll() {
+        List<Set> sets = null;
+        SetApi setApi = new SetApi();
+        setApi.setDao(setDao);
+
+        try {
+            sets = setApi.findAll();
+        } catch (SQLException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<List<Set>>(sets, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "{setspec}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Set> find(@PathVariable String setspec) {
         Set set = null;
-        SetApi setApi = new SetApi(setDao);
+        SetApi setApi = new SetApi();
+        setApi.setDao(setDao);
 
         try {
             setApi.find("setspec", setspec);
@@ -40,7 +58,8 @@ public class SetController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Set> save(@RequestBody Set input) {
-        SetApi setApi = new SetApi(setDao);
+        SetApi setApi = new SetApi();
+        setApi.setDao(setDao);
         Set set = null;
 
         try {
@@ -52,10 +71,27 @@ public class SetController {
         return new ResponseEntity<Set>(set, HttpStatus.OK);
     }
 
+    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<Set>> save(@RequestBody List<Set> input) {
+        SetApi setApi = new SetApi();
+        setApi.setDao(setDao);
+        List<Set> sets = null;
+
+        try {
+            sets = setApi.saveSets(input);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return new ResponseEntity<List<Set>>(sets, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "{setspec}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Set> update(@RequestBody Set input, @PathVariable String setspec) {
-        SetApi setApi = new SetApi(setDao);
+        SetApi setApi = new SetApi();
+        setApi.setDao(setDao);
         Set set = null;
 
         try {
@@ -71,7 +107,8 @@ public class SetController {
     @RequestMapping(value = "{setspec}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity delete(@PathVariable String setspec) {
-        SetApi setApi = new SetApi(setDao);
+        SetApi setApi = new SetApi();
+        setApi.setDao(setDao);
         Long delete;
 
         try {
