@@ -1,19 +1,18 @@
 package de.qucosa.oai.provider.persitence;
 
-import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Collections;
+import java.util.Collection;
 
 public interface Dao<T> {
     public T save(T object) throws SQLException;
 
-    public T save(Collections objects);
+    public T save(Collection objects) throws SQLException;
 
     public T update(T object) throws SQLException;
 
-    public T update(Collections objects);
+    public T update(Collection objects);
 
-    public T findAll();
+    public T findAll() throws SQLException;
 
     public T findById(T value);
 

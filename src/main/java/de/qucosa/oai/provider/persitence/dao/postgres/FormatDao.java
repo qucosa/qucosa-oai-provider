@@ -3,7 +3,7 @@ package de.qucosa.oai.provider.persitence.dao.postgres;
 import de.qucosa.oai.provider.persitence.Dao;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
+import java.util.Collection;
 
 @Repository
 public class FormatDao<T> implements Dao<T> {
@@ -13,7 +13,7 @@ public class FormatDao<T> implements Dao<T> {
     }
 
     @Override
-    public T save(Collections objects) {
+    public T save(Collection objects) {
         return null;
     }
 
@@ -23,7 +23,7 @@ public class FormatDao<T> implements Dao<T> {
     }
 
     @Override
-    public T update(Collections objects) {
+    public T update(Collection objects) {
         return null;
     }
 
