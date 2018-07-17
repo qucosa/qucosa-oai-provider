@@ -11,7 +11,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 @Repository
 public class SetDao<T> implements Dao<T> {
@@ -29,7 +32,7 @@ public class SetDao<T> implements Dao<T> {
         String sql = "INSERT INTO sets (id, setspec, setname, setdescription) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (setspec) ";
-        sql+="DO NOTHING;";
+        sql+="DO NOTHING";
         String finalSql = sql;
 
         PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -39,7 +42,7 @@ public class SetDao<T> implements Dao<T> {
         int affectedRows = ps.executeUpdate();
 
         if (affectedRows == 0) {
-            throw new SQLException("Creating Set failed, no rwos affected.");
+            throw new SQLException("Creating Set failed, no rows affected.");
         }
 
         try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
@@ -48,15 +51,61 @@ public class SetDao<T> implements Dao<T> {
                 throw new SQLException("Creating Set failed, no ID obtained.");
             }
 
-            input.setSetId(generatedKeys.getLong(1));
+            input.setSetId(generatedKeys.getLong("id"));
         }
+
+        ps.close();
 
         return (T) input;
     }
 
     @Override
-    public T save(Collections objects) {
-        return null;
+    public T save(Collection objects) throws SQLException {
+        String sql = "INSERT INTO sets (id, setspec, setname, setdescription) ";
+        sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
+        sql+="ON CONFLICT (setspec) ";
+        sql+="DO NOTHING";
+        List<Set> output = new ArrayList<>();
+        PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+        connection.setAutoCommit(false);
+
+        for (Iterator iterator = objects.iterator(); iterator.hasNext();) {
+            Set set = (Set) iterator.next();
+            ps.clearParameters();
+            ps.setString(1, set.getSetSpec());
+            ps.setString(2, set.getSetName());
+            ps.setString(3, set.getSetDescription());
+            ps.addBatch();
+        }
+
+        ps.clearParameters();
+        int[] insertRows = ps.executeBatch();
+
+        if (insertRows.length == 0) {
+            throw new SQLException("Creating Sets failed, no rows affected.");
+        }
+
+        try (ResultSet result = ps.getGeneratedKeys()) {
+
+            if (!result.next()) {
+                throw new SQLException("Creating Set failed, no ID obtained.");
+            }
+
+            do {
+                Set set = new Set();
+                set.setSetId(result.getLong(1));
+                set.setSetSpec(result.getString("setspec"));
+                set.setSetName(result.getString("setname"));
+                set.setSetDescription(result.getString("setdescription"));
+                set.setDeleted(result.getBoolean("deleted"));
+                output.add(set);
+            } while(result.next());
+        }
+
+        connection.commit();
+        ps.close();
+
+        return (T) output;
     }
 
     @Override
@@ -84,17 +133,37 @@ public class SetDao<T> implements Dao<T> {
             }
         }
 
+        ps.close();
+
         return (T) input;
     }
 
     @Override
-    public T update(Collections objects) {
+    public T update(Collection objects) {
         return null;
     }
 
     @Override
-    public T findAll() {
-        return null;
+    public T findAll() throws SQLException {
+        String sql = "SELECT id, setspec, setname, setdescription, deleted FROM sets";
+        Statement stmt = connection.createStatement();
+        ResultSet resultSet = stmt.executeQuery(sql);
+        List<Set> sets = new ArrayList<>();
+
+        if (resultSet.next()) {
+
+            do {
+                Set set = new Set();
+                set.setSetId(resultSet.getLong(1));
+                set.setSetSpec(resultSet.getString("setspec"));
+                set.setSetName(resultSet.getString("setname"));
+                set.setSetDescription(resultSet.getString("setdescription"));
+                set.setDeleted(resultSet.getBoolean("deleted"));
+                sets.add(set);
+            } while(resultSet.next());
+        }
+
+        return (T) sets;
     }
 
     @Override
@@ -104,11 +173,11 @@ public class SetDao<T> implements Dao<T> {
 
     @Override
     public T findByColumnAndValue(String column, T value) throws SQLException {
-        String sql = "SELECT id, setspec,setname, setdescription, delete FROM sets where " + column + " = ?";
+        String sql = "SELECT id, setspec,setname, setdescription, deleted FROM sets where " + column + " = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, (String) value);
         ResultSet resultSet = ps.executeQuery();
-        Set set = null;
+        Set set = new Set();
 
         while (resultSet.next()) {
             set.setSetId(resultSet.getLong("id"));
@@ -119,6 +188,7 @@ public class SetDao<T> implements Dao<T> {
         }
 
         resultSet.close();
+        ps.close();
 
         return (T) set;
     }
@@ -133,6 +203,8 @@ public class SetDao<T> implements Dao<T> {
         if (deletedRows == 0) {
             throw new SQLException("Set mark as deleted failed, no rwos affected.");
         }
+
+        ps.close();
 
         return (T) new Long(deletedRows);
     }
