@@ -14,33 +14,38 @@ public class SetApi<T> {
 
     private T inputData;
 
-    public SetApi(String input) throws IOException {
-        ObjectMapper om = new ObjectMapper();
-        dao = new SetDao<>();
+    public SetApi() {}
 
-        try {
-            inputData = om.readValue(input.getBytes("UTF-8"), om.getTypeFactory().constructCollectionType(List.class, Set.class));
-        } catch (IOException e) {
+    public SetApi(T input) throws IOException {
+
+        if (input instanceof String) {
+            ObjectMapper om = new ObjectMapper();
+            String ip = (String) input;
 
             try {
-                inputData = (T) om.readValue(input.getBytes("UTF-8"), Set.class);
-            } catch (IOException e1) {
-                throw e;
+                inputData = om.readValue(ip.getBytes("UTF-8"), om.getTypeFactory().constructCollectionType(List.class, Set.class));
+            } catch (IOException e) {
+
+                try {
+                    inputData = (T) om.readValue(ip.getBytes("UTF-8"), Set.class);
+                } catch (IOException e1) {
+                    throw e;
+                }
             }
         }
+
+        if (input instanceof Set) {
+            inputData = input;
+        }
+
+        if (input instanceof List) {
+            inputData = input;
+        }
+
+        setDao(new SetDao<>());
     }
 
-    public SetApi(Dao<Set> setDao) {
-        this.dao = setDao;
-    }
-
-    public SetApi(Set input) {
-        this.inputData = (T) input;
-        dao = new SetDao<Set>();
-    }
-
-    public SetApi(Dao<Set> dao, Set input) {
-        this.inputData = (T) input;
+    public void setDao(Dao dao) {
         this.dao = dao;
     }
 
@@ -50,6 +55,14 @@ public class SetApi<T> {
 
     public Set saveSet(Set input) throws SQLException {
         return (Set) dao.save(input);
+    }
+
+    public List<Set> saveSets(List<Set> input) throws SQLException {
+        return (List<Set>) dao.save(input);
+    }
+
+    public List<Set> findAll() throws SQLException {
+        return (List<Set>) dao.findAll();
     }
 
     public Set find(String column, String setspec) throws SQLException {
