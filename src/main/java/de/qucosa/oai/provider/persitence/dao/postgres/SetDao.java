@@ -111,7 +111,7 @@ public class SetDao<T> implements Dao<T> {
     @Override
     public T update(T object) throws SQLException {
         Set input = (Set) object;
-        String sql = "UPDATE sets SET setname = ?, setdescription = ? where setspec = ?";
+        String sql = "UPDATE sets SET setname = ?, setdescription = ? where setspec = ? AND deleted = FALSE";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, input.getSetName());
         ps.setString(2, input.getSetDescription());
@@ -197,7 +197,7 @@ public class SetDao<T> implements Dao<T> {
     public T delete(String column, T value) throws SQLException {
         String sql = "UPDATE sets SET deleted = true WHERE " + column + " = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setBoolean(1, (Boolean) value);
+        ps.setString(1, (String) value);
         int deletedRows = ps.executeUpdate();
 
         if (deletedRows == 0) {
