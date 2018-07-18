@@ -1,5 +1,6 @@
 package de.qucosa.oai.provider.persitence;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
 
