@@ -97,6 +97,11 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <executions>
                     <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                    <execution>
                         <id>pre-integration-test</id>
                         <goals>
                             <goal>start</goal>
@@ -117,18 +122,6 @@
                 </executions>
                 <configuration>
                     <executable>true</executable>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <skip>${skip.it}</skip>
-                    <excludes>
-                        <exclude>**/*IT.java</exclude>
-                        <exclude>**/IT*.java</exclude>
-                        <exclude>**/*ITCase.java</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
