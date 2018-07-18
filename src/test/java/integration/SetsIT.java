@@ -7,10 +7,12 @@ import de.qucosa.oai.provider.persitence.dao.postgres.SetDao;
 import de.qucosa.oai.provider.persitence.model.Set;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -21,9 +23,12 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = {ApplicationConfig.class})
+@FixMethodOrder(MethodSorters.JVM)
 public class SetsIT {
     private List<Set> sets = null;
 
@@ -44,14 +49,34 @@ public class SetsIT {
     }
 
     @Test
+    public void Save_single_set_object() throws SQLException {
+        Set set = sets.get(0);
+        set = setApi.saveSet(set);
+        Assert.assertNotNull(set.getSetId());
+    }
+
+    @Test
+    public void Save_set_collection() throws SQLException {
+        List<Set> data = setApi.saveSets(sets);
+        assertThat(data.size()).isGreaterThan(0);
+    }
+
+    @Test
     public void Find_all_sets() throws SQLException {
         List<Set> data = setApi.findAll();
-        Assert.assertEquals(2, data.size());
+        assertThat(data.size()).isGreaterThan(0);
     }
 
     @Test
     public void Find_set_by_setspec() throws SQLException {
         Set set = setApi.find("setspec", "ddc:1200");
         Assert.assertEquals("ddc:1200", set.getSetSpec());
+    }
+
+    @Test
+    public void Mark_set_as_deleted() throws SQLException {
+        Set set = sets.get(0);
+        Long deletedRows = setApi.deleteSet("setspec", set.getSetSpec());
+        assertThat(deletedRows).isEqualTo(1);
     }
 }
