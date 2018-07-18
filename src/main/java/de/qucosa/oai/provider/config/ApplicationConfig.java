@@ -1,6 +1,7 @@
 package de.qucosa.oai.provider.config;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import de.qucosa.oai.provider.api.sets.SetApi;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.dao.postgres.DisseminationDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.FormatDao;
@@ -44,6 +45,13 @@ public class ApplicationConfig {
         Dao<Set> setDao = new SetDao();
         ((SetDao<Set>) setDao).setConnection(dataSource());
         return (Dao<T>) setDao;
+    }
+
+    @Bean
+    public SetApi setApi() throws PropertyVetoException, SQLException {
+        SetApi setApi = new SetApi();
+        setApi.setDao(setDao());
+        return setApi;
     }
 
     @Bean
