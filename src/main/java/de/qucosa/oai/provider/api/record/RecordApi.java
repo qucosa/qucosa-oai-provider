@@ -4,38 +4,49 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.dao.postgres.RecordDao;
 import de.qucosa.oai.provider.persitence.model.Record;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
 
+@Component
 public class RecordApi<T> {
-    private Dao<Record> dao;
+    private Dao dao;
 
     private T inputData;
 
-    public RecordApi(String input) throws IOException {
-        ObjectMapper om = new ObjectMapper();
-        dao = new RecordDao<>();
+    public RecordApi() {}
 
-        try {
-            inputData = om.readValue(input.getBytes("UTF-8"), om.getTypeFactory().constructCollectionType(List.class, Record.class));
-        } catch (IOException e) {
+    public RecordApi(T input) throws IOException {
+
+        if (input instanceof String) {
+            ObjectMapper om = new ObjectMapper();
+            String ip = (String) input;
 
             try {
-                inputData = (T) om.readValue(input.getBytes("UTF-8"), Record.class);
-            } catch (IOException e1) {
-                throw e;
+                inputData = om.readValue(ip.getBytes("UTF-8"), om.getTypeFactory().constructCollectionType(List.class, Record.class));
+            } catch (IOException e) {
+
+                try {
+                    inputData = (T) om.readValue(ip.getBytes("UTF-8"), Record.class);
+                } catch (IOException e1) {
+                    throw e;
+                }
             }
         }
+
+        if (input instanceof Record) {
+            inputData = input;
+        }
+
+        if (input instanceof List) {
+            inputData = input;
+        }
+
+        setDao(new RecordDao<>());
     }
 
-    public RecordApi(Record input) {
-        this.inputData = (T) input;
-        dao = new RecordDao<>();
-    }
-
-    public RecordApi(Dao<Record> dao, Record input) {
-        this.inputData = (T) input;
+    public void setDao(Dao dao) {
         this.dao = dao;
     }
 
