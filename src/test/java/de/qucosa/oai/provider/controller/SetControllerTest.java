@@ -1,6 +1,5 @@
 package de.qucosa.oai.provider.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.sets.SetApi;
 import de.qucosa.oai.provider.dao.SetTestDao;
@@ -28,6 +27,7 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -99,6 +99,17 @@ public class SetControllerTest {
                 .content(om.writeValueAsString(sets)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    public void Update_sets() throws Exception {
+        Set set = sets.get(0);
+        set.setSetName("quatsch");
+        mvc.perform(put("/sets/ddc:1200")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(sets)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.setname", is("quatsch")));
     }
 
     @Test
