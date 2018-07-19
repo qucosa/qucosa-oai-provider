@@ -81,7 +81,7 @@ public class SetApi<T> {
         return output;
     }
 
-    public Long deleteSet(String column, String setspec) throws SQLException {
-        return (Long) dao.delete(column, setspec);
+    public Set deleteSet(String column, String setspec, boolean value) throws SQLException {
+        return (Set) dao.delete(column, setspec, value);
     }
 }
