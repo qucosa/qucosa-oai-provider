@@ -1,10 +1,18 @@
 [
   {
-    "pid" : "qucosa:55887",
-    "oaiid" : "oai:example:org:qucosa:55887",
-    "mdprefix" : "oai_dc",
-    "modified" : 1513255949071,
-    "data" : "<?xml version=\"1.0\" encoding=\"UTF-16\"?><oai_dc:dc xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:mets=\"http://www.loc.gov/METS/\" xmlns:mods=\"http://www.loc.gov/mods/v3\" xmlns:myfunc=\"urn:de:qucosa:dc\" xmlns:oai_dc=\"http://www.openarchives.org/OAI/2.0/oai_dc/\" xmlns:slub=\"http://slub-dresden.de/\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"></oai_dc:dc>",
+    "record" : {
+      "pid" : "qucosa:55887",
+      "uid" : "oai:example:org:qucosa:55887"
+    },
+    "format" : {
+      "mdprefix" : "oai_dc",
+      "schemaurl" : "http://www.openarchives.org/OAI/2.0/oai_dc/",
+      "namespace" : "oai_dc"
+    },
+    "dissemination" : {
+      "lastmoddate" : 1513255949071,
+      "xmldata" : "<?xml version=\"1.0\" encoding=\"UTF-16\"?><oai_dc:dc xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:mets=\"http://www.loc.gov/METS/\" xmlns:mods=\"http://www.loc.gov/mods/v3\" xmlns:myfunc=\"urn:de:qucosa:dc\" xmlns:oai_dc=\"http://www.openarchives.org/OAI/2.0/oai_dc/\" xmlns:slub=\"http://slub-dresden.de/\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"></oai_dc:dc>"
+    },
     "sets" : [
       {
         "setspec": "ddc:980",
@@ -19,11 +27,19 @@
     ]
   },
   {
-    "pid" : "qucosa:55887",
-    "oaiid" : "oai:example:org:qucosa:55887",
-    "mdprefix" : "xmetadiss",
-    "modified" : 1513255949071,
-    "data" : "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<xMetaDiss:xMetaDiss xmlns:cc=\"http://www.d-nb.de/standards/cc/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:ddb=\"http://www.d-nb.de/standards/ddb/\" xmlns:dini=\"http://www.d-nb.de/standards/xmetadissplus/type/\" xmlns:mets=\"http://www.loc.gov/METS/\" xmlns:mods=\"http://www.loc.gov/mods/v3\" xmlns:myfunc=\"urn:de:qucosa:xmetadissplus\" xmlns:pc=\"http://www.d-nb.de/standards/pc/\" xmlns:slub=\"http://slub-dresden.de/\" xmlns:subject=\"http://www.d.nb.de/standards/subject/\" xmlns:thesis=\"http://www.ndltd.org/standards/metadata/etdms/1.0/\" xmlns:urn=\"http://www.d-nb.de/standards/urn/\" xmlns:xMetaDiss=\"http://www.d-nb.de/standards/xmetadissplus/\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"></xMetaDiss:xMetaDiss>",
+    "record" : {
+      "pid" : "qucosa:55887",
+      "uid" : "oai:example:org:qucosa:55887"
+    },
+    "format" : {
+      "mdprefix" : "xmetadiss",
+      "schemaurl" : "http://www.d-nb.de/standards/xmetadissplus/",
+      "namespace" : "xmetadiss"
+    },
+    "dissemination" : {
+      "lastmoddate" : 1513255949071,
+      "xmldata" : "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<xMetaDiss:xMetaDiss xmlns:cc=\"http://www.d-nb.de/standards/cc/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:ddb=\"http://www.d-nb.de/standards/ddb/\" xmlns:dini=\"http://www.d-nb.de/standards/xmetadissplus/type/\" xmlns:mets=\"http://www.loc.gov/METS/\" xmlns:mods=\"http://www.loc.gov/mods/v3\" xmlns:myfunc=\"urn:de:qucosa:xmetadissplus\" xmlns:pc=\"http://www.d-nb.de/standards/pc/\" xmlns:slub=\"http://slub-dresden.de/\" xmlns:subject=\"http://www.d.nb.de/standards/subject/\" xmlns:thesis=\"http://www.ndltd.org/standards/metadata/etdms/1.0/\" xmlns:urn=\"http://www.d-nb.de/standards/urn/\" xmlns:xMetaDiss=\"http://www.d-nb.de/standards/xmetadissplus/\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"></xMetaDiss:xMetaDiss>"
+    },
     "sets" : [
       {
         "setspec": "ddc:980",
