@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.dao.postgres.SetDao;
 import de.qucosa.oai.provider.persitence.model.Set;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+@Component
 public class SetApi<T> {
     private Dao dao;
 
