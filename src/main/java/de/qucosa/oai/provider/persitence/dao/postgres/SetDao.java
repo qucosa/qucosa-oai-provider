@@ -113,29 +113,22 @@ public class SetDao<T> implements Dao<T> {
         Set input = (Set) object;
         String sql = "UPDATE sets SET setname = ?, setdescription = ? where setspec = ? AND deleted = FALSE";
         PreparedStatement ps = connection.prepareStatement(sql);
+        connection.setAutoCommit(false);
         ps.setString(1, input.getSetName());
         ps.setString(2, input.getSetDescription());
         ps.setString(3, input.getSetSpec());
         int updateRows = ps.executeUpdate();
+        connection.commit();
 
         if (updateRows == 0) {
             throw new SQLException("Update set is failed, no affected rows.");
         }
 
-        try (ResultSet resultSet = ps.getResultSet()) {
-
-            while (resultSet.next()) {
-                input.setSetId(resultSet.getLong("id"));
-                input.setSetSpec(resultSet.getString("setspec"));
-                input.setSetName(resultSet.getString("setname"));
-                input.setSetDescription(resultSet.getString("setdescription"));
-                input.setDeleted(resultSet.getBoolean("deleted"));
-            }
-        }
+        Set set = (Set) findByColumnAndValue("setspec", (T) input.getSetSpec());
 
         ps.close();
 
-        return (T) input;
+        return (T) set;
     }
 
     @Override
@@ -194,18 +187,23 @@ public class SetDao<T> implements Dao<T> {
     }
 
     @Override
-    public T delete(String column, T value) throws SQLException {
-        String sql = "UPDATE sets SET deleted = true WHERE " + column + " = ?";
+    public T delete(String column, T ident, boolean value) throws SQLException {
+        String sql = "UPDATE sets SET deleted = ? WHERE " + column + " = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, (String) value);
+        connection.setAutoCommit(false);
+        ps.setBoolean(1, value);
+        ps.setString(2, (String) ident);
         int deletedRows = ps.executeUpdate();
+        connection.commit();
 
         if (deletedRows == 0) {
             throw new SQLException("Set mark as deleted failed, no rwos affected.");
         }
 
+        Set set = (Set) findByColumnAndValue(column, ident);
+
         ps.close();
 
-        return (T) new Long(deletedRows);
+        return (T) set;
     }
 }
