@@ -1,7 +1,9 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.api.record.RecordApi;
+import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.dao.RecordTestDao;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.RecordTransport;
@@ -17,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.client.RestTemplate;
 import testdata.TestData;
 
 import java.io.IOException;
@@ -45,6 +48,23 @@ public class RecordControllerTest {
     @TestPropertySource("classpath:application.properties")
     @TestConfiguration
     public static class SetControllerTestConfiguration {
+
+        @Bean
+        public RestTemplate restTemplate() {
+            return new RestTemplate();
+        }
+
+        @Bean
+        public <T> Dao<T> formatDao() {
+            return new FormatTestDao<>();
+        }
+
+        @Bean
+        public FormatApi formatApi() {
+            FormatApi formatApi = new FormatApi();
+            formatApi.setDao(formatDao());
+            return formatApi;
+        }
 
         @Bean
         public <T> Dao<T> recordDao() {
