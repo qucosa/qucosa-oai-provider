@@ -84,7 +84,7 @@ public class SetTestDao<T> implements Dao<T> {
     }
 
     @Override
-    public T delete(String column, T value) throws SQLException {
+    public T delete(String column, T ident, boolean value) throws SQLException {
         ObjectMapper om = new ObjectMapper();
         Set set = null;
 
@@ -97,14 +97,14 @@ public class SetTestDao<T> implements Dao<T> {
                     throw new SQLException("Set mark as deleted failed, no rwos affected.");
                 }
 
-                if (entry.get(column).asText().equals(value)) {
+                if (entry.get(column).asText().equals(ident)) {
                     set = om.readValue(entry.toString(), Set.class);
                     set.setSetId(new Long(1));
-                    set.setDeleted(true);
+                    set.setDeleted(value);
                 }
             }
         } catch (IOException e) { }
 
-        return (T) set.getSetId();
+        return (T) set;
     }
 }

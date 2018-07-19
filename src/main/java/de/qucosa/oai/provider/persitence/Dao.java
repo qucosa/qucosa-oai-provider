@@ -19,5 +19,5 @@ public interface Dao<T> {
 
     public T findByColumnAndValue(String column, T value) throws SQLException;
 
-    public T delete(String column, T value) throws SQLException;
+    public T delete(String column, T ident, boolean value) throws SQLException;
 }

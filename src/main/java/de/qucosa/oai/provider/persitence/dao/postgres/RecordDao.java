@@ -43,7 +43,7 @@ public class RecordDao<T> implements Dao<T> {
     }
 
     @Override
-    public T delete(String column, T value) {
+    public T delete(String column, T ident, boolean value) {
         return null;
     }
 }
