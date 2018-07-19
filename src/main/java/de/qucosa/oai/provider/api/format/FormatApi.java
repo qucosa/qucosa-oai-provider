@@ -6,37 +6,45 @@ import de.qucosa.oai.provider.persitence.dao.postgres.FormatDao;
 import de.qucosa.oai.provider.persitence.model.Format;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 public class FormatApi<T> {
 
-    private Dao<Format> dao;
+    private Dao dao;
 
     private T inputData;
 
-    public FormatApi(String input) throws IOException {
-        ObjectMapper om = new ObjectMapper();
-        dao = new FormatDao<>();
+    public FormatApi() {}
 
-        try {
-            inputData = om.readValue(input.getBytes("UTF-8"), om.getTypeFactory().constructCollectionType(List.class, Format.class));
-        } catch (IOException e) {
+    public FormatApi(T input) throws IOException {
+        if (input instanceof String) {
+            ObjectMapper om = new ObjectMapper();
+            String ip = (String) input;
 
             try {
-                inputData = (T) om.readValue(input.getBytes("UTF-8"), Format.class);
-            } catch (IOException e1) {
-                throw e;
+                inputData = om.readValue(ip.getBytes("UTF-8"), om.getTypeFactory().constructCollectionType(List.class, Format.class));
+            } catch (IOException e) {
+
+                try {
+                    inputData = (T) om.readValue(ip.getBytes("UTF-8"), Format.class);
+                } catch (IOException e1) {
+                    throw e;
+                }
             }
         }
-    }
 
-    public FormatApi(Format input) {
-        this.inputData = (T) input;
-        dao = new FormatDao<>();
-    }
+        if (input instanceof Format) {
+            inputData = input;
+        }
 
-    public FormatApi(Dao<Format> dao, Format input) {
-        this.inputData = (T) input;
+        if (input instanceof List) {
+            inputData = input;
+        }
+
+        setDao(new FormatDao<>());
+    }
+    public void setDao(Dao dao) {
         this.dao = dao;
     }
 
@@ -44,19 +52,32 @@ public class FormatApi<T> {
         return inputData;
     }
 
-    public Format saveFormat() {
-        return null;
+    public Format saveFormat(Format format) throws SQLException {
+        return (Format) dao.save(format);
     }
 
-    public Format updateFormat() {
-        return null;
+    public List<Format> saveFormats(List<Format> formats) throws SQLException {
+        return (List<Format>) dao.save(formats);
     }
 
-    public Format findFormat() {
-        return null;
+    public Format updateFormat(Format input, String mdprefix) throws Exception {
+
+        if (!input.getMdprefix().equals(mdprefix)) {
+            throw new Exception("Prameter mdprefix is unequal with mdprefix from format object.");
+        }
+
+        return (Format) dao.update(input);
     }
 
-    public boolean deleteFormat() {
-        return true;
+    public Format find(String column, String value) throws SQLException {
+        return (Format) dao.findByColumnAndValue(column, value);
+    }
+
+    public List<Format> findAll() throws SQLException {
+        return (List<Format>) dao.findAll();
+    }
+
+    public Format deleteFormat(String column, T ident, boolean value) throws SQLException {
+        return (Format) dao.delete(column, ident, value);
     }
 }
