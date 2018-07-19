@@ -24,7 +24,7 @@ CREATE TABLE public.formats
   id bigint NOT NULL,
   mdprefix character varying(255) NOT NULL,
   schemaurl character varying(255) NOT NULL,
-  namespace character varying(255) NOT NULL,
+  namespace character varying(100) NOT NULL,
   deleted boolean NOT NULL DEFAULT false,
   CONSTRAINT formats_pkey PRIMARY KEY (id),
   CONSTRAINT mdprefix_unique UNIQUE (mdprefix)
