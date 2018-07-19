@@ -35,7 +35,26 @@ public class SetTestDao<T> implements Dao<T> {
 
     @Override
     public T update(T object) throws SQLException {
-        return null;
+        Set set = (Set) object;
+        ObjectMapper om = new ObjectMapper();
+
+        try {
+            List<Set> sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
+
+            for (Set iter : sets) {
+
+                if (iter.getSetSpec().equals(set.getSetSpec())) {
+                    iter.setSetName(set.getSetName());
+                    iter.setSetDescription(set.getSetDescription());
+                    set = iter;
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            throw new SQLException("No sets found.");
+        }
+
+        return (T) set;
     }
 
     @Override
