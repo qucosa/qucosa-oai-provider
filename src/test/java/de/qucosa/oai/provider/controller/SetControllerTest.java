@@ -25,6 +25,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -44,7 +45,6 @@ public class SetControllerTest {
 
     @Before
     public void setUp() throws IOException {
-//        ObjectMapper om = new ObjectMapper();
         sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
     }
 
@@ -88,7 +88,34 @@ public class SetControllerTest {
         mvc.perform(post("/sets")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(set)))
-//                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.setid", is(1)));
+    }
+
+    @Test
+    public void Save_collection_of_sets() throws Exception {
+        mvc.perform(post("/sets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(sets)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    public void Mark_set_as_delete() throws Exception {
+        mvc.perform(delete("/sets/ddc:1200/true")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.setspec", is("ddc:1200")))
+                .andExpect(jsonPath("$.deleted", is(true)));
+    }
+
+    @Test
+    public void Mark_set_as_not_delete() throws Exception {
+        mvc.perform(delete("/sets/ddc:1200/false")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.setspec", is("ddc:1200")))
+                .andExpect(jsonPath("$.deleted", is(false)));
     }
 }
