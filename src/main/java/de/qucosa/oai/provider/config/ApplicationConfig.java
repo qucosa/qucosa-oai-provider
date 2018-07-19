@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.web.client.RestTemplate;
 
 import java.beans.PropertyVetoException;
 import java.sql.SQLException;
@@ -39,6 +40,11 @@ public class ApplicationConfig {
         dataSource.setMinPoolSize(Integer.valueOf(environment.getProperty("min.pool.size")));
         dataSource.setMaxPoolSize(Integer.valueOf(environment.getProperty("max.pool.size")));
         return dataSource;
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
     @Bean
