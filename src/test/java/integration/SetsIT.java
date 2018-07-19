@@ -76,7 +76,22 @@ public class SetsIT {
     @Test
     public void Mark_set_as_deleted() throws SQLException {
         Set set = sets.get(0);
-        Long deletedRows = setApi.deleteSet("setspec", set.getSetSpec());
-        assertThat(deletedRows).isEqualTo(1);
+        Set deleted = setApi.deleteSet("setspec", set.getSetSpec(), true);
+        assertThat(true).isEqualTo(deleted.isDeleted());
+    }
+
+    @Test
+    public void Mark_set_as_not_deleted() throws SQLException {
+        Set set = sets.get(0);
+        Set deleted = setApi.deleteSet("setspec", set.getSetSpec(), false);
+        assertThat(false).isEqualTo(deleted.isDeleted());
+    }
+
+    @Test
+    public void Udate_set_data_row() throws Exception {
+        Set set = sets.get(0);
+        set.setSetDescription("palaber ganz doll viel");
+        Set update = setApi.updateSet(set, "ddc:1200");
+        assertThat("palaber ganz doll viel").isEqualTo(update.getSetDescription());
     }
 }
