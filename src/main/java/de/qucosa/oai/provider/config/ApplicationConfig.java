@@ -7,6 +7,7 @@ import de.qucosa.oai.provider.persitence.dao.postgres.DisseminationDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.FormatDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.RecordDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.SetDao;
+import de.qucosa.oai.provider.persitence.model.Format;
 import de.qucosa.oai.provider.persitence.model.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,5 +59,9 @@ public class ApplicationConfig {
     public <T> Dao<T> recordDao() { return new RecordDao<>(); }
 
     @Bean
-    public <T> Dao<T> formatDao() { return new FormatDao<>(); }
+    public <T> Dao<T> formatDao() throws PropertyVetoException, SQLException {
+        Dao<Format> formatDao = new FormatDao();
+        ((FormatDao<Format>) formatDao).setConnection(dataSource());
+        return (Dao<T>) formatDao;
+    }
 }
