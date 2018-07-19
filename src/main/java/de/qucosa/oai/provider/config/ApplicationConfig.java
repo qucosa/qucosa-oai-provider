@@ -1,6 +1,8 @@
 package de.qucosa.oai.provider.config;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import de.qucosa.oai.provider.api.format.FormatApi;
+import de.qucosa.oai.provider.api.record.RecordApi;
 import de.qucosa.oai.provider.api.sets.SetApi;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.dao.postgres.DisseminationDao;
@@ -8,6 +10,7 @@ import de.qucosa.oai.provider.persitence.dao.postgres.FormatDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.RecordDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.SetDao;
 import de.qucosa.oai.provider.persitence.model.Format;
+import de.qucosa.oai.provider.persitence.model.Record;
 import de.qucosa.oai.provider.persitence.model.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,12 +59,30 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public <T> Dao<T> recordDao() { return new RecordDao<>(); }
+    public <T> Dao<T> recordDao() throws PropertyVetoException, SQLException {
+        Dao<Record> recordDao = new RecordDao<>();
+        ((RecordDao<Record>) recordDao).setConnection(dataSource());
+        return (Dao<T>) recordDao;
+    }
+
+    @Bean
+    public RecordApi recordApi() throws PropertyVetoException, SQLException {
+        RecordApi recordApi = new RecordApi();
+        recordApi.setDao(recordDao());
+        return recordApi;
+    }
 
     @Bean
     public <T> Dao<T> formatDao() throws PropertyVetoException, SQLException {
         Dao<Format> formatDao = new FormatDao();
         ((FormatDao<Format>) formatDao).setConnection(dataSource());
         return (Dao<T>) formatDao;
+    }
+
+    @Bean
+    public FormatApi formatApi() throws PropertyVetoException, SQLException {
+        FormatApi formatApi = new FormatApi();
+        formatApi.setDao(formatDao());
+        return  formatApi;
     }
 }
