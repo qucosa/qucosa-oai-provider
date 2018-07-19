@@ -126,7 +126,7 @@ public class FormatDao<T> implements Dao<T> {
 
         ps.close();
 
-        Format format = (Format) findByColumnAndValue("medprefix", (T) input.getMdprefix());
+        Format format = (Format) findByColumnAndValue("mdprefix", (T) input.getMdprefix());
 
         return (T) format;
     }
