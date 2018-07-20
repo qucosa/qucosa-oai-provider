@@ -2,7 +2,6 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.sets.SetApi;
-import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,9 +21,6 @@ import java.util.List;
 @RequestMapping("/sets")
 @RestController
 public class SetController {
-    @Autowired
-    private Dao setDao;
-
     @Autowired
     private SetApi setApi;
 

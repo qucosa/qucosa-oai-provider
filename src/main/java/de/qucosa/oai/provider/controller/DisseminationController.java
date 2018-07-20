@@ -1,8 +1,6 @@
 package de.qucosa.oai.provider.controller;
 
-import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Dissemination;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/dissemination")
 @RestController
 public class DisseminationController {
-    @Autowired
-    private Dao disseminationDao;
-
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Dissemination> save(@RequestBody Dissemination input) {

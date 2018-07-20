@@ -2,7 +2,6 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.format.FormatApi;
-import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Format;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,10 +21,6 @@ import java.util.List;
 @RequestMapping("/formats")
 @RestController
 public class FormatsController {
-
-    @Autowired
-    private Dao formatDao;
-
     @Autowired
     private FormatApi formatApi;
 
