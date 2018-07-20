@@ -44,7 +44,7 @@ public class RecordControllerTest {
 
     @Before
     public void setUp() throws IOException {
-        transportList = om.readValue(TestData.RECORDS, om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
+        transportList = om.readValue(TestData.RECORDS_INPUT, om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
     }
 
     @TestPropertySource("classpath:application.properties")
@@ -85,7 +85,7 @@ public class RecordControllerTest {
     public void Save_record_transport_data() throws Exception {
         mvc.perform(post("/records")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(TestData.RECORDS))
+                .content(TestData.RECORDS_INPUT))
                 .andExpect(status().isOk());
     }
 }
