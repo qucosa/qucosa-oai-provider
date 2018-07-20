@@ -1,14 +1,20 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
 import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.api.record.RecordApi;
+import de.qucosa.oai.provider.api.sets.SetApi;
+import de.qucosa.oai.provider.dao.DisseminationTestDao;
 import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.dao.RecordTestDao;
+import de.qucosa.oai.provider.dao.SetTestDao;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.model.Dissemination;
 import de.qucosa.oai.provider.persitence.model.Format;
 import de.qucosa.oai.provider.persitence.model.Record;
 import de.qucosa.oai.provider.persitence.model.RecordTransport;
+import de.qucosa.oai.provider.persitence.model.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.client.RestTemplate;
 import testdata.TestData;
 
 import java.io.IOException;
@@ -50,12 +55,6 @@ public class RecordControllerTest {
     @TestPropertySource("classpath:application.properties")
     @TestConfiguration
     public static class SetControllerTestConfiguration {
-
-        @Bean
-        public RestTemplate restTemplate() {
-            return new RestTemplate();
-        }
-
         @Bean
         public Dao formatDao() {
             return new FormatTestDao<Format>();
@@ -78,6 +77,30 @@ public class RecordControllerTest {
             RecordApi recordApi = new RecordApi();
             recordApi.setDao(recordDao());
             return recordApi;
+        }
+
+        @Bean
+        public Dao setDao() {
+            return new SetTestDao<Set>();
+        }
+
+        @Bean
+        public SetApi setApi() {
+            SetApi setApi = new SetApi();
+            setApi.setDao(setDao());
+            return setApi;
+        }
+
+        @Bean
+        public Dao disseminationDao() {
+            return new DisseminationTestDao<Dissemination>();
+        }
+
+        @Bean
+        public DisseminationApi disseminationApi() {
+            DisseminationApi disseminationApi = new DisseminationApi();
+            disseminationApi.setDao(disseminationDao());
+            return disseminationApi;
         }
     }
 
