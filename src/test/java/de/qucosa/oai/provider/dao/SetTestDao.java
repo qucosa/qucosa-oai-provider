@@ -2,6 +2,7 @@ package de.qucosa.oai.provider.dao;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Set;
 import testdata.TestData;
@@ -12,16 +13,16 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-public class SetTestDao<T> implements Dao<T> {
+public class SetTestDao<Tparam> implements Dao<Set, Tparam> {
     @Override
-    public T save(T object) throws SQLException {
+    public Set save(Tparam object) throws SQLException {
         Set set = (Set) object;
         set.setSetId(new Long(1));
-        return (T) set;
+        return set;
     }
 
     @Override
-    public T save(Collection objects) throws SQLException {
+    public List<Set> save(Collection objects) throws SQLException {
         int i = 0;
 
         for (Iterator iterator = objects.iterator(); iterator.hasNext();) {
@@ -30,11 +31,11 @@ public class SetTestDao<T> implements Dao<T> {
             set.setSetId(Long.valueOf(i));
         }
 
-        return (T) objects;
+        return (List<Set>) objects;
     }
 
     @Override
-    public T update(T object) throws SQLException {
+    public Set update(Tparam object) throws SQLException {
         Set set = (Set) object;
         ObjectMapper om = new ObjectMapper();
 
@@ -54,16 +55,16 @@ public class SetTestDao<T> implements Dao<T> {
             throw new SQLException("No sets found.");
         }
 
-        return (T) set;
+        return set;
     }
 
     @Override
-    public T update(Collection objects) {
+    public List<Set> update(Collection objects) {
         return null;
     }
 
     @Override
-    public T findAll() throws SQLException {
+    public List<Set> findAll() throws SQLException {
         ObjectMapper om = new ObjectMapper();
         List<Set> sets = null;
 
@@ -73,16 +74,16 @@ public class SetTestDao<T> implements Dao<T> {
             throw new SQLException("No sets found.");
         }
 
-        return (T) sets;
+        return sets;
     }
 
     @Override
-    public T findById(T value) {
+    public Set findById(Tparam value) {
         return null;
     }
 
     @Override
-    public T findByColumnAndValue(String column, T value) throws SQLException {
+    public Set findByColumnAndValue(String column, Tparam value) throws SQLException {
         ObjectMapper om = new ObjectMapper();
         Set set = null;
         List<Set> sets = null;
@@ -99,11 +100,11 @@ public class SetTestDao<T> implements Dao<T> {
             }
         }
 
-        return (T) set;
+        return set;
     }
 
     @Override
-    public T delete(String column, T ident, boolean value) throws SQLException {
+    public Set delete(String column, Tparam ident, boolean value) throws SQLException {
         ObjectMapper om = new ObjectMapper();
         Set set = null;
 
@@ -124,6 +125,11 @@ public class SetTestDao<T> implements Dao<T> {
             }
         } catch (IOException e) { }
 
-        return (T) set;
+        return set;
+    }
+
+    @Override
+    public void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException {
+
     }
 }

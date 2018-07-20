@@ -1,23 +1,27 @@
 package de.qucosa.oai.provider.persitence;
 
-import java.io.IOException;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.List;
 
-public interface Dao<T> {
-    public T save(T object) throws SQLException;
+public interface Dao<Treturn, Tparam> {
+    Treturn save(Tparam object) throws SQLException;
 
-    public T save(Collection objects) throws SQLException;
+    List<Treturn> save(Collection objects) throws SQLException;
 
-    public T update(T object) throws SQLException;
+    Treturn update(Tparam object) throws SQLException;
 
-    public T update(Collection objects);
+    List<Treturn> update(Collection objects);
 
-    public T findAll() throws SQLException;
+    List<Treturn> findAll() throws SQLException;
 
-    public T findById(T value);
+    Treturn findById(Tparam value);
 
-    public T findByColumnAndValue(String column, T value) throws SQLException;
+    Treturn findByColumnAndValue(String column, Tparam value) throws SQLException;
 
-    public T delete(String column, T ident, boolean value) throws SQLException;
+    Treturn delete(String column, Tparam ident, boolean value) throws SQLException;
+
+    void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException;
 }

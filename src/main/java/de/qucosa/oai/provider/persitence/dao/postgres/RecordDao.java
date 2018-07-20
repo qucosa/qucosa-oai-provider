@@ -2,15 +2,17 @@ package de.qucosa.oai.provider.persitence.dao.postgres;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.model.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.List;
 
 @Repository
-public class RecordDao<T> implements Dao<T> {
+public class RecordDao<Tparam> implements Dao<Record, Tparam> {
 
     private Connection connection;
 
@@ -20,42 +22,42 @@ public class RecordDao<T> implements Dao<T> {
     }
 
     @Override
-    public T save(T object) {
+    public Record save(Tparam object) {
         return null;
     }
 
     @Override
-    public T save(Collection objects) {
+    public List<Record> save(Collection objects) {
         return null;
     }
 
     @Override
-    public T update(T object) {
+    public Record update(Tparam object) {
         return null;
     }
 
     @Override
-    public T update(Collection objects) {
+    public List<Record> update(Collection objects) {
         return null;
     }
 
     @Override
-    public T findAll() {
+    public List<Record> findAll() {
         return null;
     }
 
     @Override
-    public T findById(T value) {
+    public Record findById(Tparam value) {
         return null;
     }
 
     @Override
-    public T findByColumnAndValue(String column, T value) {
+    public Record findByColumnAndValue(String column, Tparam value) {
         return null;
     }
 
     @Override
-    public T delete(String column, T ident, boolean value) {
+    public Record delete(String column, Tparam ident, boolean value) {
         return null;
     }
 }

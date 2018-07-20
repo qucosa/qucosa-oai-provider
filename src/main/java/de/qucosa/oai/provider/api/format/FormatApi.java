@@ -59,7 +59,7 @@ public class FormatApi<T> {
     }
 
     public List<Format> saveFormats(List<Format> formats) throws SQLException {
-        return (List<Format>) dao.save(formats);
+        return dao.save(formats);
     }
 
     public Format updateFormat(Format input, String mdprefix) throws Exception {

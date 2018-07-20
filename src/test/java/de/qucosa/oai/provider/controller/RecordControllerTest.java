@@ -6,6 +6,8 @@ import de.qucosa.oai.provider.api.record.RecordApi;
 import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.dao.RecordTestDao;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.model.Format;
+import de.qucosa.oai.provider.persitence.model.Record;
 import de.qucosa.oai.provider.persitence.model.RecordTransport;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,8 +57,8 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public <T> Dao<T> formatDao() {
-            return new FormatTestDao<>();
+        public Dao formatDao() {
+            return new FormatTestDao<Format>();
         }
 
         @Bean
@@ -67,8 +69,8 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public <T> Dao<T> recordDao() {
-            return new RecordTestDao<>();
+        public Dao recordDao() {
+            return new RecordTestDao<Record>();
         }
 
         @Bean

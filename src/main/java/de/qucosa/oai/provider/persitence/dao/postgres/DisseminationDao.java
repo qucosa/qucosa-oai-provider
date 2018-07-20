@@ -1,49 +1,58 @@
 package de.qucosa.oai.provider.persitence.dao.postgres;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.model.Dissemination;
 import org.springframework.stereotype.Repository;
 
+import java.sql.SQLException;
 import java.util.Collection;
+import java.util.List;
 
 @Repository
-public class DisseminationDao<T> implements Dao<T> {
+public class DisseminationDao<Tparam> implements Dao<Dissemination, Tparam> {
     @Override
-    public T save(T object) {
+    public Dissemination save(Tparam object) {
         return null;
     }
 
     @Override
-    public T save(Collection objects) {
+    public List<Dissemination> save(Collection objects) {
         return null;
     }
 
     @Override
-    public T update(T object) {
+    public Dissemination update(Tparam object) {
         return null;
     }
 
     @Override
-    public T update(Collection objects) {
+    public List<Dissemination> update(Collection objects) {
         return null;
     }
 
     @Override
-    public T findAll() {
+    public List<Dissemination> findAll() {
         return null;
     }
 
     @Override
-    public T findById(T value) {
+    public Dissemination findById(Tparam value) {
         return null;
     }
 
     @Override
-    public T findByColumnAndValue(String column, T value) {
+    public Dissemination findByColumnAndValue(String column, Tparam value) {
         return null;
     }
 
     @Override
-    public T delete(String column, T ident, boolean value) {
+    public Dissemination delete(String column, Tparam ident, boolean value) {
         return null;
+    }
+
+    @Override
+    public void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException {
+
     }
 }

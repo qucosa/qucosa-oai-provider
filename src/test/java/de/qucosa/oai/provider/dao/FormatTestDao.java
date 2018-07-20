@@ -2,6 +2,7 @@ package de.qucosa.oai.provider.dao;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Format;
 import testdata.TestData;
@@ -12,16 +13,16 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-public class FormatTestDao<T> implements Dao<T> {
+public class FormatTestDao<Tparam> implements Dao<Format, Tparam> {
     @Override
-    public T save(T object) throws SQLException {
+    public Format save(Tparam object) throws SQLException {
         Format format = (Format) object;
         format.setFormatId(Long.valueOf(1));
-        return (T) format;
+        return format;
     }
 
     @Override
-    public T save(Collection objects) throws SQLException {
+    public List<Format> save(Collection objects) throws SQLException {
         int i = 0;
 
         for (Iterator iterator = objects.iterator(); iterator.hasNext();) {
@@ -30,11 +31,11 @@ public class FormatTestDao<T> implements Dao<T> {
             format.setFormatId(Long.valueOf(i));
         }
 
-        return (T) objects;
+        return (List<Format>) objects;
     }
 
     @Override
-    public T update(T object) throws SQLException {
+    public Format update(Tparam object) throws SQLException {
         Format format = (Format) object;
         ObjectMapper om = new ObjectMapper();
 
@@ -54,16 +55,16 @@ public class FormatTestDao<T> implements Dao<T> {
             throw new SQLException("No formats found.");
         }
 
-        return (T) format;
+        return format;
     }
 
     @Override
-    public T update(Collection objects) {
+    public List<Format> update(Collection objects) {
         return null;
     }
 
     @Override
-    public T findAll() throws SQLException {
+    public List<Format> findAll() throws SQLException {
         ObjectMapper om = new ObjectMapper();
         List<Format> formats;
 
@@ -73,16 +74,16 @@ public class FormatTestDao<T> implements Dao<T> {
             throw new SQLException("No formats found.");
         }
 
-        return (T) formats;
+        return formats;
     }
 
     @Override
-    public T findById(T value) {
+    public Format findById(Tparam value) {
         return null;
     }
 
     @Override
-    public T findByColumnAndValue(String column, T value) throws SQLException {
+    public Format findByColumnAndValue(String column, Tparam value) throws SQLException {
         ObjectMapper om = new ObjectMapper();
         Format format = null;
 
@@ -100,18 +101,18 @@ public class FormatTestDao<T> implements Dao<T> {
                 if (node.get(column).asText().equals(value)) {
                     format = om.readValue(node.toString(), Format.class);
                     format.setFormatId(Long.valueOf(i));
-                    break;
+                    return format;
                 }
             }
         } catch (IOException e) {
             throw new SQLException("No formats found.");
         }
 
-        return (T) format;
+        throw new SQLException("Format is not found.");
     }
 
     @Override
-    public T delete(String column, T ident, boolean value) throws SQLException {
+    public Format delete(String column, Tparam ident, boolean value) throws SQLException {
         ObjectMapper om = new ObjectMapper();
         Format format = null;
 
@@ -137,6 +138,9 @@ public class FormatTestDao<T> implements Dao<T> {
             throw new SQLException("No formats found.");
         }
 
-        return (T) format;
+        return format;
     }
+
+    @Override
+    public void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException { }
 }

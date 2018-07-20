@@ -53,8 +53,8 @@ public class SetControllerTest {
     public static class SetControllerTestConfiguration {
 
         @Bean
-        public <T> Dao<T> setDao() {
-            return new SetTestDao<>();
+        public Dao setDao() {
+            return new SetTestDao<Set>();
         }
 
         @Bean

@@ -45,13 +45,13 @@ public class FormatsController {
 
     @RequestMapping(value = "{mdprefix}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Format> find(@PathVariable String mdprefix) {
+    public ResponseEntity<Format> find(@PathVariable String mdprefix) throws SQLException {
         Format format = null;
 
         try {
             format = formatApi.find("mdprefix", mdprefix);
         } catch (SQLException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            throw new SQLException(e.getMessage(), e);
         }
 
         return new ResponseEntity<Format>(format, HttpStatus.OK);

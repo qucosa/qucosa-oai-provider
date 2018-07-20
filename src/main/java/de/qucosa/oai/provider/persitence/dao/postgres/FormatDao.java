@@ -3,7 +3,6 @@ package de.qucosa.oai.provider.persitence.dao.postgres;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Format;
-import de.qucosa.oai.provider.persitence.model.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Repository
-public class FormatDao<T> implements Dao<T> {
+public class FormatDao<Tparam> implements Dao<Format, Tparam> {
     private Connection connection;
 
     @Autowired
@@ -27,7 +26,7 @@ public class FormatDao<T> implements Dao<T> {
     }
 
     @Override
-    public T save(T object) throws SQLException {
+    public Format save(Tparam object) throws SQLException {
         Format input = (Format) object;
 
         String sql = "INSERT INTO formats (id, mdprefix, schemaurl, namespace) ";
@@ -55,11 +54,11 @@ public class FormatDao<T> implements Dao<T> {
 
         ps.close();
 
-        return (T) input;
+        return input;
     }
 
     @Override
-    public T save(Collection objects) throws SQLException {
+    public List<Format> save(Collection objects) throws SQLException {
         String sql = "INSERT INTO formats (id, mdprefix, schemaurl, namespace) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (mdprefix) ";
@@ -104,11 +103,11 @@ public class FormatDao<T> implements Dao<T> {
         connection.commit();
         ps.close();
 
-        return (T) output;
+        return output;
     }
 
     @Override
-    public T update(T object) throws SQLException {
+    public Format update(Tparam object) throws SQLException {
         Format input = (Format) object;
         String sql = "UPDATE formats SET schemaurl = ?, namespace = ? where mdprefix = ? AND deleted = FALSE";
         PreparedStatement ps = connection.prepareStatement(sql);
@@ -126,18 +125,18 @@ public class FormatDao<T> implements Dao<T> {
 
         ps.close();
 
-        Format format = (Format) findByColumnAndValue("mdprefix", (T) input.getMdprefix());
+        Format format = (Format) findByColumnAndValue("mdprefix", (Tparam) input.getMdprefix());
 
-        return (T) format;
+        return format;
     }
 
     @Override
-    public T update(Collection objects) {
+    public List<Format> update(Collection objects) {
         return null;
     }
 
     @Override
-    public T findAll() throws SQLException {
+    public List<Format> findAll() throws SQLException {
         String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats";
         Statement stmt = connection.createStatement();
         ResultSet resultSet = stmt.executeQuery(sql);
@@ -159,16 +158,17 @@ public class FormatDao<T> implements Dao<T> {
         resultSet.close();
         stmt.close();
 
-        return (T) formats;
+        return formats;
     }
 
     @Override
-    public T findById(T value) {
+    public Format findById(Tparam value) {
         return null;
     }
 
+
     @Override
-    public T findByColumnAndValue(String column, T value) throws SQLException {
+    public Format findByColumnAndValue(String column, Tparam value) throws SQLException {
         String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats where " + column + " = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, (String) value);
@@ -186,11 +186,11 @@ public class FormatDao<T> implements Dao<T> {
         resultSet.close();
         ps.close();
 
-        return (T) format;
+        return format;
     }
 
     @Override
-    public T delete(String column, T ident, boolean value) throws SQLException {
+    public Format delete(String column, Tparam ident, boolean value) throws SQLException {
         String sql = "UPDATE formats SET deleted = ? WHERE " + column + " = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         connection.setAutoCommit(false);

@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Repository
-public class SetDao<T> implements Dao<T> {
+public class SetDao<Tparam> implements Dao<Set, Tparam> {
     private Connection connection;
 
     @Autowired
@@ -26,7 +26,7 @@ public class SetDao<T> implements Dao<T> {
     }
 
     @Override
-    public T save(T object) throws SQLException {
+    public Set save(Tparam object) throws SQLException {
         Set input = (Set) object;
 
         String sql = "INSERT INTO sets (id, setspec, setname, setdescription) ";
@@ -56,11 +56,11 @@ public class SetDao<T> implements Dao<T> {
 
         ps.close();
 
-        return (T) input;
+        return input;
     }
 
     @Override
-    public T save(Collection objects) throws SQLException {
+    public List<Set> save(Collection objects) throws SQLException {
         String sql = "INSERT INTO sets (id, setspec, setname, setdescription) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (setspec) ";
@@ -105,11 +105,11 @@ public class SetDao<T> implements Dao<T> {
         connection.commit();
         ps.close();
 
-        return (T) output;
+        return output;
     }
 
     @Override
-    public T update(T object) throws SQLException {
+    public Set update(Tparam object) throws SQLException {
         Set input = (Set) object;
         String sql = "UPDATE sets SET setname = ?, setdescription = ? where setspec = ? AND deleted = FALSE";
         PreparedStatement ps = connection.prepareStatement(sql);
@@ -124,20 +124,20 @@ public class SetDao<T> implements Dao<T> {
             throw new SQLException("Update set is failed, no affected rows.");
         }
 
-        Set set = (Set) findByColumnAndValue("setspec", (T) input.getSetSpec());
+        Set set = (Set) findByColumnAndValue("setspec", (Tparam) input.getSetSpec());
 
         ps.close();
 
-        return (T) set;
+        return set;
     }
 
     @Override
-    public T update(Collection objects) {
+    public List<Set> update(Collection objects) {
         return null;
     }
 
     @Override
-    public T findAll() throws SQLException {
+    public List<Set> findAll() throws SQLException {
         String sql = "SELECT id, setspec, setname, setdescription, deleted FROM sets";
         Statement stmt = connection.createStatement();
         ResultSet resultSet = stmt.executeQuery(sql);
@@ -156,16 +156,16 @@ public class SetDao<T> implements Dao<T> {
             } while(resultSet.next());
         }
 
-        return (T) sets;
+        return sets;
     }
 
     @Override
-    public T findById(T value) {
+    public Set findById(Tparam value) {
         return null;
     }
 
     @Override
-    public T findByColumnAndValue(String column, T value) throws SQLException {
+    public Set findByColumnAndValue(String column, Tparam value) throws SQLException {
         String sql = "SELECT id, setspec,setname, setdescription, deleted FROM sets where " + column + " = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setString(1, (String) value);
@@ -183,11 +183,11 @@ public class SetDao<T> implements Dao<T> {
         resultSet.close();
         ps.close();
 
-        return (T) set;
+        return set;
     }
 
     @Override
-    public T delete(String column, T ident, boolean value) throws SQLException {
+    public Set delete(String column, Tparam ident, boolean value) throws SQLException {
         String sql = "UPDATE sets SET deleted = ? WHERE " + column + " = ?";
         PreparedStatement ps = connection.prepareStatement(sql);
         connection.setAutoCommit(false);
@@ -204,6 +204,6 @@ public class SetDao<T> implements Dao<T> {
 
         ps.close();
 
-        return (T) set;
+        return set;
     }
 }

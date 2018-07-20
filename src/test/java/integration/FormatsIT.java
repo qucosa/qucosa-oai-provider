@@ -72,8 +72,15 @@ public class FormatsIT {
     }
 
     @Test
-    public void Find_format_by_mdprefix() throws SQLException {
+    public void Find_format_by_mdprefix_successful() throws SQLException {
         Format format = formatApi.find("mdprefix", "oai_dc");
+        assertThat(format).isNotNull();
+        assertThat(format.getMdprefix().trim()).isEqualTo("oai_dc");
+    }
+
+    @Test
+    public void Find_format_by_mdprefix_not_successful() throws SQLException {
+        Format format = formatApi.find("mdprefix", "oai_c");
         assertThat(format).isNotNull();
         assertThat(format.getMdprefix().trim()).isEqualTo("oai_dc");
     }

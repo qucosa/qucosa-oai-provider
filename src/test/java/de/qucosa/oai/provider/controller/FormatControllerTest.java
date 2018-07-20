@@ -7,7 +7,9 @@ import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Format;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,11 +20,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.util.NestedServletException;
 import testdata.TestData;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -45,6 +50,9 @@ public class FormatControllerTest {
     @Autowired
     private MockMvc mvc;
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @Before
     public void setUp() throws IOException {
         formats = om.readValue(TestData.FORMATS, om.getTypeFactory().constructCollectionType(List.class, Format.class));
@@ -54,8 +62,8 @@ public class FormatControllerTest {
     @TestConfiguration
     public static class FormatControllerTestConfiguration {
         @Bean
-        public <T> Dao<T> formatDao() {
-            return new FormatTestDao<>();
+        public Dao formatDao() {
+            return new FormatTestDao<Format>();
         }
 
         @Bean
@@ -97,11 +105,21 @@ public class FormatControllerTest {
     }
 
     @Test
-    public void Find_format_by_mdprefix() throws Exception {
+    public void Find_format_by_mdprefix_successful() throws Exception {
         mvc.perform(get("/formats/oai_dc")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mdprefix", is("oai_dc")));
+    }
+
+    @Test/*(expected = NestedServletException.class)*/
+    public void Find_format_by_mdprefix_not_successful() throws Exception {
+        thrown.expect(NestedServletException.class);
+        thrown.expectMessage(containsString("Format is not found."));
+
+        mvc.perform(get("/formats/oai_d")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

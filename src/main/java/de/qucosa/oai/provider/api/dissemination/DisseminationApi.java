@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class DisseminationApi<T> {
-    private Dao<Dissemination> dao;
+    private Dao dao;
 
     private T inputData;
 
@@ -34,7 +34,7 @@ public class DisseminationApi<T> {
         dao = new DisseminationDao<Dissemination>();
     }
 
-    public DisseminationApi(Dao<Dissemination> dao, Dissemination input) {
+    public DisseminationApi(Dao dao, Dissemination input) {
         this.inputData = (T) input;
         this.dao = dao;
     }

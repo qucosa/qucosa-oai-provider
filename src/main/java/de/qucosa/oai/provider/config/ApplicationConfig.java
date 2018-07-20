@@ -9,6 +9,7 @@ import de.qucosa.oai.provider.persitence.dao.postgres.DisseminationDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.FormatDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.RecordDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.SetDao;
+import de.qucosa.oai.provider.persitence.model.Dissemination;
 import de.qucosa.oai.provider.persitence.model.Format;
 import de.qucosa.oai.provider.persitence.model.Record;
 import de.qucosa.oai.provider.persitence.model.Set;
@@ -48,13 +49,13 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public <T> Dao<T> disseminationDao() { return new DisseminationDao<T>(); }
+    public Dao disseminationDao() { return new DisseminationDao<Dissemination>(); }
 
     @Bean
-    public <T> Dao<T> setDao() throws SQLException, PropertyVetoException {
-        Dao<Set> setDao = new SetDao();
-        ((SetDao<Set>) setDao).setConnection(dataSource());
-        return (Dao<T>) setDao;
+    public Dao setDao() throws SQLException, PropertyVetoException {
+        Dao setDao = new SetDao<Set>();
+        setDao.setConnection(dataSource());
+        return setDao;
     }
 
     @Bean
@@ -65,10 +66,10 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public <T> Dao<T> recordDao() throws PropertyVetoException, SQLException {
-        Dao<Record> recordDao = new RecordDao<>();
-        ((RecordDao<Record>) recordDao).setConnection(dataSource());
-        return (Dao<T>) recordDao;
+    public Dao recordDao() throws PropertyVetoException, SQLException {
+        Dao recordDao = new RecordDao<Record>();
+        recordDao.setConnection(dataSource());
+        return recordDao;
     }
 
     @Bean
@@ -79,10 +80,10 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public <T> Dao<T> formatDao() throws PropertyVetoException, SQLException {
-        Dao<Format> formatDao = new FormatDao();
-        ((FormatDao<Format>) formatDao).setConnection(dataSource());
-        return (Dao<T>) formatDao;
+    public Dao formatDao() throws PropertyVetoException, SQLException {
+        Dao formatDao = new FormatDao<Format>();
+        formatDao.setConnection(dataSource());
+        return formatDao;
     }
 
     @Bean
