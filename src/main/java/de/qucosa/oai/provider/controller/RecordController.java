@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 @RequestMapping("/records")
@@ -30,10 +30,10 @@ public class RecordController {
     private RecordApi recordApi;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private Environment environment;
 
     @Autowired
-    private Environment environment;
+    private FormatsController formatsController;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -48,8 +48,17 @@ public class RecordController {
             }
 
             for (RecordTransport rt : inputData) {
-                Format format = restTemplate.getForObject(environment.getProperty("app.url") + "/formats/" + rt.getFormat().getMdprefix(), Format.class);
-                format.getMdprefix();
+                Format format = null;
+
+                try {
+                    ResponseEntity<Format> formatRE = formatsController.find(rt.getFormat().getMdprefix());
+                    format = formatRE.getBody();
+                } catch (SQLException e) {
+                    ResponseEntity<Format> formatRE = formatsController.save(om.writeValueAsString(rt.getFormat()));
+                    format = formatRE.getBody();
+                }
+
+
             }
         } catch (IOException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
