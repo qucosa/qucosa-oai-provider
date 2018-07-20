@@ -44,8 +44,9 @@ public class FormatApi<T> {
             inputData = input;
         }
 
-        setDao(new FormatDao<>());
+        setDao(new FormatDao<Format>());
     }
+
     public void setDao(Dao dao) {
         this.dao = dao;
     }
