@@ -7,6 +7,7 @@ import de.qucosa.oai.provider.persitence.model.Record;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 @Component
@@ -54,8 +55,8 @@ public class RecordApi<T> {
         return inputData;
     }
 
-    public Record saveRecord() {
-        return null;
+    public Record saveRecord(Record record) throws SQLException {
+        return (Record) dao.save(record);
     }
 
     public Record updateRecord() {
@@ -66,7 +67,8 @@ public class RecordApi<T> {
         return true;
     }
 
-    public Record findRecord() {
-        return null;
+    public Record findRecord(String column, String uid) throws SQLException {
+        Record record = (Record) dao.findByColumnAndValue(column, uid);
+        return record;
     }
 }
