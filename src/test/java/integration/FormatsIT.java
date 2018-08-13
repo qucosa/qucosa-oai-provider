@@ -6,7 +6,6 @@ import de.qucosa.oai.provider.api.sets.SetApi;
 import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Format;
-import de.qucosa.oai.provider.persitence.model.Set;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
