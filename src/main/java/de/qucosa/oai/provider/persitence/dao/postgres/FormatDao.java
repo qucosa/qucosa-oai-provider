@@ -39,14 +39,15 @@ public class FormatDao<Tparam> implements Dao<Format, Tparam> {
         ps.setString(2, input.getSchemaUrl());
         ps.setString(3, input.getNamespace());
         int affectedRows = ps.executeUpdate();
+
         if (affectedRows == 0) {
-            throw new SQLException("Creating Set failed, no rows affected.");
+            throw new SQLException("Creating format failed, no rows affected.");
         }
 
         try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
 
             if (!generatedKeys.next()) {
-                throw new SQLException("Creating Set failed, no ID obtained.");
+                throw new SQLException("Creating format failed, no ID obtained.");
             }
 
             input.setFormatId(generatedKeys.getLong("id"));
