@@ -63,8 +63,9 @@ public class RecordApi<T> {
         return null;
     }
 
-    public boolean deleteRecord() {
-        return true;
+    public Record deleteRecord(Record input) throws SQLException {
+        Record record = (Record) dao.delete("uid", input.getUid(), input.isDeleted());
+        return record;
     }
 
     public Record findRecord(String column, String uid) throws SQLException {
