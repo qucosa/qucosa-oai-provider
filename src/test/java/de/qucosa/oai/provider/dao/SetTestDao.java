@@ -104,7 +104,7 @@ public class SetTestDao<Tparam> implements Dao<Set, Tparam> {
     }
 
     @Override
-    public Set findByWhereClause(String clause) throws SQLException {
+    public Set findByMultipleValues(String clause, Tparam... values) throws SQLException {
         return null;
     }
 

@@ -47,7 +47,7 @@ public class DisseminationDao<Tparam> implements Dao<Dissemination, Tparam> {
     }
 
     @Override
-    public Dissemination findByWhereClause(String clause) throws SQLException {
+    public Dissemination findByMultipleValues(String clause, Tparam... values) throws SQLException {
         return null;
     }
 
