@@ -121,6 +121,22 @@ public class RecordController {
         return new ResponseEntity(updatedRecord, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "{uid}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Record> delete(@PathVariable String uid, @PathVariable boolean delete) {
+        Record record = null;
+
+        try {
+            record = recordApi.findRecord("uid", uid);
+            record.setDeleted(delete);
+            record = recordApi.deleteRecord(record);
+        } catch (SQLException e) {
+            return new ResponseEntity("Record with uid (" + uid + ") not found.", HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<Record>(record, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Record> find(@PathVariable String uid) {
