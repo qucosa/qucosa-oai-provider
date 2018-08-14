@@ -15,7 +15,7 @@ public class Dissemination extends ResourceSupport implements Serializable {
     private Long dissId;
 
     @JsonProperty("recordid")
-    private Long recordId;
+    private String recordId;
 
     @JsonProperty("formatid")
     private Long formatId;
@@ -33,9 +33,9 @@ public class Dissemination extends ResourceSupport implements Serializable {
 
     public void setDissId(Long dissId) { this.dissId = dissId; }
 
-    public Long getRecordId() { return recordId; }
+    public String getRecordId() { return recordId; }
 
-    public void setRecordId(Long recordId) { this.recordId = recordId; }
+    public void setRecordId(String recordId) { this.recordId = recordId; }
 
     public Long getFormatId() { return formatId; }
 
