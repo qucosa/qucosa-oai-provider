@@ -27,7 +27,27 @@ public class RecordTestDao<Tparam> implements Dao<Record, Tparam> {
 
     @Override
     public Record update(Tparam object) throws SQLException {
-        return null;
+        ObjectMapper om = new ObjectMapper();
+        List<Record> records = null;
+        Record input = (Record) object;
+
+        try {
+            records = om.readValue(TestData.RECORDS, om.getTypeFactory().constructCollectionType(List.class, Record.class));
+
+            for (Record record : records) {
+
+                if (!record.getUid().equals(input.getUid())) {
+                    continue;
+                }
+
+                record = input;
+                return record;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Records nor parse.", e);
+        }
+
+        throw new SQLException("Record cannot update.");
     }
 
     @Override
