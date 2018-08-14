@@ -32,8 +32,11 @@ import testdata.TestData;
 import java.io.IOException;
 import java.util.List;
 
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -122,5 +125,21 @@ public class RecordControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(records.get(0))))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void Mark_record_as_deleted() throws Exception {
+        mvc.perform(delete("/records/oai:example:org:qucosa:55887/true")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.deleted", is(true)));
+    }
+
+    @Test
+    public void Mark_record_as_not_deleted() throws Exception {
+        mvc.perform(delete("/records/oai:example:org:qucosa:55887/false")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.deleted", is(false)));
     }
 }
