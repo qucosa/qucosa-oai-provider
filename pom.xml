@@ -40,6 +40,7 @@
         <jackson.version>2.9.2</jackson.version>
         <psql.version>42.2.3</psql.version>
         <c3p0.version>0.9.5.2</c3p0.version>
+        <commons.lang3.version>3.7</commons.lang3.version>
     </properties>
 
     <dependencies>
@@ -87,6 +88,12 @@
             <groupId>com.mchange</groupId>
             <artifactId>c3p0</artifactId>
             <version>${c3p0.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
         </dependency>
     </dependencies>
 
