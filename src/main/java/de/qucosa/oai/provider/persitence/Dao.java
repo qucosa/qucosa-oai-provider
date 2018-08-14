@@ -21,6 +21,8 @@ public interface Dao<Treturn, Tparam> {
 
     Treturn findByColumnAndValue(String column, Tparam value) throws SQLException;
 
+    List<Treturn> findAllByColumnAndValue(String column, Tparam value) throws SQLException;
+
     Treturn delete(String column, Tparam ident, boolean value) throws SQLException;
 
     void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException;

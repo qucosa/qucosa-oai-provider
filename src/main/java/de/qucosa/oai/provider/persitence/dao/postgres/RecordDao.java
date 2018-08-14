@@ -115,6 +115,11 @@ public class RecordDao<Tparam> implements Dao<Record, Tparam> {
     }
 
     @Override
+    public List<Record> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
+        return null;
+    }
+
+    @Override
     public Record delete(String column, Tparam ident, boolean value) throws SQLException {
         String sql = "UPDATE records SET deleted = ? WHERE " + column + " = ?";
         PreparedStatement ps = connection.prepareStatement(sql);

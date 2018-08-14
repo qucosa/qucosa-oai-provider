@@ -1,10 +1,15 @@
 package de.qucosa.oai.provider.dao;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Dissemination;
+import testdata.TestData;
 
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,7 +48,61 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
 
     @Override
     public Dissemination findByColumnAndValue(String column, Tparam value) throws SQLException {
+        ObjectMapper om = new ObjectMapper();
+        Dissemination dissemination = null;
+
+        try {
+            JsonNode nodes = om.readTree(TestData.DISSEMINATIONS);
+            int i = 0;
+
+            for (JsonNode node : nodes) {
+                i++;
+
+                if (!node.has(column)) {
+                    throw new SQLException(column + " not found in disseminations table.");
+                }
+
+                if (node.get(column).asText().equals(value)) {
+                    dissemination = om.readValue(node.toString(), Dissemination.class);
+                    dissemination.setDissId(Long.valueOf(i));
+                    return dissemination;
+                }
+            }
+        } catch (IOException e) {
+            throw new SQLException("No disseminations found.");
+        }
+
         return null;
+    }
+
+    @Override
+    public List<Dissemination> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
+        ObjectMapper om = new ObjectMapper();
+        Dissemination dissemination = null;
+        List<Dissemination> disseminations = new ArrayList<>();
+
+        try {
+            JsonNode nodes = om.readTree(TestData.DISSEMINATIONS);
+            int i = 0;
+
+            for (JsonNode node : nodes) {
+                i++;
+
+                if (!node.has(column)) {
+                    throw new SQLException(column + " not found in disseminations table.");
+                }
+
+                if (node.get(column).asText().equals(value)) {
+                    dissemination = om.readValue(node.toString(), Dissemination.class);
+                    dissemination.setDissId(Long.valueOf(i));
+                    disseminations.add(dissemination);
+                }
+            }
+        } catch (IOException e) {
+            throw new SQLException("No disseminations found.");
+        }
+
+        return disseminations;
     }
 
     @Override

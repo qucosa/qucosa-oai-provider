@@ -108,6 +108,11 @@ public class RecordTestDao<Tparam> implements Dao<Record, Tparam> {
     }
 
     @Override
+    public List<Record> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
+        return null;
+    }
+
+    @Override
     public Record delete(String column, Tparam ident, boolean value) throws SQLException {
         ObjectMapper om = new ObjectMapper();
         Record record = null;

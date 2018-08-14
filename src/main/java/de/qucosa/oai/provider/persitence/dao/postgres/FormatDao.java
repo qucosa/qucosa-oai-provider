@@ -191,6 +191,11 @@ public class FormatDao<Tparam> implements Dao<Format, Tparam> {
     }
 
     @Override
+    public List<Format> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
+        return null;
+    }
+
+    @Override
     public Format delete(String column, Tparam ident, boolean value) throws SQLException {
         String sql = "UPDATE formats SET deleted = ? WHERE " + column + " = ?";
         PreparedStatement ps = connection.prepareStatement(sql);

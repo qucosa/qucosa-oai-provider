@@ -187,6 +187,11 @@ public class SetDao<Tparam> implements Dao<Set, Tparam> {
     }
 
     @Override
+    public List<Set> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
+        return null;
+    }
+
+    @Override
     public Set delete(String column, Tparam ident, boolean value) throws SQLException {
         String sql = "UPDATE sets SET deleted = ? WHERE " + column + " = ?";
         PreparedStatement ps = connection.prepareStatement(sql);

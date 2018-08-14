@@ -47,6 +47,11 @@ public class DisseminationDao<Tparam> implements Dao<Dissemination, Tparam> {
     }
 
     @Override
+    public List<Dissemination> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
+        return null;
+    }
+
+    @Override
     public Dissemination delete(String column, Tparam ident, boolean value) {
         return null;
     }
