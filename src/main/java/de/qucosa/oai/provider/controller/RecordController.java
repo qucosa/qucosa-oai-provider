@@ -100,6 +100,27 @@ public class RecordController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
+    @RequestMapping(value = "{uid}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Record> update(@RequestBody String input, @PathVariable String uid) {
+        ObjectMapper om = new ObjectMapper();
+        Record updatedRecord = null;
+
+        try {
+            Record record = om.readValue(input, Record.class);
+
+            try {
+                updatedRecord = recordApi.updateRecord(record);
+            } catch (SQLException e) {
+                return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+        } catch (IOException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity(updatedRecord, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Record> find(@PathVariable String uid) {
