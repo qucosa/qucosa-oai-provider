@@ -69,4 +69,12 @@ public class RecordsIT {
         record = recordApi.deleteRecord(record);
         assertThat(record.isDeleted()).isTrue();
     }
+
+    @Test
+    public void Mark_record_as_not_deleted() throws SQLException {
+        Record record = records.get(0);
+        record.setDeleted(false);
+        record = recordApi.deleteRecord(record);
+        assertThat(record.isDeleted()).isFalse();
+    }
 }
