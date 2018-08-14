@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -40,6 +41,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class RecordControllerTest {
     private List<RecordTransport> transportList = null;
+
+    private List<Record> records = null;
 
     @Autowired
     private ObjectMapper om;
@@ -50,6 +53,7 @@ public class RecordControllerTest {
     @Before
     public void setUp() throws IOException {
         transportList = om.readValue(TestData.RECORDS_INPUT, om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
+        records = om.readValue(TestData.RECORDS, om.getTypeFactory().constructCollectionType(List.class, Record.class));
     }
 
     @TestPropertySource("classpath:application.properties")
@@ -109,6 +113,14 @@ public class RecordControllerTest {
         mvc.perform(post("/records")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestData.RECORDS_INPUT))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void Update_record_object() throws Exception {
+        mvc.perform(put("/records/oai:example:org:qucosa:55887")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(records.get(0))))
                 .andExpect(status().isOk());
     }
 }
