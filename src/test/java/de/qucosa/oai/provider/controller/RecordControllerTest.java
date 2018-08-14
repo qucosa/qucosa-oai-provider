@@ -34,6 +34,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -141,5 +142,14 @@ public class RecordControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.deleted", is(false)));
+    }
+
+    @Test
+    public void Find_record_by_uid() throws Exception {
+        mvc.perform(get("/records/oai:example:org:qucosa:55887")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.uid", is("oai:example:org:qucosa:55887")))
+                .andExpect(jsonPath("$.pid", is("qucosa:55887")));
     }
 }
