@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Dissemination;
+import org.apache.commons.lang3.StringUtils;
 import testdata.TestData;
 
 import java.io.IOException;
@@ -77,6 +78,8 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
 
     @Override
     public Dissemination findByMultipleValues(String clause, Tparam... values) throws SQLException {
+        String result = StringUtils.replaceEachRepeatedly(clause, new String[] {"?", "?", "?"}, (String[]) values);
+        result.toLowerCase();
         return null;
     }
 
