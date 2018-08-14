@@ -61,11 +61,15 @@ public class DisseminationApi<T> {
         return null;
     }
 
-    public boolean deleteDissemination() {
-        return true;
+    public Dissemination deleteDissemination(Dissemination dissemination) throws SQLException {
+        return (Dissemination) dao.delete("id", dissemination.getDissId(), dissemination.isDeleted());
     }
 
-    public Dissemination find(String column, T value) {
-        return null;
-    };
+    public List<Dissemination> findAllByUid(String column, T value) throws SQLException {
+        return dao.findAllByColumnAndValue(column, value);
+    }
+
+    public Dissemination findByMultipleValues(String clause, T... values) throws SQLException {
+        return (Dissemination) dao.findByMultipleValues(clause, values);
+    }
 }
