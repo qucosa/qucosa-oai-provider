@@ -191,6 +191,11 @@ public class FormatDao<Tparam> implements Dao<Format, Tparam> {
     }
 
     @Override
+    public Format findByWhereClause(String clause) throws SQLException {
+        return null;
+    }
+
+    @Override
     public List<Format> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
         return null;
     }

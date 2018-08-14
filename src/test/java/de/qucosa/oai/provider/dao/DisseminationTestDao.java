@@ -76,6 +76,11 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
     }
 
     @Override
+    public Dissemination findByWhereClause(String clause) throws SQLException {
+        return null;
+    }
+
+    @Override
     public List<Dissemination> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
         ObjectMapper om = new ObjectMapper();
         Dissemination dissemination = null;
