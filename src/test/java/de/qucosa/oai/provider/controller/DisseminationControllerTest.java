@@ -3,9 +3,12 @@ package de.qucosa.oai.provider.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
+import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.dao.DisseminationTestDao;
+import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Dissemination;
+import de.qucosa.oai.provider.persitence.model.Format;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +26,10 @@ import testdata.TestData;
 import java.io.IOException;
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,6 +57,18 @@ public class DisseminationControllerTest {
     public static class SetControllerTestConfiguration {
 
         @Bean
+        public Dao formatDao() {
+            return new FormatTestDao<Format>();
+        }
+
+        @Bean
+        public FormatApi formatApi() {
+            FormatApi formatApi = new FormatApi();
+            formatApi.setDao(formatDao());
+            return formatApi;
+        }
+
+        @Bean
         public Dao disseminationDao() {
             return new DisseminationTestDao();
         }
@@ -71,4 +89,21 @@ public class DisseminationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.dissid", is(1)));
     }
+
+    @Test
+    public void Find_disseminations_by_uid() throws Exception {
+        mvc.perform(get("/dissemination/oai:example:org:qucosa:55887")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    public void Mark_disseminations_as_deleted() throws Exception {
+        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetadiss/true")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.deleted", is(true)));
+    }
+
 }
