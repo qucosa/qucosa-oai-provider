@@ -59,8 +59,8 @@ public class RecordApi<T> {
         return (Record) dao.save(record);
     }
 
-    public Record updateRecord() {
-        return null;
+    public Record updateRecord(Record record) throws SQLException {
+        return (Record) dao.update(record);
     }
 
     public Record deleteRecord(Record input) throws SQLException {
