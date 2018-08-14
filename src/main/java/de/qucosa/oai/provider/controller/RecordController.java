@@ -85,7 +85,7 @@ public class RecordController {
                 }
 
                 rt.getDissemination().setFormatId(format.getFormatId());
-                rt.getDissemination().setRecordId(record.getRecordId());
+                rt.getDissemination().setRecordId(record.getUid());
 
                 try {
                     disseminationApi.saveDissemination(rt.getDissemination());
