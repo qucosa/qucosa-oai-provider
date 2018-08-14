@@ -1,6 +1,7 @@
 package de.qucosa.oai.provider.config;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
 import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.api.record.RecordApi;
 import de.qucosa.oai.provider.api.sets.SetApi;
@@ -49,7 +50,18 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public Dao disseminationDao() { return new DisseminationDao<Dissemination>(); }
+    public Dao disseminationDao() throws PropertyVetoException, SQLException {
+        Dao dao = new DisseminationDao<Dissemination>();
+        dao.setConnection(dataSource());
+        return dao;
+    }
+
+    @Bean
+    public DisseminationApi disseminationApi() throws PropertyVetoException, SQLException {
+        DisseminationApi api = new DisseminationApi();
+        api.setDao(disseminationDao());
+        return api;
+    }
 
     @Bean
     public Dao setDao() throws SQLException, PropertyVetoException {
