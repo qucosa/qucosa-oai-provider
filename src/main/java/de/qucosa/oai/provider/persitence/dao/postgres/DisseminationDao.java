@@ -3,17 +3,59 @@ package de.qucosa.oai.provider.persitence.dao.postgres;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Dissemination;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLXML;
+import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
 
 @Repository
 public class DisseminationDao<Tparam> implements Dao<Dissemination, Tparam> {
+
+    private Connection connection;
+
+    @Autowired
+    public void setConnection(ComboPooledDataSource dataSource) throws SQLException {
+        this.connection = dataSource.getConnection();
+    }
+
     @Override
-    public Dissemination save(Tparam object) {
-        return null;
+    public Dissemination save(Tparam object) throws SQLException {
+        Dissemination dissemination = (Dissemination) object;
+        String sql = "INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, id_record) VALUES " +
+                "(nextval('oaiprovider'), ?, ?, ?, ?)";
+        SQLXML sqlxml = connection.createSQLXML();
+        sqlxml.setString(dissemination.getXmldata());
+
+        PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        ps.setLong(1, dissemination.getFormatId());
+        ps.setTimestamp(2, dissemination.getLastmoddate());
+        ps.setSQLXML(3, sqlxml);
+        ps.setString(4, dissemination.getRecordId());
+        int affectedRows = ps.executeUpdate();
+
+        if (affectedRows == 0) {
+            throw new SQLException("Creating dissemination failed, no rows affected.");
+        }
+
+        try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+
+            if (!generatedKeys.next()) {
+                throw new SQLException("Creating dissemination failed, no ID obtained.");
+            }
+
+            dissemination.setDissId(generatedKeys.getLong("id"));
+        }
+
+        ps.close();
+
+        return dissemination;
     }
 
     @Override
@@ -48,7 +90,24 @@ public class DisseminationDao<Tparam> implements Dao<Dissemination, Tparam> {
 
     @Override
     public Dissemination findByMultipleValues(String clause, String... values) throws SQLException {
-        return null;
+        clause = clause.replace("%s", "?");
+        String sql = "SELECT id, id_format, lastmoddate, xmldata, id_record, deleted FROM disseminations WHERE " + clause;
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setLong(1, Long.valueOf(values[0]));
+        ps.setString(2, values[1]);
+        ResultSet resultSet = ps.executeQuery();
+        Dissemination dissemination = new Dissemination();
+
+        while (resultSet.next()) {
+            dissemination.setDissId(resultSet.getLong("id"));
+            dissemination.setFormatId(resultSet.getLong("id_format"));
+            dissemination.setRecordId(resultSet.getString("id_record"));
+            dissemination.setDeleted(resultSet.getBoolean("deleted"));
+            dissemination.setLastmoddate(resultSet.getTimestamp("lastmoddate"));
+            dissemination.setXmldata(resultSet.getString("xmldata"));
+        }
+
+        return dissemination;
     }
 
     @Override
@@ -63,11 +122,17 @@ public class DisseminationDao<Tparam> implements Dao<Dissemination, Tparam> {
 
     @Override
     public Dissemination delete(Tparam object) throws SQLException {
-        return null;
-    }
+        Dissemination dissemination = (Dissemination) object;
+        String sql = "UPDATE disseminations SET deleted = ? WHERE id = ?";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setBoolean(1, dissemination.isDeleted());
+        ps.setLong(2, dissemination.getDissId());
+        int deletedRows = ps.executeUpdate();
 
-    @Override
-    public void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException {
+        if (deletedRows == 0) {
+            throw new SQLException("Dissemination mark as deleted failed, no rwos affected.");
+        }
 
+        return dissemination;
     }
 }
