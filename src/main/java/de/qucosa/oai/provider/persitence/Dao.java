@@ -2,7 +2,6 @@ package de.qucosa.oai.provider.persitence;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;

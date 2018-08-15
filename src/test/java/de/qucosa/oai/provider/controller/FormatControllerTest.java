@@ -1,6 +1,5 @@
 package de.qucosa.oai.provider.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.dao.FormatTestDao;
@@ -24,7 +23,6 @@ import org.springframework.web.util.NestedServletException;
 import testdata.TestData;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
