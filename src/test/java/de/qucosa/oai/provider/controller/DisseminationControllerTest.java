@@ -106,4 +106,11 @@ public class DisseminationControllerTest {
                 .andExpect(jsonPath("$.deleted", is(true)));
     }
 
+    @Test
+    public void Mark_disseminations_as_not_deleted() throws Exception {
+        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetadiss/false")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.deleted", is(false)));
+    }
 }
