@@ -77,10 +77,26 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
     }
 
     @Override
-    public Dissemination findByMultipleValues(String clause, Tparam... values) throws SQLException {
-        String result = StringUtils.replaceEachRepeatedly(clause, new String[] {"?", "?", "?"}, (String[]) values);
-        result.toLowerCase();
-        return null;
+    public Dissemination findByMultipleValues(String clause, String... values) throws SQLException {
+        String result = StringUtils.replaceEachRepeatedly(clause, new String[] {"?", "?"}, values);
+        ObjectMapper om = new ObjectMapper();
+        Dissemination dissemination = null;
+
+        try {
+            JsonNode nodes = om.readTree(TestData.DISSEMINATIONS);
+            int i = 0;
+
+            for (JsonNode node : nodes) {
+                i++;
+
+
+            }
+
+        } catch (IOException e) {
+            throw new SQLException("No disseminations found.");
+        }
+
+        return dissemination;
     }
 
     @Override

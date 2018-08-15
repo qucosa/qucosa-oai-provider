@@ -2,6 +2,7 @@ package de.qucosa.oai.provider.persitence;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
@@ -21,7 +22,7 @@ public interface Dao<Treturn, Tparam> {
 
     Treturn findByColumnAndValue(String column, Tparam value) throws SQLException;
 
-    Treturn findByMultipleValues(String clause, Tparam... values) throws SQLException;
+    Treturn findByMultipleValues(String clause, String... values) throws SQLException, IOException;
 
     List<Treturn> findAllByColumnAndValue(String column, Tparam value) throws SQLException;
 

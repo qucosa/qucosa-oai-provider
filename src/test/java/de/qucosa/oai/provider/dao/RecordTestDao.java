@@ -108,7 +108,7 @@ public class RecordTestDao<Tparam> implements Dao<Record, Tparam> {
     }
 
     @Override
-    public Record findByMultipleValues(String clause, Tparam... values) throws SQLException {
+    public Record findByMultipleValues(String clause, String... values) throws SQLException {
         return null;
     }
 

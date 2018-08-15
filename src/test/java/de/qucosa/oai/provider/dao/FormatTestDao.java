@@ -112,7 +112,7 @@ public class FormatTestDao<Tparam> implements Dao<Format, Tparam> {
     }
 
     @Override
-    public Format findByMultipleValues(String clause, Tparam... values) throws SQLException {
+    public Format findByMultipleValues(String clause, String... values) throws SQLException {
         return null;
     }
 
