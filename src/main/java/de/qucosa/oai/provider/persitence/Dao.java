@@ -22,7 +22,7 @@ public interface Dao<Treturn, Tparam> {
 
     Treturn findByColumnAndValue(String column, Tparam value) throws SQLException;
 
-    Treturn findByMultipleValues(String clause, String... values) throws SQLException, IOException;
+    Treturn findByMultipleValues(String clause, String... values) throws SQLException;
 
     List<Treturn> findAllByColumnAndValue(String column, Tparam value) throws SQLException;
 
