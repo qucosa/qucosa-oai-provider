@@ -5,14 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Dissemination;
-import org.apache.commons.lang3.StringUtils;
 import testdata.TestData;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> {
     @Override
@@ -78,7 +79,15 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
 
     @Override
     public Dissemination findByMultipleValues(String clause, String... values) throws SQLException {
-        String result = StringUtils.replaceEachRepeatedly(clause, new String[] {"?", "?"}, values);
+        Map<String, Object> psValues = new HashMap<>();
+        clause = String.format(clause, values);
+        String[] clauseCutOnLogicOperand = clause.split("AND | OR");
+
+        for (int i = 0; i < clauseCutOnLogicOperand.length; i++) {
+            String[] cut = clauseCutOnLogicOperand[i].split("=");
+            psValues.put(cut[0].trim(), cut[1].trim());
+        }
+
         ObjectMapper om = new ObjectMapper();
         Dissemination dissemination = null;
 
@@ -88,15 +97,19 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
 
             for (JsonNode node : nodes) {
                 i++;
+                dissemination = om.readValue(node.toString(), Dissemination.class);
 
-
+                if (dissemination.getFormatId() == Long.valueOf(psValues.get("formatid").toString()) && dissemination.getRecordId().equals(psValues.get("recordid"))) {
+                    dissemination.setDissId(Long.valueOf(1));
+                    return dissemination;
+                }
             }
 
         } catch (IOException e) {
             throw new SQLException("No disseminations found.");
         }
 
-        return dissemination;
+        throw new SQLException("No dissemination found.");
     }
 
     @Override
