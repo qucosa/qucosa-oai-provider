@@ -75,7 +75,7 @@ public class DisseminationController {
 
         try {
             Format format = formatApi.find("mdprefix", mdprefix);
-            dissemination = disseminationApi.findByMultipleValues("formatid = ? AND recordid = ?", String.valueOf(format.getFormatId()), uid);
+            dissemination = disseminationApi.findByMultipleValues("formatid = %s AND recordid = %s", String.valueOf(format.getFormatId()), uid);
             dissemination.setDeleted(delete);
             dissemination = disseminationApi.deleteDissemination(dissemination);
         } catch (SQLException e) {
