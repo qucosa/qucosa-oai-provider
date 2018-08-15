@@ -149,7 +149,9 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
 
     @Override
     public Dissemination delete(Tparam object) throws SQLException {
-        return null;
+        Dissemination dissemination = (Dissemination) object;
+        dissemination.isDeleted();
+        return dissemination;
     }
 
     @Override
