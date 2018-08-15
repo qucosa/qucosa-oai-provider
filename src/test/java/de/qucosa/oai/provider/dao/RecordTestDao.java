@@ -146,4 +146,9 @@ public class RecordTestDao<Tparam> implements Dao<Record, Tparam> {
 
         return null;
     }
+
+    @Override
+    public Record delete(Tparam object) throws SQLException {
+        return null;
+    }
 }

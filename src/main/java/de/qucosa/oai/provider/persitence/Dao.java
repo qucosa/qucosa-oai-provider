@@ -28,5 +28,7 @@ public interface Dao<Treturn, Tparam> {
 
     Treturn delete(String column, Tparam ident, boolean value) throws SQLException;
 
+    Treturn delete(Tparam object) throws SQLException;
+
     void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException;
 }

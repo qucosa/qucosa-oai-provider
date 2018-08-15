@@ -148,6 +148,11 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
     }
 
     @Override
+    public Dissemination delete(Tparam object) throws SQLException {
+        return null;
+    }
+
+    @Override
     public void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException {
 
     }

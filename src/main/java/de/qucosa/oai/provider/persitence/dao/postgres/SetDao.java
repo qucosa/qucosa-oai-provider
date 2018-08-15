@@ -216,4 +216,9 @@ public class SetDao<Tparam> implements Dao<Set, Tparam> {
 
         return set;
     }
+
+    @Override
+    public Set delete(Tparam object) throws SQLException {
+        return null;
+    }
 }

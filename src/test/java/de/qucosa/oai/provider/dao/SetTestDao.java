@@ -139,6 +139,11 @@ public class SetTestDao<Tparam> implements Dao<Set, Tparam> {
     }
 
     @Override
+    public Set delete(Tparam object) throws SQLException {
+        return null;
+    }
+
+    @Override
     public void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException {
 
     }

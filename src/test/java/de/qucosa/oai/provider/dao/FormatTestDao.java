@@ -152,5 +152,10 @@ public class FormatTestDao<Tparam> implements Dao<Format, Tparam> {
     }
 
     @Override
+    public Format delete(Tparam object) throws SQLException {
+        return null;
+    }
+
+    @Override
     public void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException { }
 }

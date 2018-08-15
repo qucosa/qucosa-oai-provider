@@ -218,4 +218,9 @@ public class FormatDao<Tparam> implements Dao<Format, Tparam> {
 
         return findByColumnAndValue(column, ident);
     }
+
+    @Override
+    public Format delete(Tparam object) throws SQLException {
+        return null;
+    }
 }

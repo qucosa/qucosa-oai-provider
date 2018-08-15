@@ -141,4 +141,9 @@ public class RecordDao<Tparam> implements Dao<Record, Tparam> {
 
         return record;
     }
+
+    @Override
+    public Record delete(Tparam object) throws SQLException {
+        return null;
+    }
 }
