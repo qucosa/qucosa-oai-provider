@@ -51,6 +51,10 @@ public class RecordController {
                 return new ResponseEntity("Record transport mapping failed.", HttpStatus.BAD_REQUEST);
             }
 
+            if (!recordApi.checkIfOaiDcDisseminationExists(inputData)) {
+                return new ResponseEntity("OAI_DC dissemination failed.", HttpStatus.BAD_REQUEST);
+            }
+
             for (RecordTransport rt : inputData) {
                 Format format = null;
 
