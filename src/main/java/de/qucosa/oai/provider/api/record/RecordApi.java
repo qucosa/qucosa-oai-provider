@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.dao.postgres.RecordDao;
 import de.qucosa.oai.provider.persitence.model.Record;
+import de.qucosa.oai.provider.persitence.model.RecordTransport;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -71,5 +72,20 @@ public class RecordApi<T> {
     public Record findRecord(String column, String uid) throws SQLException {
         Record record = (Record) dao.findByColumnAndValue(column, uid);
         return record;
+    }
+
+    public boolean checkIfOaiDcDisseminationExists(List<RecordTransport> input) {
+        boolean exists = false;
+
+        for (RecordTransport rt : input) {
+
+            if (!rt.getFormat().getMdprefix().equals("oai_dc")) {
+                continue;
+            }
+
+            exists = true;
+        }
+
+        return exists;
     }
 }
