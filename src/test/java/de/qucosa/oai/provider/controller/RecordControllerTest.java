@@ -113,6 +113,22 @@ public class RecordControllerTest {
     }
 
     @Test
+    public void Save_not_if_oaidc_dissemination_failed() throws Exception {
+
+        for (RecordTransport rt : transportList) {
+
+            if (rt.getFormat().getMdprefix().equals("oai_dc")) {
+                rt.getFormat().setMdprefix("oi_dc");
+            }
+        }
+
+        mvc.perform(post("/records")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(transportList)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void Save_record_transport_data() throws Exception {
         mvc.perform(post("/records")
                 .contentType(MediaType.APPLICATION_JSON)
