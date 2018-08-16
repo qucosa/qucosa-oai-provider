@@ -5,9 +5,12 @@ import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
 import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.api.record.RecordApi;
 import de.qucosa.oai.provider.api.sets.SetApi;
+import de.qucosa.oai.provider.persitence.dao.postgres.SetsToRecordDao;
 import de.qucosa.oai.provider.persitence.model.Format;
 import de.qucosa.oai.provider.persitence.model.Record;
 import de.qucosa.oai.provider.persitence.model.RecordTransport;
+import de.qucosa.oai.provider.persitence.model.Set;
+import de.qucosa.oai.provider.persitence.model.SetsToRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,6 +41,9 @@ public class RecordController {
 
     @Autowired
     private DisseminationApi disseminationApi;
+
+    @Autowired
+    private SetsToRecordDao setsToRecordDao;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -83,7 +89,25 @@ public class RecordController {
                 }
 
                 try {
-                    setApi.saveSets(rt.getSets());
+
+                    for (Set set : rt.getSets()) {
+                        set = setApi.find("setspec", set.getSetSpec());
+
+                        if (set.getSetId() == null) {
+                            set = setApi.saveSet(set);
+                        }
+
+                        int strResoult = setsToRecordDao.findByMultipleValues(
+                                "id_set=%s AND id_record=%s",
+                                String.valueOf(set.getSetId()), String.valueOf(record.getRecordId()));
+
+                        if (strResoult == 0) {
+                            SetsToRecord setsToRecord = new SetsToRecord();
+                            setsToRecord.setIdRecord(record.getRecordId());
+                            setsToRecord.setIdSet(set.getSetId());
+                            setsToRecordDao.save(setsToRecord);
+                        }
+                    }
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
