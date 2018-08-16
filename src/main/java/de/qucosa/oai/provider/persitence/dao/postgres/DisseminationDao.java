@@ -28,6 +28,15 @@ public class DisseminationDao<Tparam> implements Dao<Dissemination, Tparam> {
     @Override
     public Dissemination save(Tparam object) throws SQLException {
         Dissemination dissemination = (Dissemination) object;
+
+        Dissemination selectDiss = this.findByMultipleValues(
+                "id_format=? AND id_record=?",
+                String.valueOf(dissemination.getFormatId()), dissemination.getRecordId());
+
+        if (selectDiss.getDissId() != null) {
+            return null;
+        }
+
         String sql = "INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, id_record) VALUES " +
                 "(nextval('oaiprovider'), ?, ?, ?, ?)";
         SQLXML sqlxml = connection.createSQLXML();
