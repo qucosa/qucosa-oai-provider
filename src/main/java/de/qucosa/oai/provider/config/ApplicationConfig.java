@@ -10,6 +10,7 @@ import de.qucosa.oai.provider.persitence.dao.postgres.DisseminationDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.FormatDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.RecordDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.SetDao;
+import de.qucosa.oai.provider.persitence.dao.postgres.SetsToRecordDao;
 import de.qucosa.oai.provider.persitence.model.Dissemination;
 import de.qucosa.oai.provider.persitence.model.Format;
 import de.qucosa.oai.provider.persitence.model.Record;
@@ -103,5 +104,12 @@ public class ApplicationConfig {
         FormatApi formatApi = new FormatApi();
         formatApi.setDao(formatDao());
         return  formatApi;
+    }
+
+    @Bean
+    public Dao setsToRecordDao() throws PropertyVetoException, SQLException {
+        Dao setsToRecordDao = new SetsToRecordDao();
+        setsToRecordDao.setConnection(dataSource());
+        return setsToRecordDao;
     }
 }
