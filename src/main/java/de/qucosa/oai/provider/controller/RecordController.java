@@ -5,7 +5,7 @@ import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
 import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.api.record.RecordApi;
 import de.qucosa.oai.provider.api.sets.SetApi;
-import de.qucosa.oai.provider.persitence.dao.postgres.SetsToRecordDao;
+import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Format;
 import de.qucosa.oai.provider.persitence.model.Record;
 import de.qucosa.oai.provider.persitence.model.RecordTransport;
@@ -43,7 +43,7 @@ public class RecordController {
     private DisseminationApi disseminationApi;
 
     @Autowired
-    private SetsToRecordDao setsToRecordDao;
+    private Dao setsToRecordDao;
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -66,42 +66,48 @@ public class RecordController {
 
                 try {
                     format = formatApi.find("mdprefix", rt.getFormat().getMdprefix());
-                } catch (SQLException e) {
 
-                    try {
-                        format = formatApi.saveFormat(rt.getFormat());
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
+                    if (format.getFormatId() == null) {
+
+                        try {
+                            format = formatApi.saveFormat(rt.getFormat());
+                        } catch (SQLException e1) {
+                            return new ResponseEntity("Cannot find or save format.", HttpStatus.BAD_REQUEST);
+                        }
                     }
-                }
+                } catch (SQLException e) { }
 
                 Record record = null;
 
                 try {
                     record = recordApi.findRecord("uid", rt.getRecord().getUid());
-                } catch (SQLException e) {
 
-                    try {
-                        record = recordApi.saveRecord(rt.getRecord());
-                    } catch (SQLException e1) {
-                        e1.printStackTrace();
+                    if (record.getRecordId() == null) {
+
+                        try {
+                            record = recordApi.saveRecord(rt.getRecord());
+                        } catch (SQLException e1) {
+                            return new ResponseEntity("Cannot find or save record.", HttpStatus.BAD_REQUEST);
+                        }
                     }
-                }
+                } catch (SQLException e) { }
 
                 try {
 
                     for (Set set : rt.getSets()) {
-                        set = setApi.find("setspec", set.getSetSpec());
+                        Set readSet = setApi.find("setspec", set.getSetSpec());
 
-                        if (set.getSetId() == null) {
+                        if (readSet.getSetId() == null) {
                             set = setApi.saveSet(set);
+                        } else {
+                            set = readSet;
                         }
 
-                        int strResoult = setsToRecordDao.findByMultipleValues(
+                        int strResult = (int) setsToRecordDao.findByMultipleValues(
                                 "id_set=%s AND id_record=%s",
                                 String.valueOf(set.getSetId()), String.valueOf(record.getRecordId()));
 
-                        if (strResoult == 0) {
+                        if (strResult == 0) {
                             SetsToRecord setsToRecord = new SetsToRecord();
                             setsToRecord.setIdRecord(record.getRecordId());
                             setsToRecord.setIdSet(set.getSetId());
