@@ -1,6 +1,7 @@
 package integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.QucosaOaiProviderApplication;
 import de.qucosa.oai.provider.persitence.model.RecordTransport;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import testdata.TestData;
@@ -21,9 +21,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = QucosaOaiProviderApplication.class)
 @AutoConfigureMockMvc
-@TestPropertySource("classpath:application.properties")
 public class RecordControllerTransportIT {
 
     private List<RecordTransport> rt = null;
