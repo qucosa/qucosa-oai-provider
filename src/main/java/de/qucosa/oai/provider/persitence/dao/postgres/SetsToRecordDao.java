@@ -4,13 +4,16 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.SetsToRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
+@Repository
 public class SetsToRecordDao implements Dao {
 
     private Connection connection;
@@ -23,7 +26,7 @@ public class SetsToRecordDao implements Dao {
     @Override
     public Object save(Object object) throws SQLException {
         SetsToRecord setsToRecord = (SetsToRecord) object;
-        String sql = "INSERT INTO sets_to_records (id_set_ id_record) VALUES (?, ?)";
+        String sql = "INSERT INTO sets_to_records (id_set, id_record) VALUES (?, ?)";
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setLong(1, setsToRecord.getIdSet());
         ps.setLong(2, setsToRecord.getIdRecord());
@@ -69,9 +72,9 @@ public class SetsToRecordDao implements Dao {
         PreparedStatement ps = connection.prepareStatement(sql);
         ps.setLong(1, Long.valueOf(values[0]));
         ps.setLong(2, Long.valueOf(values[1]));
-        int affectedRows = ps.executeUpdate();
+        ResultSet resultSet = ps.executeQuery();
 
-        return (affectedRows == 0) ? 0 : affectedRows;
+        return (resultSet.next()) ? 1 : 0;
     }
 
     @Override
