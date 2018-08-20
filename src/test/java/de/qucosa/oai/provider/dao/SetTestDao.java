@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import testdata.TestData;
 
 import java.io.IOException;
@@ -14,6 +16,9 @@ import java.util.Iterator;
 import java.util.List;
 
 public class SetTestDao<Tparam> implements Dao<Set, Tparam> {
+
+    private Logger logger = LoggerFactory.getLogger(SetTestDao.class);
+
     @Override
     public Set save(Tparam object) throws SQLException {
         Set set = (Set) object;
@@ -66,7 +71,7 @@ public class SetTestDao<Tparam> implements Dao<Set, Tparam> {
     @Override
     public List<Set> findAll() throws SQLException {
         ObjectMapper om = new ObjectMapper();
-        List<Set> sets = null;
+        List<Set> sets;
 
         try {
             sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
@@ -90,8 +95,11 @@ public class SetTestDao<Tparam> implements Dao<Set, Tparam> {
 
         try {
             sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
-        } catch (IOException e) { }
+        } catch (IOException e) {
+            logger.error("Cannot parse sets data objects.", e);
+        }
 
+        assert sets != null;
         for (Set obj : sets) {
 
             if (obj.getSetSpec().equals(value)) {
@@ -133,7 +141,9 @@ public class SetTestDao<Tparam> implements Dao<Set, Tparam> {
                     set.setDeleted(value);
                 }
             }
-        } catch (IOException e) { }
+        } catch (IOException e) {
+            logger.error("Cannot parse tree from sets data input objects.", e);
+        }
 
         return set;
     }

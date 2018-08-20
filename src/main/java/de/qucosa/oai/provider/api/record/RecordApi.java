@@ -65,13 +65,11 @@ public class RecordApi<T> {
     }
 
     public Record deleteRecord(Record input) throws SQLException {
-        Record record = (Record) dao.delete("uid", input.getUid(), input.isDeleted());
-        return record;
+        return (Record) dao.delete("uid", input.getUid(), input.isDeleted());
     }
 
     public Record findRecord(String column, String uid) throws SQLException {
-        Record record = (Record) dao.findByColumnAndValue(column, uid);
-        return record;
+        return (Record) dao.findByColumnAndValue(column, uid);
     }
 
     public boolean checkIfOaiDcDisseminationExists(List<RecordTransport> input) {

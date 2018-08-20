@@ -27,7 +27,7 @@ public class FormatsController {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Format>> findAll() {
-        List<Format> formats = null;
+        List<Format> formats;
 
         try {
             formats = formatApi.findAll();
@@ -41,7 +41,7 @@ public class FormatsController {
     @RequestMapping(value = "{mdprefix}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Format> find(@PathVariable String mdprefix) throws SQLException {
-        Format format = null;
+        Format format;
 
         try {
             format = formatApi.find("mdprefix", mdprefix);
@@ -55,7 +55,7 @@ public class FormatsController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public <T> ResponseEntity<T> save(@RequestBody String input) {
-        T output = null;
+        T output;
         ObjectMapper om = new ObjectMapper();
 
         try {
@@ -81,7 +81,7 @@ public class FormatsController {
     @RequestMapping(value = "{mdprefix}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Format> update(@RequestBody Format input, @PathVariable String mdprefix) {
-        Format format = null;
+        Format format;
 
         try {
             format = formatApi.updateFormat(input, mdprefix);
@@ -95,7 +95,7 @@ public class FormatsController {
     @RequestMapping(value = "{mdprefix}/{value}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Format> delete(@PathVariable String mdprefix, @PathVariable boolean value) {
-        Format format = null;
+        Format format;
 
         try {
             format = formatApi.deleteFormat("mdprefix", mdprefix, value);

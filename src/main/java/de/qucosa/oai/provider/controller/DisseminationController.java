@@ -33,7 +33,7 @@ public class DisseminationController {
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Dissemination>> find(@PathVariable String uid) {
-        List<Dissemination> disseminations = null;
+        List<Dissemination> disseminations;
 
         try {
             disseminations = disseminationApi.findAllByUid("recordid", uid);
@@ -48,7 +48,7 @@ public class DisseminationController {
     @ResponseBody
     public ResponseEntity<Dissemination> save(@RequestBody String input) {
         ObjectMapper om = new ObjectMapper();
-        Dissemination dissemination = null;
+        Dissemination dissemination;
 
         try {
             dissemination = om.readValue(input, Dissemination.class);
@@ -71,7 +71,7 @@ public class DisseminationController {
     @RequestMapping(value = "{uid}/{mdprefix}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity delete(@PathVariable String uid, @PathVariable String mdprefix, @PathVariable boolean delete) {
-        Dissemination dissemination = null;
+        Dissemination dissemination;
 
         try {
             Format format = formatApi.find("mdprefix", mdprefix);

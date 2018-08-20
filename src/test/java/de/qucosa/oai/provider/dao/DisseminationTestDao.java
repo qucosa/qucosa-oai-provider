@@ -51,7 +51,7 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
     @Override
     public Dissemination findByColumnAndValue(String column, Tparam value) throws SQLException {
         ObjectMapper om = new ObjectMapper();
-        Dissemination dissemination = null;
+        Dissemination dissemination;
 
         try {
             JsonNode nodes = om.readTree(TestData.DISSEMINATIONS);
@@ -80,6 +80,7 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
     @Override
     public Dissemination findByMultipleValues(String clause, String... values) throws SQLException {
         Map<String, Object> psValues = new HashMap<>();
+        //noinspection ConfusingArgumentToVarargsMethod
         clause = String.format(clause, values);
         String[] clauseCutOnLogicOperand = clause.split("AND | OR");
 
@@ -89,7 +90,7 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
         }
 
         ObjectMapper om = new ObjectMapper();
-        Dissemination dissemination = null;
+        Dissemination dissemination;
 
         try {
             JsonNode nodes = om.readTree(TestData.DISSEMINATIONS);
@@ -99,7 +100,7 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
                 i++;
                 dissemination = om.readValue(node.toString(), Dissemination.class);
 
-                if (dissemination.getFormatId() == Long.valueOf(psValues.get("formatid").toString()) && dissemination.getRecordId().equals(psValues.get("recordid"))) {
+                if (dissemination.getFormatId().equals(Long.valueOf(psValues.get("formatid").toString())) && dissemination.getRecordId().equals(psValues.get("recordid"))) {
                     dissemination.setDissId(Long.valueOf(1));
                     return dissemination;
                 }
@@ -115,7 +116,7 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
     @Override
     public List<Dissemination> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
         ObjectMapper om = new ObjectMapper();
-        Dissemination dissemination = null;
+        Dissemination dissemination;
         List<Dissemination> disseminations = new ArrayList<>();
 
         try {
@@ -147,6 +148,7 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
         return null;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public Dissemination delete(Tparam object) throws SQLException {
         Dissemination dissemination = (Dissemination) object;

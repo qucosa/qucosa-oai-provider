@@ -124,7 +124,7 @@ public class SetDao<Tparam> implements Dao<Set, Tparam> {
             throw new SQLException("Update set is failed, no affected rows.");
         }
 
-        Set set = (Set) findByColumnAndValue("setspec", (Tparam) input.getSetSpec());
+        Set set = findByColumnAndValue("setspec", (Tparam) input.getSetSpec());
 
         ps.close();
 
@@ -210,7 +210,7 @@ public class SetDao<Tparam> implements Dao<Set, Tparam> {
             throw new SQLException("Set mark as deleted failed, no rwos affected.");
         }
 
-        Set set = (Set) findByColumnAndValue(column, ident);
+        Set set = findByColumnAndValue(column, ident);
 
         ps.close();
 

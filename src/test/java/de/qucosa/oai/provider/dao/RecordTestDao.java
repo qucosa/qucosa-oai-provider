@@ -28,7 +28,7 @@ public class RecordTestDao<Tparam> implements Dao<Record, Tparam> {
     @Override
     public Record update(Tparam object) throws SQLException {
         ObjectMapper om = new ObjectMapper();
-        List<Record> records = null;
+        List<Record> records;
         Record input = (Record) object;
 
         try {
@@ -81,7 +81,7 @@ public class RecordTestDao<Tparam> implements Dao<Record, Tparam> {
     @Override
     public Record findByColumnAndValue(String column, Tparam value) throws SQLException {
         ObjectMapper om = new ObjectMapper();
-        Record record = null;
+        Record record;
 
         try {
             JsonNode jsonNodes = om.readTree(TestData.RECORDS);
@@ -120,7 +120,7 @@ public class RecordTestDao<Tparam> implements Dao<Record, Tparam> {
     @Override
     public Record delete(String column, Tparam ident, boolean value) throws SQLException {
         ObjectMapper om = new ObjectMapper();
-        Record record = null;
+        Record record;
 
         try {
             JsonNode jsonNodes = om.readTree(TestData.RECORDS);

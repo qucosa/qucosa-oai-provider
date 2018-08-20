@@ -85,7 +85,7 @@ public class FormatTestDao<Tparam> implements Dao<Format, Tparam> {
     @Override
     public Format findByColumnAndValue(String column, Tparam value) throws SQLException {
         ObjectMapper om = new ObjectMapper();
-        Format format = null;
+        Format format;
 
         try {
             JsonNode jsonNodes = om.readTree(TestData.FORMATS);

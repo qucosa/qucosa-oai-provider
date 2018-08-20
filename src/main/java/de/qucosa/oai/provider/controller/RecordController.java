@@ -11,6 +11,8 @@ import de.qucosa.oai.provider.persitence.model.Record;
 import de.qucosa.oai.provider.persitence.model.RecordTransport;
 import de.qucosa.oai.provider.persitence.model.Set;
 import de.qucosa.oai.provider.persitence.model.SetsToRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,6 +31,8 @@ import java.util.List;
 @RequestMapping("/records")
 @RestController
 public class RecordController {
+
+    private Logger logger = LoggerFactory.getLogger(RecordController.class);
 
     @Autowired
     private RecordApi recordApi;
@@ -72,10 +76,18 @@ public class RecordController {
                         try {
                             format = formatApi.saveFormat(rt.getFormat());
                         } catch (SQLException e1) {
-                            return new ResponseEntity("Cannot find or save format.", HttpStatus.BAD_REQUEST);
+                            // @todo build / init an error object?
+                            logger.error("Cannot save format.", e1);
                         }
                     }
-                } catch (SQLException e) { }
+                } catch (SQLException e) {
+                    logger.warn("Cannot find format.", e);
+                }
+
+                // @todo return an error object?
+                if (format == null) {
+                    return new ResponseEntity("Cannot find or save format.", HttpStatus.BAD_REQUEST);
+                }
 
                 Record record = null;
 
@@ -87,35 +99,62 @@ public class RecordController {
                         try {
                             record = recordApi.saveRecord(rt.getRecord());
                         } catch (SQLException e1) {
-                            return new ResponseEntity("Cannot find or save record.", HttpStatus.BAD_REQUEST);
-                        }
-                    }
-                } catch (SQLException e) { }
-
-                try {
-
-                    for (Set set : rt.getSets()) {
-                        Set readSet = setApi.find("setspec", set.getSetSpec());
-
-                        if (readSet.getSetId() == null) {
-                            set = setApi.saveSet(set);
-                        } else {
-                            set = readSet;
-                        }
-
-                        int strResult = (int) setsToRecordDao.findByMultipleValues(
-                                "id_set=%s AND id_record=%s",
-                                String.valueOf(set.getSetId()), String.valueOf(record.getRecordId()));
-
-                        if (strResult == 0) {
-                            SetsToRecord setsToRecord = new SetsToRecord();
-                            setsToRecord.setIdRecord(record.getRecordId());
-                            setsToRecord.setIdSet(set.getSetId());
-                            setsToRecordDao.save(setsToRecord);
+                            // @todo build / init an error object?
+                            logger.error("Cannot save record..", e1);
                         }
                     }
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    logger.info("Cannot find record by uid (" + rt.getRecord().getUid() + ").", e);
+                }
+
+                // @todo return an error object?
+                if (record == null) {
+                    return new ResponseEntity("Cannot find or save record.", HttpStatus.BAD_REQUEST);
+                }
+
+                for (Set set : rt.getSets()) {
+                    Set readSet = null;
+
+                    try {
+                        readSet = setApi.find("setspec", set.getSetSpec());
+                    } catch (SQLException e) {
+                        logger.info("Cannot find set (" + set.getSetSpec() + ").");
+                    }
+
+                    if (readSet == null) {
+
+                        try {
+                            set = setApi.saveSet(set);
+                        } catch (SQLException e) {
+                            logger.error("Cannot save set (" + set.getSetSpec() + ")", e);
+                            return new ResponseEntity("Cannot save set (" + set.getSetSpec() + ".", HttpStatus.BAD_REQUEST);
+                        }
+                    } else {
+                        set = readSet;
+                    }
+
+                    int strResult = 0;
+
+                    try {
+                        strResult = (int) setsToRecordDao.findByMultipleValues(
+                                "id_set=%s AND id_record=%s",
+                                String.valueOf(set.getSetId()), String.valueOf(record.getRecordId()));
+                    } catch (SQLException e) {
+                        logger.info("Cannot find set to record entry (set:" + set.getSetId() + " / record:" + record.getRecordId() + ").", e);
+                    }
+
+                    if (strResult == 0) {
+                        SetsToRecord setsToRecord = new SetsToRecord();
+                        setsToRecord.setIdRecord(record.getRecordId());
+                        setsToRecord.setIdSet(set.getSetId());
+
+                        try {
+                            setsToRecordDao.save(setsToRecord);
+                        } catch (SQLException e) {
+                            logger.error("Cannot save set to record entry for (set:" + set.getSetId() + " / record:" + record.getRecordId() + ").", e);
+                            return new ResponseEntity("Cannot save set to record entry for (set:" + set.getSetId() + " / record:" + record.getRecordId() + ").", HttpStatus.BAD_REQUEST);
+                        }
+                    }
                 }
 
                 rt.getDissemination().setFormatId(format.getFormatId());
@@ -138,7 +177,7 @@ public class RecordController {
     @ResponseBody
     public ResponseEntity<Record> update(@RequestBody String input, @PathVariable String uid) {
         ObjectMapper om = new ObjectMapper();
-        Record updatedRecord = null;
+        Record updatedRecord;
 
         try {
             Record record = om.readValue(input, Record.class);
@@ -158,7 +197,7 @@ public class RecordController {
     @RequestMapping(value = "{uid}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Record> delete(@PathVariable String uid, @PathVariable boolean delete) {
-        Record record = null;
+        Record record;
 
         try {
             record = recordApi.findRecord("uid", uid);
@@ -174,7 +213,7 @@ public class RecordController {
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Record> find(@PathVariable String uid) {
-        Record record = null;
+        Record record;
 
         try {
             record = recordApi.findRecord("uid", uid);
