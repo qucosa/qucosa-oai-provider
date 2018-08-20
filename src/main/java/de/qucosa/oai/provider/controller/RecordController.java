@@ -124,7 +124,7 @@ public class RecordController {
                 try {
                     disseminationApi.saveDissemination(rt.getDissemination());
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    return new ResponseEntity("Dissemination cannot save.", HttpStatus.BAD_REQUEST);
                 }
             }
         } catch (IOException e) {
@@ -179,7 +179,7 @@ public class RecordController {
         try {
             record = recordApi.findRecord("uid", uid);
         } catch (SQLException e) {
-            e.printStackTrace();
+            return new ResponseEntity("Record with uid (" + uid + ") not found.", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<Record>(record, HttpStatus.OK);
