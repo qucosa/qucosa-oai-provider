@@ -1,287 +1,226 @@
-/*
- * Copyright 2018 Saxon State and University Library Dresden (SLUB)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package de.qucosa.oai.provider.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.config.DissTermsDao;
-import de.qucosa.oai.provider.application.config.DissTermsMapper;
-import de.qucosa.oai.provider.persistence.PersistenceDao;
-import de.qucosa.oai.provider.persistence.pojos.Dissemination;
-import de.qucosa.oai.provider.persistence.pojos.Format;
-import de.qucosa.oai.provider.persistence.pojos.Record;
-import de.qucosa.oai.provider.persistence.pojos.RecordTransport;
-import de.qucosa.oai.provider.xml.utils.DocumentXmlUtils;
-import org.glassfish.jersey.process.internal.RequestScoped;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
+import de.qucosa.oai.provider.api.format.FormatApi;
+import de.qucosa.oai.provider.api.record.RecordApi;
+import de.qucosa.oai.provider.api.sets.SetApi;
+import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.model.Format;
+import de.qucosa.oai.provider.persitence.model.Record;
+import de.qucosa.oai.provider.persitence.model.RecordTransport;
+import de.qucosa.oai.provider.persitence.model.Set;
+import de.qucosa.oai.provider.persitence.model.SetsToRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
-import javax.servlet.ServletContext;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.container.ResourceContext;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Set;
 
-@Path("/record")
-@RequestScoped
+@RequestMapping("/records")
+@RestController
 public class RecordController {
-    private ObjectMapper om = new ObjectMapper();
 
-    private PersistenceDao recordDao;
+    private Logger logger = LoggerFactory.getLogger(RecordController.class);
 
-    @Inject
-    public RecordController(PersistenceDao recordDao) {
-        this.recordDao = recordDao;
-    }
+    @Autowired
+    private RecordApi recordApi;
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response save(@Context ServletContext servletContext, @Context ResourceContext resourceContext, String input) {
+    @Autowired
+    private FormatApi formatApi;
 
-        if (input == null || input.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Request input data is empty or failed!").build();
-        }
+    @Autowired
+    private SetApi setApi;
 
-        List<RecordTransport> inputData;
+    @Autowired
+    private DisseminationApi disseminationApi;
 
-        try {
-            inputData = om.readValue(input.getBytes("UTF-8"),
-                    om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
-        } catch (IOException e) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Cannot build record transport mapping JSON object.").build();
-        }
+    @Autowired
+    private Dao setsToRecordDao;
 
-        if (!checkIfOaiDcFormatIsExists(inputData)) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The oai_dc format is failed in record input data.").build();
-        }
-
-        SetController setController = resourceContext.getResource(SetController.class);
-
-        for (RecordTransport rt : inputData) {
-
-            try {
-                setController.save(om.writeValueAsString(rt.getSets()));
-            } catch (JsonProcessingException e) {
-                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Cannot write set json data.").build();
-            }
-
-            Response responseFormat = format(servletContext, resourceContext.getResource(FormatsController.class), rt);
-
-            if (responseFormat.getStatus() != 200) {
-                return responseFormat;
-            }
-
-            Format format = (Format) responseFormat.getEntity();
-
-            Response recordResponse = record(rt);
-
-            if (recordResponse.getStatus() != 200) {
-                return Response.status(recordResponse.getStatus()).entity(recordResponse.getEntity()).build();
-            }
-
-            Record record = (Record) recordResponse.getEntity();
-
-            DisseminationController disseminationController = resourceContext.getResource(DisseminationController.class);
-            Response dissBuild = disseminationController.build(servletContext, rt);
-
-            if (dissBuild.getStatus() != 200) {
-                return dissBuild;
-            }
-
-            Document disseminationDocument = (Document) dissBuild.getEntity();
-
-            if (disseminationDocument == null) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Dissemination document has been not build.").build();
-            }
-
-            Response saveDiss = saveDissemination(resourceContext, format, record, disseminationDocument);
-
-            if (saveDiss.getStatus() != 200) {
-
-                if (saveDiss.getStatus() == 406) {
-                    return Response.status(Response.Status.NOT_ACCEPTABLE).entity(saveDiss.getEntity()).build();
-                }
-            }
-        }
-
-        return Response.status(Response.Status.OK).entity(true).build();
-    }
-
-    @PUT
-    @Path("{uid}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("uid") String uid, String input) {
-
-        if (input == null || input.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Input data is failed or empty!").build();
-        }
-
+    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity save(@RequestBody String input) {
         ObjectMapper om = new ObjectMapper();
-        Record record;
 
         try {
-            record = om.readValue(input, Record.class);
-        } catch (IOException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Record json mapper is failed!").build();
-        }
+            List<RecordTransport> inputData = om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
 
-        if (!record.getUid().equals(uid)) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Update UID parameter and record UID are unequal!").build();
-        }
-
-        Record result;
-
-        try {
-            result = (Record) recordDao.update(record);
-        } catch (SQLException e) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
-        }
-
-        return Response.status(Response.Status.OK).entity(result).build();
-    }
-
-    @DELETE
-    @Path("{uid}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("uid") String uid) {
-
-        if (uid.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("UID parameter is failed or empty!").build();
-        }
-
-        try {
-            recordDao.deleteByKeyValue("uid", uid);
-        } catch (SQLException e) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
-        }
-
-        return Response.status(Response.Status.OK).build();
-    }
-
-    @GET
-    @Path("{uid}")
-    public Response find(@PathParam("uid") String uid) {
-
-        if (uid == null || uid.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The uid paramter is failed or empty!").build();
-        }
-
-        Record record;
-
-        try {
-            record = (Record) recordDao.findByValue("uid", uid);
-        } catch (SQLException e) {
-            return Response.status(Response.Status.NOT_FOUND).entity("Record with uid " + uid +" is not found.").build();
-        }
-
-        return Response.status(Response.Status.OK).entity(record).build();
-    }
-
-    private boolean checkIfOaiDcFormatIsExists(List<RecordTransport> inputdData) {
-        boolean isExists = false;
-
-        for (RecordTransport rt : inputdData) {
-
-            if (rt.getMdprefix().equals("oai_dc")) {
-                isExists = true;
-                break;
+            if (inputData == null || inputData.size() == 0) {
+                return new ResponseEntity("Record transport mapping failed.", HttpStatus.BAD_REQUEST);
             }
-        }
 
-        return isExists;
-    }
+            if (!recordApi.checkIfOaiDcDisseminationExists(inputData)) {
+                return new ResponseEntity("OAI_DC dissemination failed.", HttpStatus.BAD_REQUEST);
+            }
 
-    private Response format(ServletContext servletContext, FormatsController formatsController, RecordTransport rt) {
-        Response resFormat = formatsController.format(rt.getMdprefix());
+            for (RecordTransport rt : inputData) {
+                Format format = null;
 
-        if (resFormat.getStatus() != 200) {
-            Format format = new Format();
-            DissTermsDao dissconf = (DissTermsDao) servletContext.getAttribute("dissConf");
-            Set<DissTermsMapper.DissFormat> formats = dissconf.getFormats();
+                try {
+                    format = formatApi.find("mdprefix", rt.getFormat().getMdprefix());
 
-            for (DissTermsMapper.DissFormat fm : formats) {
+                    if (format.getFormatId() == null) {
 
-                if (fm.getMdprefix().equals(rt.getMdprefix())) {
-                    format.setMdprefix(fm.getMdprefix());
-                    format.setSchemaUrl(fm.getSchemaUrl());
-                    format.setNamespace(fm.getNamespace());
-                    break;
+                        try {
+                            format = formatApi.saveFormat(rt.getFormat());
+                        } catch (SQLException e1) {
+                            // @todo build / init an error object?
+                            logger.error("Cannot save format.", e1);
+                        }
+                    }
+                } catch (SQLException e) {
+                    logger.warn("Cannot find format.", e);
+                }
+
+                // @todo return an error object?
+                if (format == null) {
+                    return new ResponseEntity("Cannot find or save format.", HttpStatus.BAD_REQUEST);
+                }
+
+                Record record = null;
+
+                try {
+                    record = recordApi.findRecord("uid", rt.getRecord().getUid());
+
+                    if (record.getRecordId() == null) {
+
+                        try {
+                            record = recordApi.saveRecord(rt.getRecord());
+                        } catch (SQLException e1) {
+                            // @todo build / init an error object?
+                            logger.error("Cannot save record..", e1);
+                        }
+                    }
+                } catch (SQLException e) {
+                    logger.info("Cannot find record by uid (" + rt.getRecord().getUid() + ").", e);
+                }
+
+                // @todo return an error object?
+                if (record == null) {
+                    return new ResponseEntity("Cannot find or save record.", HttpStatus.BAD_REQUEST);
+                }
+
+                for (Set set : rt.getSets()) {
+                    Set readSet = null;
+
+                    try {
+                        readSet = setApi.find("setspec", set.getSetSpec());
+                    } catch (SQLException e) {
+                        logger.info("Cannot find set (" + set.getSetSpec() + ").");
+                    }
+
+                    if (readSet == null) {
+
+                        try {
+                            set = setApi.saveSet(set);
+                        } catch (SQLException e) {
+                            logger.error("Cannot save set (" + set.getSetSpec() + ")", e);
+                            return new ResponseEntity("Cannot save set (" + set.getSetSpec() + ".", HttpStatus.BAD_REQUEST);
+                        }
+                    } else {
+                        set = readSet;
+                    }
+
+                    int strResult = 0;
+
+                    try {
+                        strResult = (int) setsToRecordDao.findByMultipleValues(
+                                "id_set=%s AND id_record=%s",
+                                String.valueOf(set.getSetId()), String.valueOf(record.getRecordId()));
+                    } catch (SQLException e) {
+                        logger.info("Cannot find set to record entry (set:" + set.getSetId() + " / record:" + record.getRecordId() + ").", e);
+                    }
+
+                    if (strResult == 0) {
+                        SetsToRecord setsToRecord = new SetsToRecord();
+                        setsToRecord.setIdRecord(record.getRecordId());
+                        setsToRecord.setIdSet(set.getSetId());
+
+                        try {
+                            setsToRecordDao.save(setsToRecord);
+                        } catch (SQLException e) {
+                            logger.error("Cannot save set to record entry for (set:" + set.getSetId() + " / record:" + record.getRecordId() + ").", e);
+                            return new ResponseEntity("Cannot save set to record entry for (set:" + set.getSetId() + " / record:" + record.getRecordId() + ").", HttpStatus.BAD_REQUEST);
+                        }
+                    }
+                }
+
+                rt.getDissemination().setFormatId(format.getFormatId());
+                rt.getDissemination().setRecordId(record.getUid());
+
+                try {
+                    disseminationApi.saveDissemination(rt.getDissemination());
+                } catch (SQLException e) {
+                    return new ResponseEntity("Dissemination cannot save.", HttpStatus.BAD_REQUEST);
                 }
             }
-
-            try {
-                resFormat = formatsController.save(om.writeValueAsString(format));
-            } catch (JsonProcessingException e) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build format object for save process.").build();
-            }
-
-            if (resFormat.getStatus() != 200) {
-                return Response.status(resFormat.getStatus()).entity(resFormat.readEntity(String.class)).build();
-            }
+        } catch (IOException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        return resFormat;
+        return new ResponseEntity(HttpStatus.OK);
     }
 
-    private Response record(RecordTransport rt) {
-        Response recordResonse = this.find(rt.getOaiId());
-
-        if (recordResonse.getStatus() == 404) {
-            Record record = new Record();
-            record.setPid(rt.getPid());
-            record.setUid(rt.getOaiId());
-
-            try {
-                return this.update("", om.writeValueAsString(record));
-            } catch (IOException e) {
-                return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Cannot write record json data.").build();
-            }
-        }
-
-        return recordResonse;
-    }
-
-    private Response saveDissemination(ResourceContext resourceContext, Format format, Record record, Document disseminationDoc) {
-        Dissemination dissemination = new Dissemination();
-        DisseminationController disseminationController = resourceContext.getResource(DisseminationController.class);
-        dissemination.setFormatId(format.getId());
-        dissemination.setRecordId(record.getId());
+    @RequestMapping(value = "{uid}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Record> update(@RequestBody String input, @PathVariable String uid) {
+        ObjectMapper om = new ObjectMapper();
+        Record updatedRecord;
 
         try {
-            dissemination.setXmldata(DocumentXmlUtils.resultXml(disseminationDoc));
-            return disseminationController.save(om.writeValueAsString(dissemination));
-        } catch (SAXException | IOException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build dissemination object.").build();
+            Record record = om.readValue(input, Record.class);
+
+            try {
+                updatedRecord = recordApi.updateRecord(record);
+            } catch (SQLException e) {
+                return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+        } catch (IOException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+
+        return new ResponseEntity(updatedRecord, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "{uid}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Record> delete(@PathVariable String uid, @PathVariable boolean delete) {
+        Record record;
+
+        try {
+            record = recordApi.findRecord("uid", uid);
+            record.setDeleted(delete);
+            record = recordApi.deleteRecord(record);
+        } catch (SQLException e) {
+            return new ResponseEntity("Record with uid (" + uid + ") not found.", HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<Record>(record, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Record> find(@PathVariable String uid) {
+        Record record;
+
+        try {
+            record = recordApi.findRecord("uid", uid);
+        } catch (SQLException e) {
+            return new ResponseEntity("Record with uid (" + uid + ") not found.", HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<Record>(record, HttpStatus.OK);
     }
 }

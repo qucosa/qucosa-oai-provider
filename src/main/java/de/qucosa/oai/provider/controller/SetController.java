@@ -1,140 +1,118 @@
-/*
- * Copyright 2018 Saxon State and University Library Dresden (SLUB)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.application.config.SetConfigMapper;
-import de.qucosa.oai.provider.persistence.PersistenceDao;
-import org.glassfish.jersey.process.internal.RequestScoped;
+import de.qucosa.oai.provider.api.sets.SetApi;
+import de.qucosa.oai.provider.persitence.model.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
-@Path("/sets")
-@RequestScoped
+@RequestMapping("/sets")
+@RestController
 public class SetController {
-    private PersistenceDao setDao;
 
-    @Inject
-    public SetController(PersistenceDao setDao) {
-        this.setDao = setDao;
-    }
-    
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) {
+    private Logger logger = LoggerFactory.getLogger(SetController.class);
 
-        if (input.isEmpty()) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Sets input data is empty.").build();
-        }
+    @Autowired
+    private SetApi setApi;
 
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> saveRes;
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<Set>> findAll() {
+        List<Set> sets;
 
         try {
-            saveRes = buildSqlSets(input);
-        } catch (IOException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build set objects.").build();
-        }
-
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> result;
-
-        try {
-            result = (Set<de.qucosa.oai.provider.persistence.pojos.Set>) setDao.create(saveRes);
+            sets = setApi.findAll();
         } catch (SQLException e) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        return Response.status(Response.Status.OK).entity(result).build();
+        return new ResponseEntity<List<Set>>(sets, HttpStatus.OK);
     }
 
-    @PUT
-    @Path("{setspec}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("setspec") String setspec, String input) {
-        ObjectMapper om = new ObjectMapper();
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets;
+    @RequestMapping(value = "{setspec}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Set> find(@PathVariable String setspec) {
+        Set set;
 
         try {
-            sets = buildSqlSets(input);
-        } catch (IOException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build set objects.").build();
+            set = setApi.find("setspec", setspec);
+        } catch (SQLException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
 
-        for (de.qucosa.oai.provider.persistence.pojos.Set set : sets) {
+        return new ResponseEntity<Set>(set, HttpStatus.OK);
+    }
 
-            if (set.getSetSpec() == null || !set.getSetSpec().equals(setspec)) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Request param setspec and json data setspec are unequal.").build();
+    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public <T> ResponseEntity<T> save(@RequestBody String input) {
+        T output = null;
+        ObjectMapper om = new ObjectMapper();
+
+        try {
+            Set set = setApi.saveSet(om.readValue(input, Set.class));
+            output = (T) set;
+        } catch (IOException e) {
+
+            try {
+                List<Set> sets = setApi.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
+                output = (T) sets;
+            } catch (SQLException e1) {
+                logger.error("Cannot save set collections.", e1);
+            } catch (IOException e1) {
+                return new ResponseEntity("Cannot parse set input data.", HttpStatus.BAD_REQUEST);
             }
-        }
-
-        try {
-            setDao.update(sets);
         } catch (SQLException e) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+            logger.error("Cannot save set object.", e);
         }
 
-        return Response.status(Response.Status.OK).entity(true).build();
+        if (output == null) {
+            return new ResponseEntity("Cannot save set objects.", HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        return new ResponseEntity<T>(output, HttpStatus.OK);
     }
 
-    @DELETE
-    @Path("{setspec}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("setspec") String setspec) {
-
-        if (setspec == null || setspec.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("The setspec param is null or empty.").build();
-        }
+    @RequestMapping(value = "{setspec}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Set> update(@RequestBody Set input, @PathVariable String setspec) {
+        Set set;
 
         try {
-            setDao.deleteByKeyValue("setspec", setspec);
-        } catch (SQLException e) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+            set = setApi.updateSet(input, setspec);
+        } catch (Exception e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
 
-        return Response.status(Response.Status.OK).build();
+
+        return new ResponseEntity<Set>(set, HttpStatus.OK);
     }
-    
-    private Set<de.qucosa.oai.provider.persistence.pojos.Set> buildSqlSets(String input) throws IOException {
-        ObjectMapper om = new ObjectMapper();
-        Set<de.qucosa.oai.provider.persistence.pojos.Set> sets = new HashSet<>();
-        Set<SetConfigMapper.Set> json = om.readValue(input, om.getTypeFactory().constructCollectionType(Set.class, SetConfigMapper.Set.class));
-        
-        for (SetConfigMapper.Set set : json) {
-            de.qucosa.oai.provider.persistence.pojos.Set data = new de.qucosa.oai.provider.persistence.pojos.Set();
-            data.setSetSpec(set.getSetSpec());
-            data.setSetName(set.getSetName());
-            data.setSetDescription(set.getSetDescription());
-            sets.add(data);
+
+    @RequestMapping(value = "{setspec}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Set> delete(@PathVariable String setspec, @PathVariable boolean delete) {
+        Set deleted;
+
+        try {
+            deleted = setApi.deleteSet("setspec", setspec, delete);
+        } catch (SQLException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        
-        return sets;
+
+        return new ResponseEntity<Set>(deleted, HttpStatus.OK);
     }
 }

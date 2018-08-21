@@ -1,138 +1,108 @@
-/*
- * Copyright 2018 Saxon State and University Library Dresden (SLUB)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.persistence.PersistenceDao;
-import de.qucosa.oai.provider.persistence.pojos.Format;
-import org.glassfish.jersey.process.internal.RequestScoped;
+import de.qucosa.oai.provider.api.format.FormatApi;
+import de.qucosa.oai.provider.persitence.model.Format;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
-@Path("/formats")
-@RequestScoped
+@RequestMapping("/formats")
+@RestController
 public class FormatsController {
+    @Autowired
+    private FormatApi formatApi;
 
-    private PersistenceDao formatDao;
-
-    @Inject
-    public FormatsController(PersistenceDao formatDao) {
-        this.formatDao = formatDao;
-    }
-    
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response save(String input) {
-        Format format;
-
-        if (input == null || input.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Input data is empty or failed!").build();
-        }
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<List<Format>> findAll() {
+        List<Format> formats;
 
         try {
-            format = buildSqlFormat(input);
-        } catch (IOException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build format object.").build();
-        }
-
-        if (format == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Formats json mapper object is failed!").build();
-        }
-
-        try {
-            format = (Format) formatDao.update(format);
+            formats = formatApi.findAll();
         } catch (SQLException e) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        return Response.status(Response.Status.OK).entity(format).build();
+        return new ResponseEntity<List<Format>>(formats, HttpStatus.OK);
     }
 
-    @PUT
-    @Path("{mdprefix}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("mdprefix") String mdprefix, String input) {
+    @RequestMapping(value = "{mdprefix}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Format> find(@PathVariable String mdprefix) throws SQLException {
         Format format;
 
         try {
-            format = buildSqlFormat(input);
-        } catch (IOException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Cannot build format object.").build();
-        }
-
-        if (!format.getMdprefix().equals(mdprefix)) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Request param mdprefix and json data mdprefix are unequal.").build();
-        }
-
-        try {
-            format = (Format) formatDao.update(format);
+            format = formatApi.find("mdprefix", mdprefix);
         } catch (SQLException e) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+            throw new SQLException(e.getMessage(), e);
         }
 
-        return Response.status(Response.Status.OK).entity(format).build();
+        return new ResponseEntity<Format>(format, HttpStatus.OK);
     }
 
-    @DELETE
-    @Path("{mdprefix}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response delete(@PathParam("mdprefix") String mdprefix) {
-
-        try {
-            formatDao.deleteByKeyValue("mdprefix", mdprefix);
-        } catch (SQLException e) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
-        }
-
-        return Response.status(Response.Status.OK).build();
-    }
-    
-    @GET
-    @Path("{mdprefix}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response format(@PathParam("mdprefix") String mdprefix) {
-        Format format;
-
-        try {
-            format = (Format) formatDao.findByValue("mdprefix", mdprefix);
-        } catch (SQLException e) {
-            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
-        }
-
-        return Response.status(200).entity(format).build();
-    }
-    
-    private Format buildSqlFormat(String input) throws IOException {
+    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public <T> ResponseEntity<T> save(@RequestBody String input) {
+        T output;
         ObjectMapper om = new ObjectMapper();
-        return om.readValue(input, Format.class);
+
+        try {
+            Format format = formatApi.saveFormat(om.readValue(input, Format.class));
+            output = (T) format;
+        } catch (IOException e) {
+
+            try {
+                List<Format> formats = formatApi.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
+                output = (T) formats;
+            } catch (SQLException e1) {
+                return new ResponseEntity(e1.getMessage(), HttpStatus.BAD_REQUEST);
+            } catch (IOException e1) {
+                return new ResponseEntity(e1.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+        } catch (SQLException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<T>(output, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "{mdprefix}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Format> update(@RequestBody Format input, @PathVariable String mdprefix) {
+        Format format;
+
+        try {
+            format = formatApi.updateFormat(input, mdprefix);
+        } catch (Exception e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<Format>(format, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "{mdprefix}/{value}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<Format> delete(@PathVariable String mdprefix, @PathVariable boolean value) {
+        Format format;
+
+        try {
+            format = formatApi.deleteFormat("mdprefix", mdprefix, value);
+        } catch (SQLException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<Format>(format, HttpStatus.OK);
     }
 }
