@@ -107,7 +107,7 @@ public class SetControllerTest {
         set.setSetName("quatsch");
         mvc.perform(put("/sets/ddc:1200")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(sets)))
+                .content(om.writeValueAsString(set)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.setname", is("quatsch")));
     }
