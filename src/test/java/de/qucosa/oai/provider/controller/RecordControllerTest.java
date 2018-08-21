@@ -9,6 +9,7 @@ import de.qucosa.oai.provider.dao.DisseminationTestDao;
 import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.dao.RecordTestDao;
 import de.qucosa.oai.provider.dao.SetTestDao;
+import de.qucosa.oai.provider.dao.SetsToRecordTestDao;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.model.Dissemination;
 import de.qucosa.oai.provider.persitence.model.Format;
@@ -109,6 +110,11 @@ public class RecordControllerTest {
             DisseminationApi disseminationApi = new DisseminationApi();
             disseminationApi.setDao(disseminationDao());
             return disseminationApi;
+        }
+
+        @Bean
+        public Dao setsToRecordDao() {
+            return new SetsToRecordTestDao();
         }
     }
 
