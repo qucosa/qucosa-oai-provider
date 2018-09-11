@@ -2,6 +2,9 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.format.FormatApi;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persitence.model.Format;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 @RequestMapping("/formats")
@@ -31,7 +35,7 @@ public class FormatsController {
 
         try {
             formats = formatApi.findAll();
-        } catch (SQLException e) {
+        } catch (NotFound e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
@@ -45,7 +49,7 @@ public class FormatsController {
 
         try {
             format = formatApi.find("mdprefix", mdprefix);
-        } catch (SQLException e) {
+        } catch (NotFound e) {
             throw new SQLException(e.getMessage(), e);
         }
 
@@ -64,14 +68,14 @@ public class FormatsController {
         } catch (IOException e) {
 
             try {
-                List<Format> formats = formatApi.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
+                Collection<Format> formats = formatApi.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
                 output = (T) formats;
-            } catch (SQLException e1) {
+            } catch (SaveFailed e1) {
                 return new ResponseEntity(e1.getMessage(), HttpStatus.BAD_REQUEST);
             } catch (IOException e1) {
                 return new ResponseEntity(e1.getMessage(), HttpStatus.BAD_REQUEST);
             }
-        } catch (SQLException e) {
+        } catch (SaveFailed e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
@@ -94,15 +98,15 @@ public class FormatsController {
 
     @RequestMapping(value = "{mdprefix}/{value}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Format> delete(@PathVariable String mdprefix, @PathVariable boolean value) {
-        Format format;
+    public ResponseEntity delete(@PathVariable String mdprefix, @PathVariable boolean value) {
+        int deleted = 0;
 
         try {
-            format = formatApi.deleteFormat("mdprefix", mdprefix, value);
-        } catch (SQLException e) {
+            deleted = formatApi.deleteFormat("mdprefix", mdprefix, value);
+        } catch (DeleteFailed e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<Format>(format, HttpStatus.OK);
+        return new ResponseEntity(deleted, HttpStatus.OK);
     }
 }
