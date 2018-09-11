@@ -1,7 +1,10 @@
 package de.qucosa.oai.provider.persitence.dao.postgres;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persitence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persitence.model.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -17,17 +20,27 @@ import java.util.Iterator;
 import java.util.List;
 
 @Repository
-public class SetDao<Tparam> implements Dao<Set, Tparam> {
-    private Connection connection;
+public class SetDao<T extends Set> implements Dao<T> {
+
+    final private Connection connection;
 
     @Autowired
-    public void setConnection(ComboPooledDataSource dataSource) throws SQLException {
-        this.connection = dataSource.getConnection();
+    public SetDao(Connection connection) {
+
+        if (connection == null) {
+            throw new IllegalArgumentException("Connection cannot be null");
+        }
+
+        this.connection = connection;
     }
 
+    public SetDao() {
+        connection = null;
+    };
+
     @Override
-    public Set save(Tparam object) throws SQLException {
-        Set input = (Set) object;
+    public Set saveAndSetIdentifier(Set object) throws SaveFailed {
+        Set input = object;
 
         String sql = "INSERT INTO sets (id, setspec, setname, setdescription) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
@@ -35,190 +48,212 @@ public class SetDao<Tparam> implements Dao<Set, Tparam> {
         sql+="DO NOTHING";
         String finalSql = sql;
 
-        PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-        ps.setString(1, input.getSetSpec());
-        ps.setString(2, input.getSetName());
-        ps.setString(3, input.getSetDescription());
-        int affectedRows = ps.executeUpdate();
+        PreparedStatement ps = null;
 
-        if (affectedRows == 0) {
-            throw new SQLException("Creating Set failed, no rows affected.");
-        }
+        try {
+            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, input.getSetSpec());
+            ps.setString(2, input.getSetName());
+            ps.setString(3, input.getSetDescription());
+            int affectedRows = ps.executeUpdate();
 
-        try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
 
-            if (!generatedKeys.next()) {
-                throw new SQLException("Creating Set failed, no ID obtained.");
+                if (!generatedKeys.next()) {
+                    throw new SQLException("Creating Set failed, no ID obtained.");
+                }
+
+                input.setIdentifier(generatedKeys.getLong("id"));
             }
 
-            input.setSetId(generatedKeys.getLong("id"));
+            ps.close();
+        } catch (SQLException e) {
+            throw new SaveFailed("Creating Set failed, no ID obtained.", e);
         }
-
-        ps.close();
 
         return input;
     }
 
     @Override
-    public List<Set> save(Collection objects) throws SQLException {
+    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
         String sql = "INSERT INTO sets (id, setspec, setname, setdescription) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (setspec) ";
         sql+="DO NOTHING";
         List<Set> output = new ArrayList<>();
-        PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-        connection.setAutoCommit(false);
 
-        for (Iterator iterator = objects.iterator(); iterator.hasNext();) {
-            Set set = (Set) iterator.next();
-            ps.clearParameters();
-            ps.setString(1, set.getSetSpec());
-            ps.setString(2, set.getSetName());
-            ps.setString(3, set.getSetDescription());
-            ps.addBatch();
-        }
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            connection.setAutoCommit(false);
 
-        ps.clearParameters();
-        int[] insertRows = ps.executeBatch();
-
-        if (insertRows.length == 0) {
-            throw new SQLException("Creating Sets failed, no rows affected.");
-        }
-
-        try (ResultSet result = ps.getGeneratedKeys()) {
-
-            if (!result.next()) {
-                throw new SQLException("Creating Set failed, no ID obtained.");
+            for (Iterator iterator = objects.iterator(); iterator.hasNext();) {
+                Set set = (Set) iterator.next();
+                ps.clearParameters();
+                ps.setString(1, set.getSetSpec());
+                ps.setString(2, set.getSetName());
+                ps.setString(3, set.getSetDescription());
+                ps.addBatch();
             }
 
-            do {
-                Set set = new Set();
-                set.setSetId(result.getLong(1));
-                set.setSetSpec(result.getString("setspec"));
-                set.setSetName(result.getString("setname"));
-                set.setSetDescription(result.getString("setdescription"));
-                set.setDeleted(result.getBoolean("deleted"));
-                output.add(set);
-            } while(result.next());
+            ps.clearParameters();
+            int[] insertRows = ps.executeBatch();
+
+            if (insertRows.length == 0) {
+                throw new SaveFailed("Creating Sets failed, no rows affected.");
+            }
+
+            try (ResultSet result = ps.getGeneratedKeys()) {
+
+                if (!result.next()) {
+                    throw new SaveFailed("Creating Set failed, no ID obtained.");
+                }
+
+                do {
+                    Set set = new Set();
+                    set.setIdentifier(result.getLong(1));
+                    set.setSetSpec(result.getString("setspec"));
+                    set.setSetName(result.getString("setname"));
+                    set.setSetDescription(result.getString("setdescription"));
+                    set.setDeleted(result.getBoolean("deleted"));
+                    output.add(set);
+                } while(result.next());
+            }
+
+            connection.commit();
+            ps.close();
+        } catch (SQLException e) {
+            throw new SaveFailed(e.getMessage());
         }
 
-        connection.commit();
-        ps.close();
-
-        return output;
+        return (Collection<T>) output;
     }
 
+
+
     @Override
-    public Set update(Tparam object) throws SQLException {
-        Set input = (Set) object;
+    public Set update(Set object) throws UpdateFailed {
         String sql = "UPDATE sets SET setname = ?, setdescription = ? where setspec = ? AND deleted = FALSE";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        connection.setAutoCommit(false);
-        ps.setString(1, input.getSetName());
-        ps.setString(2, input.getSetDescription());
-        ps.setString(3, input.getSetSpec());
-        int updateRows = ps.executeUpdate();
-        connection.commit();
 
-        if (updateRows == 0) {
-            throw new SQLException("Update set is failed, no affected rows.");
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            connection.setAutoCommit(false);
+            ps.setString(1, object.getSetName());
+            ps.setString(2, object.getSetDescription());
+            ps.setString(3, object.getSetSpec());
+            int updateRows = ps.executeUpdate();
+            connection.commit();
+
+            if (updateRows == 0) {
+                throw new UpdateFailed("Update set is failed, no affected rows.");
+            }
+
+            ps.close();
+        } catch (SQLException e) {
+            throw new UpdateFailed(e.getMessage());
         }
 
-        Set set = findByColumnAndValue("setspec", (Tparam) input.getSetSpec());
-
-        ps.close();
-
-        return set;
+        return object;
     }
 
     @Override
-    public List<Set> update(Collection objects) {
+    public Collection<T> update(Collection<T> objects) {
         return null;
     }
 
     @Override
-    public List<Set> findAll() throws SQLException {
+    public Collection<T> findAll() throws NotFound {
         String sql = "SELECT id, setspec, setname, setdescription, deleted FROM sets";
-        Statement stmt = connection.createStatement();
-        ResultSet resultSet = stmt.executeQuery(sql);
-        List<Set> sets = new ArrayList<>();
+        Collection<Set> sets = new ArrayList<>();
 
-        if (resultSet.next()) {
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet resultSet = stmt.executeQuery(sql);
 
-            do {
+            if (resultSet.next()) {
+
+                do {
+                    Set set = new Set();
+                    set.setIdentifier(resultSet.getLong(1));
+                    set.setSetSpec(resultSet.getString("setspec"));
+                    set.setSetName(resultSet.getString("setname"));
+                    set.setSetDescription(resultSet.getString("setdescription"));
+                    set.setDeleted(resultSet.getBoolean("deleted"));
+                    sets.add(set);
+                } while(resultSet.next());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return (Collection<T>) sets;
+    }
+
+    @Override
+    public T findById(String id) {
+        return null;
+    }
+
+    @Override
+    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
+        String sql = "SELECT id, setspec,setname, setdescription, deleted FROM sets where " + property + " = ?";
+        Collection<Set> sets = new ArrayList<>();
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, (String) value);
+            ResultSet resultSet = ps.executeQuery();
+
+            while (resultSet.next()) {
                 Set set = new Set();
-                set.setSetId(resultSet.getLong(1));
+                set.setIdentifier(resultSet.getLong("id"));
                 set.setSetSpec(resultSet.getString("setspec"));
                 set.setSetName(resultSet.getString("setname"));
                 set.setSetDescription(resultSet.getString("setdescription"));
                 set.setDeleted(resultSet.getBoolean("deleted"));
-                sets.add(set);
-            } while(resultSet.next());
+                ((ArrayList<Set>) sets).add(set);
+            }
+
+            resultSet.close();
+            ps.close();
+        } catch (SQLException e) {
+            throw new NotFound(e.getMessage());
         }
 
-        return sets;
+        return (Collection<T>) sets;
     }
 
     @Override
-    public Set findById(Tparam value) {
+    public T findByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
     @Override
-    public Set findByColumnAndValue(String column, Tparam value) throws SQLException {
-        String sql = "SELECT id, setspec,setname, setdescription, deleted FROM sets where " + column + " = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, (String) value);
-        ResultSet resultSet = ps.executeQuery();
-        Set set = new Set();
-
-        while (resultSet.next()) {
-            set.setSetId(resultSet.getLong("id"));
-            set.setSetSpec(resultSet.getString("setspec"));
-            set.setSetName(resultSet.getString("setname"));
-            set.setSetDescription(resultSet.getString("setdescription"));
-            set.setDeleted(resultSet.getBoolean("deleted"));
-        }
-
-        resultSet.close();
-        ps.close();
-
-        return set;
-    }
-
-    @Override
-    public Set findByMultipleValues(String clause, String... values) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public List<Set> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Set delete(String column, Tparam ident, boolean value) throws SQLException {
+    public int delete(String column, String ident, boolean value) throws DeleteFailed {
         String sql = "UPDATE sets SET deleted = ? WHERE " + column + " = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        connection.setAutoCommit(false);
-        ps.setBoolean(1, value);
-        ps.setString(2, (String) ident);
-        int deletedRows = ps.executeUpdate();
-        connection.commit();
+        int deletedRows = 0;
 
-        if (deletedRows == 0) {
-            throw new SQLException("Set mark as deleted failed, no rwos affected.");
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            connection.setAutoCommit(false);
+            ps.setBoolean(1, value);
+            ps.setString(2, (String) ident);
+            deletedRows = ps.executeUpdate();
+            connection.commit();
+
+            if (deletedRows == 0) {
+                throw new DeleteFailed("Set mark as deleted failed, no rwos affected.");
+            }
+
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-        Set set = findByColumnAndValue(column, ident);
-
-        ps.close();
-
-        return set;
+        return deletedRows;
     }
 
     @Override
-    public Set delete(Tparam object) throws SQLException {
+    public T delete(T object) throws DeleteFailed {
         return null;
     }
 }

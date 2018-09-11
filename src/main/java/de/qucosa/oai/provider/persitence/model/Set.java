@@ -11,7 +11,7 @@ import java.io.Serializable;
 @XmlRootElement(name = "set")
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Set extends ResourceSupport implements Serializable {
+public class Set extends ResourceSupport implements Serializable, HasIdentifier {
     @JsonProperty("setid")
     private Long setId;
 
@@ -27,9 +27,15 @@ public class Set extends ResourceSupport implements Serializable {
     @JsonProperty("deleted")
     private boolean deleted;
 
-    public Long getSetId() { return setId; }
+    @Override
+    public void setIdentifier(Object identifier) {
+        this.setId = setId;
+    }
 
-    public void setSetId(Long setId) { this.setId = setId; }
+    @Override
+    public Object getIdentifier() {
+        return setId;
+    }
 
     public String getSetSpec() { return setSpec; }
 

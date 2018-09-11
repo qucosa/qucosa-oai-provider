@@ -3,11 +3,14 @@ package de.qucosa.oai.provider.api.sets;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.dao.postgres.SetDao;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persitence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persitence.model.Set;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 
 @Component
@@ -47,7 +50,7 @@ public class SetApi<T> {
         setDao(new SetDao<>());
     }
 
-    public void setDao(Dao dao) {
+    public void setDao(Dao<Set> dao) {
         this.dao = dao;
     }
 
@@ -55,27 +58,27 @@ public class SetApi<T> {
         return inputData;
     }
 
-    public Set saveSet(Set input) throws SQLException {
-        return (Set) dao.save(input);
+    public Set saveSet(Set input) throws SaveFailed {
+        return (Set) dao.saveAndSetIdentifier(input);
     }
 
-    public List<Set> saveSets(List<Set> input) throws SQLException {
-        return (List<Set>) dao.save(input);
+    public List<Set> saveSets(List<Set> input) throws SaveFailed {
+        return (List<Set>) dao.saveAndSetIdentifier(input);
     }
 
-    public List<Set> findAll() throws SQLException {
+    public List<Set> findAll() throws NotFound {
         return (List<Set>) dao.findAll();
     }
 
-    public Set find(String column, String setspec) throws SQLException {
-        return (Set) dao.findByColumnAndValue(column, setspec);
+    public Set find(String column, String setspec) throws NotFound {
+        return (Set) dao.findByPropertyAndValue(column, setspec);
     }
 
-    public Set updateSet(Set input, String setspec) throws Exception {
+    public Set updateSet(Set input, String setspec) throws UpdateFailed {
         Set output;
 
         if (!input.getSetSpec().equals(setspec)) {
-            throw new Exception("Prameter setspec is unequal with setpec from set object.");
+            throw new UpdateFailed("Prameter setspec is unequal with setpec from set object.");
         }
 
         output = (Set) dao.update(input);
@@ -83,7 +86,7 @@ public class SetApi<T> {
         return output;
     }
 
-    public Set deleteSet(String column, String setspec, boolean value) throws SQLException {
-        return (Set) dao.delete(column, setspec, value);
+    public int deleteSet(String column, String setspec, boolean value) throws DeleteFailed {
+        return dao.delete(column, setspec, value);
     }
 }

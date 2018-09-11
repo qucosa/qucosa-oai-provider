@@ -51,6 +51,25 @@ public class ApplicationConfig {
     }
 
     @Bean
+    public Dao<Set> setDao() throws PropertyVetoException, SQLException {
+        Dao<Set> setDao = new SetDao(dataSource().getConnection());
+        return setDao;
+    }
+
+    @Bean
+    public SetApi setApi() throws PropertyVetoException, SQLException {
+        SetApi setApi = new SetApi();
+        setApi.setDao(setDao());
+        return setApi;
+    }
+
+
+
+
+
+
+
+    @Bean
     public Dao disseminationDao() throws PropertyVetoException, SQLException {
         Dao dao = new DisseminationDao<Dissemination>();
         dao.setConnection(dataSource());
@@ -62,20 +81,6 @@ public class ApplicationConfig {
         DisseminationApi api = new DisseminationApi();
         api.setDao(disseminationDao());
         return api;
-    }
-
-    @Bean
-    public Dao setDao() throws SQLException, PropertyVetoException {
-        Dao setDao = new SetDao<Set>();
-        setDao.setConnection(dataSource());
-        return setDao;
-    }
-
-    @Bean
-    public SetApi setApi() throws PropertyVetoException, SQLException {
-        SetApi setApi = new SetApi();
-        setApi.setDao(setDao());
-        return setApi;
     }
 
     @Bean
