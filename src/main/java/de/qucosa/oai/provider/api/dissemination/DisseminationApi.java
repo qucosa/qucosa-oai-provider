@@ -3,10 +3,13 @@ package de.qucosa.oai.provider.api.dissemination;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.dao.postgres.DisseminationDao;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persitence.model.Dissemination;
 
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 public class DisseminationApi<T> {
@@ -53,23 +56,23 @@ public class DisseminationApi<T> {
         return inputData;
     }
 
-    public Dissemination saveDissemination(Dissemination dissemination) throws SQLException {
-        return (Dissemination) dao.save(dissemination);
+    public Dissemination saveDissemination(Dissemination dissemination) throws SaveFailed {
+        return (Dissemination) dao.saveAndSetIdentifier(dissemination);
     }
 
     public Dissemination updateDissemination() {
         return null;
     }
 
-    public Dissemination deleteDissemination(Dissemination dissemination) throws SQLException {
+    public Dissemination deleteDissemination(Dissemination dissemination) throws DeleteFailed {
         return (Dissemination) dao.delete(dissemination);
     }
 
-    public List<Dissemination> findAllByUid(String column, T value) throws SQLException {
-        return dao.findAllByColumnAndValue(column, value);
+    public Collection<Dissemination> findAllByUid(String property, String value) throws NotFound {
+        return dao.findByPropertyAndValue(property, value);
     }
 
-    public Dissemination findByMultipleValues(String clause, String... values) throws SQLException {
+    public Dissemination findByMultipleValues(String clause, String... values) throws NotFound {
         return (Dissemination) dao.findByMultipleValues(clause, values);
     }
 }

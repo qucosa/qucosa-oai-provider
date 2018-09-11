@@ -3,11 +3,14 @@ package de.qucosa.oai.provider.api.format;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.dao.postgres.FormatDao;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persitence.model.Format;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -55,12 +58,12 @@ public class FormatApi<T> {
         return inputData;
     }
 
-    public Format saveFormat(Format format) throws SQLException {
-        return (Format) dao.save(format);
+    public Format saveFormat(Format format) throws SaveFailed {
+        return (Format) dao.saveAndSetIdentifier(format);
     }
 
-    public List<Format> saveFormats(List<Format> formats) throws SQLException {
-        return dao.save(formats);
+    public Collection<Format> saveFormats(List<Format> formats) throws SaveFailed {
+        return dao.saveAndSetIdentifier(formats);
     }
 
     public Format updateFormat(Format input, String mdprefix) throws Exception {
@@ -72,15 +75,15 @@ public class FormatApi<T> {
         return (Format) dao.update(input);
     }
 
-    public Format find(String column, String value) throws SQLException {
-        return (Format) dao.findByColumnAndValue(column, value);
+    public Format find(String column, String value) throws NotFound {
+        return (Format) dao.findByPropertyAndValue(column, value);
     }
 
-    public List<Format> findAll() throws SQLException {
+    public List<Format> findAll() throws NotFound {
         return (List<Format>) dao.findAll();
     }
 
-    public Format deleteFormat(String column, T ident, boolean value) throws SQLException {
-        return (Format) dao.delete(column, ident, value);
+    public int deleteFormat(String column, String ident, boolean value) throws DeleteFailed {
+        return dao.delete(column, ident, value);
     }
 }
