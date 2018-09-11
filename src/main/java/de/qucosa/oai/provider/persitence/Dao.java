@@ -1,33 +1,36 @@
 package de.qucosa.oai.provider.persitence;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persitence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persitence.model.HasIdentifier;
 
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
-public interface Dao<Treturn, Tparam> {
-    Treturn save(Tparam object) throws SQLException;
+public interface Dao<T extends HasIdentifier> {
 
-    List<Treturn> save(Collection objects) throws SQLException;
+    T saveAndSetIdentifier(T object) throws SaveFailed;
 
-    Treturn update(Tparam object) throws SQLException;
+    Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed;
 
-    List<Treturn> update(Collection objects);
+    T update(T object) throws UpdateFailed;
 
-    List<Treturn> findAll() throws SQLException;
+    Collection<T> update(Collection<T> objects) throws UpdateFailed;
 
-    Treturn findById(Tparam value);
+    Collection<T> findAll() throws NotFound;
 
-    Treturn findByColumnAndValue(String column, Tparam value) throws SQLException;
+    T findById(String id) throws NotFound;
 
-    Treturn findByMultipleValues(String clause, String... values) throws SQLException;
+    Collection<T> findByPropertyAndValue(String property, String value) throws NotFound;
 
-    List<Treturn> findAllByColumnAndValue(String column, Tparam value) throws SQLException;
+    T findByMultipleValues(String clause, String... values) throws NotFound;
 
-    Treturn delete(String column, Tparam ident, boolean value) throws SQLException;
+    int delete(String column, String ident, boolean value) throws DeleteFailed;
 
-    Treturn delete(Tparam object) throws SQLException;
-
-    void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException;
+    T delete(T object) throws DeleteFailed;
 }
+
+
