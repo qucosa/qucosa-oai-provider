@@ -5,6 +5,9 @@ import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
 import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persitence.model.Dissemination;
 import de.qucosa.oai.provider.persitence.model.Format;
 import org.junit.Before;
@@ -21,7 +24,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import testdata.TestData;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -58,8 +60,15 @@ public class DisseminationIT {
     }
 
     @Test
-    public void Save_dissemination() throws SQLException {
-        Format format = formatApi.find("mdprefix", "oai_dc");
+    public void Save_dissemination() throws SaveFailed {
+        Format format = null;
+
+        try {
+            format = formatApi.find("mdprefix", "oai_dc");
+        } catch (NotFound notFound) {
+
+        }
+
         Dissemination dissemination = disseminations.get(0);
         dissemination.setFormatId(format.getFormatId());
         dissemination = disseminationApi.saveDissemination(dissemination);
@@ -70,7 +79,7 @@ public class DisseminationIT {
     }
 
     @Test
-    public void Find_dissemination_by_multiple_criterias() throws SQLException {
+    public void Find_dissemination_by_multiple_criterias() throws NotFound {
         Format format = formatApi.find("mdprefix", "oai_dc");
         Dissemination dissemination = disseminationApi.findByMultipleValues(
                 "id_format=%s AND id_record=%s",
@@ -81,11 +90,25 @@ public class DisseminationIT {
     }
 
     @Test
-    public void Mark_dissemination_as_deleted() throws SQLException {
-        Format format = formatApi.find("mdprefix", "oai_dc");
-        Dissemination dissemination = disseminationApi.findByMultipleValues(
-                "id_format=%s AND id_record=%s",
-                String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
+    public void Mark_dissemination_as_deleted() throws DeleteFailed {
+        Format format = null;
+
+        try {
+            format = formatApi.find("mdprefix", "oai_dc");
+        } catch (NotFound notFound) {
+            notFound.printStackTrace();
+        }
+
+        Dissemination dissemination = null;
+
+        try {
+            dissemination = disseminationApi.findByMultipleValues(
+                    "id_format=%s AND id_record=%s",
+                    String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
+        } catch (NotFound notFound) {
+            notFound.printStackTrace();
+        }
+
         dissemination.setFormatId(format.getFormatId());
         dissemination.setDeleted(true);
         dissemination = disseminationApi.deleteDissemination(dissemination);
@@ -93,11 +116,25 @@ public class DisseminationIT {
     }
 
     @Test
-    public void Mark_dissemination_as_not_deleted() throws SQLException {
-        Format format = formatApi.find("mdprefix", "oai_dc");
-        Dissemination dissemination = disseminationApi.findByMultipleValues(
-                "id_format=%s AND id_record=%s",
-                String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
+    public void Mark_dissemination_as_not_deleted() throws DeleteFailed {
+        Format format = null;
+
+        try {
+            format = formatApi.find("mdprefix", "oai_dc");
+        } catch (NotFound notFound) {
+            notFound.printStackTrace();
+        }
+
+        Dissemination dissemination = null;
+
+        try {
+            dissemination = disseminationApi.findByMultipleValues(
+                    "id_format=%s AND id_record=%s",
+                    String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
+        } catch (NotFound notFound) {
+            notFound.printStackTrace();
+        }
+
         dissemination.setFormatId(format.getFormatId());
         dissemination.setDeleted(false);
         dissemination = disseminationApi.deleteDissemination(dissemination);

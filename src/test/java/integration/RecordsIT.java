@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.record.RecordApi;
 import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persitence.model.Record;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -49,32 +52,32 @@ public class RecordsIT {
     }
 
     @Test
-    public void Save_record_object() throws SQLException {
+    public void Save_record_object() throws SaveFailed {
         Record record = records.get(0);
         record = recordApi.saveRecord(record);
         assertThat(record.getRecordId()).isNotNull();
     }
 
     @Test
-    public void Find_Record_by_uid() throws SQLException {
+    public void Find_Record_by_uid() throws NotFound {
         Record record = records.get(0);
         Record result = recordApi.findRecord("uid", record.getUid());
         assertThat(result).isNotNull();
     }
 
     @Test
-    public void Mark_record_as_deleted() throws SQLException {
+    public void Mark_record_as_deleted() throws DeleteFailed {
         Record record = records.get(0);
         record.setDeleted(true);
-        record = recordApi.deleteRecord(record);
-        assertThat(record.isDeleted()).isTrue();
+        int deleted = recordApi.deleteRecord(record);
+        assertThat(1).isEqualTo(deleted);
     }
 
     @Test
-    public void Mark_record_as_not_deleted() throws SQLException {
+    public void Mark_record_as_not_deleted() throws DeleteFailed {
         Record record = records.get(0);
         record.setDeleted(false);
-        record = recordApi.deleteRecord(record);
-        assertThat(record.isDeleted()).isFalse();
+        int deleted = recordApi.deleteRecord(record);
+        assertThat(1).isEqualTo(deleted);
     }
 }

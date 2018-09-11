@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persitence.model.Format;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -20,6 +23,7 @@ import testdata.TestData;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,15 +53,15 @@ public class FormatsIT {
     }
 
     @Test
-    public void Save_single_format_object() throws SQLException {
+    public void Save_single_format_object() throws SaveFailed {
         Format format = formats.get(0);
         format = formatApi.saveFormat(format);
         assertThat(format.getFormatId()).isNotNull();
     }
 
     @Test
-    public void Save_format_collection() throws SQLException {
-        List<Format> response = formatApi.saveFormats(formats);
+    public void Save_format_collection() throws SaveFailed {
+        Collection<Format> response = formatApi.saveFormats(formats);
         assertThat(response.size()).isGreaterThan(0);
     }
 
@@ -70,37 +74,37 @@ public class FormatsIT {
     }
 
     @Test
-    public void Find_format_by_mdprefix_successful() throws SQLException {
+    public void Find_format_by_mdprefix_successful() throws NotFound {
         Format format = formatApi.find("mdprefix", "oai_dc");
         assertThat(format).isNotNull();
         assertThat(format.getMdprefix().trim()).isEqualTo("oai_dc");
     }
 
     @Test
-    public void Find_format_by_mdprefix_not_successful() throws SQLException {
+    public void Find_format_by_mdprefix_not_successful() throws NotFound {
         Format format = formatApi.find("mdprefix", "oai_c");
         assertThat(format).isNotNull();
         assertThat(format.getMdprefix().trim()).isEqualTo("oai_dc");
     }
 
     @Test
-    public void Find_all_formats() throws SQLException {
+    public void Find_all_formats() throws NotFound {
         List<Format> response = formatApi.findAll();
         assertThat(response).isNotNull();
         assertThat(response.size()).isGreaterThan(0);
     }
 
     @Test
-    public void Marked_format_as_deleted() throws SQLException {
+    public void Marked_format_as_deleted() throws DeleteFailed {
         Format format = formats.get(0);
-        format = formatApi.deleteFormat("mdprefix", format.getMdprefix(), true);
-        assertThat(format.isDeleted()).isEqualTo(true);
+        int deletetd = formatApi.deleteFormat("mdprefix", format.getMdprefix(), true);
+        assertThat(1).isEqualTo(deletetd);
     }
 
     @Test
-    public void Marked_format_as_not_deleted() throws SQLException {
+    public void Marked_format_as_not_deleted() throws DeleteFailed {
         Format format = formats.get(0);
-        format = formatApi.deleteFormat("mdprefix", format.getMdprefix(), false);
-        assertThat(format.isDeleted()).isEqualTo(false);
+        int deletetd = formatApi.deleteFormat("mdprefix", format.getMdprefix(), false);
+        assertThat(1).isEqualTo(deletetd);
     }
 }
