@@ -1,7 +1,10 @@
 package de.qucosa.oai.provider.persitence.dao.postgres;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persitence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persitence.model.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -11,139 +14,164 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Repository
-public class RecordDao<Tparam> implements Dao<Record, Tparam> {
+public class RecordDao<T extends Record> implements Dao<T> {
 
     private Connection connection;
 
     @Autowired
-    public void setConnection(ComboPooledDataSource dataSource) throws SQLException {
-        this.connection = dataSource.getConnection();
+    public RecordDao(Connection connection) {
+
+        if (connection == null) {
+            throw new IllegalArgumentException("Connection cannot be null");
+        }
+
+        this.connection = connection;
+    }
+
+    public RecordDao() {
+        this.connection = null;
     }
 
     @Override
-    public Record save(Tparam object) throws SQLException {
-        Record record = (Record) object;
+    public Record saveAndSetIdentifier(Record object) throws SaveFailed {
         String sql = "INSERT INTO records (id, pid, uid) VALUES (nextval('oaiprovider'), ?, ?)";
         sql+="ON CONFLICT (uid) ";
         sql+="DO NOTHING";
 
-        PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-        ps.setString(1, record.getPid());
-        ps.setString(2, record.getUid());
-        int affectedRows = ps.executeUpdate();
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-        if (affectedRows == 0) {
-            throw new SQLException("Creating format failed, no rows affected.");
-        }
+            ps.setString(1, object.getPid());
+            ps.setString(2, object.getUid());
+            int affectedRows = ps.executeUpdate();
 
-        try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-
-            if (!generatedKeys.next()) {
-                throw new SQLException("Creating format failed, no ID obtained.");
+            if (affectedRows == 0) {
+                throw new SaveFailed("Creating format failed, no rows affected.");
             }
 
-            record.setRecordId(generatedKeys.getLong("id"));
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+
+                if (!generatedKeys.next()) {
+                    throw new SaveFailed("Creating format failed, no ID obtained.");
+                }
+
+                object.setIdentifier(generatedKeys.getLong("id"));
+            }
+
+            ps.close();
+        } catch (SQLException e) {
+            throw new SaveFailed(e.getMessage());
         }
 
-        ps.close();
-
-        return record;
+        return object;
     }
 
     @Override
-    public List<Record> save(Collection objects) {
+    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
         return null;
     }
 
     @Override
-    public Record update(Tparam object) throws SQLException {
-        Record record = (Record) object;
+    public Record update(Record object) throws UpdateFailed {
         String sql = "UPDATE records SET pid = ?, deleted = ? WHERE uid = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, record.getPid());
-        ps.setBoolean(2, record.isDeleted());
-        ps.setString(3, record.getUid());
-        int updatedRows = ps.executeUpdate();
 
-        if (updatedRows == 0) {
-            throw new SQLException("Record update failed, no rwos affected.");
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, object.getPid());
+            ps.setBoolean(2, object.isDeleted());
+            ps.setString(3, object.getUid());
+            int updatedRows = ps.executeUpdate();
+
+            if (updatedRows == 0) {
+                throw new UpdateFailed("Record update failed, no rwos affected.");
+            }
+
+            ps.close();
+        } catch (SQLException e) {
+            throw new UpdateFailed(e.getMessage());
         }
 
-        ps.close();
-
-        return this.findByColumnAndValue("uid", (Tparam) record.getUid());
+        return object;
     }
 
     @Override
-    public List<Record> update(Collection objects) {
+    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public List<Record> findAll() {
+    public Collection<T> findAll() throws NotFound {
         return null;
     }
 
     @Override
-    public Record findById(Tparam value) {
+    public T findById(String id) throws NotFound {
         return null;
     }
 
     @Override
-    public Record findByColumnAndValue(String column, Tparam value) throws SQLException {
+    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
         Record record = new Record();
-        String sql = "SELECT * FROM records WHERE " + column + " = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, (String) value);
-        ResultSet resultSet = ps.executeQuery();
+        Collection<Record> records = new ArrayList<>();
+        String sql = "SELECT * FROM records WHERE " + property + " = ?";
 
-        while (resultSet.next()) {
-            record.setRecordId(resultSet.getLong("id"));
-            record.setPid(resultSet.getString("pid"));
-            record.setUid(resultSet.getString("uid"));
-            record.setDeleted(resultSet.getBoolean("deleted"));
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, (String) value);
+            ResultSet resultSet = ps.executeQuery();
+
+            while (resultSet.next()) {
+                record.setIdentifier(resultSet.getLong("id"));
+                record.setPid(resultSet.getString("pid"));
+                record.setUid(resultSet.getString("uid"));
+                record.setDeleted(resultSet.getBoolean("deleted"));
+                ((ArrayList<Record>) records).add(record);
+            }
+
+            resultSet.close();
+            ps.close();
+        } catch (SQLException e) {
+            throw new NotFound(e.getMessage());
         }
 
-        resultSet.close();
-        ps.close();
-
-        return record;
+        return (Collection<T>) records;
     }
 
     @Override
-    public Record findByMultipleValues(String clause, String... values) throws SQLException {
+    public T findByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
     @Override
-    public List<Record> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Record delete(String column, Tparam ident, boolean value) throws SQLException {
+    public int delete(String column, String ident, boolean value) throws DeleteFailed {
         String sql = "UPDATE records SET deleted = ? WHERE " + column + " = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setBoolean(1, value);
-        ps.setString(2, (String) ident);
-        int deletedRows = ps.executeUpdate();
+        int deletedRows = 0;
 
-        if (deletedRows == 0) {
-            throw new SQLException("Record mark as deleted failed, no rwos affected.");
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setBoolean(1, value);
+            ps.setString(2, (String) ident);
+            deletedRows = ps.executeUpdate();
+
+            if (deletedRows == 0) {
+                throw new DeleteFailed("Record mark as deleted failed, no rwos affected.");
+            }
+
+            ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-        Record record = findByColumnAndValue(column, ident);
-        ps.close();
 
-        return record;
+        return deletedRows;
     }
 
     @Override
-    public Record delete(Tparam object) throws SQLException {
+    public Record delete(Record object) throws DeleteFailed {
         return null;
     }
 }

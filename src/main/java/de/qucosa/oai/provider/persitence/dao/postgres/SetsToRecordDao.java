@@ -1,7 +1,11 @@
 package de.qucosa.oai.provider.persitence.dao.postgres;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persitence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persitence.model.HasIdentifier;
 import de.qucosa.oai.provider.persitence.model.SetsToRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -11,84 +15,103 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 
 @Repository
-public class SetsToRecordDao implements Dao {
+public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord> {
 
     private Connection connection;
 
     @Autowired
-    public void setConnection(ComboPooledDataSource dataSource) throws SQLException {
-        this.connection = dataSource.getConnection();
+    public SetsToRecordDao(Connection connection) {
+
+        if (connection == null) {
+            throw new IllegalArgumentException("Connection cannot be null");
+        }
+
+        this.connection = connection;
+    }
+
+    public SetsToRecordDao() {
+        this.connection = null;
     }
 
     @Override
-    public Object save(Object object) throws SQLException {
+    public SetsToRecord saveAndSetIdentifier(SetsToRecord object) throws SaveFailed {
         SetsToRecord setsToRecord = (SetsToRecord) object;
         String sql = "INSERT INTO sets_to_records (id_set, id_record) VALUES (?, ?)";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setLong(1, setsToRecord.getIdSet());
-        ps.setLong(2, setsToRecord.getIdRecord());
-        ps.executeUpdate();
 
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setLong(1, setsToRecord.getIdSet());
+            ps.setLong(2, setsToRecord.getIdRecord());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new SaveFailed(e.getMessage());
+        }
+
+        return (T) setsToRecord;
+    }
+
+    @Override
+    public Collection saveAndSetIdentifier(Collection objects) throws SaveFailed {
         return null;
     }
 
     @Override
-    public List save(Collection objects) throws SQLException {
+    public SetsToRecord update(SetsToRecord object) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public Object update(Object object) throws SQLException {
+    public Collection update(Collection objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public List update(Collection objects) {
+    public Collection findAll() throws NotFound {
         return null;
     }
 
     @Override
-    public List findAll() throws SQLException {
+    public T findById(String id) throws NotFound {
         return null;
     }
 
     @Override
-    public Object findById(Object value) {
+    public Collection findByPropertyAndValue(String property, String value) throws NotFound {
         return null;
     }
 
     @Override
-    public Object findByColumnAndValue(String column, Object value) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Integer findByMultipleValues(String clause, String... values) throws SQLException {
+    public T findByMultipleValues(String clause, String... values) throws NotFound {
         clause = clause.replace("%s", "?");
         String sql = "SELECT * FROM sets_to_records WHERE " + clause;
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setLong(1, Long.valueOf(values[0]));
-        ps.setLong(2, Long.valueOf(values[1]));
-        ResultSet resultSet = ps.executeQuery();
 
-        return (resultSet.next()) ? 1 : 0;
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setLong(1, Long.valueOf(values[0]));
+            ps.setLong(2, Long.valueOf(values[1]));
+            ResultSet resultSet = ps.executeQuery();
+            SetsToRecord setsToRecord = new SetsToRecord();
+
+            while (resultSet.next()) {
+                setsToRecord.setIdSet(resultSet.getLong("id_set"));
+                setsToRecord.setIdRecord(resultSet.getLong("id_record"));
+            }
+
+            return (T) setsToRecord;
+        } catch (SQLException e) {
+            throw new NotFound(e.getMessage());
+        }
     }
 
     @Override
-    public List findAllByColumnAndValue(String column, Object value) throws SQLException {
-        return null;
+    public int delete(String column, String ident, boolean value) throws DeleteFailed {
+        return 0;
     }
 
     @Override
-    public Object delete(String column, Object ident, boolean value) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Object delete(Object object) throws SQLException {
+    public SetsToRecord delete(SetsToRecord object) throws DeleteFailed {
         return null;
     }
 }

@@ -2,56 +2,58 @@ package de.qucosa.oai.provider.dao;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persitence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persitence.model.Dissemination;
 import testdata.TestData;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> {
+public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
     @Override
-    public Dissemination save(Tparam object) throws SQLException {
+    public Dissemination saveAndSetIdentifier(Dissemination object) throws SaveFailed {
         Dissemination dissemination = (Dissemination) object;
         dissemination.setDissId(Long.valueOf(1));
         return dissemination;
     }
 
     @Override
-    public List<Dissemination> save(Collection objects) throws SQLException {
+    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
         return null;
     }
 
     @Override
-    public Dissemination update(Tparam object) throws SQLException {
+    public T update(T object) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public List<Dissemination> update(Collection objects) {
+    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public List<Dissemination> findAll() throws SQLException {
+    public Collection<T> findAll() throws NotFound {
         return null;
     }
 
     @Override
-    public Dissemination findById(Tparam value) {
+    public T findById(String id) throws NotFound {
         return null;
     }
 
     @Override
-    public Dissemination findByColumnAndValue(String column, Tparam value) throws SQLException {
+    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
         ObjectMapper om = new ObjectMapper();
-        Dissemination dissemination;
+        Collection<Dissemination> disseminations = new ArrayList<>();
+
 
         try {
             JsonNode nodes = om.readTree(TestData.DISSEMINATIONS);
@@ -60,25 +62,26 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
             for (JsonNode node : nodes) {
                 i++;
 
-                if (!node.has(column)) {
-                    throw new SQLException(column + " not found in disseminations table.");
+                if (!node.has(property)) {
+                    throw new NotFound(property + " not found in disseminations table.");
                 }
 
-                if (node.get(column).asText().equals(value)) {
+                if (node.get(property).asText().equals(value)) {
+                    Dissemination dissemination;
                     dissemination = om.readValue(node.toString(), Dissemination.class);
                     dissemination.setDissId(Long.valueOf(i));
-                    return dissemination;
+                    ((ArrayList<Dissemination>) disseminations).add(dissemination);
                 }
             }
         } catch (IOException e) {
-            throw new SQLException("No disseminations found.");
+            throw new NotFound("No disseminations found.");
         }
 
-        return null;
+        return (Collection<T>) disseminations;
     }
 
     @Override
-    public Dissemination findByMultipleValues(String clause, String... values) throws SQLException {
+    public T findByMultipleValues(String clause, String... values) throws NotFound {
         Map<String, Object> psValues = new HashMap<>();
         //noinspection ConfusingArgumentToVarargsMethod
         clause = String.format(clause, values);
@@ -102,62 +105,26 @@ public class DisseminationTestDao<Tparam> implements Dao<Dissemination, Tparam> 
 
                 if (dissemination.getFormatId().equals(Long.valueOf(psValues.get("formatid").toString())) && dissemination.getRecordId().equals(psValues.get("recordid"))) {
                     dissemination.setDissId(Long.valueOf(1));
-                    return dissemination;
+                    return (T) dissemination;
                 }
             }
 
         } catch (IOException e) {
-            throw new SQLException("No disseminations found.");
+            throw new NotFound("No disseminations found.");
         }
 
-        throw new SQLException("No dissemination found.");
+        throw new NotFound("No dissemination found.");
     }
 
     @Override
-    public List<Dissemination> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
-        ObjectMapper om = new ObjectMapper();
-        Dissemination dissemination;
-        List<Dissemination> disseminations = new ArrayList<>();
-
-        try {
-            JsonNode nodes = om.readTree(TestData.DISSEMINATIONS);
-            int i = 0;
-
-            for (JsonNode node : nodes) {
-                i++;
-
-                if (!node.has(column)) {
-                    throw new SQLException(column + " not found in disseminations table.");
-                }
-
-                if (node.get(column).asText().equals(value)) {
-                    dissemination = om.readValue(node.toString(), Dissemination.class);
-                    dissemination.setDissId(Long.valueOf(i));
-                    disseminations.add(dissemination);
-                }
-            }
-        } catch (IOException e) {
-            throw new SQLException("No disseminations found.");
-        }
-
-        return disseminations;
+    public int delete(String column, String ident, boolean value) throws DeleteFailed {
+        return 0;
     }
 
     @Override
-    public Dissemination delete(String column, Tparam ident, boolean value) throws SQLException {
-        return null;
-    }
-
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    @Override
-    public Dissemination delete(Tparam object) throws SQLException {
+    public Dissemination delete(Dissemination object) throws DeleteFailed {
         Dissemination dissemination = (Dissemination) object;
         dissemination.isDeleted();
         return dissemination;
-    }
-
-    @Override
-    public void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException {
-
     }
 }

@@ -1,7 +1,10 @@
 package de.qucosa.oai.provider.persitence.dao.postgres;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persitence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persitence.model.Dissemination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -13,133 +16,156 @@ import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.sql.Statement;
 import java.util.Collection;
-import java.util.List;
 
 @Repository
-public class DisseminationDao<Tparam> implements Dao<Dissemination, Tparam> {
+public class DisseminationDao<T extends Dissemination> implements Dao<T> {
 
     private Connection connection;
 
     @Autowired
-    public void setConnection(ComboPooledDataSource dataSource) throws SQLException {
-        this.connection = dataSource.getConnection();
+    public DisseminationDao(Connection connection) {
+
+        if (connection == null) {
+            throw new IllegalArgumentException("Connection cannot be null");
+        }
+
+        this.connection = connection;
+    }
+
+    public DisseminationDao() {
+        this.connection = null;
     }
 
     @Override
-    public Dissemination save(Tparam object) throws SQLException {
-        Dissemination dissemination = (Dissemination) object;
+    public Dissemination saveAndSetIdentifier(Dissemination object) throws SaveFailed {
+        Dissemination selectDiss = null;
 
-        Dissemination selectDiss = this.findByMultipleValues(
-                "id_format=? AND id_record=?",
-                String.valueOf(dissemination.getFormatId()), dissemination.getRecordId());
+        try {
+            selectDiss = this.findByMultipleValues(
+                    "id_format=? AND id_record=?",
+                    String.valueOf(object.getFormatId()), object.getRecordId());
+        } catch (NotFound notFound) {
 
-        if (selectDiss.getDissId() != null) {
+        }
+
+        if (selectDiss.getDissId() == null) {
             return null;
         }
 
         String sql = "INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, id_record) VALUES " +
                 "(nextval('oaiprovider'), ?, ?, ?, ?)";
-        SQLXML sqlxml = connection.createSQLXML();
-        sqlxml.setString(dissemination.getXmldata());
 
-        PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-        ps.setLong(1, dissemination.getFormatId());
-        ps.setTimestamp(2, dissemination.getLastmoddate());
-        ps.setSQLXML(3, sqlxml);
-        ps.setString(4, dissemination.getRecordId());
-        int affectedRows = ps.executeUpdate();
+        try {
+            SQLXML sqlxml = connection.createSQLXML();
+            sqlxml.setString(object.getXmldata());
 
-        if (affectedRows == 0) {
-            throw new SQLException("Creating dissemination failed, no rows affected.");
-        }
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, object.getFormatId());
+            ps.setTimestamp(2, object.getLastmoddate());
+            ps.setSQLXML(3, sqlxml);
+            ps.setString(4, object.getRecordId());
+            int affectedRows = ps.executeUpdate();
 
-        try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-
-            if (!generatedKeys.next()) {
-                throw new SQLException("Creating dissemination failed, no ID obtained.");
+            if (affectedRows == 0) {
+                throw new SaveFailed("Creating dissemination failed, no rows affected.");
             }
 
-            dissemination.setDissId(generatedKeys.getLong("id"));
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+
+                if (!generatedKeys.next()) {
+                    throw new SaveFailed("Creating dissemination failed, no ID obtained.");
+                }
+
+                object.setIdentifier(generatedKeys.getLong("id"));
+            }
+
+            ps.close();
+
+        } catch (SQLException e) {
+            throw new SaveFailed(e.getMessage());
         }
 
-        ps.close();
-
-        return dissemination;
+        return object;
     }
 
     @Override
-    public List<Dissemination> save(Collection objects) {
+    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
         return null;
     }
 
     @Override
-    public Dissemination update(Tparam object) {
+    public T update(T object) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public List<Dissemination> update(Collection objects) {
+    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public List<Dissemination> findAll() {
+    public Collection<T> findAll() throws NotFound {
         return null;
     }
 
     @Override
-    public Dissemination findById(Tparam value) {
+    public T findById(String id) throws NotFound {
         return null;
     }
 
     @Override
-    public Dissemination findByColumnAndValue(String column, Tparam value) {
+    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
         return null;
     }
 
     @Override
-    public Dissemination findByMultipleValues(String clause, String... values) throws SQLException {
+    public T findByMultipleValues(String clause, String... values) throws NotFound {
         clause = clause.replace("%s", "?");
         String sql = "SELECT id, id_format, lastmoddate, xmldata, id_record, deleted FROM disseminations WHERE " + clause;
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setLong(1, Long.valueOf(values[0]));
-        ps.setString(2, values[1]);
-        ResultSet resultSet = ps.executeQuery();
-        Dissemination dissemination = new Dissemination();
 
-        while (resultSet.next()) {
-            dissemination.setDissId(resultSet.getLong("id"));
-            dissemination.setFormatId(resultSet.getLong("id_format"));
-            dissemination.setRecordId(resultSet.getString("id_record"));
-            dissemination.setDeleted(resultSet.getBoolean("deleted"));
-            dissemination.setLastmoddate(resultSet.getTimestamp("lastmoddate"));
-            dissemination.setXmldata(resultSet.getString("xmldata"));
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setLong(1, Long.valueOf(values[0]));
+            ps.setString(2, values[1]);
+            ResultSet resultSet = ps.executeQuery();
+            Dissemination dissemination = new Dissemination();
+
+            while (resultSet.next()) {
+                dissemination.setDissId(resultSet.getLong("id"));
+                dissemination.setFormatId(resultSet.getLong("id_format"));
+                dissemination.setRecordId(resultSet.getString("id_record"));
+                dissemination.setDeleted(resultSet.getBoolean("deleted"));
+                dissemination.setLastmoddate(resultSet.getTimestamp("lastmoddate"));
+                dissemination.setXmldata(resultSet.getString("xmldata"));
+            }
+
+            return (T) dissemination;
+        } catch (SQLException e) {
+            throw new NotFound("Connat found dissemination.", e);
         }
-
-        return dissemination;
     }
 
     @Override
-    public List<Dissemination> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
-        return null;
+    public int delete(String column, String ident, boolean value) throws DeleteFailed {
+        return 0;
     }
 
     @Override
-    public Dissemination delete(String column, Tparam ident, boolean value) {
-        return null;
-    }
-
-    @Override
-    public Dissemination delete(Tparam object) throws SQLException {
+    public Dissemination delete(Dissemination object) throws DeleteFailed {
         Dissemination dissemination = (Dissemination) object;
         String sql = "UPDATE disseminations SET deleted = ? WHERE id = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setBoolean(1, dissemination.isDeleted());
-        ps.setLong(2, dissemination.getDissId());
-        int deletedRows = ps.executeUpdate();
 
-        if (deletedRows == 0) {
-            throw new SQLException("Dissemination mark as deleted failed, no rwos affected.");
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setBoolean(1, dissemination.isDeleted());
+            ps.setLong(2, dissemination.getDissId());
+            int deletedRows = ps.executeUpdate();
+
+            if (deletedRows == 0) {
+                throw new DeleteFailed("Dissemination mark as deleted failed, no rwos affected.");
+            }
+        } catch (SQLException e) {
+            throw new DeleteFailed(e.getMessage());
         }
 
         return dissemination;

@@ -1,7 +1,10 @@
 package de.qucosa.oai.provider.persitence.dao.postgres;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.persitence.Dao;
+import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persitence.exceptions.NotFound;
+import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persitence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persitence.model.Format;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -14,211 +17,245 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 @Repository
-public class FormatDao<Tparam> implements Dao<Format, Tparam> {
+public class FormatDao<T extends Format> implements Dao<T> {
     private Connection connection;
 
     @Autowired
-    public void setConnection(ComboPooledDataSource dataSource) throws SQLException {
-        this.connection = dataSource.getConnection();
+    public FormatDao(Connection connection) throws SQLException {
+
+        if (connection == null) {
+            throw new IllegalArgumentException("Connection cannot be null");
+        }
+
+        this.connection = connection;
+    }
+
+    public FormatDao() {
+        this.connection = null;
     }
 
     @Override
-    public Format save(Tparam object) throws SQLException {
-        Format input = (Format) object;
-
+    public Format saveAndSetIdentifier(Format object) throws SaveFailed {
         String sql = "INSERT INTO formats (id, mdprefix, schemaurl, namespace) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (mdprefix) ";
         sql+="DO NOTHING";
 
-        PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-        ps.setString(1, input.getMdprefix());
-        ps.setString(2, input.getSchemaUrl());
-        ps.setString(3, input.getNamespace());
-        int affectedRows = ps.executeUpdate();
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, object.getMdprefix());
+            ps.setString(2, object.getSchemaUrl());
+            ps.setString(3, object.getNamespace());
+            int affectedRows = ps.executeUpdate();
 
-        if (affectedRows == 0) {
-            throw new SQLException("Creating format failed, no rows affected.");
-        }
-
-        try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
-
-            if (!generatedKeys.next()) {
-                throw new SQLException("Creating format failed, no ID obtained.");
+            if (affectedRows == 0) {
+                throw new SaveFailed("Creating format failed, no rows affected.");
             }
 
-            input.setFormatId(generatedKeys.getLong("id"));
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+
+                if (!generatedKeys.next()) {
+                    throw new SQLException("Creating format failed, no ID obtained.");
+                }
+
+                object.setIdentifier(generatedKeys.getLong("id"));
+            }
+
+            ps.close();
+
+        } catch (SQLException e) {
+            throw new SaveFailed(e.getMessage());
         }
 
-        ps.close();
-
-        return input;
+        return object;
     }
 
     @Override
-    public List<Format> save(Collection objects) throws SQLException {
+    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
         String sql = "INSERT INTO formats (id, mdprefix, schemaurl, namespace) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (mdprefix) ";
         sql+="DO NOTHING";
-        List<Format> output = new ArrayList<>();
-        PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-        connection.setAutoCommit(false);
+        Collection<Format> output = new ArrayList<>();
 
-        for (Iterator iterator = objects.iterator(); iterator.hasNext();) {
-            Format format = (Format) iterator.next();
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            connection.setAutoCommit(false);
+
+            for (Iterator iterator = objects.iterator(); iterator.hasNext();) {
+                Format format = (Format) iterator.next();
+                ps.clearParameters();
+                ps.setString(1, format.getMdprefix());
+                ps.setString(2, format.getSchemaUrl());
+                ps.setString(3, format.getNamespace());
+                ps.addBatch();
+            }
+
             ps.clearParameters();
-            ps.setString(1, format.getMdprefix());
-            ps.setString(2, format.getSchemaUrl());
-            ps.setString(3, format.getNamespace());
-            ps.addBatch();
-        }
+            int[] insertRows = ps.executeBatch();
 
-        ps.clearParameters();
-        int[] insertRows = ps.executeBatch();
-
-        if (insertRows.length == 0) {
-            throw new SQLException("Creating formats failed, no rows affected.");
-        }
-
-        try (ResultSet result = ps.getGeneratedKeys()) {
-
-            if (!result.next()) {
-                throw new SQLException("Creating formats failed, no ID obtained.");
+            if (insertRows.length == 0) {
+                throw new SaveFailed("Creating formats failed, no rows affected.");
             }
 
-            do {
-                Format format = new Format();
-                format.setFormatId(result.getLong("id"));
-                format.setMdprefix(result.getString("mdprefix"));
-                format.setSchemaUrl(result.getString("schemaurl"));
-                format.setNamespace(result.getString("namespace"));
-                format.setDeleted(result.getBoolean("deleted"));
-                output.add(format);
-            } while(result.next());
+            try (ResultSet result = ps.getGeneratedKeys()) {
+
+                if (!result.next()) {
+                    throw new SaveFailed("Creating formats failed, no ID obtained.");
+                }
+
+                do {
+                    Format format = new Format();
+                    format.setFormatId(result.getLong("id"));
+                    format.setMdprefix(result.getString("mdprefix"));
+                    format.setSchemaUrl(result.getString("schemaurl"));
+                    format.setNamespace(result.getString("namespace"));
+                    format.setDeleted(result.getBoolean("deleted"));
+                    output.add(format);
+                } while(result.next());
+            }
+
+            connection.commit();
+            ps.close();
+        } catch (SQLException e) {
+            throw new SaveFailed(e.getMessage());
         }
 
-        connection.commit();
-        ps.close();
-
-        return output;
+        return (Collection<T>) output;
     }
 
     @Override
-    public Format update(Tparam object) throws SQLException {
-        Format input = (Format) object;
+    public Format update(Format object) throws UpdateFailed {
         String sql = "UPDATE formats SET schemaurl = ?, namespace = ? where mdprefix = ? AND deleted = FALSE";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        connection.setAutoCommit(false);
 
-        ps.setString(1, input.getSchemaUrl());
-        ps.setString(2, input.getNamespace());
-        ps.setString(3, input.getMdprefix());
-        int updateRows = ps.executeUpdate();
-        connection.commit();
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            connection.setAutoCommit(false);
 
-        if (updateRows == 0) {
-            throw new SQLException("Update format is failed, no affected rows.");
+            ps.setString(1, object.getSchemaUrl());
+            ps.setString(2, object.getNamespace());
+            ps.setString(3, object.getMdprefix());
+            int updateRows = ps.executeUpdate();
+            connection.commit();
+
+            if (updateRows == 0) {
+                throw new UpdateFailed("Update format is failed, no affected rows.");
+            }
+
+            ps.close();
+        } catch (SQLException e) {
+            throw new UpdateFailed(e.getMessage());
         }
 
-        ps.close();
-
-        return findByColumnAndValue("mdprefix", (Tparam) input.getMdprefix());
+        return object;
     }
 
     @Override
-    public List<Format> update(Collection objects) {
+    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public List<Format> findAll() throws SQLException {
+    public Collection<T> findAll() throws NotFound {
         String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats";
-        Statement stmt = connection.createStatement();
-        ResultSet resultSet = stmt.executeQuery(sql);
-        List<Format> formats = new ArrayList<>();
+        Collection<Format> formats = new ArrayList<>();
 
-        if (resultSet.next()) {
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet resultSet = stmt.executeQuery(sql);
 
-            do {
-                Format format = new Format();
+            if (resultSet.next()) {
+
+                do {
+                    Format format = new Format();
+                    format.setFormatId(resultSet.getLong("id"));
+                    format.setMdprefix(resultSet.getString("mdprefix"));
+                    format.setSchemaUrl(resultSet.getString("schemaurl"));
+                    format.setNamespace(resultSet.getString("namespace"));
+                    format.setDeleted(resultSet.getBoolean("deleted"));
+                    formats.add(format);
+                } while (resultSet.next());
+            }
+
+            resultSet.close();
+            stmt.close();
+        } catch (SQLException e) {
+            throw new NotFound(e.getMessage());
+        }
+
+
+        return (Collection<T>) formats;
+    }
+
+    @Override
+    public T findById(String id) throws NotFound {
+        return null;
+    }
+
+    @Override
+    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
+        String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats where " + property + " = ?";
+        Collection<Format> formats = new ArrayList<>();
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, value);
+            ResultSet resultSet = ps.executeQuery();
+            Format format = new Format();
+
+            while (resultSet.next()) {
                 format.setFormatId(resultSet.getLong("id"));
                 format.setMdprefix(resultSet.getString("mdprefix"));
                 format.setSchemaUrl(resultSet.getString("schemaurl"));
                 format.setNamespace(resultSet.getString("namespace"));
                 format.setDeleted(resultSet.getBoolean("deleted"));
-                formats.add(format);
-            } while (resultSet.next());
+                ((ArrayList<Format>) formats).add(format);
+            }
+
+            resultSet.close();
+            ps.close();
+
+        } catch (SQLException e) {
+            throw new NotFound(e.getMessage());
         }
 
-        resultSet.close();
-        stmt.close();
-
-        return formats;
+        return (Collection<T>) formats;
     }
 
     @Override
-    public Format findById(Tparam value) {
-        return null;
-    }
-
-
-    @Override
-    public Format findByColumnAndValue(String column, Tparam value) throws SQLException {
-        String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats where " + column + " = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        ps.setString(1, (String) value);
-        ResultSet resultSet = ps.executeQuery();
-        Format format = new Format();
-
-        while (resultSet.next()) {
-            format.setFormatId(resultSet.getLong("id"));
-            format.setMdprefix(resultSet.getString("mdprefix"));
-            format.setSchemaUrl(resultSet.getString("schemaurl"));
-            format.setNamespace(resultSet.getString("namespace"));
-            format.setDeleted(resultSet.getBoolean("deleted"));
-        }
-
-        resultSet.close();
-        ps.close();
-
-        return format;
-    }
-
-    @Override
-    public Format findByMultipleValues(String clause, String... values) throws SQLException {
+    public T findByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
     @Override
-    public List<Format> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Format delete(String column, Tparam ident, boolean value) throws SQLException {
+    public int delete(String column, String ident, boolean value) throws DeleteFailed {
         String sql = "UPDATE formats SET deleted = ? WHERE " + column + " = ?";
-        PreparedStatement ps = connection.prepareStatement(sql);
-        connection.setAutoCommit(false);
-        ps.setBoolean(1, value);
-        ps.setString(2, (String) ident);
-        int deletedRows = ps.executeUpdate();
-        connection.commit();
+        int deletedRows = 0;
 
-        if (deletedRows == 0) {
-            throw new SQLException("Format mark as deleted failed, no rwos affected.");
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            connection.setAutoCommit(false);
+            ps.setBoolean(1, value);
+            ps.setString(2, (String) ident);
+            deletedRows = ps.executeUpdate();
+            connection.commit();
+
+            if (deletedRows == 0) {
+                throw new DeleteFailed("Format mark as deleted failed, no rwos affected.");
+            }
+
+            ps.close();
+        } catch (SQLException e) {
+            throw new DeleteFailed(e.getMessage());
         }
 
-        ps.close();
-
-        return findByColumnAndValue(column, ident);
+        return deletedRows;
     }
 
     @Override
-    public Format delete(Tparam object) throws SQLException {
+    public T delete(T object) throws DeleteFailed {
         return null;
     }
 }
