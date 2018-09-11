@@ -1,6 +1,7 @@
 package de.qucosa.oai.provider.persitence.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.hateoas.ResourceSupport;
@@ -29,12 +30,21 @@ public class Set extends ResourceSupport implements Serializable, HasIdentifier 
 
     @Override
     public void setIdentifier(Object identifier) {
-        this.setId = setId;
+        setSetId(Long.parseLong(String.valueOf(identifier)));
     }
 
     @Override
+    @JsonIgnore
     public Object getIdentifier() {
+        return getSetId();
+    }
+
+    public Long getSetId() {
         return setId;
+    }
+
+    public void setSetId(Long setId) {
+        this.setId = setId;
     }
 
     public String getSetSpec() { return setSpec; }

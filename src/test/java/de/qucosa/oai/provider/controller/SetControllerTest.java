@@ -17,11 +17,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import testdata.TestData;
 
 import java.io.IOException;
 import java.util.List;
 
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -114,19 +116,21 @@ public class SetControllerTest {
 
     @Test
     public void Mark_set_as_delete() throws Exception {
-        mvc.perform(delete("/sets/ddc:1200/true")
+        MvcResult mvcResult = mvc.perform(delete("/sets/ddc:1200/true")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.setspec", is("ddc:1200")))
-                .andExpect(jsonPath("$.deleted", is(true)));
+                .andReturn();
+        int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
+        assertThat(1).isEqualTo(deleted);
     }
 
     @Test
     public void Mark_set_as_not_delete() throws Exception {
-        mvc.perform(delete("/sets/ddc:1200/false")
+        MvcResult mvcResult = mvc.perform(delete("/sets/ddc:1200/false")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.setspec", is("ddc:1200")))
-                .andExpect(jsonPath("$.deleted", is(false)));
+                .andReturn();
+        int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
+        assertThat(1).isEqualTo(deleted);
     }
 }

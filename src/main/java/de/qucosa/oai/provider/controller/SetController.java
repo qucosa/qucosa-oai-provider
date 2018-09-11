@@ -53,7 +53,7 @@ public class SetController {
         Set set;
 
         try {
-            set = setApi.find("setspec", setspec);
+            set = (Set) setApi.find("setspec", setspec).iterator().next();
         } catch (NotFound e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }

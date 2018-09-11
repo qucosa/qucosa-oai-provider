@@ -73,7 +73,7 @@ public class SetsIT {
 
     @Test
     public void Find_set_by_setspec() throws NotFound {
-        Set set = setApi.find("setspec", "ddc:1200");
+        Set set = (Set) setApi.find("setspec", "ddc:1200").iterator().next();
         Assert.assertEquals("ddc:1200", set.getSetSpec());
     }
 

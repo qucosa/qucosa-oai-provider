@@ -11,6 +11,7 @@ import de.qucosa.oai.provider.persitence.model.Set;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -70,8 +71,8 @@ public class SetApi<T> {
         return (List<Set>) dao.findAll();
     }
 
-    public Set find(String column, String setspec) throws NotFound {
-        return (Set) dao.findByPropertyAndValue(column, setspec);
+    public Collection<Set> find(String column, String setspec) throws NotFound {
+        return dao.findByPropertyAndValue(column, setspec);
     }
 
     public Set updateSet(Set input, String setspec) throws UpdateFailed {
