@@ -9,7 +9,6 @@ import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,44 +17,10 @@ public class FormatApi<T> {
 
     private Dao dao;
 
-    private T inputData;
-
     public FormatApi() {}
-
-    public FormatApi(T input) throws IOException {
-        if (input instanceof String) {
-            ObjectMapper om = new ObjectMapper();
-            String ip = (String) input;
-
-            try {
-                inputData = om.readValue(ip.getBytes("UTF-8"), om.getTypeFactory().constructCollectionType(List.class, Format.class));
-            } catch (IOException e) {
-
-                try {
-                    inputData = (T) om.readValue(ip.getBytes("UTF-8"), Format.class);
-                } catch (IOException e1) {
-                    throw e;
-                }
-            }
-        }
-
-        if (input instanceof Format) {
-            inputData = input;
-        }
-
-        if (input instanceof List) {
-            inputData = input;
-        }
-
-        setDao(new FormatDao<Format>());
-    }
 
     public void setDao(Dao dao) {
         this.dao = dao;
-    }
-
-    public T getInputData() {
-        return inputData;
     }
 
     public Format saveFormat(Format format) throws SaveFailed {

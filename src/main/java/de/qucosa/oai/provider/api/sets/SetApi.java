@@ -10,7 +10,6 @@ import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,45 +17,10 @@ import java.util.List;
 public class SetApi<T> {
     private Dao dao;
 
-    private T inputData;
-
     public SetApi() {}
-
-    public SetApi(T input) throws IOException {
-
-        if (input instanceof String) {
-            ObjectMapper om = new ObjectMapper();
-            String ip = (String) input;
-
-            try {
-                inputData = om.readValue(ip.getBytes("UTF-8"), om.getTypeFactory().constructCollectionType(List.class, Set.class));
-            } catch (IOException e) {
-
-                try {
-                    inputData = (T) om.readValue(ip.getBytes("UTF-8"), Set.class);
-                } catch (IOException e1) {
-                    throw e;
-                }
-            }
-        }
-
-        if (input instanceof Set) {
-            inputData = input;
-        }
-
-        if (input instanceof List) {
-            inputData = input;
-        }
-
-        setDao(new SetDao<>());
-    }
 
     public void setDao(Dao<Set> dao) {
         this.dao = dao;
-    }
-
-    public T getInputData() {
-        return inputData;
     }
 
     public Set saveSet(Set input) throws SaveFailed {
