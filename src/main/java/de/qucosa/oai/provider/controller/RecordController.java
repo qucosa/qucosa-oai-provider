@@ -95,7 +95,7 @@ public class RecordController {
                 Record record = null;
 
                 try {
-                    record = recordApi.findRecord("uid", rt.getRecord().getUid());
+                    record = (Record) recordApi.findRecord("uid", rt.getRecord().getUid()).iterator().next();
 
                     if (record.getRecordId() == null) {
 
@@ -143,7 +143,7 @@ public class RecordController {
                                 "id_set=%s AND id_record=%s",
                                 String.valueOf(set.getIdentifier()), String.valueOf(record.getIdentifier()));
 
-                        if (findStr.getIdSet() != null && findStr.getIdRecord() != null) {
+                        if (findStr != null && findStr.getIdSet() != null && findStr.getIdRecord() != null) {
                             strExsists = true;
                         }
                     } catch (NotFound e) {
@@ -206,7 +206,7 @@ public class RecordController {
     public ResponseEntity delete(@PathVariable String uid, @PathVariable boolean delete) {
         int deleted = 0;
         try {
-            Record record = recordApi.findRecord("uid", uid);
+            Record record = (Record) recordApi.findRecord("uid", uid).iterator().next();
             record.setDeleted(delete);
 
             try {
@@ -227,7 +227,7 @@ public class RecordController {
         Record record;
 
         try {
-            record = recordApi.findRecord("uid", uid);
+            record = (Record) recordApi.findRecord("uid", uid).iterator().next();
         } catch (NotFound e) {
             return new ResponseEntity("Record with uid (" + uid + ") not found.", HttpStatus.BAD_REQUEST);
         }

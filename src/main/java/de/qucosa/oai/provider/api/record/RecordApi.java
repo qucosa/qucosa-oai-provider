@@ -12,6 +12,7 @@ import de.qucosa.oai.provider.persitence.model.RecordTransport;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -71,8 +72,8 @@ public class RecordApi<T> {
         return dao.delete("uid", input.getUid(), input.isDeleted());
     }
 
-    public Record findRecord(String column, String uid) throws NotFound {
-        return (Record) dao.findByPropertyAndValue(column, uid);
+    public Collection<Record> findRecord(String column, String uid) throws NotFound {
+        return dao.findByPropertyAndValue(column, uid);
     }
 
     public boolean checkIfOaiDcDisseminationExists(List<RecordTransport> input) {

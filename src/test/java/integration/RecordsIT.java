@@ -61,7 +61,7 @@ public class RecordsIT {
     @Test
     public void Find_Record_by_uid() throws NotFound {
         Record record = records.get(0);
-        Record result = recordApi.findRecord("uid", record.getUid());
+        Record result = (Record) recordApi.findRecord("uid", record.getUid()).iterator().next();
         assertThat(result).isNotNull();
     }
 

@@ -28,11 +28,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import testdata.TestData;
 
 import java.io.IOException;
 import java.util.List;
 
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -135,14 +137,6 @@ public class RecordControllerTest {
     }
 
     @Test
-    public void Save_record_transport_data() throws Exception {
-        mvc.perform(post("/records")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestData.RECORDS_INPUT))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     public void Update_record_object() throws Exception {
         mvc.perform(put("/records/oai:example:org:qucosa:55887")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -152,18 +146,20 @@ public class RecordControllerTest {
 
     @Test
     public void Mark_record_as_deleted() throws Exception {
-        mvc.perform(delete("/records/oai:example:org:qucosa:55887/true")
+        MvcResult mvcResult = mvc.perform(delete("/records/oai:example:org:qucosa:55887/true")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.deleted", is(true)));
+                .andExpect(status().isOk()).andReturn();
+        int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
+        assertThat(1).isEqualTo(deleted);
     }
 
     @Test
     public void Mark_record_as_not_deleted() throws Exception {
-        mvc.perform(delete("/records/oai:example:org:qucosa:55887/false")
+        MvcResult mvcResult = mvc.perform(delete("/records/oai:example:org:qucosa:55887/false")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.deleted", is(false)));
+                .andExpect(status().isOk()).andReturn();
+        int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
+        assertThat(1).isEqualTo(deleted);
     }
 
     @Test
