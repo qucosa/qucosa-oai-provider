@@ -10,6 +10,7 @@ import de.qucosa.oai.provider.persistence.model.Dissemination;
 
 import java.util.Collection;
 
+@Service
 public class DisseminationService<T> {
     private Dao dao;
 
