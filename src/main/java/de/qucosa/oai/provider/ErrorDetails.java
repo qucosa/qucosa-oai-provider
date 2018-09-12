@@ -1,5 +1,6 @@
 package de.qucosa.oai.provider;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class ErrorDetails {
@@ -17,7 +18,11 @@ public class ErrorDetails {
 
     private String stacktrace;
 
-    private Date date;
+    private LocalDateTime date;
+
+    private String method;
+
+    private String requestMethod;
 
     public String getClassname() {
         return classname;
@@ -82,12 +87,30 @@ public class ErrorDetails {
         return this;
     }
 
-    public Date getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public ErrorDetails setDate(Date date) {
+    public ErrorDetails setDate(LocalDateTime date) {
         this.date = date;
+        return this;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public ErrorDetails setMethod(String method) {
+        this.method = method;
+        return this;
+    }
+
+    public String getRequestMethod() {
+        return requestMethod;
+    }
+
+    public ErrorDetails setRequestMethod(String requestMethod) {
+        this.requestMethod = requestMethod;
         return this;
     }
 }
