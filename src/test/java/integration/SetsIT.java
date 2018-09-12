@@ -1,7 +1,7 @@
 package integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.SetApi;
+import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persistence.dao.postgres.SetDao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SetsIT {
     private List<Set> sets = null;
 
-    private SetApi setApi;
+    private SetService setApi;
 
     @Autowired
     private SetDao setDao;
@@ -48,7 +48,7 @@ public class SetsIT {
     public void init() throws IOException, SQLException {
         ObjectMapper om = new ObjectMapper();
         sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
-        setApi = new SetApi();
+        setApi = new SetService();
         setApi.setDao(setDao);
     }
 

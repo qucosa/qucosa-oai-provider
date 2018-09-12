@@ -1,10 +1,10 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.DisseminationApi;
-import de.qucosa.oai.provider.services.FormatApi;
-import de.qucosa.oai.provider.services.RecordApi;
-import de.qucosa.oai.provider.services.SetApi;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
+import de.qucosa.oai.provider.services.RecordService;
+import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.dao.DisseminationTestDao;
 import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.dao.RecordTestDao;
@@ -72,8 +72,8 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public FormatApi formatApi() {
-            FormatApi formatApi = new FormatApi();
+        public FormatService formatApi() {
+            FormatService formatApi = new FormatService();
             formatApi.setDao(formatDao());
             return formatApi;
         }
@@ -84,8 +84,8 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public RecordApi recordApi() {
-            RecordApi recordApi = new RecordApi();
+        public RecordService recordApi() {
+            RecordService recordApi = new RecordService();
             recordApi.setDao(recordDao());
             return recordApi;
         }
@@ -96,8 +96,8 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public SetApi setApi() {
-            SetApi setApi = new SetApi();
+        public SetService setApi() {
+            SetService setApi = new SetService();
             setApi.setDao(setDao());
             return setApi;
         }
@@ -108,8 +108,8 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public DisseminationApi disseminationApi() {
-            DisseminationApi disseminationApi = new DisseminationApi();
+        public DisseminationService disseminationApi() {
+            DisseminationService disseminationApi = new DisseminationService();
             disseminationApi.setDao(disseminationDao());
             return disseminationApi;
         }

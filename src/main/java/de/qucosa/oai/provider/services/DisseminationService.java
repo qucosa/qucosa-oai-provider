@@ -10,10 +10,10 @@ import de.qucosa.oai.provider.persistence.model.Dissemination;
 
 import java.util.Collection;
 
-public class DisseminationApi<T> {
+public class DisseminationService<T> {
     private Dao dao;
 
-    public DisseminationApi() {}
+    public DisseminationService() {}
 
     public void setDao(Dao dao) {
         this.dao = dao;

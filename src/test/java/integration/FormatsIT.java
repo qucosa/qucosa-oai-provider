@@ -1,7 +1,7 @@
 package integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.FormatApi;
+import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
@@ -36,7 +36,7 @@ public class FormatsIT {
 
     private List<Format> formats = null;
 
-    private FormatApi formatApi;
+    private FormatService formatApi;
 
     @Autowired
     private Dao formatDao;
@@ -48,7 +48,7 @@ public class FormatsIT {
     public void init() throws IOException, SQLException {
         ObjectMapper om = new ObjectMapper();
         formats = om.readValue(TestData.FORMATS, om.getTypeFactory().constructCollectionType(List.class, Format.class));
-        formatApi = new FormatApi();
+        formatApi = new FormatService();
         formatApi.setDao(formatDao);
     }
 

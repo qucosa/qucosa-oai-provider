@@ -14,10 +14,10 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-public class SetApi<T> {
+public class SetService<T> {
     private Dao dao;
 
-    public SetApi() {}
+    public SetService() {}
 
     public void setDao(Dao<Set> dao) {
         this.dao = dao;

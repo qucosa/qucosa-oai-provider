@@ -1,7 +1,7 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.SetApi;
+import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.dao.SetTestDao;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.model.Set;
@@ -60,8 +60,8 @@ public class SetControllerTest {
         }
 
         @Bean
-        public SetApi setApi() {
-            SetApi setApi = new SetApi();
+        public SetService setApi() {
+            SetService setApi = new SetService();
             setApi.setDao(setDao());
             return setApi;
         }

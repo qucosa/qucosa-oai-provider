@@ -15,10 +15,10 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-public class RecordApi<T> {
+public class RecordService<T> {
     private Dao dao;
 
-    public RecordApi() {}
+    public RecordService() {}
 
     public void setDao(Dao dao) {
         this.dao = dao;

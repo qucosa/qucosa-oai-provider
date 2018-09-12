@@ -1,8 +1,8 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.DisseminationApi;
-import de.qucosa.oai.provider.services.FormatApi;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;

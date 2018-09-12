@@ -13,11 +13,11 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-public class FormatApi<T> {
+public class FormatService<T> {
 
     private Dao dao;
 
-    public FormatApi() {}
+    public FormatService() {}
 
     public void setDao(Dao dao) {
         this.dao = dao;

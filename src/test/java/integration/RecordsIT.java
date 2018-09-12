@@ -1,7 +1,7 @@
 package integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.RecordApi;
+import de.qucosa.oai.provider.services.RecordService;
 import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
@@ -34,7 +34,7 @@ public class RecordsIT {
 
     private List<Record> records = null;
 
-    private RecordApi recordApi;
+    private RecordService recordApi;
 
     @Autowired
     private Dao recordDao;
@@ -46,7 +46,7 @@ public class RecordsIT {
     public void init() throws IOException {
         ObjectMapper om = new ObjectMapper();
         records = om.readValue(TestData.RECORDS, om.getTypeFactory().constructCollectionType(List.class, Record.class));
-        recordApi = new RecordApi();
+        recordApi = new RecordService();
         recordApi.setDao(recordDao);
     }
 

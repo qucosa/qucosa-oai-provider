@@ -1,10 +1,10 @@
 package de.qucosa.oai.provider.config;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import de.qucosa.oai.provider.services.DisseminationApi;
-import de.qucosa.oai.provider.services.FormatApi;
-import de.qucosa.oai.provider.services.RecordApi;
-import de.qucosa.oai.provider.services.SetApi;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
+import de.qucosa.oai.provider.services.RecordService;
+import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.dao.postgres.DisseminationDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.FormatDao;
@@ -56,8 +56,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public SetApi setApi() throws PropertyVetoException, SQLException {
-        SetApi setApi = new SetApi();
+    public SetService setApi() throws PropertyVetoException, SQLException {
+        SetService setApi = new SetService();
         setApi.setDao(setDao());
         return setApi;
     }
@@ -68,8 +68,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public RecordApi recordApi() throws PropertyVetoException, SQLException {
-        RecordApi recordApi = new RecordApi();
+    public RecordService recordApi() throws PropertyVetoException, SQLException {
+        RecordService recordApi = new RecordService();
         recordApi.setDao(recordDao());
         return recordApi;
     }
@@ -80,8 +80,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public FormatApi formatApi() throws PropertyVetoException, SQLException {
-        FormatApi formatApi = new FormatApi();
+    public FormatService formatApi() throws PropertyVetoException, SQLException {
+        FormatService formatApi = new FormatService();
         formatApi.setDao(formatDao());
         return  formatApi;
     }
@@ -92,8 +92,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public DisseminationApi disseminationApi() throws PropertyVetoException, SQLException {
-        DisseminationApi api = new DisseminationApi();
+    public DisseminationService disseminationApi() throws PropertyVetoException, SQLException {
+        DisseminationService api = new DisseminationService();
         api.setDao(disseminationDao());
         return api;
     }

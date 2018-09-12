@@ -1,8 +1,8 @@
 package integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.DisseminationApi;
-import de.qucosa.oai.provider.services.FormatApi;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
@@ -36,9 +36,9 @@ public class DisseminationIT {
 
     private List<Dissemination> disseminations = null;
 
-    private DisseminationApi disseminationApi;
+    private DisseminationService disseminationApi;
 
-    private FormatApi formatApi;
+    private FormatService formatApi;
 
     @Autowired
     private Dao disseminationDao;
@@ -53,9 +53,9 @@ public class DisseminationIT {
     public void init() throws IOException {
         ObjectMapper om = new ObjectMapper();
         disseminations  = om.readValue(TestData.DISSEMINATIONS, om.getTypeFactory().constructCollectionType(List.class, Dissemination.class));
-        disseminationApi = new DisseminationApi();
+        disseminationApi = new DisseminationService();
         disseminationApi.setDao(disseminationDao);
-        formatApi = new FormatApi();
+        formatApi = new FormatService();
         formatApi.setDao(formatDao);
     }
 

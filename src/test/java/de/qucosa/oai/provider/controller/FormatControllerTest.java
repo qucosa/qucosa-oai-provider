@@ -1,7 +1,7 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.FormatApi;
+import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.model.Format;
@@ -65,8 +65,8 @@ public class FormatControllerTest {
         }
 
         @Bean
-        public FormatApi formatApi() {
-            FormatApi formatApi = new FormatApi();
+        public FormatService formatApi() {
+            FormatService formatApi = new FormatService();
             formatApi.setDao(formatDao());
             return formatApi;
         }

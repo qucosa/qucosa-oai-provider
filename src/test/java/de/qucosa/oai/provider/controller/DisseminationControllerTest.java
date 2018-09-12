@@ -1,8 +1,8 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.DisseminationApi;
-import de.qucosa.oai.provider.services.FormatApi;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.dao.DisseminationTestDao;
 import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.persistence.Dao;
@@ -61,8 +61,8 @@ public class DisseminationControllerTest {
         }
 
         @Bean
-        public FormatApi formatApi() {
-            FormatApi formatApi = new FormatApi();
+        public FormatService formatApi() {
+            FormatService formatApi = new FormatService();
             formatApi.setDao(formatDao());
             return formatApi;
         }
@@ -73,8 +73,8 @@ public class DisseminationControllerTest {
         }
 
         @Bean
-        public DisseminationApi disseminationApi() {
-            DisseminationApi disseminationApi = new DisseminationApi();
+        public DisseminationService disseminationApi() {
+            DisseminationService disseminationApi = new DisseminationService();
             disseminationApi.setDao(disseminationDao());
             return disseminationApi;
         }
