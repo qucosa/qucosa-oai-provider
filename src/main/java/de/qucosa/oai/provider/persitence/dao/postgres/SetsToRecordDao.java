@@ -36,19 +36,18 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
 
     @Override
     public SetsToRecord saveAndSetIdentifier(SetsToRecord object) throws SaveFailed {
-        SetsToRecord setsToRecord = (SetsToRecord) object;
         String sql = "INSERT INTO sets_to_records (id_set, id_record) VALUES (?, ?)";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setLong(1, setsToRecord.getIdSet());
-            ps.setLong(2, setsToRecord.getIdRecord());
+            ps.setLong(1, object.getIdSet());
+            ps.setLong(2, object.getIdRecord());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new SaveFailed(e.getMessage());
         }
 
-        return (T) setsToRecord;
+        return object;
     }
 
     @Override

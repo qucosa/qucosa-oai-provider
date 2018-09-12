@@ -211,7 +211,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
                 format.setSchemaUrl(resultSet.getString("schemaurl"));
                 format.setNamespace(resultSet.getString("namespace"));
                 format.setDeleted(resultSet.getBoolean("deleted"));
-                ((ArrayList<Format>) formats).add(format);
+                formats.add(format);
             }
 
             resultSet.close();
@@ -232,13 +232,13 @@ public class FormatDao<T extends Format> implements Dao<T> {
     @Override
     public int delete(String column, String ident, boolean value) throws DeleteFailed {
         String sql = "UPDATE formats SET deleted = ? WHERE " + column + " = ?";
-        int deletedRows = 0;
+        int deletedRows;
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             connection.setAutoCommit(false);
             ps.setBoolean(1, value);
-            ps.setString(2, (String) ident);
+            ps.setString(2, ident);
             deletedRows = ps.executeUpdate();
             connection.commit();
 

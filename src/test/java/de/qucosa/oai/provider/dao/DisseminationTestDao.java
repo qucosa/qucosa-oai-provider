@@ -19,9 +19,8 @@ import java.util.Map;
 public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
     @Override
     public Dissemination saveAndSetIdentifier(Dissemination object) throws SaveFailed {
-        Dissemination dissemination = (Dissemination) object;
-        dissemination.setDissId(Long.valueOf(1));
-        return dissemination;
+        object.setDissId(Long.valueOf(1));
+        return object;
     }
 
     @Override
@@ -70,7 +69,7 @@ public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
                     Dissemination dissemination;
                     dissemination = om.readValue(node.toString(), Dissemination.class);
                     dissemination.setDissId(Long.valueOf(i));
-                    ((ArrayList<Dissemination>) disseminations).add(dissemination);
+                    disseminations.add(dissemination);
                 }
             }
         } catch (IOException e) {
@@ -123,8 +122,6 @@ public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
 
     @Override
     public Dissemination delete(Dissemination object) throws DeleteFailed {
-        Dissemination dissemination = (Dissemination) object;
-        dissemination.isDeleted();
-        return dissemination;
+        return object;
     }
 }

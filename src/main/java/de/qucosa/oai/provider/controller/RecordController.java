@@ -150,7 +150,7 @@ public class RecordController {
                         logger.info("Cannot find set to record entry (set:" + set.getIdentifier() + " / record:" + record.getRecordId() + ").", e);
                     }
 
-                    if (strExsists == false) {
+                    if (!strExsists) {
                         SetsToRecord setsToRecord = new SetsToRecord();
                         setsToRecord.setIdRecord(record.getRecordId());
                         setsToRecord.setIdSet(Long.valueOf(set.getIdentifier().toString()));
@@ -204,7 +204,7 @@ public class RecordController {
     @RequestMapping(value = "{uid}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity delete(@PathVariable String uid, @PathVariable boolean delete) {
-        int deleted = 0;
+        int deleted;
         try {
             Record record = (Record) recordApi.findRecord("uid", uid).iterator().next();
             record.setDeleted(delete);

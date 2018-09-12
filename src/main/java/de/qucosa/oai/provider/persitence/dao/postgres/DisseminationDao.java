@@ -44,10 +44,11 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
             selectDiss = this.findByMultipleValues(
                     "id_format=? AND id_record=?",
                     String.valueOf(object.getFormatId()), object.getRecordId());
-        } catch (NotFound notFound) {
+        } catch (NotFound ignore) {
 
         }
 
+        assert selectDiss != null;
         if (selectDiss.getDissId() == null) {
             return null;
         }
@@ -152,13 +153,12 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
 
     @Override
     public Dissemination delete(Dissemination object) throws DeleteFailed {
-        Dissemination dissemination = (Dissemination) object;
         String sql = "UPDATE disseminations SET deleted = ? WHERE id = ?";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setBoolean(1, dissemination.isDeleted());
-            ps.setLong(2, dissemination.getDissId());
+            ps.setBoolean(1, object.isDeleted());
+            ps.setLong(2, object.getDissId());
             int deletedRows = ps.executeUpdate();
 
             if (deletedRows == 0) {
@@ -168,6 +168,6 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
             throw new DeleteFailed(e.getMessage());
         }
 
-        return dissemination;
+        return object;
     }
 }

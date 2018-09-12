@@ -102,7 +102,7 @@ public class FormatsController {
     @RequestMapping(value = "{mdprefix}/{value}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity delete(@PathVariable String mdprefix, @PathVariable boolean value) {
-        int deleted = 0;
+        int deleted;
 
         try {
             deleted = formatApi.deleteFormat("mdprefix", mdprefix, value);

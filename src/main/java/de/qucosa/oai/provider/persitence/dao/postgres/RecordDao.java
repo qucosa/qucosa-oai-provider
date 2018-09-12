@@ -121,7 +121,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, (String) value);
+            ps.setString(1, value);
             ResultSet resultSet = ps.executeQuery();
 
             while (resultSet.next()) {
@@ -129,7 +129,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
                 record.setPid(resultSet.getString("pid"));
                 record.setUid(resultSet.getString("uid"));
                 record.setDeleted(resultSet.getBoolean("deleted"));
-                ((ArrayList<Record>) records).add(record);
+                records.add(record);
             }
 
             resultSet.close();
@@ -154,7 +154,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setBoolean(1, value);
-            ps.setString(2, (String) ident);
+            ps.setString(2, ident);
             deletedRows = ps.executeUpdate();
 
             if (deletedRows == 0) {

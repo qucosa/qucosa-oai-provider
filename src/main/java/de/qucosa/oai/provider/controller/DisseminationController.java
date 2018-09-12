@@ -73,10 +73,10 @@ public class DisseminationController {
     @RequestMapping(value = "{uid}/{mdprefix}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity delete(@PathVariable String uid, @PathVariable String mdprefix, @PathVariable boolean delete) {
-        Dissemination dissemination = null;
+        Dissemination dissemination;
 
         try {
-            Format format = null;
+            Format format;
 
             try {
                 format = (Format) formatApi.find("mdprefix", mdprefix).iterator().next();

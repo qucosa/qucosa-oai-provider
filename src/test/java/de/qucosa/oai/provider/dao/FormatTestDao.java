@@ -19,9 +19,8 @@ import java.util.List;
 public class FormatTestDao<T extends Format> implements Dao<T> {
     @Override
     public Format saveAndSetIdentifier(Format object) throws SaveFailed {
-        Format format = (Format) object;
-        format.setFormatId(Long.valueOf(1));
-        return format;
+        object.setFormatId(Long.valueOf(1));
+        return object;
     }
 
     @Override
@@ -39,7 +38,7 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
 
     @Override
     public Format update(Format object) throws UpdateFailed {
-        Format format = (Format) object;
+        Format format = object;
         ObjectMapper om = new ObjectMapper();
 
         try {
@@ -104,7 +103,7 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
                 if (node.get(property).asText().equals(value)) {
                     Format format = om.readValue(node.toString(), Format.class);
                     format.setFormatId(Long.valueOf(i));
-                    ((ArrayList<Format>) formats).add(format);
+                    formats.add(format);
                     break;
                 }
             }

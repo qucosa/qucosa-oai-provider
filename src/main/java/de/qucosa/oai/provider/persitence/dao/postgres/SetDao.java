@@ -36,11 +36,10 @@ public class SetDao<T extends Set> implements Dao<T> {
 
     public SetDao() {
         connection = null;
-    };
+    }
 
     @Override
     public Set saveAndSetIdentifier(Set object) throws SaveFailed {
-        Set input = object;
 
         String sql = "INSERT INTO sets (id, setspec, setname, setdescription) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
@@ -48,13 +47,14 @@ public class SetDao<T extends Set> implements Dao<T> {
         sql+="DO NOTHING";
         String finalSql = sql;
 
-        PreparedStatement ps = null;
+        PreparedStatement ps;
 
         try {
+            assert connection != null;
             ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, input.getSetSpec());
-            ps.setString(2, input.getSetName());
-            ps.setString(3, input.getSetDescription());
+            ps.setString(1, object.getSetSpec());
+            ps.setString(2, object.getSetName());
+            ps.setString(3, object.getSetDescription());
             int affectedRows = ps.executeUpdate();
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
@@ -63,7 +63,7 @@ public class SetDao<T extends Set> implements Dao<T> {
                     throw new SQLException("Creating Set failed, no ID obtained.");
                 }
 
-                input.setIdentifier(generatedKeys.getLong("id"));
+                object.setIdentifier(generatedKeys.getLong("id"));
             }
 
             ps.close();
@@ -71,7 +71,7 @@ public class SetDao<T extends Set> implements Dao<T> {
             throw new SaveFailed("Creating Set failed, no ID obtained.", e);
         }
 
-        return input;
+        return object;
     }
 
     @Override
@@ -83,6 +83,7 @@ public class SetDao<T extends Set> implements Dao<T> {
         List<Set> output = new ArrayList<>();
 
         try {
+            assert connection != null;
             PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             connection.setAutoCommit(false);
 
@@ -135,6 +136,7 @@ public class SetDao<T extends Set> implements Dao<T> {
         String sql = "UPDATE sets SET setname = ?, setdescription = ? where setspec = ? AND deleted = FALSE";
 
         try {
+            assert connection != null;
             PreparedStatement ps = connection.prepareStatement(sql);
             connection.setAutoCommit(false);
             ps.setString(1, object.getSetName());
@@ -166,6 +168,7 @@ public class SetDao<T extends Set> implements Dao<T> {
         Collection<Set> sets = new ArrayList<>();
 
         try {
+            assert connection != null;
             Statement stmt = connection.createStatement();
             ResultSet resultSet = stmt.executeQuery(sql);
 
@@ -199,8 +202,9 @@ public class SetDao<T extends Set> implements Dao<T> {
         Collection<Set> sets = new ArrayList<>();
 
         try {
+            assert connection != null;
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, (String) value);
+            ps.setString(1, value);
             ResultSet resultSet = ps.executeQuery();
 
             while (resultSet.next()) {
@@ -210,7 +214,7 @@ public class SetDao<T extends Set> implements Dao<T> {
                 set.setSetName(resultSet.getString("setname"));
                 set.setSetDescription(resultSet.getString("setdescription"));
                 set.setDeleted(resultSet.getBoolean("deleted"));
-                ((ArrayList<Set>) sets).add(set);
+                sets.add(set);
             }
 
             resultSet.close();
@@ -233,10 +237,11 @@ public class SetDao<T extends Set> implements Dao<T> {
         int deletedRows = 0;
 
         try {
+            assert connection != null;
             PreparedStatement ps = connection.prepareStatement(sql);
             connection.setAutoCommit(false);
             ps.setBoolean(1, value);
-            ps.setString(2, (String) ident);
+            ps.setString(2, ident);
             deletedRows = ps.executeUpdate();
             connection.commit();
 

@@ -14,8 +14,7 @@ import java.util.Collection;
 public class SetsToRecordTestDao<T extends SetsToRecord> implements Dao<T> {
     @Override
     public SetsToRecord saveAndSetIdentifier(SetsToRecord object) throws SaveFailed {
-        SetsToRecord setsToRecord = (SetsToRecord) object;
-        return setsToRecord;
+        return object;
     }
 
     @Override

@@ -52,8 +52,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao<Set> setDao() throws PropertyVetoException, SQLException {
-        Dao<Set> setDao = new SetDao(dataSource().getConnection());
-        return setDao;
+        return (Dao<Set>) new SetDao(dataSource().getConnection());
     }
 
     @Bean
@@ -65,8 +64,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao recordDao() throws PropertyVetoException, SQLException {
-        Dao<Record> recordDao = new RecordDao(dataSource().getConnection());
-        return recordDao;
+        return (Dao<Record>) new RecordDao(dataSource().getConnection());
     }
 
     @Bean
@@ -78,8 +76,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao formatDao() throws PropertyVetoException, SQLException {
-        Dao<Format> formatDao = new FormatDao(dataSource().getConnection());
-        return formatDao;
+        return (Dao<Format>) new FormatDao(dataSource().getConnection());
     }
 
     @Bean
@@ -91,8 +88,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao disseminationDao() throws PropertyVetoException, SQLException {
-        Dao<Dissemination> dao = new DisseminationDao(dataSource().getConnection());
-        return dao;
+        return (Dao<Dissemination>) new DisseminationDao(dataSource().getConnection());
     }
 
     @Bean
@@ -104,7 +100,6 @@ public class ApplicationConfig {
 
     @Bean
     public Dao setsToRecordDao() throws PropertyVetoException, SQLException {
-        Dao setsToRecordDao = new SetsToRecordDao(dataSource().getConnection());
-        return setsToRecordDao;
+        return new SetsToRecordDao(dataSource().getConnection());
     }
 }

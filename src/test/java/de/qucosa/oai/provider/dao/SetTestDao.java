@@ -23,9 +23,8 @@ public class SetTestDao<T extends Set> implements Dao<T> {
 
     @Override
     public T saveAndSetIdentifier(T object) throws SaveFailed {
-        Set set = (Set) object;
-        set.setIdentifier(new Long(1));
-        return (T) set;
+        object.setIdentifier(new Long(1));
+        return object;
     }
 
     @Override
@@ -43,7 +42,7 @@ public class SetTestDao<T extends Set> implements Dao<T> {
 
     @Override
     public T update(T object) throws UpdateFailed {
-        Set set = (Set) object;
+        Set set = object;
         ObjectMapper om = new ObjectMapper();
 
         try {

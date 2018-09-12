@@ -20,14 +20,13 @@ public class RecordTestDao<T extends Record> implements Dao<T> {
 
     @Override
     public Record saveAndSetIdentifier(Record object) throws SaveFailed {
-        Record record = object;
-        record.setRecordId(Long.valueOf(1));
+        object.setRecordId(Long.valueOf(1));
 
-        if (record.getIdentifier() == null) {
+        if (object.getIdentifier() == null) {
             throw new SaveFailed("Cannot save record.");
         }
 
-        return record;
+        return object;
     }
 
     @Override
@@ -100,12 +99,12 @@ public class RecordTestDao<T extends Record> implements Dao<T> {
                 if (node.get(property).asText().equals(value)) {
                     Record record = om.readValue(node.toString(), Record.class);
                     record.setRecordId(Long.valueOf(i));
-                    ((ArrayList<Record>) records).add(record);
+                    records.add(record);
                 }
             }
 
             return (Collection<T>) records;
-        } catch (IOException e) {
+        } catch (IOException ignore) {
 
         }
 

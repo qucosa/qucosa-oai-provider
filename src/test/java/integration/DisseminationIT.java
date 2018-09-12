@@ -65,11 +65,12 @@ public class DisseminationIT {
 
         try {
             format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
-        } catch (NotFound notFound) {
+        } catch (NotFound ignore) {
 
         }
 
         Dissemination dissemination = disseminations.get(0);
+        assert format != null;
         dissemination.setFormatId(format.getFormatId());
         dissemination = disseminationApi.saveDissemination(dissemination);
 
@@ -102,6 +103,7 @@ public class DisseminationIT {
         Dissemination dissemination = null;
 
         try {
+            assert format != null;
             dissemination = disseminationApi.findByMultipleValues(
                     "id_format=%s AND id_record=%s",
                     String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
@@ -109,6 +111,7 @@ public class DisseminationIT {
             notFound.printStackTrace();
         }
 
+        assert dissemination != null;
         dissemination.setFormatId(format.getFormatId());
         dissemination.setDeleted(true);
         dissemination = disseminationApi.deleteDissemination(dissemination);
@@ -128,6 +131,7 @@ public class DisseminationIT {
         Dissemination dissemination = null;
 
         try {
+            assert format != null;
             dissemination = disseminationApi.findByMultipleValues(
                     "id_format=%s AND id_record=%s",
                     String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
@@ -135,6 +139,7 @@ public class DisseminationIT {
             notFound.printStackTrace();
         }
 
+        assert dissemination != null;
         dissemination.setFormatId(format.getFormatId());
         dissemination.setDeleted(false);
         dissemination = disseminationApi.deleteDissemination(dissemination);
