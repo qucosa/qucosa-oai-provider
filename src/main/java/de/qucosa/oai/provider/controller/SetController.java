@@ -1,12 +1,13 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.SetService;
+import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.services.SetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,7 +33,10 @@ public class SetController {
     private Logger logger = LoggerFactory.getLogger(SetController.class);
 
     @Autowired
-    private SetApi setApi;
+    private SetService setApi;
+
+    @Autowired
+    private ErrorDetails errorDetails;
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -41,7 +46,14 @@ public class SetController {
         try {
             sets = setApi.findAll();
         } catch (NotFound e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                    .setDate(LocalDateTime.now())
+                    .setErrorMsg(e.getMessage())
+                    .setException(e.getClass().getName())
+                    .setRequestPath("/sets")
+                    .setMethod("findAll")
+                    .setRequestMethod("GET")
+                    .setStatuscode(HttpStatus.NOT_FOUND.toString()), HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<Collection<Set>>(sets, HttpStatus.OK);
@@ -55,7 +67,14 @@ public class SetController {
         try {
             set = (Set) setApi.find("setspec", setspec).iterator().next();
         } catch (NotFound e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                    .setDate(LocalDateTime.now())
+                    .setErrorMsg(e.getMessage())
+                    .setException(e.getClass().getName())
+                    .setRequestPath("/sets/{setspec}")
+                    .setMethod("find")
+                    .setRequestMethod("GET")
+                    .setStatuscode(HttpStatus.NOT_FOUND.toString()), HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<Set>(set, HttpStatus.OK);
