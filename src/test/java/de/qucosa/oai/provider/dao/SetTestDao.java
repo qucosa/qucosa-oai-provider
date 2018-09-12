@@ -80,6 +80,10 @@ public class SetTestDao<T extends Set> implements Dao<T> {
             throw new NotFound("Cannot find sets.");
         }
 
+        if (sets.size() == 0) {
+            throw new NotFound("No sets found.");
+        }
+
         return (Collection<T>) sets;
     }
 
@@ -92,6 +96,7 @@ public class SetTestDao<T extends Set> implements Dao<T> {
     public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
         ObjectMapper om = new ObjectMapper();
         Collection<Set> sets = null;
+        boolean find = false;
 
         try {
             sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
@@ -100,6 +105,18 @@ public class SetTestDao<T extends Set> implements Dao<T> {
         }
 
         assert sets != null;
+
+        for (Set set : sets) {
+
+            if (set.getSetSpec().equals(value)) {
+                find = true;
+                break;
+            }
+        }
+
+        if (!find) {
+            throw new NotFound("Cannot found set.");
+        }
 
         return (Collection<T>) sets;
     }
