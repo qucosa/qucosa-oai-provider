@@ -75,8 +75,8 @@ public class FormatApi<T> {
         return (Format) dao.update(input);
     }
 
-    public Format find(String column, String value) throws NotFound {
-        return (Format) dao.findByPropertyAndValue(column, value);
+    public Collection<Format> find(String column, String value) throws NotFound {
+        return dao.findByPropertyAndValue(column, value);
     }
 
     public List<Format> findAll() throws NotFound {

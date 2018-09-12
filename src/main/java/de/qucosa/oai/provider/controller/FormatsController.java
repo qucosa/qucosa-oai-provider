@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,16 +43,20 @@ public class FormatsController {
 
     @RequestMapping(value = "{mdprefix}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Format> find(@PathVariable String mdprefix) throws SQLException {
-        Format format;
+    public ResponseEntity find(@PathVariable String mdprefix) {
+        Collection<Format> formats;
 
         try {
-            format = formatApi.find("mdprefix", mdprefix);
+            formats = formatApi.find("mdprefix", mdprefix);
+
+            if (formats == null) {
+                return new ResponseEntity("Cannot found formats.", HttpStatus.NOT_FOUND);
+            }
         } catch (NotFound e) {
-            throw new SQLException(e.getMessage(), e);
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<Format>(format, HttpStatus.OK);
+        return new ResponseEntity(formats.iterator().next(), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

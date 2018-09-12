@@ -109,7 +109,7 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
                 }
             }
 
-            return (Collection<T>) formats;
+            return (formats.size() > 0) ? (Collection<T>) formats : null;
         } catch (IOException e) {
             throw new NotFound("No formats found.");
         }

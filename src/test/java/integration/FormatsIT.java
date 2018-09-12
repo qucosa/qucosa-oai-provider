@@ -75,16 +75,15 @@ public class FormatsIT {
 
     @Test
     public void Find_format_by_mdprefix_successful() throws NotFound {
-        Format format = formatApi.find("mdprefix", "oai_dc");
+        Format format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
         assertThat(format).isNotNull();
         assertThat(format.getMdprefix().trim()).isEqualTo("oai_dc");
     }
 
     @Test
     public void Find_format_by_mdprefix_not_successful() throws NotFound {
-        Format format = formatApi.find("mdprefix", "oai_c");
-        assertThat(format).isNotNull();
-        assertThat(format.getMdprefix().trim()).isEqualTo("oai_dc");
+        Collection<Format> formats = formatApi.find("mdprefix", "oai_c");
+        assertThat(formats).isNull();
     }
 
     @Test
