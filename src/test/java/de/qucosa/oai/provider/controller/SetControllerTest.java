@@ -6,7 +6,9 @@ import de.qucosa.oai.provider.dao.SetTestDao;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.model.Set;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -45,6 +47,9 @@ public class SetControllerTest {
     @Autowired
     private MockMvc mvc;
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @Before
     public void setUp() throws IOException {
         sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
@@ -76,11 +81,31 @@ public class SetControllerTest {
     }
 
     @Test
+    public void Find_no_set_by_setspec() throws Exception {
+        mvc.perform(get("/sets/ddc:120")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.statuscode", is("404")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot found set.")))
+                .andExpect(jsonPath("$.method", is("find")));
+    }
+
+    @Test
     public void Find_all_sets() throws Exception {
         mvc.perform(get("/sets")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    public void Find_no_sets() throws Exception {
+        TestData.SETS = "[]";
+        mvc.perform(get("/sets")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.statuscode", is("404")))
+                .andExpect(jsonPath("$.errorMsg", is("No sets found.")));
     }
 
     @Test

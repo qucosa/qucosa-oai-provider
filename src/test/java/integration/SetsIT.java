@@ -1,7 +1,6 @@
 package integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persistence.dao.postgres.SetDao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
@@ -9,6 +8,7 @@ import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.services.SetService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -75,6 +75,13 @@ public class SetsIT {
     public void Find_set_by_setspec() throws NotFound {
         Set set = (Set) setApi.find("setspec", "ddc:1200").iterator().next();
         Assert.assertEquals("ddc:1200", set.getSetSpec());
+    }
+
+    @Test
+    public void Find_no_set_by_setspec() throws NotFound {
+        thrown.expect(NotFound.class);
+        thrown.expectMessage("Cannot found set.");
+        setApi.find("setspec", "ddc:120");
     }
 
     @Test
