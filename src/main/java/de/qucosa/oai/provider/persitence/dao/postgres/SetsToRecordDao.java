@@ -5,7 +5,6 @@ import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persitence.exceptions.NotFound;
 import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persitence.exceptions.UpdateFailed;
-import de.qucosa.oai.provider.persitence.model.HasIdentifier;
 import de.qucosa.oai.provider.persitence.model.SetsToRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

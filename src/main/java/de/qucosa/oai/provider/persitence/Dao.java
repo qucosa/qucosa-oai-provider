@@ -6,9 +6,7 @@ import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persitence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persitence.model.HasIdentifier;
 
-import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 
 public interface Dao<T extends HasIdentifier> {
 

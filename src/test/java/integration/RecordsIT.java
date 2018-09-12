@@ -22,7 +22,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import testdata.TestData;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
