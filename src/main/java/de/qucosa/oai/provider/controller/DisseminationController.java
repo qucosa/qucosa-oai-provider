@@ -1,8 +1,8 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
-import de.qucosa.oai.provider.api.format.FormatApi;
+import de.qucosa.oai.provider.services.DisseminationApi;
+import de.qucosa.oai.provider.services.FormatApi;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
@@ -40,7 +40,7 @@ public class DisseminationController {
         try {
             disseminations = disseminationApi.findAllByUid("recordid", uid);
         } catch (NotFound e) {
-            return new ResponseEntity("Cannot find disseminations.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("Not disseminations found.", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<Collection<Dissemination>>(disseminations, HttpStatus.OK);
@@ -81,7 +81,7 @@ public class DisseminationController {
             try {
                 format = (Format) formatApi.find("mdprefix", mdprefix).iterator().next();
             } catch (NotFound notFound) {
-                return new ResponseEntity("Cannot find format with prefix " + mdprefix + ".", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity("Format with prefix " + mdprefix + " not found.", HttpStatus.BAD_REQUEST);
             }
 
             try {
@@ -90,10 +90,10 @@ public class DisseminationController {
                 dissemination.setDeleted(delete);
                 dissemination = disseminationApi.deleteDissemination(dissemination);
             } catch (NotFound notFound) {
-                return new ResponseEntity("Cannot find dissemination.", HttpStatus.NOT_FOUND);
+                return new ResponseEntity("Dissemination not found.", HttpStatus.NOT_FOUND);
             }
         } catch (DeleteFailed e) {
-            return new ResponseEntity("Cannot delete dissemination.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("Dissemination cannot delete.", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity(dissemination, HttpStatus.OK);

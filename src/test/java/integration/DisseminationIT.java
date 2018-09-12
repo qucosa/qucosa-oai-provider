@@ -1,8 +1,8 @@
 package integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
-import de.qucosa.oai.provider.api.format.FormatApi;
+import de.qucosa.oai.provider.services.DisseminationApi;
+import de.qucosa.oai.provider.services.FormatApi;
 import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;

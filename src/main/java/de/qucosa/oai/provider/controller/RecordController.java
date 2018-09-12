@@ -1,10 +1,10 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
-import de.qucosa.oai.provider.api.format.FormatApi;
-import de.qucosa.oai.provider.api.record.RecordApi;
-import de.qucosa.oai.provider.api.sets.SetApi;
+import de.qucosa.oai.provider.services.DisseminationApi;
+import de.qucosa.oai.provider.services.FormatApi;
+import de.qucosa.oai.provider.services.RecordApi;
+import de.qucosa.oai.provider.services.SetApi;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
@@ -170,7 +170,7 @@ public class RecordController {
                 try {
                     disseminationApi.saveDissemination(rt.getDissemination());
                 } catch (SaveFailed e) {
-                    return new ResponseEntity("Cannot save dissemination.", HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity("Dissemination cannot save.", HttpStatus.BAD_REQUEST);
                 }
             }
         } catch (IOException e) {
@@ -212,10 +212,10 @@ public class RecordController {
             try {
                 deleted = recordApi.deleteRecord(record);
             } catch (DeleteFailed deleteFailed) {
-                return new ResponseEntity("Cannot delete record.", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity("Record cannot delete.", HttpStatus.BAD_REQUEST);
             }
         } catch (NotFound e) {
-            return new ResponseEntity("Cannot find record with uid (" + uid + ").", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("Record with uid (" + uid + ") not found.", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity(deleted, HttpStatus.OK);
@@ -229,7 +229,7 @@ public class RecordController {
         try {
             record = (Record) recordApi.findRecord("uid", uid).iterator().next();
         } catch (NotFound e) {
-            return new ResponseEntity("Cannot find record with uid (" + uid + ").", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("Record with uid (" + uid + ") not found.", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<Record>(record, HttpStatus.OK);

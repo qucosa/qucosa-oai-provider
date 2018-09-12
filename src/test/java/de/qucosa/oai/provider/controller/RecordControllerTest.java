@@ -1,10 +1,10 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
-import de.qucosa.oai.provider.api.format.FormatApi;
-import de.qucosa.oai.provider.api.record.RecordApi;
-import de.qucosa.oai.provider.api.sets.SetApi;
+import de.qucosa.oai.provider.services.DisseminationApi;
+import de.qucosa.oai.provider.services.FormatApi;
+import de.qucosa.oai.provider.services.RecordApi;
+import de.qucosa.oai.provider.services.SetApi;
 import de.qucosa.oai.provider.dao.DisseminationTestDao;
 import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.dao.RecordTestDao;

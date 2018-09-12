@@ -1,7 +1,7 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.format.FormatApi;
+import de.qucosa.oai.provider.services.FormatApi;
 import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.model.Format;

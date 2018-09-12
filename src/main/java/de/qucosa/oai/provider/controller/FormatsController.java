@@ -1,7 +1,7 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.format.FormatApi;
+import de.qucosa.oai.provider.services.FormatApi;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
@@ -50,7 +50,7 @@ public class FormatsController {
             formats = formatApi.find("mdprefix", mdprefix);
 
             if (formats == null) {
-                return new ResponseEntity("Cannot find formats.", HttpStatus.NOT_FOUND);
+                return new ResponseEntity("Cannot found formats.", HttpStatus.NOT_FOUND);
             }
         } catch (NotFound e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);

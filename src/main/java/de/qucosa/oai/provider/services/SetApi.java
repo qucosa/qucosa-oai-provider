@@ -1,4 +1,4 @@
-package de.qucosa.oai.provider.api.sets;
+package de.qucosa.oai.provider.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persistence.Dao;
