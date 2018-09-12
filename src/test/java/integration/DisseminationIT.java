@@ -64,7 +64,7 @@ public class DisseminationIT {
         Format format = null;
 
         try {
-            format = formatApi.find("mdprefix", "oai_dc");
+            format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
         } catch (NotFound notFound) {
 
         }
@@ -80,7 +80,7 @@ public class DisseminationIT {
 
     @Test
     public void Find_dissemination_by_multiple_criterias() throws NotFound {
-        Format format = formatApi.find("mdprefix", "oai_dc");
+        Format format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
         Dissemination dissemination = disseminationApi.findByMultipleValues(
                 "id_format=%s AND id_record=%s",
                 String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
@@ -94,7 +94,7 @@ public class DisseminationIT {
         Format format = null;
 
         try {
-            format = formatApi.find("mdprefix", "oai_dc");
+            format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
         } catch (NotFound notFound) {
             notFound.printStackTrace();
         }
@@ -120,7 +120,7 @@ public class DisseminationIT {
         Format format = null;
 
         try {
-            format = formatApi.find("mdprefix", "oai_dc");
+            format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
         } catch (NotFound notFound) {
             notFound.printStackTrace();
         }

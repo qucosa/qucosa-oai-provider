@@ -79,7 +79,7 @@ public class DisseminationController {
             Format format = null;
 
             try {
-                format = formatApi.find("mdprefix", mdprefix);
+                format = (Format) formatApi.find("mdprefix", mdprefix).iterator().next();
             } catch (NotFound notFound) {
                 return new ResponseEntity("Format with prefix " + mdprefix + " not found.", HttpStatus.BAD_REQUEST);
             }

@@ -72,7 +72,7 @@ public class RecordController {
                 Format format = null;
 
                 try {
-                    format = formatApi.find("mdprefix", rt.getFormat().getMdprefix());
+                    format = (Format) formatApi.find("mdprefix", rt.getFormat().getMdprefix()).iterator().next();
 
                     if (format.getFormatId() == null) {
 
