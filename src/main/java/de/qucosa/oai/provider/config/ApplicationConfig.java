@@ -1,6 +1,7 @@
 package de.qucosa.oai.provider.config;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
@@ -101,5 +102,10 @@ public class ApplicationConfig {
     @Bean
     public Dao setsToRecordDao() throws PropertyVetoException, SQLException {
         return new SetsToRecordDao(dataSource().getConnection());
+    }
+
+    @Bean
+    public ErrorDetails errorDetails() {
+        return new ErrorDetails();
     }
 }
