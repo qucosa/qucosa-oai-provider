@@ -97,14 +97,27 @@ public class SetController {
             } catch (SaveFailed e1) {
                 logger.error("Cannot save set collections.", e1);
             } catch (IOException e1) {
-                return new ResponseEntity("Cannot parse set input data.", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                        .setDate(LocalDateTime.now())
+                        .setErrorMsg(e.getMessage())
+                        .setException(e.getClass().getName())
+                        .setRequestPath("/sets")
+                        .setMethod("save")
+                        .setRequestMethod("POST")
+                        .setStatuscode(HttpStatus.BAD_REQUEST.toString()), HttpStatus.BAD_REQUEST);
             }
         } catch (SaveFailed e) {
             logger.error("Cannot save set object.", e);
         }
 
         if (output == null) {
-            return new ResponseEntity("Cannot save set objects.", HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                    .setDate(LocalDateTime.now())
+                    .setErrorMsg("Cannot save set objects.")
+                    .setRequestPath("/sets")
+                    .setMethod("save")
+                    .setRequestMethod("POST")
+                    .setStatuscode(HttpStatus.NOT_ACCEPTABLE.toString()), HttpStatus.NOT_ACCEPTABLE);
         }
 
         return new ResponseEntity<T>(output, HttpStatus.OK);
@@ -118,7 +131,14 @@ public class SetController {
         try {
             set = setApi.updateSet(input, setspec);
         } catch (UpdateFailed e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                    .setDate(LocalDateTime.now())
+                    .setException(UpdateFailed.class.getName())
+                    .setErrorMsg(e.getMessage())
+                    .setRequestPath("/sets/{setspec}")
+                    .setMethod("update")
+                    .setRequestMethod("PUT")
+                    .setStatuscode(HttpStatus.NOT_ACCEPTABLE.toString()), HttpStatus.NOT_ACCEPTABLE);
         }
 
 
@@ -133,7 +153,14 @@ public class SetController {
         try {
             deleted = setApi.deleteSet("setspec", setspec, delete);
         } catch (DeleteFailed e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                    .setDate(LocalDateTime.now())
+                    .setException(UpdateFailed.class.getName())
+                    .setErrorMsg(e.getMessage())
+                    .setRequestPath("/sets/{setspec}/{delete}")
+                    .setMethod("delete")
+                    .setRequestMethod("DELETE")
+                    .setStatuscode(HttpStatus.NOT_ACCEPTABLE.toString()), HttpStatus.NOT_ACCEPTABLE);
         }
 
         return new ResponseEntity(deleted, HttpStatus.OK);
