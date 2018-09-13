@@ -70,7 +70,7 @@ public class FormatsController {
             if (formats == null) {
                 return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
                         .setDate(LocalDateTime.now())
-                        .setErrorMsg("Cannot find formats.")
+                        .setErrorMsg("Cannot find format.")
                         .setRequestPath("/formats/{mdprefix}")
                         .setMethod("find")
                         .setRequestMethod("GET")
