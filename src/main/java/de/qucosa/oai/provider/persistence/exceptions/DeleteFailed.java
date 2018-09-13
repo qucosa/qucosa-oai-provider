@@ -1,4 +1,4 @@
-package de.qucosa.oai.provider.persitence.exceptions;
+package de.qucosa.oai.provider.persistence.exceptions;
 
 import java.sql.SQLException;
 

@@ -1,10 +1,10 @@
-package de.qucosa.oai.provider.persitence;
+package de.qucosa.oai.provider.persistence;
 
-import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persitence.exceptions.NotFound;
-import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persitence.exceptions.UpdateFailed;
-import de.qucosa.oai.provider.persitence.model.HasIdentifier;
+import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persistence.model.HasIdentifier;
 
 import java.util.Collection;
 

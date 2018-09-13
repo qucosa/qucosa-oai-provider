@@ -1,12 +1,12 @@
 package de.qucosa.oai.provider.api.dissemination;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.persitence.Dao;
-import de.qucosa.oai.provider.persitence.dao.postgres.DisseminationDao;
-import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persitence.exceptions.NotFound;
-import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persitence.model.Dissemination;
+import de.qucosa.oai.provider.persistence.Dao;
+import de.qucosa.oai.provider.persistence.dao.postgres.DisseminationDao;
+import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.model.Dissemination;
 
 import java.io.IOException;
 import java.util.Collection;

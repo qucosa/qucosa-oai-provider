@@ -1,4 +1,4 @@
-package de.qucosa.oai.provider.persitence.model;
+package de.qucosa.oai.provider.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

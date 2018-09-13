@@ -1,4 +1,4 @@
-package de.qucosa.oai.provider.persitence.model;
+package de.qucosa.oai.provider.persistence.model;
 
 public interface HasIdentifier {
     void setIdentifier(Object identifier);

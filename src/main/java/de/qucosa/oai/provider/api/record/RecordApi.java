@@ -1,14 +1,14 @@
 package de.qucosa.oai.provider.api.record;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.persitence.Dao;
-import de.qucosa.oai.provider.persitence.dao.postgres.RecordDao;
-import de.qucosa.oai.provider.persitence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persitence.exceptions.NotFound;
-import de.qucosa.oai.provider.persitence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persitence.exceptions.UpdateFailed;
-import de.qucosa.oai.provider.persitence.model.Record;
-import de.qucosa.oai.provider.persitence.model.RecordTransport;
+import de.qucosa.oai.provider.persistence.Dao;
+import de.qucosa.oai.provider.persistence.dao.postgres.RecordDao;
+import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.persistence.model.RecordTransport;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
