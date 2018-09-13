@@ -251,7 +251,7 @@ public class SetDao<T extends Set> implements Dao<T> {
 
             ps.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DeleteFailed("Set mark as deleted failed, no rwos affected.", e);
         }
 
         return deletedRows;
