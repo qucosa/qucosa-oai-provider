@@ -51,10 +51,10 @@ public class RecordTestDao<T extends Record> implements Dao<T> {
                 return record;
             }
         } catch (IOException e) {
-            throw new RuntimeException("Records nor parse.", e);
+            throw new RuntimeException("Cannot parse records.", e);
         }
 
-        throw new UpdateFailed("Record cannot update.");
+        throw new UpdateFailed("Cannot update record.");
     }
 
     @Override
@@ -93,7 +93,7 @@ public class RecordTestDao<T extends Record> implements Dao<T> {
                 i++;
 
                 if (!node.has(property)) {
-                    throw new NotFound(property + " not found in records table.");
+                    throw new NotFound("Cannot find " + property + " in records table.");
                 }
 
                 if (node.get(property).asText().equals(value)) {
@@ -108,7 +108,7 @@ public class RecordTestDao<T extends Record> implements Dao<T> {
 
         }
 
-        throw new NotFound("Cannot found record data row.");
+        throw new NotFound("Cannot find record.");
     }
 
     @Override
@@ -128,7 +128,7 @@ public class RecordTestDao<T extends Record> implements Dao<T> {
                 i++;
 
                 if (!node.has(column)) {
-                    throw new DeleteFailed(column + " not found in records table.");
+                    throw new DeleteFailed("Cannot find " + column + " in records table.");
                 }
 
                 if (node.get(column).asText().equals(ident)) {

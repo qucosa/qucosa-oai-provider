@@ -58,7 +58,7 @@ public class SetTestDao<T extends Set> implements Dao<T> {
                 }
             }
         } catch (IOException e) {
-            throw new UpdateFailed("No sets found.");
+            throw new UpdateFailed("Cannot find sets.");
         }
 
         return (T) set;
@@ -77,7 +77,7 @@ public class SetTestDao<T extends Set> implements Dao<T> {
         try {
             sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
         } catch (IOException e) {
-            throw new NotFound("No sets found.");
+            throw new NotFound("Cannot find sets.");
         }
 
         return (Collection<T>) sets;

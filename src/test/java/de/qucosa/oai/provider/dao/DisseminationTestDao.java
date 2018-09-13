@@ -62,7 +62,7 @@ public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
                 i++;
 
                 if (!node.has(property)) {
-                    throw new NotFound(property + " not found in disseminations table.");
+                    throw new NotFound("Cannot find " + property + " in disseminations table.");
                 }
 
                 if (node.get(property).asText().equals(value)) {
@@ -73,7 +73,7 @@ public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
                 }
             }
         } catch (IOException e) {
-            throw new NotFound("No disseminations found.");
+            throw new NotFound("Cannot find disseminations.");
         }
 
         return (Collection<T>) disseminations;
@@ -109,10 +109,10 @@ public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
             }
 
         } catch (IOException e) {
-            throw new NotFound("No disseminations found.");
+            throw new NotFound("Cannot find disseminations.");
         }
 
-        throw new NotFound("No dissemination found.");
+        throw new NotFound("Cannot find dissemination.");
     }
 
     @Override

@@ -50,7 +50,7 @@ public class FormatsController {
             formats = formatApi.find("mdprefix", mdprefix);
 
             if (formats == null) {
-                return new ResponseEntity("Cannot found formats.", HttpStatus.NOT_FOUND);
+                return new ResponseEntity("Cannot find formats.", HttpStatus.NOT_FOUND);
             }
         } catch (NotFound e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);

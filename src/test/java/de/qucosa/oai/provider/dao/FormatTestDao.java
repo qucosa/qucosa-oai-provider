@@ -54,7 +54,7 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
                 }
             }
         } catch (IOException e) {
-            throw new UpdateFailed("No formats found.");
+            throw new UpdateFailed("Cannot find formats.");
         }
 
         return format;
@@ -73,7 +73,7 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
         try {
             formats = om.readValue(TestData.FORMATS, om.getTypeFactory().constructCollectionType(List.class, Format.class));
         } catch (IOException e) {
-            throw new NotFound("No formats found.");
+            throw new NotFound("Cannot find formats.");
         }
 
         return (Collection<T>) formats;
@@ -97,7 +97,7 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
                 i++;
 
                 if (!node.has(property)) {
-                    throw new NotFound(property + " not found in formats table.");
+                    throw new NotFound("Cannot find " + property + " in formats table.");
                 }
 
                 if (node.get(property).asText().equals(value)) {
@@ -110,7 +110,7 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
 
             return (formats.size() > 0) ? (Collection<T>) formats : null;
         } catch (IOException e) {
-            throw new NotFound("No formats found.");
+            throw new NotFound("Cannot find formats.");
         }
     }
 
@@ -132,7 +132,7 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
                 i++;
 
                 if (!node.has(column)) {
-                    throw new RuntimeException(column + " not found in formats table.");
+                    throw new RuntimeException("Cannot find " + column + " in formats table.");
                 }
 
                 if (node.get(column).asText().equals(ident)) {
@@ -146,7 +146,7 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
                 }
             }
         } catch (IOException e) {
-            throw new DeleteFailed("No formats delete.");
+            throw new DeleteFailed("Cannot delete format.");
         }
 
         return deleted;

@@ -40,7 +40,7 @@ public class DisseminationController {
         try {
             disseminations = disseminationApi.findAllByUid("recordid", uid);
         } catch (NotFound e) {
-            return new ResponseEntity("Not disseminations found.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("Cannot find disseminations.", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<Collection<Dissemination>>(disseminations, HttpStatus.OK);
@@ -81,7 +81,7 @@ public class DisseminationController {
             try {
                 format = (Format) formatApi.find("mdprefix", mdprefix).iterator().next();
             } catch (NotFound notFound) {
-                return new ResponseEntity("Format with prefix " + mdprefix + " not found.", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity("Cannot find format with prefix " + mdprefix + ".", HttpStatus.BAD_REQUEST);
             }
 
             try {
@@ -90,10 +90,10 @@ public class DisseminationController {
                 dissemination.setDeleted(delete);
                 dissemination = disseminationApi.deleteDissemination(dissemination);
             } catch (NotFound notFound) {
-                return new ResponseEntity("Dissemination not found.", HttpStatus.NOT_FOUND);
+                return new ResponseEntity("Cannot find dissemination.", HttpStatus.NOT_FOUND);
             }
         } catch (DeleteFailed e) {
-            return new ResponseEntity("Dissemination cannot delete.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("Cannot delete dissemination.", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity(dissemination, HttpStatus.OK);

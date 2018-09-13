@@ -142,7 +142,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
 
             return (T) dissemination;
         } catch (SQLException e) {
-            throw new NotFound("Connat found dissemination.", e);
+            throw new NotFound("Connat find dissemination.", e);
         }
     }
 
