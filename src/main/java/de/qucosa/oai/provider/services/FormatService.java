@@ -31,10 +31,10 @@ public class FormatService<T> {
         return dao.saveAndSetIdentifier(formats);
     }
 
-    public Format updateFormat(Format input, String mdprefix) throws Exception {
+    public Format updateFormat(Format input, String mdprefix) throws UpdateFailed {
 
         if (!input.getMdprefix().equals(mdprefix)) {
-            throw new Exception("Prameter mdprefix is unequal with mdprefix from format object.");
+            throw new UpdateFailed("Prameter mdprefix is unequal with mdprefix from format object.");
         }
 
         return (Format) dao.update(input);
