@@ -23,8 +23,13 @@ public class SetTestDao<T extends Set> implements Dao<T> {
 
     @Override
     public T saveAndSetIdentifier(T object) throws SaveFailed {
-        object.setIdentifier(new Long(1));
-        return object;
+
+        if (object.getIdentifier() == null) {
+            object.setIdentifier(new Long(1));
+            return object;
+        }
+
+        throw new SaveFailed("Cannot save set objects.");
     }
 
     @Override
@@ -41,8 +46,7 @@ public class SetTestDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public T update(T object) throws UpdateFailed {
-        Set set = object;
+    public Set update(Set object) throws UpdateFailed {
         ObjectMapper om = new ObjectMapper();
 
         try {
@@ -50,18 +54,18 @@ public class SetTestDao<T extends Set> implements Dao<T> {
 
             for (Set iter : sets) {
 
-                if (iter.getSetSpec().equals(set.getSetSpec())) {
-                    iter.setSetName(set.getSetName());
-                    iter.setSetDescription(set.getSetDescription());
-                    set = iter;
-                    break;
+                if (iter.getSetSpec().equals(object.getSetSpec())) {
+                    iter.setSetName(object.getSetName());
+                    iter.setSetDescription(object.getSetDescription());
+                    object = iter;
+                    return object;
                 }
             }
         } catch (IOException e) {
             throw new UpdateFailed("Cannot find sets.");
         }
 
-        return (T) set;
+        throw new UpdateFailed("Cannot update set.");
     }
 
     @Override
@@ -129,7 +133,6 @@ public class SetTestDao<T extends Set> implements Dao<T> {
     @Override
     public int delete(String column, String ident, boolean value) throws DeleteFailed {
         ObjectMapper om = new ObjectMapper();
-        int deleted = 0;
 
         try {
             JsonNode nodes = om.readTree(TestData.SETS);
@@ -141,14 +144,14 @@ public class SetTestDao<T extends Set> implements Dao<T> {
                 }
 
                 if (entry.get(column).asText().equals(ident)) {
-                    deleted = 1;
+                    return 1;
                 }
             }
         } catch (IOException e) {
             logger.error("Cannot parse tree from sets data input objects.", e);
         }
 
-        return deleted;
+        throw new DeleteFailed("Cannot delete set.");
     }
 
     @Override
