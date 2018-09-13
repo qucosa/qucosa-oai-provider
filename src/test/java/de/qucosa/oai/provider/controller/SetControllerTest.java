@@ -99,19 +99,21 @@ public class SetControllerTest {
     }
 
     @Test
-    public void Find_no_sets() throws Exception {
-        TestData.SETS = "[]";
-        mvc.perform(get("/sets")
-                .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("404")))
-                .andExpect(jsonPath("$.errorMsg", is("No sets found.")));
+    public void Save_single_set_object_not_successful() throws Exception {
+        Set set = sets.get(0);
+        set.setIdentifier(1);
+
+        mvc.perform(post("/sets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(set)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.errorMsg", is("Cannot save set objects.")))
+                .andExpect(jsonPath("$.method", is("save")));
     }
 
     @Test
     public void Save_single_set_object() throws Exception {
         Set set = sets.get(0);
-
         mvc.perform(post("/sets")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(set)))
@@ -129,7 +131,7 @@ public class SetControllerTest {
     }
 
     @Test
-    public void Update_sets() throws Exception {
+    public void Update_set() throws Exception {
         Set set = sets.get(0);
         set.setSetName("quatsch");
         mvc.perform(put("/sets/ddc:1200")
@@ -140,6 +142,18 @@ public class SetControllerTest {
     }
 
     @Test
+    public void Update_set_not_successful() throws Exception {
+        Set set = sets.get(0);
+        set.setSetName("quatsch");
+        mvc.perform(put("/sets/ddc:120")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(set)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.errorMsg", is("Cannot update set.")))
+                .andExpect(jsonPath("$.statuscode", is("406")));
+    }
+
+    @Test
     public void Mark_set_as_delete() throws Exception {
         MvcResult mvcResult = mvc.perform(delete("/sets/ddc:1200/true")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -147,6 +161,14 @@ public class SetControllerTest {
                 .andReturn();
         int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
         assertThat(1).isEqualTo(deleted);
+    }
+
+    @Test
+    public void Mark_set_as_delete_not_successful() throws Exception {
+        mvc.perform(delete("/sets/ddc:120/true")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.errorMsg", is("Cannot delete set.")));
     }
 
     @Test
