@@ -90,6 +90,19 @@ public class DisseminationControllerTest {
     }
 
     @Test
+    public void Save_dissemintaion_not_successful() throws Exception {
+        Dissemination dissemination = disseminations.get(0);
+        dissemination.setRecordId(null);
+
+        mvc.perform(post("/dissemination")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(dissemination)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination.")))
+                .andExpect(jsonPath("$.statuscode", is("406")));
+    }
+
+    @Test
     public void Find_disseminations_by_uid() throws Exception {
         mvc.perform(get("/dissemination/oai:example:org:qucosa:55887")
                 .contentType(MediaType.APPLICATION_JSON))
