@@ -60,6 +60,15 @@ public class FormatsIT {
     }
 
     @Test
+    public void Save_single_format_object_not_successful() throws SaveFailed {
+        thrown.expect(SaveFailed.class);
+        thrown.expectMessage("Cannot save format.");
+
+        Format format = formats.get(0);
+        formatService.saveFormat(format);
+    }
+
+    @Test
     public void Save_format_collection() throws SaveFailed {
         Collection<Format> response = formatService.saveFormats(formats);
         assertThat(response.size()).isGreaterThan(0);
@@ -81,7 +90,7 @@ public class FormatsIT {
     }
 
     @Test
-    public void Find_format_by_mdprefix_not_successful() throws NotFound {
+    public void Find_format_by_mdprefix_is_null() throws NotFound {
         Collection<Format> formats = formatService.find("mdprefix", "oai_c");
         assertThat(formats).isNull();
     }
@@ -98,6 +107,14 @@ public class FormatsIT {
         Format format = formats.get(0);
         int deletetd = formatService.deleteFormat("mdprefix", format.getMdprefix(), true);
         assertThat(1).isEqualTo(deletetd);
+    }
+
+    @Test
+    public void Marked_format_as_deleted_not_successful() throws DeleteFailed {
+        thrown.expect(DeleteFailed.class);
+        thrown.expectMessage("Cannot delete format.");
+
+        formatService.deleteFormat("mdprefix", "oia_d", true);
     }
 
     @Test
