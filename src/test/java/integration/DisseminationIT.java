@@ -91,6 +91,15 @@ public class DisseminationIT {
     }
 
     @Test
+    public void Find_dissemination_by_multiple_criterias_not_successful() throws NotFound {
+        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        Dissemination dissemination = disseminationService.findByMultipleValues(
+                "id_format=%s AND id_record=%s",
+                String.valueOf(format.getFormatId()), "oai:example:org:qucosa:5887");
+        assertThat(dissemination).isNull();
+    }
+
+    @Test
     public void Mark_dissemination_as_deleted() throws DeleteFailed, NotFound {
         Format format = null;
 
