@@ -132,7 +132,6 @@ public class RecordTestDao<T extends Record> implements Dao<T> {
                 }
 
                 if (node.get(column).asText().equals(ident)) {
-//                    Record record = om.readValue(node.toString(), Record.class);
                     return 1;
                 }
             }
