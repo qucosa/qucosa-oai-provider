@@ -43,7 +43,7 @@ public class SetService<T> {
         Set output;
 
         if (!input.getSetSpec().equals(setspec)) {
-            throw new UpdateFailed("Prameter setspec is unequal with setpec from set object.");
+            throw new UpdateFailed("Cannot update set.");
         }
 
         output = (Set) dao.update(input);
