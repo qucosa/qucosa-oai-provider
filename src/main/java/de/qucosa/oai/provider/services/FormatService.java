@@ -34,7 +34,7 @@ public class FormatService<T> {
     public Format updateFormat(Format input, String mdprefix) throws UpdateFailed {
 
         if (!input.getMdprefix().equals(mdprefix)) {
-            throw new UpdateFailed("Prameter mdprefix is unequal with mdprefix from format object.");
+            throw new UpdateFailed("Cannot update format.");
         }
 
         return (Format) dao.update(input);
