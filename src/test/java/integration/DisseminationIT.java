@@ -91,13 +91,13 @@ public class DisseminationIT {
     }
 
     @Test
-    public void Mark_dissemination_as_deleted() throws DeleteFailed {
+    public void Mark_dissemination_as_deleted() throws DeleteFailed, NotFound {
         Format format = null;
 
         try {
             format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
         } catch (NotFound notFound) {
-            notFound.printStackTrace();
+            throw new NotFound("Cannot found format.");
         }
 
         Dissemination dissemination = null;
@@ -108,7 +108,7 @@ public class DisseminationIT {
                     "id_format=%s AND id_record=%s",
                     String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
         } catch (NotFound notFound) {
-            notFound.printStackTrace();
+            throw new NotFound("Cannot found dissemination.");
         }
 
         assert dissemination != null;
