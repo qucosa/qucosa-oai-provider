@@ -19,8 +19,13 @@ import java.util.List;
 public class FormatTestDao<T extends Format> implements Dao<T> {
     @Override
     public Format saveAndSetIdentifier(Format object) throws SaveFailed {
-        object.setFormatId(Long.valueOf(1));
-        return object;
+
+        if (object.getIdentifier() == null) {
+            object.setFormatId(Long.valueOf(1));
+            return object;
+        }
+
+        throw new SaveFailed("Cannot save format.");
     }
 
     @Override
@@ -109,9 +114,9 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
             }
 
             return (formats.size() > 0) ? (Collection<T>) formats : null;
-        } catch (IOException e) {
-            throw new NotFound("Cannot find formats.");
-        }
+        } catch (IOException ignore) { }
+
+        throw new NotFound("Cannot find format.");
     }
 
     @Override
@@ -122,7 +127,6 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
     @Override
     public int delete(String column, String ident, boolean value) throws DeleteFailed {
         ObjectMapper om = new ObjectMapper();
-        int deleted = 0;
 
         try {
             JsonNode jsonNodes = om.readTree(TestData.FORMATS);
@@ -141,15 +145,13 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
                     format.setDeleted(value);
 
                     if (format.getFormatId() != null) {
-                        deleted = 1;
+                        return  1;
                     }
                 }
             }
-        } catch (IOException e) {
-            throw new DeleteFailed("Cannot delete format.");
-        }
+        } catch (IOException ignore) { }
 
-        return deleted;
+        throw new DeleteFailed("Cannot delete format.");
     }
 
     @Override
