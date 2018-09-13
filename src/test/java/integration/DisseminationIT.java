@@ -97,7 +97,7 @@ public class DisseminationIT {
         try {
             format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
         } catch (NotFound notFound) {
-            throw new NotFound("Cannot found format.");
+            throw new NotFound("Cannot find format.");
         }
 
         Dissemination dissemination = null;
@@ -108,7 +108,7 @@ public class DisseminationIT {
                     "id_format=%s AND id_record=%s",
                     String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
         } catch (NotFound notFound) {
-            throw new NotFound("Cannot found dissemination.");
+            throw new NotFound("Cannot find dissemination.");
         }
 
         assert dissemination != null;
