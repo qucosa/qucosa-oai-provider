@@ -19,8 +19,13 @@ import java.util.Map;
 public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
     @Override
     public Dissemination saveAndSetIdentifier(Dissemination object) throws SaveFailed {
-        object.setDissId(Long.valueOf(1));
-        return object;
+
+        if (object.getRecordId() != null && object.getFormatId() != null) {
+            object.setDissId(Long.valueOf(1));
+            return object;
+        }
+
+        throw new SaveFailed("Cannot save dissemination.");
     }
 
     @Override
@@ -72,11 +77,11 @@ public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
                     disseminations.add(dissemination);
                 }
             }
-        } catch (IOException e) {
-            throw new NotFound("Cannot find disseminations.");
-        }
 
-        return (Collection<T>) disseminations;
+            return (Collection<T>) disseminations;
+        } catch (IOException ignore) { }
+
+        throw new NotFound("Cannot find dissemination.");
     }
 
     @Override
