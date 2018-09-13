@@ -58,9 +58,9 @@ public class ApplicationConfig {
 
     @Bean
     public SetService setService() throws PropertyVetoException, SQLException {
-        SetService setApi = new SetService();
-        setApi.setDao(setDao());
-        return setApi;
+        SetService setService = new SetService();
+        setService.setDao(setDao());
+        return setService;
     }
 
     @Bean
@@ -70,9 +70,9 @@ public class ApplicationConfig {
 
     @Bean
     public RecordService recordService() throws PropertyVetoException, SQLException {
-        RecordService recordApi = new RecordService();
-        recordApi.setDao(recordDao());
-        return recordApi;
+        RecordService recordService = new RecordService();
+        recordService.setDao(recordDao());
+        return recordService;
     }
 
     @Bean
@@ -82,9 +82,9 @@ public class ApplicationConfig {
 
     @Bean
     public FormatService formatService() throws PropertyVetoException, SQLException {
-        FormatService formatApi = new FormatService();
-        formatApi.setDao(formatDao());
-        return  formatApi;
+        FormatService formatService = new FormatService();
+        formatService.setDao(formatDao());
+        return  formatService;
     }
 
     @Bean
@@ -94,9 +94,9 @@ public class ApplicationConfig {
 
     @Bean
     public DisseminationService disseminationService() throws PropertyVetoException, SQLException {
-        DisseminationService api = new DisseminationService();
-        api.setDao(disseminationDao());
-        return api;
+        DisseminationService disseminationService = new DisseminationService();
+        disseminationService.setDao(disseminationDao());
+        return disseminationService;
     }
 
     @Bean

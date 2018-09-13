@@ -72,10 +72,10 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public FormatService formatApi() {
-            FormatService formatApi = new FormatService();
-            formatApi.setDao(formatDao());
-            return formatApi;
+        public FormatService formatService() {
+            FormatService formatService = new FormatService();
+            formatService.setDao(formatDao());
+            return formatService;
         }
 
         @Bean
@@ -84,10 +84,10 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public RecordService recordApi() {
-            RecordService recordApi = new RecordService();
-            recordApi.setDao(recordDao());
-            return recordApi;
+        public RecordService recordService() {
+            RecordService recordService = new RecordService();
+            recordService.setDao(recordDao());
+            return recordService;
         }
 
         @Bean
@@ -96,10 +96,10 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public SetService setApi() {
-            SetService setApi = new SetService();
-            setApi.setDao(setDao());
-            return setApi;
+        public SetService setService() {
+            SetService setService = new SetService();
+            setService.setDao(setDao());
+            return setService;
         }
 
         @Bean
@@ -108,10 +108,10 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public DisseminationService disseminationApi() {
-            DisseminationService disseminationApi = new DisseminationService();
-            disseminationApi.setDao(disseminationDao());
-            return disseminationApi;
+        public DisseminationService disseminationService() {
+            DisseminationService disseminationService = new DisseminationService();
+            disseminationService.setDao(disseminationDao());
+            return disseminationService;
         }
 
         @Bean

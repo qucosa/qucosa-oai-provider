@@ -36,7 +36,7 @@ public class FormatsIT {
 
     private List<Format> formats = null;
 
-    private FormatService formatApi;
+    private FormatService formatService;
 
     @Autowired
     private Dao formatDao;
@@ -48,20 +48,20 @@ public class FormatsIT {
     public void init() throws IOException, SQLException {
         ObjectMapper om = new ObjectMapper();
         formats = om.readValue(TestData.FORMATS, om.getTypeFactory().constructCollectionType(List.class, Format.class));
-        formatApi = new FormatService();
-        formatApi.setDao(formatDao);
+        formatService = new FormatService();
+        formatService.setDao(formatDao);
     }
 
     @Test
     public void Save_single_format_object() throws SaveFailed {
         Format format = formats.get(0);
-        format = formatApi.saveFormat(format);
+        format = formatService.saveFormat(format);
         assertThat(format.getFormatId()).isNotNull();
     }
 
     @Test
     public void Save_format_collection() throws SaveFailed {
-        Collection<Format> response = formatApi.saveFormats(formats);
+        Collection<Format> response = formatService.saveFormats(formats);
         assertThat(response.size()).isGreaterThan(0);
     }
 
@@ -69,26 +69,26 @@ public class FormatsIT {
     public void Update_format() throws Exception {
         Format format = formats.get(0);
         format.setNamespace("quatsch");
-        format = formatApi.updateFormat(format, "oai_dc");
+        format = formatService.updateFormat(format, "oai_dc");
         assertThat(format.getNamespace().trim()).isEqualTo("quatsch");
     }
 
     @Test
     public void Find_format_by_mdprefix_successful() throws NotFound {
-        Format format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
+        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
         assertThat(format).isNotNull();
         assertThat(format.getMdprefix().trim()).isEqualTo("oai_dc");
     }
 
     @Test
     public void Find_format_by_mdprefix_not_successful() throws NotFound {
-        Collection<Format> formats = formatApi.find("mdprefix", "oai_c");
+        Collection<Format> formats = formatService.find("mdprefix", "oai_c");
         assertThat(formats).isNull();
     }
 
     @Test
     public void Find_all_formats() throws NotFound {
-        List<Format> response = formatApi.findAll();
+        List<Format> response = formatService.findAll();
         assertThat(response).isNotNull();
         assertThat(response.size()).isGreaterThan(0);
     }
@@ -96,14 +96,14 @@ public class FormatsIT {
     @Test
     public void Marked_format_as_deleted() throws DeleteFailed {
         Format format = formats.get(0);
-        int deletetd = formatApi.deleteFormat("mdprefix", format.getMdprefix(), true);
+        int deletetd = formatService.deleteFormat("mdprefix", format.getMdprefix(), true);
         assertThat(1).isEqualTo(deletetd);
     }
 
     @Test
     public void Marked_format_as_not_deleted() throws DeleteFailed {
         Format format = formats.get(0);
-        int deletetd = formatApi.deleteFormat("mdprefix", format.getMdprefix(), false);
+        int deletetd = formatService.deleteFormat("mdprefix", format.getMdprefix(), false);
         assertThat(1).isEqualTo(deletetd);
     }
 }

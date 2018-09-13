@@ -62,9 +62,9 @@ public class DisseminationControllerTest {
 
         @Bean
         public FormatService formatApi() {
-            FormatService formatApi = new FormatService();
-            formatApi.setDao(formatDao());
-            return formatApi;
+            FormatService formatService = new FormatService();
+            formatService.setDao(formatDao());
+            return formatService;
         }
 
         @Bean
@@ -73,10 +73,10 @@ public class DisseminationControllerTest {
         }
 
         @Bean
-        public DisseminationService disseminationApi() {
-            DisseminationService disseminationApi = new DisseminationService();
-            disseminationApi.setDao(disseminationDao());
-            return disseminationApi;
+        public DisseminationService disseminationService() {
+            DisseminationService disseminationService = new DisseminationService();
+            disseminationService.setDao(disseminationDao());
+            return disseminationService;
         }
     }
 

@@ -65,10 +65,10 @@ public class SetControllerTest {
         }
 
         @Bean
-        public SetService setApi() {
-            SetService setApi = new SetService();
-            setApi.setDao(setDao());
-            return setApi;
+        public SetService setService() {
+            SetService setService = new SetService();
+            setService.setDao(setDao());
+            return setService;
         }
     }
 

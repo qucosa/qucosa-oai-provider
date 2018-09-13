@@ -27,10 +27,10 @@ import java.util.Collection;
 public class DisseminationController {
 
     @Autowired
-    private DisseminationApi disseminationApi;
+    private DisseminationService disseminationService;
 
     @Autowired
-    private FormatApi formatApi;
+    private FormatService formatService;
 
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -38,7 +38,7 @@ public class DisseminationController {
         Collection<Dissemination> disseminations;
 
         try {
-            disseminations = disseminationApi.findAllByUid("recordid", uid);
+            disseminations = disseminationService.findAllByUid("recordid", uid);
         } catch (NotFound e) {
             return new ResponseEntity("Not disseminations found.", HttpStatus.BAD_REQUEST);
         }
@@ -54,7 +54,7 @@ public class DisseminationController {
 
         try {
             dissemination = om.readValue(input, Dissemination.class);
-            dissemination = disseminationApi.saveDissemination(dissemination);
+            dissemination = disseminationService.saveDissemination(dissemination);
         } catch (IOException e) {
             return new ResponseEntity("Dissemination mapping failed.", HttpStatus.BAD_REQUEST);
         } catch (SaveFailed e) {
@@ -79,16 +79,16 @@ public class DisseminationController {
             Format format;
 
             try {
-                format = (Format) formatApi.find("mdprefix", mdprefix).iterator().next();
+                format = (Format) formatService.find("mdprefix", mdprefix).iterator().next();
             } catch (NotFound notFound) {
                 return new ResponseEntity("Format with prefix " + mdprefix + " not found.", HttpStatus.BAD_REQUEST);
             }
 
             try {
-                dissemination = disseminationApi.findByMultipleValues("formatid = %s AND recordid = %s", String.valueOf(format.getFormatId()), uid);
+                dissemination = disseminationService.findByMultipleValues("formatid = %s AND recordid = %s", String.valueOf(format.getFormatId()), uid);
 
                 dissemination.setDeleted(delete);
-                dissemination = disseminationApi.deleteDissemination(dissemination);
+                dissemination = disseminationService.deleteDissemination(dissemination);
             } catch (NotFound notFound) {
                 return new ResponseEntity("Dissemination not found.", HttpStatus.NOT_FOUND);
             }

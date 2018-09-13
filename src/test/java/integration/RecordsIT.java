@@ -34,7 +34,7 @@ public class RecordsIT {
 
     private List<Record> records = null;
 
-    private RecordService recordApi;
+    private RecordService recordService;
 
     @Autowired
     private Dao recordDao;
@@ -46,21 +46,21 @@ public class RecordsIT {
     public void init() throws IOException {
         ObjectMapper om = new ObjectMapper();
         records = om.readValue(TestData.RECORDS, om.getTypeFactory().constructCollectionType(List.class, Record.class));
-        recordApi = new RecordService();
-        recordApi.setDao(recordDao);
+        recordService = new RecordService();
+        recordService.setDao(recordDao);
     }
 
     @Test
     public void Save_record_object() throws SaveFailed {
         Record record = records.get(0);
-        record = recordApi.saveRecord(record);
+        record = recordService.saveRecord(record);
         assertThat(record.getRecordId()).isNotNull();
     }
 
     @Test
     public void Find_Record_by_uid() throws NotFound {
         Record record = records.get(0);
-        Record result = (Record) recordApi.findRecord("uid", record.getUid()).iterator().next();
+        Record result = (Record) recordService.findRecord("uid", record.getUid()).iterator().next();
         assertThat(result).isNotNull();
     }
 
@@ -68,7 +68,7 @@ public class RecordsIT {
     public void Mark_record_as_deleted() throws DeleteFailed {
         Record record = records.get(0);
         record.setDeleted(true);
-        int deleted = recordApi.deleteRecord(record);
+        int deleted = recordService.deleteRecord(record);
         assertThat(1).isEqualTo(deleted);
     }
 
@@ -76,7 +76,7 @@ public class RecordsIT {
     public void Mark_record_as_not_deleted() throws DeleteFailed {
         Record record = records.get(0);
         record.setDeleted(false);
-        int deleted = recordApi.deleteRecord(record);
+        int deleted = recordService.deleteRecord(record);
         assertThat(1).isEqualTo(deleted);
     }
 }

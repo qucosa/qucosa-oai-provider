@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SetsIT {
     private List<Set> sets = null;
 
-    private SetService setApi;
+    private SetService setService;
 
     @Autowired
     private SetDao setDao;
@@ -48,14 +48,14 @@ public class SetsIT {
     public void init() throws IOException, SQLException {
         ObjectMapper om = new ObjectMapper();
         sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
-        setApi = new SetService();
-        setApi.setDao(setDao);
+        setService = new SetService();
+        setService.setDao(setDao);
     }
 
     @Test
     public void Save_single_set_object() throws SaveFailed {
         Set set = sets.get(0);
-        set = setApi.saveSet(set);
+        set = setService.saveSet(set);
         Assert.assertNotNull(set.getIdentifier());
     }
 
@@ -65,12 +65,12 @@ public class SetsIT {
         thrown.expectMessage("Creating Set failed, no ID obtained.");
 
         Set set = sets.get(0);
-        set = setApi.saveSet(set);
+        set = setService.saveSet(set);
     }
 
     @Test
     public void Save_set_collection() throws SaveFailed {
-        List<Set> data = setApi.saveSets(sets);
+        List<Set> data = setService.saveSets(sets);
         assertThat(data.size()).isGreaterThan(0);
     }
 
@@ -79,18 +79,18 @@ public class SetsIT {
         thrown.expect(SaveFailed.class);
         thrown.expectMessage("Creating Set failed, no ID obtained.");
 
-        List<Set> data = setApi.saveSets(sets);
+        List<Set> data = setService.saveSets(sets);
     }
 
     @Test
     public void Find_all_sets() throws NotFound {
-        List<Set> data = setApi.findAll();
+        List<Set> data = setService.findAll();
         assertThat(data.size()).isGreaterThan(0);
     }
 
     @Test
     public void Find_set_by_setspec() throws NotFound {
-        Set set = (Set) setApi.find("setspec", "ddc:1200").iterator().next();
+        Set set = (Set) setService.find("setspec", "ddc:1200").iterator().next();
         Assert.assertEquals("ddc:1200", set.getSetSpec());
     }
 
@@ -98,13 +98,13 @@ public class SetsIT {
     public void Find_set_by_setspec_not_successful() throws NotFound {
         thrown.expect(NotFound.class);
         thrown.expectMessage("Cannot found set.");
-        setApi.find("setspec", "ddc:120");
+        setService.find("setspec", "ddc:120");
     }
 
     @Test
     public void Mark_set_as_deleted() throws DeleteFailed {
         Set set = sets.get(0);
-        int deleted = setApi.deleteSet("setspec", set.getSetSpec(), true);
+        int deleted = setService.deleteSet("setspec", set.getSetSpec(), true);
         assertThat(1).isEqualTo(deleted);
     }
 
@@ -112,13 +112,13 @@ public class SetsIT {
     public void Mark_set_as_deleted_not_successful() throws DeleteFailed {
         thrown.expect(DeleteFailed.class);
         thrown.expectMessage("Cannot delete set.");
-        int deleted = setApi.deleteSet("setspec", "ddc:120", true);
+        int deleted = setService.deleteSet("setspec", "ddc:120", true);
     }
 
     @Test
     public void Undo_deleted() throws DeleteFailed {
         Set set = sets.get(0);
-        int deleted = setApi.deleteSet("setspec", set.getSetSpec(), false);
+        int deleted = setService.deleteSet("setspec", set.getSetSpec(), false);
         assertThat(1).isEqualTo(deleted);
     }
 
@@ -126,7 +126,7 @@ public class SetsIT {
     public void Udate_set_data_row() throws UpdateFailed {
         Set set = sets.get(0);
         set.setSetDescription("palaber ganz doll viel");
-        Set update = setApi.updateSet(set, "ddc:1200");
+        Set update = setService.updateSet(set, "ddc:1200");
         assertThat("palaber ganz doll viel").isEqualTo(update.getSetDescription());
     }
 
@@ -136,6 +136,6 @@ public class SetsIT {
         thrown.expectMessage("Cannot update set.");
         Set set = sets.get(0);
         set.setSetDescription("palaber ganz doll viel");
-        Set update = setApi.updateSet(set, "ddc:120");
+        Set update = setService.updateSet(set, "ddc:120");
     }
 }

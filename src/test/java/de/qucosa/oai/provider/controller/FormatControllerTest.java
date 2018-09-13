@@ -65,10 +65,10 @@ public class FormatControllerTest {
         }
 
         @Bean
-        public FormatService formatApi() {
-            FormatService formatApi = new FormatService();
-            formatApi.setDao(formatDao());
-            return formatApi;
+        public FormatService formatService() {
+            FormatService formatService = new FormatService();
+            formatService.setDao(formatDao());
+            return formatService;
         }
     }
 

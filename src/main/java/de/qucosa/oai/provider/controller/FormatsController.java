@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 public class FormatsController {
     @Autowired
-    private FormatApi formatApi;
+    private FormatService formatService;
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -33,7 +33,7 @@ public class FormatsController {
         List<Format> formats;
 
         try {
-            formats = formatApi.findAll();
+            formats = formatService.findAll();
         } catch (NotFound e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -47,7 +47,7 @@ public class FormatsController {
         Collection<Format> formats;
 
         try {
-            formats = formatApi.find("mdprefix", mdprefix);
+            formats = formatService.find("mdprefix", mdprefix);
 
             if (formats == null) {
                 return new ResponseEntity("Cannot found formats.", HttpStatus.NOT_FOUND);
@@ -66,12 +66,12 @@ public class FormatsController {
         ObjectMapper om = new ObjectMapper();
 
         try {
-            Format format = formatApi.saveFormat(om.readValue(input, Format.class));
+            Format format = formatService.saveFormat(om.readValue(input, Format.class));
             output = (T) format;
         } catch (IOException e) {
 
             try {
-                Collection<Format> formats = formatApi.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
+                Collection<Format> formats = formatService.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
                 output = (T) formats;
             } catch (SaveFailed e1) {
                 return new ResponseEntity(e1.getMessage(), HttpStatus.BAD_REQUEST);
@@ -91,7 +91,7 @@ public class FormatsController {
         Format format;
 
         try {
-            format = formatApi.updateFormat(input, mdprefix);
+            format = formatService.updateFormat(input, mdprefix);
         } catch (Exception e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -105,7 +105,7 @@ public class FormatsController {
         int deleted;
 
         try {
-            deleted = formatApi.deleteFormat("mdprefix", mdprefix, value);
+            deleted = formatService.deleteFormat("mdprefix", mdprefix, value);
         } catch (DeleteFailed e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

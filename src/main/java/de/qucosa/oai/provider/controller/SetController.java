@@ -33,7 +33,7 @@ public class SetController {
     private Logger logger = LoggerFactory.getLogger(SetController.class);
 
     @Autowired
-    private SetService setApi;
+    private SetService setService;
 
     @Autowired
     private ErrorDetails errorDetails;
@@ -44,7 +44,7 @@ public class SetController {
         Collection<Set> sets;
 
         try {
-            sets = setApi.findAll();
+            sets = setService.findAll();
         } catch (NotFound e) {
             return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
                     .setDate(LocalDateTime.now())
@@ -65,7 +65,7 @@ public class SetController {
         Set set;
 
         try {
-            set = (Set) setApi.find("setspec", setspec).iterator().next();
+            set = (Set) setService.find("setspec", setspec).iterator().next();
         } catch (NotFound e) {
             return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
                     .setDate(LocalDateTime.now())
@@ -87,12 +87,12 @@ public class SetController {
         ObjectMapper om = new ObjectMapper();
 
         try {
-            Set set = setApi.saveSet(om.readValue(input, Set.class));
+            Set set = setService.saveSet(om.readValue(input, Set.class));
             output = (T) set;
         } catch (IOException e) {
 
             try {
-                List<Set> sets = setApi.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
+                List<Set> sets = setService.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
                 output = (T) sets;
             } catch (SaveFailed e1) {
                 logger.error("Cannot save set collections.", e1);
@@ -129,7 +129,7 @@ public class SetController {
         Set set;
 
         try {
-            set = setApi.updateSet(input, setspec);
+            set = setService.updateSet(input, setspec);
         } catch (UpdateFailed e) {
             return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
                     .setDate(LocalDateTime.now())
@@ -151,7 +151,7 @@ public class SetController {
         int deleted;
 
         try {
-            deleted = setApi.deleteSet("setspec", setspec, delete);
+            deleted = setService.deleteSet("setspec", setspec, delete);
         } catch (DeleteFailed e) {
             return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
                     .setDate(LocalDateTime.now())
