@@ -2,46 +2,47 @@ package de.qucosa.oai.provider.dao;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-import de.qucosa.oai.provider.persitence.Dao;
-import de.qucosa.oai.provider.persitence.model.Set;
+import de.qucosa.oai.provider.persistence.Dao;
+import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persistence.model.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import testdata.TestData;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-public class SetTestDao<Tparam> implements Dao<Set, Tparam> {
+public class SetTestDao<T extends Set> implements Dao<T> {
 
     private Logger logger = LoggerFactory.getLogger(SetTestDao.class);
 
     @Override
-    public Set save(Tparam object) throws SQLException {
-        Set set = (Set) object;
-        set.setSetId(new Long(1));
-        return set;
+    public T saveAndSetIdentifier(T object) throws SaveFailed {
+        object.setIdentifier(new Long(1));
+        return object;
     }
 
     @Override
-    public List<Set> save(Collection objects) throws SQLException {
+    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
         int i = 0;
 
         for (Iterator iterator = objects.iterator(); iterator.hasNext();) {
             i++;
             Set set = (Set) iterator.next();
-            set.setSetId(Long.valueOf(i));
+            set.setIdentifier(Long.valueOf(i));
         }
 
-        return (List<Set>) objects;
+        return objects;
     }
 
     @Override
-    public Set update(Tparam object) throws SQLException {
-        Set set = (Set) object;
+    public T update(T object) throws UpdateFailed {
+        Set set = object;
         ObjectMapper om = new ObjectMapper();
 
         try {
@@ -57,41 +58,40 @@ public class SetTestDao<Tparam> implements Dao<Set, Tparam> {
                 }
             }
         } catch (IOException e) {
-            throw new SQLException("No sets found.");
+            throw new UpdateFailed("Cannot find sets.");
         }
 
-        return set;
+        return (T) set;
     }
 
     @Override
-    public List<Set> update(Collection objects) {
+    public Collection<Set> update(Collection objects) {
         return null;
     }
 
     @Override
-    public List<Set> findAll() throws SQLException {
+    public Collection<T> findAll() throws NotFound {
         ObjectMapper om = new ObjectMapper();
-        List<Set> sets;
+        Collection<Set> sets;
 
         try {
             sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
         } catch (IOException e) {
-            throw new SQLException("No sets found.");
+            throw new NotFound("Cannot find sets.");
         }
 
-        return sets;
+        return (Collection<T>) sets;
     }
 
     @Override
-    public Set findById(Tparam value) {
+    public T findById(String id) throws NotFound {
         return null;
     }
 
     @Override
-    public Set findByColumnAndValue(String column, Tparam value) throws SQLException {
+    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
         ObjectMapper om = new ObjectMapper();
-        Set set = null;
-        List<Set> sets = null;
+        Collection<Set> sets = null;
 
         try {
             sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
@@ -100,31 +100,19 @@ public class SetTestDao<Tparam> implements Dao<Set, Tparam> {
         }
 
         assert sets != null;
-        for (Set obj : sets) {
 
-            if (obj.getSetSpec().equals(value)) {
-                set = obj;
-                break;
-            }
-        }
-
-        return set;
+        return (Collection<T>) sets;
     }
 
     @Override
-    public Set findByMultipleValues(String clause, String... values) throws SQLException {
+    public T findByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
     @Override
-    public List<Set> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Set delete(String column, Tparam ident, boolean value) throws SQLException {
+    public int delete(String column, String ident, boolean value) throws DeleteFailed {
         ObjectMapper om = new ObjectMapper();
-        Set set = null;
+        int deleted = 0;
 
         try {
             JsonNode nodes = om.readTree(TestData.SETS);
@@ -132,29 +120,22 @@ public class SetTestDao<Tparam> implements Dao<Set, Tparam> {
             for (JsonNode entry : nodes) {
 
                 if (!entry.has(column)) {
-                    throw new SQLException("Set mark as deleted failed, no rwos affected.");
+                    throw new DeleteFailed("Set mark as deleted failed, no rwos affected.");
                 }
 
                 if (entry.get(column).asText().equals(ident)) {
-                    set = om.readValue(entry.toString(), Set.class);
-                    set.setSetId(new Long(1));
-                    set.setDeleted(value);
+                    deleted = 1;
                 }
             }
         } catch (IOException e) {
             logger.error("Cannot parse tree from sets data input objects.", e);
         }
 
-        return set;
+        return deleted;
     }
 
     @Override
-    public Set delete(Tparam object) throws SQLException {
+    public T delete(T object) throws DeleteFailed {
         return null;
-    }
-
-    @Override
-    public void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException {
-
     }
 }

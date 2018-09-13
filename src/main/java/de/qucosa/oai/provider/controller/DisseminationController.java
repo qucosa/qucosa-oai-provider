@@ -3,8 +3,11 @@ package de.qucosa.oai.provider.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
 import de.qucosa.oai.provider.api.format.FormatApi;
-import de.qucosa.oai.provider.persitence.model.Dissemination;
-import de.qucosa.oai.provider.persitence.model.Format;
+import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.model.Dissemination;
+import de.qucosa.oai.provider.persistence.model.Format;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,8 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
+import java.util.Collection;
 
 @RequestMapping("/dissemination")
 @RestController
@@ -32,16 +34,16 @@ public class DisseminationController {
 
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Dissemination>> find(@PathVariable String uid) {
-        List<Dissemination> disseminations;
+    public ResponseEntity<Collection<Dissemination>> find(@PathVariable String uid) {
+        Collection<Dissemination> disseminations;
 
         try {
             disseminations = disseminationApi.findAllByUid("recordid", uid);
-        } catch (SQLException e) {
-            return new ResponseEntity("Not disseminations found.", HttpStatus.BAD_REQUEST);
+        } catch (NotFound e) {
+            return new ResponseEntity("Cannot find disseminations.", HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<List<Dissemination>>(disseminations, HttpStatus.OK);
+        return new ResponseEntity<Collection<Dissemination>>(disseminations, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -55,7 +57,7 @@ public class DisseminationController {
             dissemination = disseminationApi.saveDissemination(dissemination);
         } catch (IOException e) {
             return new ResponseEntity("Dissemination mapping failed.", HttpStatus.BAD_REQUEST);
-        } catch (SQLException e) {
+        } catch (SaveFailed e) {
             return new ResponseEntity("Dissemination cannot save.", HttpStatus.BAD_REQUEST);
         }
 
@@ -74,12 +76,24 @@ public class DisseminationController {
         Dissemination dissemination;
 
         try {
-            Format format = formatApi.find("mdprefix", mdprefix);
-            dissemination = disseminationApi.findByMultipleValues("formatid = %s AND recordid = %s", String.valueOf(format.getFormatId()), uid);
-            dissemination.setDeleted(delete);
-            dissemination = disseminationApi.deleteDissemination(dissemination);
-        } catch (SQLException e) {
-            return new ResponseEntity("Format with prefix " + mdprefix + " not found.", HttpStatus.BAD_REQUEST);
+            Format format;
+
+            try {
+                format = (Format) formatApi.find("mdprefix", mdprefix).iterator().next();
+            } catch (NotFound notFound) {
+                return new ResponseEntity("Cannot find format with prefix " + mdprefix + ".", HttpStatus.BAD_REQUEST);
+            }
+
+            try {
+                dissemination = disseminationApi.findByMultipleValues("formatid = %s AND recordid = %s", String.valueOf(format.getFormatId()), uid);
+
+                dissemination.setDeleted(delete);
+                dissemination = disseminationApi.deleteDissemination(dissemination);
+            } catch (NotFound notFound) {
+                return new ResponseEntity("Cannot find dissemination.", HttpStatus.NOT_FOUND);
+            }
+        } catch (DeleteFailed e) {
+            return new ResponseEntity("Cannot delete dissemination.", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity(dissemination, HttpStatus.OK);

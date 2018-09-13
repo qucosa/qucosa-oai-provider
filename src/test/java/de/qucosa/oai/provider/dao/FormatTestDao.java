@@ -2,27 +2,29 @@ package de.qucosa.oai.provider.dao;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-import de.qucosa.oai.provider.persitence.Dao;
-import de.qucosa.oai.provider.persitence.model.Format;
+import de.qucosa.oai.provider.persistence.Dao;
+import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persistence.model.Format;
 import testdata.TestData;
 
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-public class FormatTestDao<Tparam> implements Dao<Format, Tparam> {
+public class FormatTestDao<T extends Format> implements Dao<T> {
     @Override
-    public Format save(Tparam object) throws SQLException {
-        Format format = (Format) object;
-        format.setFormatId(Long.valueOf(1));
-        return format;
+    public Format saveAndSetIdentifier(Format object) throws SaveFailed {
+        object.setFormatId(Long.valueOf(1));
+        return object;
     }
 
     @Override
-    public List<Format> save(Collection objects) throws SQLException {
+    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
         int i = 0;
 
         for (Iterator iterator = objects.iterator(); iterator.hasNext();) {
@@ -31,12 +33,12 @@ public class FormatTestDao<Tparam> implements Dao<Format, Tparam> {
             format.setFormatId(Long.valueOf(i));
         }
 
-        return (List<Format>) objects;
+        return objects;
     }
 
     @Override
-    public Format update(Tparam object) throws SQLException {
-        Format format = (Format) object;
+    public Format update(Format object) throws UpdateFailed {
+        Format format = object;
         ObjectMapper om = new ObjectMapper();
 
         try {
@@ -52,40 +54,40 @@ public class FormatTestDao<Tparam> implements Dao<Format, Tparam> {
                 }
             }
         } catch (IOException e) {
-            throw new SQLException("No formats found.");
+            throw new UpdateFailed("Cannot find formats.");
         }
 
         return format;
     }
 
     @Override
-    public List<Format> update(Collection objects) {
+    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public List<Format> findAll() throws SQLException {
+    public Collection<T> findAll() throws NotFound {
         ObjectMapper om = new ObjectMapper();
         List<Format> formats;
 
         try {
             formats = om.readValue(TestData.FORMATS, om.getTypeFactory().constructCollectionType(List.class, Format.class));
         } catch (IOException e) {
-            throw new SQLException("No formats found.");
+            throw new NotFound("Cannot find formats.");
         }
 
-        return formats;
+        return (Collection<T>) formats;
     }
 
     @Override
-    public Format findById(Tparam value) {
+    public T findById(String id) throws NotFound {
         return null;
     }
 
     @Override
-    public Format findByColumnAndValue(String column, Tparam value) throws SQLException {
+    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
         ObjectMapper om = new ObjectMapper();
-        Format format;
+        Collection<Format> formats = new ArrayList<>();
 
         try {
             JsonNode jsonNodes = om.readTree(TestData.FORMATS);
@@ -94,68 +96,64 @@ public class FormatTestDao<Tparam> implements Dao<Format, Tparam> {
             for (JsonNode node : jsonNodes) {
                 i++;
 
-                if (!node.has(column)) {
-                    throw new SQLException(column + " not found in formats table.");
+                if (!node.has(property)) {
+                    throw new NotFound("Cannot find " + property + " in formats table.");
                 }
 
-                if (node.get(column).asText().equals(value)) {
-                    format = om.readValue(node.toString(), Format.class);
+                if (node.get(property).asText().equals(value)) {
+                    Format format = om.readValue(node.toString(), Format.class);
                     format.setFormatId(Long.valueOf(i));
-                    return format;
-                }
-            }
-        } catch (IOException e) {
-            throw new SQLException("No formats found.");
-        }
-
-        throw new SQLException("Format is not found.");
-    }
-
-    @Override
-    public Format findByMultipleValues(String clause, String... values) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public List<Format> findAllByColumnAndValue(String column, Tparam value) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Format delete(String column, Tparam ident, boolean value) throws SQLException {
-        ObjectMapper om = new ObjectMapper();
-        Format format = null;
-
-        try {
-            JsonNode jsonNodes = om.readTree(TestData.FORMATS);
-            int i = 0;
-
-            for (JsonNode node : jsonNodes) {
-                i++;
-
-                if (!node.has(column)) {
-                    throw new SQLException(column + " not found in formats table.");
-                }
-
-                if (node.get(column).asText().equals(ident)) {
-                    format = om.readValue(node.toString(), Format.class);
-                    format.setFormatId(Long.valueOf(i));
-                    format.setDeleted(value);
+                    formats.add(format);
                     break;
                 }
             }
-        } catch (IOException e) {
-            throw new SQLException("No formats found.");
-        }
 
-        return format;
+            return (formats.size() > 0) ? (Collection<T>) formats : null;
+        } catch (IOException e) {
+            throw new NotFound("Cannot find formats.");
+        }
     }
 
     @Override
-    public Format delete(Tparam object) throws SQLException {
+    public T findByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
     @Override
-    public void setConnection(ComboPooledDataSource comboPooledDataSource) throws SQLException { }
+    public int delete(String column, String ident, boolean value) throws DeleteFailed {
+        ObjectMapper om = new ObjectMapper();
+        int deleted = 0;
+
+        try {
+            JsonNode jsonNodes = om.readTree(TestData.FORMATS);
+            int i = 0;
+
+            for (JsonNode node : jsonNodes) {
+                i++;
+
+                if (!node.has(column)) {
+                    throw new RuntimeException("Cannot find " + column + " in formats table.");
+                }
+
+                if (node.get(column).asText().equals(ident)) {
+                    Format format = om.readValue(node.toString(), Format.class);
+                    format.setFormatId(Long.valueOf(i));
+                    format.setDeleted(value);
+
+                    if (format.getFormatId() != null) {
+                        deleted = 1;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new DeleteFailed("Cannot delete format.");
+        }
+
+        return deleted;
+    }
+
+    @Override
+    public T delete(T object) throws DeleteFailed {
+        return null;
+    }
 }

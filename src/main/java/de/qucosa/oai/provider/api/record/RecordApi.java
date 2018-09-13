@@ -1,14 +1,18 @@
 package de.qucosa.oai.provider.api.record;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.persitence.Dao;
-import de.qucosa.oai.provider.persitence.dao.postgres.RecordDao;
-import de.qucosa.oai.provider.persitence.model.Record;
-import de.qucosa.oai.provider.persitence.model.RecordTransport;
+import de.qucosa.oai.provider.persistence.Dao;
+import de.qucosa.oai.provider.persistence.dao.postgres.RecordDao;
+import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.persistence.model.RecordTransport;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -56,20 +60,20 @@ public class RecordApi<T> {
         return inputData;
     }
 
-    public Record saveRecord(Record record) throws SQLException {
-        return (Record) dao.save(record);
+    public Record saveRecord(Record record) throws SaveFailed {
+        return (Record) dao.saveAndSetIdentifier(record);
     }
 
-    public Record updateRecord(Record record) throws SQLException {
+    public Record updateRecord(Record record) throws UpdateFailed {
         return (Record) dao.update(record);
     }
 
-    public Record deleteRecord(Record input) throws SQLException {
-        return (Record) dao.delete("uid", input.getUid(), input.isDeleted());
+    public int deleteRecord(Record input) throws DeleteFailed {
+        return dao.delete("uid", input.getUid(), input.isDeleted());
     }
 
-    public Record findRecord(String column, String uid) throws SQLException {
-        return (Record) dao.findByColumnAndValue(column, uid);
+    public Collection<Record> findRecord(String column, String uid) throws NotFound {
+        return dao.findByPropertyAndValue(column, uid);
     }
 
     public boolean checkIfOaiDcDisseminationExists(List<RecordTransport> input) {

@@ -2,7 +2,10 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.format.FormatApi;
-import de.qucosa.oai.provider.persitence.model.Format;
+import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.model.Format;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 @RequestMapping("/formats")
@@ -31,7 +34,7 @@ public class FormatsController {
 
         try {
             formats = formatApi.findAll();
-        } catch (SQLException e) {
+        } catch (NotFound e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
@@ -40,16 +43,20 @@ public class FormatsController {
 
     @RequestMapping(value = "{mdprefix}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Format> find(@PathVariable String mdprefix) throws SQLException {
-        Format format;
+    public ResponseEntity find(@PathVariable String mdprefix) {
+        Collection<Format> formats;
 
         try {
-            format = formatApi.find("mdprefix", mdprefix);
-        } catch (SQLException e) {
-            throw new SQLException(e.getMessage(), e);
+            formats = formatApi.find("mdprefix", mdprefix);
+
+            if (formats == null) {
+                return new ResponseEntity("Cannot find formats.", HttpStatus.NOT_FOUND);
+            }
+        } catch (NotFound e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<Format>(format, HttpStatus.OK);
+        return new ResponseEntity(formats.iterator().next(), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -64,14 +71,14 @@ public class FormatsController {
         } catch (IOException e) {
 
             try {
-                List<Format> formats = formatApi.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
+                Collection<Format> formats = formatApi.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
                 output = (T) formats;
-            } catch (SQLException e1) {
+            } catch (SaveFailed e1) {
                 return new ResponseEntity(e1.getMessage(), HttpStatus.BAD_REQUEST);
             } catch (IOException e1) {
                 return new ResponseEntity(e1.getMessage(), HttpStatus.BAD_REQUEST);
             }
-        } catch (SQLException e) {
+        } catch (SaveFailed e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
@@ -94,15 +101,15 @@ public class FormatsController {
 
     @RequestMapping(value = "{mdprefix}/{value}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Format> delete(@PathVariable String mdprefix, @PathVariable boolean value) {
-        Format format;
+    public ResponseEntity delete(@PathVariable String mdprefix, @PathVariable boolean value) {
+        int deleted;
 
         try {
-            format = formatApi.deleteFormat("mdprefix", mdprefix, value);
-        } catch (SQLException e) {
+            deleted = formatApi.deleteFormat("mdprefix", mdprefix, value);
+        } catch (DeleteFailed e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<Format>(format, HttpStatus.OK);
+        return new ResponseEntity(deleted, HttpStatus.OK);
     }
 }

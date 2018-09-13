@@ -1,78 +1,64 @@
 package de.qucosa.oai.provider.dao;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-import de.qucosa.oai.provider.persitence.Dao;
-import de.qucosa.oai.provider.persitence.model.SetsToRecord;
-import org.springframework.beans.factory.annotation.Autowired;
+import de.qucosa.oai.provider.persistence.Dao;
+import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persistence.model.SetsToRecord;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 
 @Repository
-public class SetsToRecordTestDao implements Dao {
-
-    @Autowired
-    public void setConnection(ComboPooledDataSource dataSource) throws SQLException {
+public class SetsToRecordTestDao<T extends SetsToRecord> implements Dao<T> {
+    @Override
+    public SetsToRecord saveAndSetIdentifier(SetsToRecord object) throws SaveFailed {
+        return object;
     }
 
     @Override
-    public SetsToRecord save(Object object) throws SQLException {
-        SetsToRecord setsToRecord = (SetsToRecord) object;
-        return setsToRecord;
-    }
-
-    @Override
-    public List save(Collection objects) throws SQLException {
+    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
         return null;
     }
 
     @Override
-    public Object update(Object object) throws SQLException {
+    public T update(T object) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public List update(Collection objects) {
+    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public List findAll() throws SQLException {
+    public Collection<T> findAll() throws NotFound {
         return null;
     }
 
     @Override
-    public Object findById(Object value) {
+    public T findById(String id) throws NotFound {
         return null;
     }
 
     @Override
-    public Object findByColumnAndValue(String column, Object value) throws SQLException {
+    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
         return null;
     }
 
     @Override
-    public Object findByMultipleValues(String clause, String... values) throws SQLException {
+    public T findByMultipleValues(String clause, String... values) throws NotFound {
+        return null;
+    }
+
+    @Override
+    public int delete(String column, String ident, boolean value) throws DeleteFailed {
         return 0;
     }
 
     @Override
-    public List findAllByColumnAndValue(String column, Object value) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Object delete(String column, Object ident, boolean value) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Object delete(Object object) throws SQLException {
+    public T delete(T object) throws DeleteFailed {
         return null;
     }
 }

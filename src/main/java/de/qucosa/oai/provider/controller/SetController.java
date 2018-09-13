@@ -2,7 +2,11 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.sets.SetApi;
-import de.qucosa.oai.provider.persitence.model.Set;
+import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persistence.model.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 @RequestMapping("/sets")
@@ -31,16 +35,16 @@ public class SetController {
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<List<Set>> findAll() {
-        List<Set> sets;
+    public ResponseEntity<Collection<Set>> findAll() {
+        Collection<Set> sets;
 
         try {
             sets = setApi.findAll();
-        } catch (SQLException e) {
+        } catch (NotFound e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<List<Set>>(sets, HttpStatus.OK);
+        return new ResponseEntity<Collection<Set>>(sets, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{setspec}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -49,8 +53,8 @@ public class SetController {
         Set set;
 
         try {
-            set = setApi.find("setspec", setspec);
-        } catch (SQLException e) {
+            set = (Set) setApi.find("setspec", setspec).iterator().next();
+        } catch (NotFound e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
 
@@ -71,12 +75,12 @@ public class SetController {
             try {
                 List<Set> sets = setApi.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
                 output = (T) sets;
-            } catch (SQLException e1) {
+            } catch (SaveFailed e1) {
                 logger.error("Cannot save set collections.", e1);
             } catch (IOException e1) {
                 return new ResponseEntity("Cannot parse set input data.", HttpStatus.BAD_REQUEST);
             }
-        } catch (SQLException e) {
+        } catch (SaveFailed e) {
             logger.error("Cannot save set object.", e);
         }
 
@@ -94,7 +98,7 @@ public class SetController {
 
         try {
             set = setApi.updateSet(input, setspec);
-        } catch (Exception e) {
+        } catch (UpdateFailed e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
 
@@ -104,15 +108,15 @@ public class SetController {
 
     @RequestMapping(value = "{setspec}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Set> delete(@PathVariable String setspec, @PathVariable boolean delete) {
-        Set deleted;
+    public ResponseEntity delete(@PathVariable String setspec, @PathVariable boolean delete) {
+        int deleted;
 
         try {
             deleted = setApi.deleteSet("setspec", setspec, delete);
-        } catch (SQLException e) {
+        } catch (DeleteFailed e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<Set>(deleted, HttpStatus.OK);
+        return new ResponseEntity(deleted, HttpStatus.OK);
     }
 }

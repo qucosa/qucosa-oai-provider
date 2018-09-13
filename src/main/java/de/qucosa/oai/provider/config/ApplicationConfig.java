@@ -5,16 +5,16 @@ import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
 import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.api.record.RecordApi;
 import de.qucosa.oai.provider.api.sets.SetApi;
-import de.qucosa.oai.provider.persitence.Dao;
-import de.qucosa.oai.provider.persitence.dao.postgres.DisseminationDao;
-import de.qucosa.oai.provider.persitence.dao.postgres.FormatDao;
-import de.qucosa.oai.provider.persitence.dao.postgres.RecordDao;
-import de.qucosa.oai.provider.persitence.dao.postgres.SetDao;
-import de.qucosa.oai.provider.persitence.dao.postgres.SetsToRecordDao;
-import de.qucosa.oai.provider.persitence.model.Dissemination;
-import de.qucosa.oai.provider.persitence.model.Format;
-import de.qucosa.oai.provider.persitence.model.Record;
-import de.qucosa.oai.provider.persitence.model.Set;
+import de.qucosa.oai.provider.persistence.Dao;
+import de.qucosa.oai.provider.persistence.dao.postgres.DisseminationDao;
+import de.qucosa.oai.provider.persistence.dao.postgres.FormatDao;
+import de.qucosa.oai.provider.persistence.dao.postgres.RecordDao;
+import de.qucosa.oai.provider.persistence.dao.postgres.SetDao;
+import de.qucosa.oai.provider.persistence.dao.postgres.SetsToRecordDao;
+import de.qucosa.oai.provider.persistence.model.Dissemination;
+import de.qucosa.oai.provider.persistence.model.Format;
+import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.persistence.model.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,24 +51,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public Dao disseminationDao() throws PropertyVetoException, SQLException {
-        Dao dao = new DisseminationDao<Dissemination>();
-        dao.setConnection(dataSource());
-        return dao;
-    }
-
-    @Bean
-    public DisseminationApi disseminationApi() throws PropertyVetoException, SQLException {
-        DisseminationApi api = new DisseminationApi();
-        api.setDao(disseminationDao());
-        return api;
-    }
-
-    @Bean
-    public Dao setDao() throws SQLException, PropertyVetoException {
-        Dao setDao = new SetDao<Set>();
-        setDao.setConnection(dataSource());
-        return setDao;
+    public Dao<Set> setDao() throws PropertyVetoException, SQLException {
+        return (Dao<Set>) new SetDao(dataSource().getConnection());
     }
 
     @Bean
@@ -80,9 +64,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao recordDao() throws PropertyVetoException, SQLException {
-        Dao recordDao = new RecordDao<Record>();
-        recordDao.setConnection(dataSource());
-        return recordDao;
+        return (Dao<Record>) new RecordDao(dataSource().getConnection());
     }
 
     @Bean
@@ -94,9 +76,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao formatDao() throws PropertyVetoException, SQLException {
-        Dao formatDao = new FormatDao<Format>();
-        formatDao.setConnection(dataSource());
-        return formatDao;
+        return (Dao<Format>) new FormatDao(dataSource().getConnection());
     }
 
     @Bean
@@ -107,9 +87,19 @@ public class ApplicationConfig {
     }
 
     @Bean
+    public Dao disseminationDao() throws PropertyVetoException, SQLException {
+        return (Dao<Dissemination>) new DisseminationDao(dataSource().getConnection());
+    }
+
+    @Bean
+    public DisseminationApi disseminationApi() throws PropertyVetoException, SQLException {
+        DisseminationApi api = new DisseminationApi();
+        api.setDao(disseminationDao());
+        return api;
+    }
+
+    @Bean
     public Dao setsToRecordDao() throws PropertyVetoException, SQLException {
-        Dao setsToRecordDao = new SetsToRecordDao();
-        setsToRecordDao.setConnection(dataSource());
-        return setsToRecordDao;
+        return new SetsToRecordDao(dataSource().getConnection());
     }
 }

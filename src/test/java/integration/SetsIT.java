@@ -3,8 +3,12 @@ package integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.sets.SetApi;
 import de.qucosa.oai.provider.config.ApplicationConfig;
-import de.qucosa.oai.provider.persitence.dao.postgres.SetDao;
-import de.qucosa.oai.provider.persitence.model.Set;
+import de.qucosa.oai.provider.persistence.dao.postgres.SetDao;
+import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persistence.model.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -49,46 +53,46 @@ public class SetsIT {
     }
 
     @Test
-    public void Save_single_set_object() throws SQLException {
+    public void Save_single_set_object() throws SaveFailed {
         Set set = sets.get(0);
         set = setApi.saveSet(set);
-        Assert.assertNotNull(set.getSetId());
+        Assert.assertNotNull(set.getIdentifier());
     }
 
     @Test
-    public void Save_set_collection() throws SQLException {
+    public void Save_set_collection() throws SaveFailed {
         List<Set> data = setApi.saveSets(sets);
         assertThat(data.size()).isGreaterThan(0);
     }
 
     @Test
-    public void Find_all_sets() throws SQLException {
+    public void Find_all_sets() throws NotFound {
         List<Set> data = setApi.findAll();
         assertThat(data.size()).isGreaterThan(0);
     }
 
     @Test
-    public void Find_set_by_setspec() throws SQLException {
-        Set set = setApi.find("setspec", "ddc:1200");
+    public void Find_set_by_setspec() throws NotFound {
+        Set set = (Set) setApi.find("setspec", "ddc:1200").iterator().next();
         Assert.assertEquals("ddc:1200", set.getSetSpec());
     }
 
     @Test
-    public void Mark_set_as_deleted() throws SQLException {
+    public void Mark_set_as_deleted() throws DeleteFailed {
         Set set = sets.get(0);
-        Set deleted = setApi.deleteSet("setspec", set.getSetSpec(), true);
-        assertThat(true).isEqualTo(deleted.isDeleted());
+        int deleted = setApi.deleteSet("setspec", set.getSetSpec(), true);
+        assertThat(1).isEqualTo(deleted);
     }
 
     @Test
-    public void Mark_set_as_not_deleted() throws SQLException {
+    public void Mark_set_as_not_deleted() throws DeleteFailed {
         Set set = sets.get(0);
-        Set deleted = setApi.deleteSet("setspec", set.getSetSpec(), false);
-        assertThat(false).isEqualTo(deleted.isDeleted());
+        int deleted = setApi.deleteSet("setspec", set.getSetSpec(), false);
+        assertThat(1).isEqualTo(deleted);
     }
 
     @Test
-    public void Udate_set_data_row() throws Exception {
+    public void Udate_set_data_row() throws UpdateFailed {
         Set set = sets.get(0);
         set.setSetDescription("palaber ganz doll viel");
         Set update = setApi.updateSet(set, "ddc:1200");

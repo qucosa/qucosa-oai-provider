@@ -3,8 +3,8 @@ package de.qucosa.oai.provider.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.dao.FormatTestDao;
-import de.qucosa.oai.provider.persitence.Dao;
-import de.qucosa.oai.provider.persitence.model.Format;
+import de.qucosa.oai.provider.persistence.Dao;
+import de.qucosa.oai.provider.persistence.model.Format;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,13 +19,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.util.NestedServletException;
+import org.springframework.test.web.servlet.MvcResult;
 import testdata.TestData;
 
 import java.io.IOException;
 import java.util.List;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -110,14 +110,11 @@ public class FormatControllerTest {
                 .andExpect(jsonPath("$.mdprefix", is("oai_dc")));
     }
 
-    @Test/*(expected = NestedServletException.class)*/
+    @Test
     public void Find_format_by_mdprefix_not_successful() throws Exception {
-        thrown.expect(NestedServletException.class);
-        thrown.expectMessage(containsString("Format is not found."));
-
         mvc.perform(get("/formats/oai_d")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -130,19 +127,19 @@ public class FormatControllerTest {
 
     @Test
     public void Mark_format_as_delete() throws Exception {
-        mvc.perform(delete("/formats/oai_dc/true")
+        MvcResult mvcResult = mvc.perform(delete("/formats/oai_dc/true")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mdprefix", is("oai_dc")))
-                .andExpect(jsonPath("$.deleted", is(true)));
+                .andExpect(status().isOk()).andReturn();
+        int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
+        assertThat(1).isEqualTo(deleted);
     }
 
     @Test
     public void Mark_format_as_not_delete() throws Exception {
-        mvc.perform(delete("/formats/oai_dc/false")
+        MvcResult mvcResult = mvc.perform(delete("/formats/oai_dc/false")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mdprefix", is("oai_dc")))
-                .andExpect(jsonPath("$.deleted", is(false)));
+                .andExpect(status().isOk()).andReturn();
+        int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
+        assertThat(1).isEqualTo(deleted);
     }
 }

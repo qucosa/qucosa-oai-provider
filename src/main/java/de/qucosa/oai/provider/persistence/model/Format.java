@@ -1,6 +1,7 @@
-package de.qucosa.oai.provider.persitence.model;
+package de.qucosa.oai.provider.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.hateoas.ResourceSupport;
@@ -9,7 +10,7 @@ import java.io.Serializable;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Format extends ResourceSupport implements Serializable {
+public class Format extends ResourceSupport implements Serializable, HasIdentifier {
     @JsonProperty("formatid")
     private Long formatId;
 
@@ -44,4 +45,15 @@ public class Format extends ResourceSupport implements Serializable {
     public boolean isDeleted() { return deleted; }
 
     public void setDeleted(boolean deleted) { this.deleted = deleted; }
+
+    @Override
+    public void setIdentifier(Object identifier) {
+        setFormatId(Long.parseLong(String.valueOf(identifier)));
+    }
+
+    @Override
+    @JsonIgnore
+    public Object getIdentifier() {
+        return getFormatId();
+    }
 }

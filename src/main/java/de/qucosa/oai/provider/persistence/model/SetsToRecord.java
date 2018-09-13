@@ -1,6 +1,8 @@
-package de.qucosa.oai.provider.persitence.model;
+package de.qucosa.oai.provider.persistence.model;
 
-public class SetsToRecord {
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+public class SetsToRecord implements HasIdentifier {
     private Long idSet;
 
     private Long idRecord;
@@ -19,5 +21,16 @@ public class SetsToRecord {
 
     public void setIdRecord(Long idRecord) {
         this.idRecord = idRecord;
+    }
+
+    @Override
+    public void setIdentifier(Object identifier) {
+
+    }
+
+    @Override
+    @JsonIgnore
+    public Object getIdentifier() {
+        return null;
     }
 }
