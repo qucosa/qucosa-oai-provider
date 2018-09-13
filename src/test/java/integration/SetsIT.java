@@ -60,9 +60,26 @@ public class SetsIT {
     }
 
     @Test
+    public void Save_single_set_object_not_successful() throws SaveFailed {
+        thrown.expect(SaveFailed.class);
+        thrown.expectMessage("Creating Set failed, no ID obtained.");
+
+        Set set = sets.get(0);
+        set = setApi.saveSet(set);
+    }
+
+    @Test
     public void Save_set_collection() throws SaveFailed {
         List<Set> data = setApi.saveSets(sets);
         assertThat(data.size()).isGreaterThan(0);
+    }
+
+    @Test
+    public void Save_set_collection_not_successful() throws SaveFailed {
+        thrown.expect(SaveFailed.class);
+        thrown.expectMessage("Creating Set failed, no ID obtained.");
+
+        List<Set> data = setApi.saveSets(sets);
     }
 
     @Test
@@ -78,7 +95,7 @@ public class SetsIT {
     }
 
     @Test
-    public void Find_no_set_by_setspec() throws NotFound {
+    public void Find_set_by_setspec_not_successful() throws NotFound {
         thrown.expect(NotFound.class);
         thrown.expectMessage("Cannot found set.");
         setApi.find("setspec", "ddc:120");
@@ -92,7 +109,14 @@ public class SetsIT {
     }
 
     @Test
-    public void Mark_set_as_not_deleted() throws DeleteFailed {
+    public void Mark_set_as_deleted_not_successful() throws DeleteFailed {
+        thrown.expect(DeleteFailed.class);
+        thrown.expectMessage("Cannot delete set.");
+        int deleted = setApi.deleteSet("setspec", "ddc:120", true);
+    }
+
+    @Test
+    public void Undo_deleted() throws DeleteFailed {
         Set set = sets.get(0);
         int deleted = setApi.deleteSet("setspec", set.getSetSpec(), false);
         assertThat(1).isEqualTo(deleted);
@@ -104,5 +128,14 @@ public class SetsIT {
         set.setSetDescription("palaber ganz doll viel");
         Set update = setApi.updateSet(set, "ddc:1200");
         assertThat("palaber ganz doll viel").isEqualTo(update.getSetDescription());
+    }
+
+    @Test
+    public void Udate_set_data_row_not_successful() throws UpdateFailed {
+        thrown.expect(UpdateFailed.class);
+        thrown.expectMessage("Cannot update set.");
+        Set set = sets.get(0);
+        set.setSetDescription("palaber ganz doll viel");
+        Set update = setApi.updateSet(set, "ddc:120");
     }
 }
