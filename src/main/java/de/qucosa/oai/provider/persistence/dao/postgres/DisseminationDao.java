@@ -44,12 +44,11 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
             selectDiss = this.findByMultipleValues(
                     "id_format=? AND id_record=?",
                     String.valueOf(object.getFormatId()), object.getRecordId());
-        } catch (NotFound ignore) {
-
-        }
+        } catch (NotFound ignore) { }
 
         assert selectDiss != null;
-        if (selectDiss.getDissId() == null) {
+
+        if (selectDiss.getDissId() != null) {
             return null;
         }
 
@@ -68,7 +67,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SaveFailed("Creating dissemination failed, no rows affected.");
+                throw new SaveFailed("Cannot save dissemination.");
             }
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
@@ -81,12 +80,10 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
             }
 
             ps.close();
+            return object;
+        } catch (SQLException e) { }
 
-        } catch (SQLException e) {
-            throw new SaveFailed(e.getMessage());
-        }
-
-        return object;
+        throw new SaveFailed("Cannot save dissemination.");
     }
 
     @Override
@@ -129,9 +126,10 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
             ps.setLong(1, Long.valueOf(values[0]));
             ps.setString(2, values[1]);
             ResultSet resultSet = ps.executeQuery();
-            Dissemination dissemination = new Dissemination();
+            Dissemination dissemination = null;
 
             while (resultSet.next()) {
+                dissemination = new Dissemination();
                 dissemination.setDissId(resultSet.getLong("id"));
                 dissemination.setFormatId(resultSet.getLong("id_format"));
                 dissemination.setRecordId(resultSet.getString("id_record"));
