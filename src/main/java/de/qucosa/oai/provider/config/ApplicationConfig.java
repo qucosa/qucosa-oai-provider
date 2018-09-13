@@ -2,10 +2,6 @@ package de.qucosa.oai.provider.config;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import de.qucosa.oai.provider.ErrorDetails;
-import de.qucosa.oai.provider.services.DisseminationService;
-import de.qucosa.oai.provider.services.FormatService;
-import de.qucosa.oai.provider.services.RecordService;
-import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.persitence.Dao;
 import de.qucosa.oai.provider.persitence.dao.postgres.DisseminationDao;
 import de.qucosa.oai.provider.persitence.dao.postgres.FormatDao;
@@ -16,6 +12,10 @@ import de.qucosa.oai.provider.persitence.model.Dissemination;
 import de.qucosa.oai.provider.persitence.model.Format;
 import de.qucosa.oai.provider.persitence.model.Record;
 import de.qucosa.oai.provider.persitence.model.Set;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
+import de.qucosa.oai.provider.services.RecordService;
+import de.qucosa.oai.provider.services.SetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +57,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public SetService setApi() throws PropertyVetoException, SQLException {
+    public SetService setService() throws PropertyVetoException, SQLException {
         SetService setApi = new SetService();
         setApi.setDao(setDao());
         return setApi;
@@ -69,7 +69,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public RecordService recordApi() throws PropertyVetoException, SQLException {
+    public RecordService recordService() throws PropertyVetoException, SQLException {
         RecordService recordApi = new RecordService();
         recordApi.setDao(recordDao());
         return recordApi;
@@ -81,7 +81,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public FormatService formatApi() throws PropertyVetoException, SQLException {
+    public FormatService formatService() throws PropertyVetoException, SQLException {
         FormatService formatApi = new FormatService();
         formatApi.setDao(formatDao());
         return  formatApi;
@@ -93,7 +93,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public DisseminationService disseminationApi() throws PropertyVetoException, SQLException {
+    public DisseminationService disseminationService() throws PropertyVetoException, SQLException {
         DisseminationService api = new DisseminationService();
         api.setDao(disseminationDao());
         return api;
