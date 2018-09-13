@@ -51,7 +51,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SaveFailed("Creating format failed, no rows affected.");
+                throw new SaveFailed("Cannot save format.");
             }
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
@@ -66,7 +66,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
             ps.close();
 
         } catch (SQLException e) {
-            throw new SaveFailed(e.getMessage());
+            throw new SaveFailed("Cannot save format.", e);
         }
 
         return object;
@@ -243,7 +243,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
             connection.commit();
 
             if (deletedRows == 0) {
-                throw new DeleteFailed("Format mark as deleted failed, no rwos affected.");
+                throw new DeleteFailed("Cannot delete format.");
             }
 
             ps.close();
