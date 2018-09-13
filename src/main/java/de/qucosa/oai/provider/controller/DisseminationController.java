@@ -20,11 +20,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 @RequestMapping("/dissemination")
 @RestController
 public class DisseminationController {
+
+    private Logger logger = LoggerFactory.getLogger(FormatsController.class);
+
+    @Autowired
+    private ErrorDetails errorDetails;
 
     @Autowired
     private DisseminationService disseminationService;
@@ -34,21 +40,28 @@ public class DisseminationController {
 
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Collection<Dissemination>> find(@PathVariable String uid) {
+    public ResponseEntity find(@PathVariable String uid) {
         Collection<Dissemination> disseminations;
 
         try {
             disseminations = disseminationService.findAllByUid("recordid", uid);
         } catch (NotFound e) {
-            return new ResponseEntity("Not disseminations found.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                    .setDate(LocalDateTime.now())
+                    .setErrorMsg(e.getMessage())
+                    .setException(e.getClass().getName())
+                    .setRequestPath("/dissemination/{uid}")
+                    .setMethod("find")
+                    .setRequestMethod("GET")
+                    .setStatuscode(HttpStatus.NOT_FOUND.toString()), HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<Collection<Dissemination>>(disseminations, HttpStatus.OK);
+        return new ResponseEntity(disseminations, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Dissemination> save(@RequestBody String input) {
+    public ResponseEntity save(@RequestBody String input) {
         ObjectMapper om = new ObjectMapper();
         Dissemination dissemination;
 
@@ -56,18 +69,33 @@ public class DisseminationController {
             dissemination = om.readValue(input, Dissemination.class);
             dissemination = disseminationService.saveDissemination(dissemination);
         } catch (IOException e) {
-            return new ResponseEntity("Dissemination mapping failed.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                    .setDate(LocalDateTime.now())
+                    .setErrorMsg(e.getMessage())
+                    .setException(e.getClass().getName())
+                    .setRequestPath("/dissemination")
+                    .setMethod("save")
+                    .setRequestMethod("POST")
+                    .setStatuscode(HttpStatus.BAD_REQUEST.toString()), HttpStatus.BAD_REQUEST);
         } catch (SaveFailed e) {
-            return new ResponseEntity("Dissemination cannot save.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                    .setDate(LocalDateTime.now())
+                    .setErrorMsg(e.getMessage())
+                    .setException(e.getClass().getName())
+                    .setRequestPath("/dissemination")
+                    .setMethod("save")
+                    .setRequestMethod("POST")
+                    .setStatuscode(HttpStatus.NOT_ACCEPTABLE.toString()), HttpStatus.NOT_ACCEPTABLE);
         }
 
-        return new ResponseEntity<Dissemination>(dissemination, HttpStatus.OK);
+        return new ResponseEntity(dissemination, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{uid}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Dissemination> update(@RequestBody Dissemination input, @PathVariable String uid) {
-        return new ResponseEntity<Dissemination>(new Dissemination(), HttpStatus.OK);
+    public ResponseEntity update(@RequestBody Dissemination input, @PathVariable String uid) {
+        // @todo clarify if is update the dissemination object meaningful.
+        return new ResponseEntity(new Dissemination(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "{uid}/{mdprefix}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -80,8 +108,15 @@ public class DisseminationController {
 
             try {
                 format = (Format) formatService.find("mdprefix", mdprefix).iterator().next();
-            } catch (NotFound notFound) {
-                return new ResponseEntity("Format with prefix " + mdprefix + " not found.", HttpStatus.BAD_REQUEST);
+            } catch (NotFound fnf) {
+                return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                        .setDate(LocalDateTime.now())
+                        .setErrorMsg(fnf.getMessage())
+                        .setException(fnf.getClass().getName())
+                        .setRequestPath("/dissemination/{uid}/{mdprefix}/{delete}")
+                        .setMethod("delete")
+                        .setRequestMethod("DELETE")
+                        .setStatuscode(HttpStatus.NOT_FOUND.toString()), HttpStatus.NOT_FOUND);
             }
 
             try {
@@ -89,11 +124,25 @@ public class DisseminationController {
 
                 dissemination.setDeleted(delete);
                 dissemination = disseminationService.deleteDissemination(dissemination);
-            } catch (NotFound notFound) {
-                return new ResponseEntity("Dissemination not found.", HttpStatus.NOT_FOUND);
+            } catch (NotFound dnf) {
+                return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                        .setDate(LocalDateTime.now())
+                        .setErrorMsg(dnf.getMessage())
+                        .setException(dnf.getClass().getName())
+                        .setRequestPath("/dissemination/{uid}/{mdprefix}/{delete}")
+                        .setMethod("delete")
+                        .setRequestMethod("DELETE")
+                        .setStatuscode(HttpStatus.NOT_FOUND.toString()), HttpStatus.NOT_FOUND);
             }
         } catch (DeleteFailed e) {
-            return new ResponseEntity("Dissemination cannot delete.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                    .setDate(LocalDateTime.now())
+                    .setErrorMsg(e.getMessage())
+                    .setException(e.getClass().getName())
+                    .setRequestPath("/dissemination/{uid}/{mdprefix}/{delete}")
+                    .setMethod("delete")
+                    .setRequestMethod("DELETE")
+                    .setStatuscode(HttpStatus.NOT_ACCEPTABLE.toString()), HttpStatus.NOT_ACCEPTABLE);
         }
 
         return new ResponseEntity(dissemination, HttpStatus.OK);
