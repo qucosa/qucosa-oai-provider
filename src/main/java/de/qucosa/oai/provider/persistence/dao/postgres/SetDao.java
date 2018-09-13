@@ -249,16 +249,14 @@ public class SetDao<T extends Set> implements Dao<T> {
             deletedRows = ps.executeUpdate();
             connection.commit();
 
-            if (deletedRows == 0) {
-                throw new DeleteFailed("Set mark as deleted failed, no rwos affected.");
+            if (deletedRows > 0) {
+                return deletedRows;
             }
 
             ps.close();
-        } catch (SQLException e) {
-            throw new DeleteFailed("Set mark as deleted failed, no rwos affected.", e);
-        }
+        } catch (SQLException ignore) { }
 
-        return deletedRows;
+        throw new DeleteFailed("Cannot delete set.");
     }
 
     @Override
