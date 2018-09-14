@@ -1,10 +1,7 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.DisseminationService;
-import de.qucosa.oai.provider.services.FormatService;
-import de.qucosa.oai.provider.services.RecordService;
-import de.qucosa.oai.provider.services.SetService;
+import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
@@ -15,6 +12,10 @@ import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.RecordTransport;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.SetsToRecord;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
+import de.qucosa.oai.provider.services.RecordService;
+import de.qucosa.oai.provider.services.SetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @RequestMapping("/records")
@@ -52,6 +55,9 @@ public class RecordController {
     @Autowired
     private Dao setsToRecordDao;
 
+    @Autowired
+    private ErrorDetails errorDetails;
+
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity save(@RequestBody String input) {
@@ -61,11 +67,11 @@ public class RecordController {
             List<RecordTransport> inputData = om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
 
             if (inputData == null || inputData.size() == 0) {
-                return new ResponseEntity("Record transport mapping failed.", HttpStatus.BAD_REQUEST);
+                return getError("Record transport mapping failed.", "save", "POST", HttpStatus.BAD_REQUEST, null);
             }
 
             if (!recordService.checkIfOaiDcDisseminationExists(inputData)) {
-                return new ResponseEntity("OAI_DC dissemination failed.", HttpStatus.BAD_REQUEST);
+                return getError("OAI_DC dissemination failed.", "save", "POST", HttpStatus.BAD_REQUEST, null);
             }
 
             for (RecordTransport rt : inputData) {
@@ -79,7 +85,6 @@ public class RecordController {
                         try {
                             format = formatService.saveFormat(rt.getFormat());
                         } catch (SaveFailed e1) {
-                            // @todo build / init an error object?
                             logger.error("Cannot save format.", e1);
                         }
                     }
@@ -87,9 +92,8 @@ public class RecordController {
                     logger.warn("Cannot find format.", e);
                 }
 
-                // @todo return an error object?
                 if (format == null) {
-                    return new ResponseEntity("Cannot find or save format.", HttpStatus.BAD_REQUEST);
+                    return getError("Cannot find or save format.", "save", "POST", HttpStatus.NOT_ACCEPTABLE, null);
                 }
 
                 Record record = null;
@@ -102,7 +106,6 @@ public class RecordController {
                         try {
                             record = recordService.saveRecord(rt.getRecord());
                         } catch (SaveFailed e1) {
-                            // @todo build / init an error object?
                             logger.error("Cannot save record..", e1);
                         }
                     }
@@ -110,27 +113,29 @@ public class RecordController {
                     logger.info("Cannot find record by uid (" + rt.getRecord().getUid() + ").", e);
                 }
 
-                // @todo return an error object?
                 if (record == null) {
-                    return new ResponseEntity("Cannot find or save record.", HttpStatus.BAD_REQUEST);
+                    return getError("Cannot find or save record.", "save", "POST", HttpStatus.NOT_ACCEPTABLE, null);
                 }
 
                 for (Set set : rt.getSets()) {
                     Set readSet = null;
 
                     try {
-                        readSet = (Set) setService.find("setspec", set.getSetSpec()).iterator().next();
-                    } catch (NotFound e) {
-                        logger.info("Cannot find set (" + set.getSetSpec() + ").");
-                    }
+                        Collection<Set> sets = setService.find("setspec", set.getSetSpec());
+
+                        if (sets != null) {
+                            readSet = sets.iterator().next();
+                        } else {
+                            logger.info("Cannot find set (" + set.getSetSpec() + ").");
+                        }
+                    } catch (NotFound ignore) { }
 
                     if (readSet == null) {
 
                         try {
                             set = setService.saveSet(set);
                         } catch (SaveFailed e) {
-                            logger.error("Cannot save set (" + set.getSetSpec() + ")", e);
-                            return new ResponseEntity("Cannot save set (" + set.getSetSpec() + ".", HttpStatus.BAD_REQUEST);
+                            return getError("", "save", "POST", HttpStatus.BAD_REQUEST, e);
                         }
                     } else {
                         set = readSet;
@@ -158,8 +163,7 @@ public class RecordController {
                         try {
                             setsToRecordDao.saveAndSetIdentifier(setsToRecord);
                         } catch (SaveFailed e) {
-                            logger.error("Cannot save set to record entry for (set:" + set.getSetId() + " / record:" + record.getRecordId() + ").", e);
-                            return new ResponseEntity("Cannot save set to record entry for (set:" + set.getSetId() + " / record:" + record.getRecordId() + ").", HttpStatus.BAD_REQUEST);
+                            return getError("", "save", "POST", HttpStatus.NOT_ACCEPTABLE, e);
                         }
                     }
                 }
@@ -168,13 +172,16 @@ public class RecordController {
                 rt.getDissemination().setRecordId(record.getUid());
 
                 try {
-                    disseminationService.saveDissemination(rt.getDissemination());
+
+                    if (disseminationService.saveDissemination(rt.getDissemination()) == null) {
+                        return getError("Cannot save dissemination because exists.", "save", "POST", HttpStatus.NOT_ACCEPTABLE, null);
+                    }
                 } catch (SaveFailed e) {
-                    return new ResponseEntity("Dissemination cannot save.", HttpStatus.BAD_REQUEST);
+                    return getError("Cannot save dissemination.", "save", "POST", HttpStatus.NOT_ACCEPTABLE, null);
                 }
             }
         } catch (IOException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return getError("", "save", "POST", HttpStatus.BAD_REQUEST, e);
         }
 
         return new ResponseEntity(HttpStatus.OK);
@@ -192,10 +199,10 @@ public class RecordController {
             try {
                 updatedRecord = recordService.updateRecord(record);
             } catch (UpdateFailed e) {
-                return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+                return getError("", "update/{uid}", "PUT", HttpStatus.NOT_ACCEPTABLE, e);
             }
         } catch (IOException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return getError("", "update/{uid}", "PUT", HttpStatus.BAD_REQUEST, e);
         }
 
         return new ResponseEntity(updatedRecord, HttpStatus.OK);
@@ -212,10 +219,10 @@ public class RecordController {
             try {
                 deleted = recordService.deleteRecord(record);
             } catch (DeleteFailed deleteFailed) {
-                return new ResponseEntity("Record cannot delete.", HttpStatus.BAD_REQUEST);
+                return getError("", "delete/{uid}/{delete}", "DELETE", HttpStatus.NOT_ACCEPTABLE, deleteFailed);
             }
         } catch (NotFound e) {
-            return new ResponseEntity("Record with uid (" + uid + ") not found.", HttpStatus.BAD_REQUEST);
+            return getError("", "delete/{uid}/{delete}", "DELETE", HttpStatus.NOT_FOUND, e);
         }
 
         return new ResponseEntity(deleted, HttpStatus.OK);
@@ -229,9 +236,22 @@ public class RecordController {
         try {
             record = (Record) recordService.findRecord("uid", uid).iterator().next();
         } catch (NotFound e) {
-            return new ResponseEntity("Record with uid (" + uid + ") not found.", HttpStatus.BAD_REQUEST);
+            return getError("", "find/{uid}", "GET", HttpStatus.NOT_FOUND, e);
         }
 
         return new ResponseEntity<Record>(record, HttpStatus.OK);
     }
+
+    private ResponseEntity getError(String msg, String method, String requestMethod, HttpStatus status, Exception e) {
+        return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                .setDate(LocalDateTime.now())
+                .setException((e != null) ? e.getClass().getName() : null)
+                .setErrorMsg((e != null) ? e.getMessage() : msg)
+                .setRequestPath(method)
+                .setMethod(method)
+                .setRequestMethod(requestMethod)
+                .setStatuscode(status.toString()), status);
+    }
+
+
 }
