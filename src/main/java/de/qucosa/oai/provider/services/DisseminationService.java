@@ -7,6 +7,7 @@ import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
