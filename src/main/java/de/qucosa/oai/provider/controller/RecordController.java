@@ -93,7 +93,7 @@ public class RecordController {
                 }
 
                 if (format == null) {
-                    return getError("Cannot find or save format.", "save", "POST", HttpStatus.NOT_ACCEPTABLE, null);
+                    return getError("Cannot save format because properties are failed.", "save", "POST", HttpStatus.NOT_ACCEPTABLE, null);
                 }
 
                 Record record = null;
