@@ -223,11 +223,7 @@ public class SetDao<T extends Set> implements Dao<T> {
             throw new NotFound(e.getMessage());
         }
 
-        if (sets.size() == 0) {
-            throw new NotFound("Cannot found set.");
-        }
-
-        return (Collection<T>) sets;
+        return (sets.size() > 0) ? (Collection<T>) sets : null;
     }
 
     @Override
