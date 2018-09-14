@@ -25,6 +25,18 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
             return object;
         }
 
+        if (object.getMdprefix().isEmpty() || object.getMdprefix() == null) {
+            throw new SaveFailed("Cannot save format because properties are failed.");
+        }
+
+        if (object.getSchemaUrl().isEmpty() || object.getSchemaUrl() == null) {
+            throw new SaveFailed("Cannot save format because properties are failed.");
+        }
+
+        if (object.getNamespace().isEmpty() || object.getNamespace() == null) {
+            throw new SaveFailed("Cannot save format because properties are failed.");
+        }
+
         throw new SaveFailed("Cannot save format.");
     }
 
