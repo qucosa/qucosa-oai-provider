@@ -46,9 +46,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
                     String.valueOf(object.getFormatId()), object.getRecordId());
         } catch (NotFound ignore) { }
 
-        assert selectDiss != null;
-
-        if (selectDiss.getDissId() != null) {
+        if (selectDiss != null && selectDiss.getDissId() != null) {
             return null;
         }
 
@@ -119,6 +117,11 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
     @Override
     public T findByMultipleValues(String clause, String... values) throws NotFound {
         clause = clause.replace("%s", "?");
+
+        if (values[0] == null || values[0].isEmpty() || values[1] == null || values[1].isEmpty()) {
+            throw new NotFound("Cannot find dissemination becaue record_id or format_id failed.");
+        }
+
         String sql = "SELECT id, id_format, lastmoddate, xmldata, id_record, deleted FROM disseminations WHERE " + clause;
 
         try {
