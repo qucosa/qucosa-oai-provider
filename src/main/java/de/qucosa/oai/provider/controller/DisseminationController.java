@@ -2,13 +2,13 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.ErrorDetails;
-import de.qucosa.oai.provider.services.DisseminationService;
-import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,7 +110,19 @@ public class DisseminationController {
             Format format;
 
             try {
-                format = (Format) formatService.find("mdprefix", mdprefix).iterator().next();
+                Collection<Format> formats = formatService.find("mdprefix", mdprefix);
+
+                if (formats != null) {
+                    format = (Format) formatService.find("mdprefix", mdprefix).iterator().next();
+                } else {
+                    return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
+                            .setDate(LocalDateTime.now())
+                            .setErrorMsg("Cannot find format.")
+                            .setRequestPath("/dissemination/{uid}/{mdprefix}/{delete}")
+                            .setMethod("delete")
+                            .setRequestMethod("DELETE")
+                            .setStatuscode(HttpStatus.NOT_FOUND.toString()), HttpStatus.NOT_FOUND);
+                }
             } catch (NotFound fnf) {
                 return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
                         .setDate(LocalDateTime.now())
