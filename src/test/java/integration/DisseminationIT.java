@@ -91,12 +91,33 @@ public class DisseminationIT {
     }
 
     @Test
-    public void Find_dissemination_by_multiple_criterias_not_successful() throws NotFound {
+    public void Find_dissemination_by_multiple_criterias_not_successful_if_exists() throws NotFound {
         Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
         Dissemination dissemination = disseminationService.findByMultipleValues(
                 "id_format=%s AND id_record=%s",
                 String.valueOf(format.getFormatId()), "oai:example:org:qucosa:5887");
         assertThat(dissemination).isNull();
+    }
+
+    @Test
+    public void Find_dissemination_by_multiple_criterias_not_successful_because_format_id_failed() throws NotFound {
+        thrown.expect(NotFound.class);
+        thrown.expectMessage("Cannot find dissemination becaue record_id or format_id failed.");
+
+        Dissemination dissemination = disseminationService.findByMultipleValues(
+                "id_format=%s AND id_record=%s",
+                null, String.valueOf("oai:example:org:qucosa:55887"));
+    }
+
+    @Test
+    public void Find_dissemination_by_multiple_criterias_not_successful_because_record_id_failed() throws NotFound {
+        thrown.expect(NotFound.class);
+        thrown.expectMessage("Cannot find dissemination becaue record_id or format_id failed.");
+
+        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        Dissemination dissemination = disseminationService.findByMultipleValues(
+                "id_format=%s AND id_record=%s",
+                String.valueOf(format.getFormatId()), "");
     }
 
     @Test
@@ -109,10 +130,10 @@ public class DisseminationIT {
             throw new NotFound("Cannot find format.");
         }
 
+        assert format != null;
         Dissemination dissemination = null;
 
         try {
-            assert format != null;
             dissemination = disseminationService.findByMultipleValues(
                     "id_format=%s AND id_record=%s",
                     String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
