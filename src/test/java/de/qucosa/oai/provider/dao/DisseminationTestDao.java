@@ -78,7 +78,7 @@ public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
                 }
             }
 
-            return (Collection<T>) disseminations;
+            return (disseminations.size() > 0) ? (Collection<T>) disseminations : null;
         } catch (IOException ignore) { }
 
         throw new NotFound("Cannot find dissemination.");
