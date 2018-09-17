@@ -88,8 +88,12 @@ public class ErrorDetails {
     }
 
     private ErrorDetails setException(Exception exception) {
-        this.exception = exception;
-        setStacktrace(this.exception.getStackTrace());
+
+        if (exception != null) {
+            this.exception = exception;
+            setStacktrace(this.exception.getStackTrace());
+        }
+
         return this;
     }
     private ErrorDetails setStacktrace(StackTraceElement[] stacktrace) {
