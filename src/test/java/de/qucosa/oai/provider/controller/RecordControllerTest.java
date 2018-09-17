@@ -145,6 +145,15 @@ public class RecordControllerTest {
     }
 
     @Test
+    public void Update_record_object_not_successful_if_uid_is_wrong() throws Exception {
+        mvc.perform(put("/records/oai:example:org:qucosa:5887")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(records.get(0))))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.errorMsg", is("Unequal uid parameter with record object uid.")));
+    }
+
+    @Test
     public void Mark_record_as_deleted() throws Exception {
         MvcResult mvcResult = mvc.perform(delete("/records/oai:example:org:qucosa:55887/true")
                 .contentType(MediaType.APPLICATION_JSON))
