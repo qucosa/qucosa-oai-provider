@@ -4,8 +4,10 @@ import java.sql.SQLException;
 
 public class DeleteFailed extends Exception {
     public DeleteFailed(String s) {
+        super(s);
     }
 
     public DeleteFailed(String s, SQLException e) {
+        super(s, e);
     }
 }
