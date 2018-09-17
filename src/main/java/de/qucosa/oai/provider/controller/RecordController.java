@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -67,11 +66,15 @@ public class RecordController {
             List<RecordTransport> inputData = om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
 
             if (inputData == null || inputData.size() == 0) {
-                return getError("Record transport mapping failed.", "save", "POST", HttpStatus.BAD_REQUEST, null);
+                return errorDetails.create(
+                        this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.BAD_REQUEST, "Record transport mapping failed.", null).response();
             }
 
             if (!recordService.checkIfOaiDcDisseminationExists(inputData)) {
-                return getError("OAI_DC dissemination failed.", "save", "POST", HttpStatus.BAD_REQUEST, null);
+                return errorDetails.create(
+                        this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.BAD_REQUEST, "OAI_DC dissemination failed.", null).response();
             }
 
             for (RecordTransport rt : inputData) {
@@ -93,7 +96,9 @@ public class RecordController {
                 }
 
                 if (format == null) {
-                    return getError("Cannot save format because properties are failed.", "save", "POST", HttpStatus.NOT_ACCEPTABLE, null);
+                    return errorDetails.create(
+                            this.getClass().getName(), "save", "POST:save",
+                            HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).response();
                 }
 
                 Record record = null;
@@ -114,7 +119,9 @@ public class RecordController {
                 }
 
                 if (record == null) {
-                    return getError("Cannot find or save record.", "save", "POST", HttpStatus.NOT_ACCEPTABLE, null);
+                    return errorDetails.create(
+                            this.getClass().getName(), "save", "POST:save",
+                            HttpStatus.NOT_ACCEPTABLE, "Cannot find or save record.", null).response();
                 }
 
                 for (Set set : rt.getSets()) {
@@ -135,7 +142,9 @@ public class RecordController {
                         try {
                             set = setService.saveSet(set);
                         } catch (SaveFailed e) {
-                            return getError("", "save", "POST", HttpStatus.BAD_REQUEST, e);
+                            return errorDetails.create(
+                                    this.getClass().getName(), "save", "POST:save",
+                                    HttpStatus.BAD_REQUEST, null, e).response();
                         }
                     } else {
                         set = readSet;
@@ -163,7 +172,9 @@ public class RecordController {
                         try {
                             setsToRecordDao.saveAndSetIdentifier(setsToRecord);
                         } catch (SaveFailed e) {
-                            return getError("", "save", "POST", HttpStatus.NOT_ACCEPTABLE, e);
+                            return errorDetails.create(
+                                    this.getClass().getName(), "save", "POST:save",
+                                    HttpStatus.NOT_ACCEPTABLE, null, e).response();
                         }
                     }
                 }
@@ -174,14 +185,20 @@ public class RecordController {
                 try {
 
                     if (disseminationService.saveDissemination(rt.getDissemination()) == null) {
-                        return getError("Cannot save dissemination because exists.", "save", "POST", HttpStatus.NOT_ACCEPTABLE, null);
+                        return errorDetails.create(
+                                this.getClass().getName(), "save", "POST:save",
+                                HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination because exists.", null).response();
                     }
                 } catch (SaveFailed e) {
-                    return getError("Cannot save dissemination.", "save", "POST", HttpStatus.NOT_ACCEPTABLE, null);
+                    return errorDetails.create(
+                            this.getClass().getName(), "save", "POST:save",
+                            HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination.", null).response();
                 }
             }
         } catch (IOException e) {
-            return getError("", "save", "POST", HttpStatus.BAD_REQUEST, e);
+            return errorDetails.create(
+                    this.getClass().getName(), "save", "POST:save",
+                    HttpStatus.BAD_REQUEST, null, e).response();
         }
 
         return new ResponseEntity(HttpStatus.OK);
@@ -199,10 +216,14 @@ public class RecordController {
             try {
                 updatedRecord = recordService.updateRecord(record);
             } catch (UpdateFailed e) {
-                return getError("", "update/{uid}", "PUT", HttpStatus.NOT_ACCEPTABLE, e);
+                return errorDetails.create(
+                        this.getClass().getName(), "update", "PUT:update/{uid}",
+                        HttpStatus.NOT_ACCEPTABLE, null, e).response();
             }
         } catch (IOException e) {
-            return getError("", "update/{uid}", "PUT", HttpStatus.BAD_REQUEST, e);
+            return errorDetails.create(
+                    this.getClass().getName(), "update", "PUT:update/{uid}",
+                    HttpStatus.BAD_REQUEST, null, e).response();
         }
 
         return new ResponseEntity(updatedRecord, HttpStatus.OK);
@@ -219,10 +240,14 @@ public class RecordController {
             try {
                 deleted = recordService.deleteRecord(record);
             } catch (DeleteFailed deleteFailed) {
-                return getError("", "delete/{uid}/{delete}", "DELETE", HttpStatus.NOT_ACCEPTABLE, deleteFailed);
+                return errorDetails.create(
+                        this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
+                        HttpStatus.NOT_ACCEPTABLE, null, deleteFailed).response();
             }
         } catch (NotFound e) {
-            return getError("", "delete/{uid}/{delete}", "DELETE", HttpStatus.NOT_FOUND, e);
+            return errorDetails.create(
+                    this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
+                    HttpStatus.NOT_FOUND, null, e).response();
         }
 
         return new ResponseEntity(deleted, HttpStatus.OK);
@@ -236,22 +261,12 @@ public class RecordController {
         try {
             record = (Record) recordService.findRecord("uid", uid).iterator().next();
         } catch (NotFound e) {
-            return getError("", "find/{uid}", "GET", HttpStatus.NOT_FOUND, e);
+            return errorDetails.create(
+                    this.getClass().getName(), "find", "GET:find/{uid}",
+                    HttpStatus.NOT_FOUND, null, e).response();
         }
 
         return new ResponseEntity<Record>(record, HttpStatus.OK);
     }
-
-    private ResponseEntity getError(String msg, String method, String requestMethod, HttpStatus status, Exception e) {
-        return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
-                .setDate(LocalDateTime.now())
-                .setException((e != null) ? e.getClass().getName() : null)
-                .setErrorMsg((e != null) ? e.getMessage() : msg)
-                .setRequestPath(method)
-                .setMethod(method)
-                .setRequestMethod(requestMethod)
-                .setStatuscode(status.toString()), status);
-    }
-
 
 }
