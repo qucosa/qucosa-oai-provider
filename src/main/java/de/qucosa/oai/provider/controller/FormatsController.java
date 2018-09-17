@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -46,14 +45,8 @@ public class FormatsController {
         try {
             formats = formatService.findAll();
         } catch (NotFound e) {
-            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
-                    .setDate(LocalDateTime.now())
-                    .setErrorMsg(e.getMessage())
-                    .setException(e.getClass().getName())
-                    .setRequestPath("/formats")
-                    .setMethod("findAll")
-                    .setRequestMethod("GET")
-                    .setStatuscode(HttpStatus.NOT_FOUND.toString()), HttpStatus.NOT_FOUND);
+            return errorDetails.create(this.getClass().getName(), "findAll", "GET:formats",
+                    HttpStatus.NOT_FOUND, "", e).response();
         }
 
         return new ResponseEntity(formats, HttpStatus.OK);
@@ -67,24 +60,12 @@ public class FormatsController {
         try {
             formats = formatService.find("mdprefix", mdprefix);
 
-            if (formats == null) {
-                return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
-                        .setDate(LocalDateTime.now())
-                        .setErrorMsg("Cannot find format.")
-                        .setRequestPath("/formats/{mdprefix}")
-                        .setMethod("find")
-                        .setRequestMethod("GET")
-                        .setStatuscode(HttpStatus.NOT_FOUND.toString()), HttpStatus.NOT_FOUND);
+            if (formats == null) {return errorDetails.create(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
+                    HttpStatus.NOT_FOUND, "Cannot find format.", null).response();
             }
         } catch (NotFound e) {
-            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
-                    .setDate(LocalDateTime.now())
-                    .setException(e.getClass().getName())
-                    .setErrorMsg(e.getMessage())
-                    .setRequestPath("/formats/{mdprefix}")
-                    .setMethod("find")
-                    .setRequestMethod("GET")
-                    .setStatuscode(HttpStatus.NOT_FOUND.toString()), HttpStatus.NOT_FOUND);
+            return errorDetails.create(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
+                    HttpStatus.NOT_FOUND, "", e).response();
         }
 
         return new ResponseEntity(formats.iterator().next(), HttpStatus.OK);
@@ -105,33 +86,15 @@ public class FormatsController {
                 Collection<Format> formats = formatService.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
                 output = (T) formats;
             } catch (IOException e1) {
-                return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
-                        .setDate(LocalDateTime.now())
-                        .setException(e1.getClass().getName())
-                        .setErrorMsg(e1.getMessage())
-                        .setRequestPath("/formats")
-                        .setMethod("save")
-                        .setRequestMethod("POST")
-                        .setStatuscode(HttpStatus.BAD_REQUEST.toString()), HttpStatus.BAD_REQUEST);
+                return errorDetails.create(this.getClass().getName(), "save", "POST:formats",
+                        HttpStatus.BAD_REQUEST, "", e).response();
             } catch (SaveFailed saveFailed) {
-                return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
-                        .setDate(LocalDateTime.now())
-                        .setException(e.getClass().getName())
-                        .setErrorMsg(e.getMessage())
-                        .setRequestPath("/formats")
-                        .setMethod("save")
-                        .setRequestMethod("POST")
-                        .setStatuscode(HttpStatus.NOT_ACCEPTABLE.toString()), HttpStatus.NOT_ACCEPTABLE);
+                return errorDetails.create(this.getClass().getName(), "save", "POST:formats",
+                        HttpStatus.NOT_ACCEPTABLE, "", saveFailed).response();
             }
         } catch (SaveFailed e) {
-            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
-                    .setDate(LocalDateTime.now())
-                    .setException(e.getClass().getName())
-                    .setErrorMsg(e.getMessage())
-                    .setRequestPath("/formats")
-                    .setMethod("save")
-                    .setRequestMethod("POST")
-                    .setStatuscode(HttpStatus.NOT_ACCEPTABLE.toString()), HttpStatus.NOT_ACCEPTABLE);
+            return errorDetails.create(this.getClass().getName(), "save", "POST:formats",
+                    HttpStatus.NOT_ACCEPTABLE, "", e).response();
         }
 
         return new ResponseEntity(output, HttpStatus.OK);
@@ -145,14 +108,8 @@ public class FormatsController {
         try {
             format = formatService.updateFormat(input, mdprefix);
         } catch (UpdateFailed e) {
-            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
-                    .setDate(LocalDateTime.now())
-                    .setException(e.getClass().getName())
-                    .setErrorMsg(e.getMessage())
-                    .setRequestPath("/formats/{mdprefix}")
-                    .setMethod("update")
-                    .setRequestMethod("PUT")
-                    .setStatuscode(HttpStatus.NOT_ACCEPTABLE.toString()), HttpStatus.NOT_ACCEPTABLE);
+            return errorDetails.create(this.getClass().getName(), "update", "PUT:formats/" + mdprefix,
+                    HttpStatus.NOT_ACCEPTABLE, "", e).response();
         }
 
         return new ResponseEntity(format, HttpStatus.OK);
@@ -166,14 +123,8 @@ public class FormatsController {
         try {
             deleted = formatService.deleteFormat("mdprefix", mdprefix, value);
         } catch (DeleteFailed e) {
-            return new ResponseEntity(errorDetails.setClassname(this.getClass().getName())
-                    .setDate(LocalDateTime.now())
-                    .setException(e.getClass().getName())
-                    .setErrorMsg(e.getMessage())
-                    .setRequestPath("/formats/{mdprefix}/{value}")
-                    .setMethod("delete")
-                    .setRequestMethod("DELETE")
-                    .setStatuscode(HttpStatus.NOT_ACCEPTABLE.toString()), HttpStatus.NOT_ACCEPTABLE);
+            return errorDetails.create(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + value,
+                    HttpStatus.NOT_ACCEPTABLE, "", e).response();
         }
 
         return new ResponseEntity(deleted, HttpStatus.OK);
