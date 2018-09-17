@@ -206,7 +206,7 @@ public class RecordController {
             Record record = om.readValue(input, Record.class);
 
             try {
-                updatedRecord = recordService.updateRecord(record);
+                updatedRecord = recordService.updateRecord(record, uid);
             } catch (UpdateFailed e) {
                 return errorDetails.create(this.getClass().getName(), "update", "PUT:update/{uid}",
                         HttpStatus.NOT_ACCEPTABLE, null, e).response();
