@@ -28,7 +28,12 @@ public class RecordService<T> {
         return (Record) dao.saveAndSetIdentifier(record);
     }
 
-    public Record updateRecord(Record record) throws UpdateFailed {
+    public Record updateRecord(Record record, String uid) throws UpdateFailed {
+
+        if (!record.getUid().equals(uid) || uid.isEmpty()) {
+            throw new UpdateFailed("Unequal uid parameter with record object uid.");
+        }
+
         return (Record) dao.update(record);
     }
 
