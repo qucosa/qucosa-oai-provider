@@ -20,6 +20,7 @@ import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.DisseminationService;
@@ -98,9 +99,9 @@ public class DisseminationController {
         return new ResponseEntity(new Dissemination(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "{uid}/{mdprefix}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = {"{uid}/{mdprefix}", "{uid}/{mdprefix}/{undo}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity delete(@PathVariable String uid, @PathVariable String mdprefix, @PathVariable boolean delete) {
+    public ResponseEntity delete(@PathVariable String uid, @PathVariable String mdprefix, @PathVariable(value = "undo", required = false) String undo) {
         Dissemination dissemination;
 
         try {
@@ -123,17 +124,28 @@ public class DisseminationController {
             try {
                 dissemination = disseminationService.findByMultipleValues("formatid = %s AND recordid = %s", String.valueOf(format.getFormatId()), uid);
 
-                dissemination.setDeleted(delete);
-                dissemination = disseminationService.deleteDissemination(dissemination);
+                if (undo == null || undo.isEmpty()) {
+                    dissemination.setDeleted(true);
+                } else if (undo.equals("undo")) {
+                    dissemination.setDeleted(false);
+                } else {
+                    return errorDetails.create(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + undo,
+                            HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
+                }
+
+                disseminationService.deleteDissemination(dissemination, undo);
             } catch (NotFound dnf) {
                 return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
                         HttpStatus.NOT_FOUND, null, dnf).response();
+            } catch (UndoDeleteFailed undoDeleteFailed) {
+                return errorDetails.create(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + undo,
+                        HttpStatus.NOT_ACCEPTABLE, null, undoDeleteFailed).response();
             }
         } catch (DeleteFailed e) {
             return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
                     HttpStatus.NOT_ACCEPTABLE, null, e).response();
         }
 
-        return new ResponseEntity(dissemination, HttpStatus.OK);
+        return new ResponseEntity(true, HttpStatus.OK);
     }
 }

@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
@@ -245,10 +246,9 @@ public class RecordController {
         return new ResponseEntity(updatedRecord, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "{uid}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = {"{uid}", "{uid}/{undo}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity delete(@PathVariable String uid, @PathVariable boolean delete) {
-        int deleted;
+    public ResponseEntity delete(@PathVariable String uid, @PathVariable(value = "undo", required = false) String undo) {
         try {
             Record record = (Record) recordService.findRecord("uid", uid).iterator().next();
             record.setDeleted(delete);
