@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Record;
 import testdata.TestData;
@@ -132,33 +133,59 @@ public class RecordTestDao<T extends Record> implements Dao<T> {
     }
 
     @Override
-    public int delete(String column, String ident, boolean value) throws DeleteFailed {
+    public void delete(String ident) throws DeleteFailed {
         ObjectMapper om = new ObjectMapper();
+        boolean del = false;
 
         try {
             JsonNode jsonNodes = om.readTree(TestData.RECORDS);
-            int i = 0;
 
             for (JsonNode node : jsonNodes) {
-                i++;
 
-                if (!node.has(column)) {
-                    throw new DeleteFailed("Cannot find " + column + " in records table.");
-                }
-
-                if (node.get(column).asText().equals(ident)) {
-                    return 1;
+                if (node.get("uid").asText().equals(ident)) {
+                    del = true;
+                    break;
                 }
             }
-        } catch (IOException e) {
-            return 0;
-        }
 
-        return 0;
+            if (del == false) {
+                throw new DeleteFailed("Cannot delete record.");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot parse records json.");
+        }
     }
 
     @Override
-    public T delete(T object) throws DeleteFailed {
-        return null;
+    public void undoDelete(String ident) throws UndoDeleteFailed {
+        ObjectMapper om = new ObjectMapper();
+        boolean undoDel = false;
+
+        try {
+            JsonNode jsonNodes = om.readTree(TestData.RECORDS);
+
+            for (JsonNode node : jsonNodes) {
+
+                if (node.get("uid").asText().equals(ident)) {
+                    undoDel = true;
+                    break;
+                }
+            }
+
+            if (undoDel == false) {
+                throw new UndoDeleteFailed("Cannot undo delete record.");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot parse records json.");
+        }
+    }
+
+    @Override
+    public void delete(T object) throws DeleteFailed {
+    }
+
+    @Override
+    public void undoDelete(T object) throws UndoDeleteFailed {
+
     }
 }

@@ -21,8 +21,11 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import testdata.TestData;
 
 import java.io.IOException;
@@ -32,6 +35,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
+
+    private Logger logger = LoggerFactory.getLogger(DisseminationTestDao.class);
+
     @Override
     public Dissemination saveAndSetIdentifier(Dissemination object) throws SaveFailed {
 
@@ -136,12 +142,63 @@ public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
     }
 
     @Override
-    public int delete(String column, String ident, boolean value) throws DeleteFailed {
-        return 0;
+    public void delete(String ident) throws DeleteFailed {
+
     }
 
     @Override
-    public Dissemination delete(Dissemination object) throws DeleteFailed {
-        return object;
+    public void undoDelete(String ident) throws UndoDeleteFailed {
+
+    }
+
+    @Override
+    public void undoDelete(Dissemination object) throws UndoDeleteFailed {
+        ObjectMapper om = new ObjectMapper();
+        boolean undoDel = false;
+
+        try {
+            JsonNode nodes = om.readTree(TestData.DISSEMINATIONS);
+
+            for (JsonNode node : nodes) {
+                Dissemination dissemination = om.readValue(node.toString(), Dissemination.class);
+
+                if (dissemination.getFormatId().equals(Long.valueOf(object.getFormatId())) && dissemination.getRecordId().equals(object.getRecordId())) {
+                    undoDel = true;
+                    break;
+                }
+            }
+
+            if (undoDel == false) {
+                throw new UndoDeleteFailed("Cannot undo delete dissemination.");
+            }
+        } catch (IOException e) {
+            logger.error("Cannot parse tree from disseminations json.", e);
+        }
+    }
+
+    @Override
+    public void delete(Dissemination object) throws DeleteFailed {
+        ObjectMapper om = new ObjectMapper();
+        boolean del = false;
+
+        try {
+            JsonNode nodes = om.readTree(TestData.DISSEMINATIONS);
+
+            for (JsonNode node : nodes) {
+                Dissemination dissemination = om.readValue(node.toString(), Dissemination.class);
+
+                if (dissemination.getFormatId().equals(Long.valueOf(object.getFormatId())) && dissemination.getRecordId().equals(object.getRecordId())) {
+                    del = true;
+                    break;
+
+                }
+            }
+
+            if (del == false) {
+                throw new DeleteFailed("Cannot delete dissemination.");
+            }
+        } catch (IOException e) {
+            logger.error("Cannot parse tree from disseminations json.", e);
+        }
     }
 }

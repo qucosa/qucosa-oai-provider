@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import org.slf4j.Logger;
@@ -146,31 +147,59 @@ public class SetTestDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public int delete(String column, String ident, boolean value) throws DeleteFailed {
+    public void delete(String ident) throws DeleteFailed {
         ObjectMapper om = new ObjectMapper();
+        boolean del = false;
 
         try {
             JsonNode nodes = om.readTree(TestData.SETS);
 
             for (JsonNode entry : nodes) {
 
-                if (!entry.has(column)) {
-                    throw new DeleteFailed("Set mark as deleted failed, no rwos affected.");
+                if (entry.get("setspec").asText().equals(ident)) {
+                    del = true;
+                    break;
                 }
+            }
 
-                if (entry.get(column).asText().equals(ident)) {
-                    return 1;
-                }
+            if (del == false) {
+                throw new DeleteFailed("Cannot delete set.");
             }
         } catch (IOException e) {
             logger.error("Cannot parse tree from sets data input objects.", e);
         }
-
-        throw new DeleteFailed("Cannot delete set.");
     }
 
     @Override
-    public T delete(T object) throws DeleteFailed {
-        return null;
+    public void undoDelete(String ident) throws UndoDeleteFailed {
+        ObjectMapper om = new ObjectMapper();
+        boolean undoDel = false;
+
+        try {
+            JsonNode nodes = om.readTree(TestData.SETS);
+
+            for (JsonNode entry : nodes) {
+
+                if (entry.get("setspec").asText().equals(ident)) {
+                    undoDel = true;
+                    break;
+                }
+            }
+
+            if (undoDel == false) {
+                throw new UndoDeleteFailed("Cannot undo delete set.");
+            }
+        } catch (IOException e) {
+            logger.error("Cannot parse tree from sets data input objects.", e);
+        }
+    }
+
+    @Override
+    public void delete(T object) throws DeleteFailed {
+    }
+
+    @Override
+    public void undoDelete(T object) throws UndoDeleteFailed {
+
     }
 }

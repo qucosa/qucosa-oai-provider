@@ -19,6 +19,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.SetsToRecord;
 import org.springframework.stereotype.Repository;
@@ -68,12 +69,21 @@ public class SetsToRecordTestDao<T extends SetsToRecord> implements Dao<T> {
     }
 
     @Override
-    public int delete(String column, String ident, boolean value) throws DeleteFailed {
-        return 0;
+    public void delete(String ident) throws DeleteFailed {
+
     }
 
     @Override
-    public T delete(T object) throws DeleteFailed {
-        return null;
+    public void undoDelete(String ident) throws UndoDeleteFailed {
+
+    }
+
+    @Override
+    public void delete(T object) throws DeleteFailed {
+    }
+
+    @Override
+    public void undoDelete(T object) throws UndoDeleteFailed {
+
     }
 }
