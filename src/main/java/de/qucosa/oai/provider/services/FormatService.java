@@ -19,6 +19,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import org.springframework.stereotype.Service;
@@ -62,7 +63,11 @@ public class FormatService<T> {
         return (List<Format>) dao.findAll();
     }
 
-    public int deleteFormat(String column, String ident, boolean value) throws DeleteFailed {
-        return dao.delete(column, ident, value);
+    public void deleteFormat(String ident) throws DeleteFailed {
+        dao.delete(ident);
+    }
+
+    public void undoDeleteFormat(String ident) throws UndoDeleteFailed {
+        dao.undoDelete(ident);
     }
 }
