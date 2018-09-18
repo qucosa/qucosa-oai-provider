@@ -19,6 +19,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -257,21 +258,16 @@ public class SetDao<T extends Set> implements Dao<T> {
             connection.setAutoCommit(false);
             ps.setBoolean(1, value);
             ps.setString(2, ident);
-            deletedRows = ps.executeUpdate();
-            connection.commit();
 
-            if (deletedRows > 0) {
-                return deletedRows;
+            if (ps.executeUpdate() > 0) {
+                del = true;
             }
+
+            connection.commit();
 
             ps.close();
         } catch (SQLException ignore) { }
 
-        throw new DeleteFailed("Cannot delete set.");
-    }
-
-    @Override
-    public T delete(T object) throws DeleteFailed {
-        return null;
+        return del;
     }
 }

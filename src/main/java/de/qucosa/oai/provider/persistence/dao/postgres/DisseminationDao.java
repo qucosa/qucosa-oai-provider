@@ -19,6 +19,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,27 +164,44 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
     }
 
     @Override
-    public int delete(String column, String ident, boolean value) throws DeleteFailed {
-        return 0;
+    public void delete(String ident) throws DeleteFailed { }
+
+    @Override
+    public void undoDelete(String ident) throws UndoDeleteFailed {
+
     }
 
     @Override
-    public Dissemination delete(Dissemination object) throws DeleteFailed {
-        String sql = "UPDATE disseminations SET deleted = ? WHERE id = ?";
+    public void undoDelete(T object) throws UndoDeleteFailed {
+
+        if (deleteOrUndoDelete(object) == 0) {
+            throw new UndoDeleteFailed("Cannot undo delete dissemination.");
+        }
+    }
+
+    @Override
+    public void delete(Dissemination object) throws DeleteFailed {
+
+        if (deleteOrUndoDelete(object) == 0) {
+            throw new DeleteFailed("Cannot delete dissemination.");
+        }
+    }
+
+    private int deleteOrUndoDelete(Dissemination object) {
+        String sql = "UPDATE disseminations SET deleted = ? WHERE id_record = ? AND id_format = ?";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setBoolean(1, object.isDeleted());
-            ps.setLong(2, object.getDissId());
+            ps.setString(2, object.getRecordId());
+            ps.setLong(3, object.getFormatId());
             int deletedRows = ps.executeUpdate();
 
-            if (deletedRows == 0) {
-                throw new DeleteFailed("Dissemination mark as deleted failed, no rwos affected.");
+            if (deletedRows > 0) {
+                return 1;
             }
-        } catch (SQLException e) {
-            throw new DeleteFailed(e.getMessage());
-        }
+        } catch (SQLException ignore) { }
 
-        return object;
+        return 0;
     }
 }
