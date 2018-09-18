@@ -18,6 +18,7 @@ package de.qucosa.oai.provider.persistence;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.HasIdentifier;
 
@@ -41,7 +42,9 @@ public interface Dao<T extends HasIdentifier> {
 
     T findByMultipleValues(String clause, String... values) throws NotFound;
 
-    int delete(String column, String ident, boolean value) throws DeleteFailed;
+    void delete(String ident) throws DeleteFailed;
+
+    void undoDelete(String ident) throws UndoDeleteFailed;
 
     T delete(T object) throws DeleteFailed;
 }
