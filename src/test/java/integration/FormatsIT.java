@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.FormatService;
 import org.junit.Before;
@@ -118,24 +119,22 @@ public class FormatsIT {
     }
 
     @Test
-    public void Marked_format_as_deleted() throws DeleteFailed {
+    public void Mark_format_as_deleted() throws DeleteFailed {
         Format format = formats.get(0);
-        int deletetd = formatService.deleteFormat("mdprefix", format.getMdprefix(), true);
-        assertThat(1).isEqualTo(deletetd);
+        formatService.deleteFormat(format.getMdprefix());
     }
 
     @Test
-    public void Marked_format_as_deleted_not_successful() throws DeleteFailed {
+    public void Mark_format_as_deleted_not_successful_if_mdprefix_is_wrong() throws DeleteFailed {
         thrown.expect(DeleteFailed.class);
         thrown.expectMessage("Cannot delete format.");
 
-        formatService.deleteFormat("mdprefix", "oia_d", true);
+        formatService.deleteFormat("oia_d");
     }
 
     @Test
-    public void Marked_format_as_not_deleted() throws DeleteFailed {
+    public void Undo_mark_format_as_deleted() throws UndoDeleteFailed {
         Format format = formats.get(0);
-        int deletetd = formatService.deleteFormat("mdprefix", format.getMdprefix(), false);
-        assertThat(1).isEqualTo(deletetd);
+        formatService.undoDeleteFormat(format.getMdprefix());
     }
 }
