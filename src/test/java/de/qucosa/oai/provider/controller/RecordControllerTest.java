@@ -170,28 +170,31 @@ public class RecordControllerTest {
 
     @Test
     public void Mark_record_as_deleted() throws Exception {
-        MvcResult mvcResult = mvc.perform(delete("/records/oai:example:org:qucosa:55887/true")
+        mvc.perform(delete("/records/oai:example:org:qucosa:55887")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andReturn();
-        int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
-        assertThat(1).isEqualTo(deleted);
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void Mark_record_as_not_deleted() throws Exception {
-        MvcResult mvcResult = mvc.perform(delete("/records/oai:example:org:qucosa:55887/false")
+    public void Mark_record_as_deleted_not_successful_if_uid_is_wrong() throws Exception {
+        mvc.perform(delete("/records/oai:example:org:qucosa:5588")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andReturn();
-        int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
-        assertThat(1).isEqualTo(deleted);
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorMsg", is("Cannot delete record.")));
     }
 
     @Test
-    public void Find_record_by_uid() throws Exception {
-        mvc.perform(get("/records/oai:example:org:qucosa:55887")
+    public void Undo_mark_record_as_deleted() throws Exception {
+        mvc.perform(delete("/records/oai:example:org:qucosa:55887/undo")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.uid", is("oai:example:org:qucosa:55887")))
-                .andExpect(jsonPath("$.pid", is("qucosa:55887")));
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void Undo_mark_record_as_deleted_if_uid_is_wrong() throws Exception {
+        mvc.perform(delete("/records/oai:example:org:qucosa:5588/undo")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorMsg", is("Cannot undo delete record.")));
     }
 }
