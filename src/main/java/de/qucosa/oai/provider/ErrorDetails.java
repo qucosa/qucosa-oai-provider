@@ -24,7 +24,7 @@ public class ErrorDetails {
 
     private String method;
 
-    public ErrorDetails create(String classname, String method, String requestMethodAndPath, HttpStatus statuscode, String errorMsg, Exception exception) {
+    public ErrorDetails(String classname, String method, String requestMethodAndPath, HttpStatus statuscode, String errorMsg, Exception exception) {
         this.date = LocalDateTime.now();
         this.classname = classname;
         this.method = method;
@@ -32,7 +32,6 @@ public class ErrorDetails {
         this.errorMsg = (exception != null) ? exception.getMessage() : errorMsg;
         setException(exception);
         setRequestPath(requestMethodAndPath);
-        return this;
     }
 
     public ResponseEntity response() {
