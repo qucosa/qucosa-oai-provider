@@ -31,8 +31,12 @@ public class SetController {
 
     private Logger logger = LoggerFactory.getLogger(SetController.class);
 
-    @Autowired
     private SetService setService;
+
+    @Autowired
+    public SetController(SetService setService) {
+        this.setService = setService;
+    }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

@@ -31,11 +31,15 @@ public class DisseminationController {
 
     private Logger logger = LoggerFactory.getLogger(FormatsController.class);
 
-    @Autowired
     private DisseminationService disseminationService;
 
-    @Autowired
     private FormatService formatService;
+
+    @Autowired
+    public DisseminationController(FormatService formatService, DisseminationService disseminationService) {
+        this.formatService = formatService;
+        this.disseminationService = disseminationService;
+    }
 
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

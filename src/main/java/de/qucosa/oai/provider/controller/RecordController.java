@@ -39,20 +39,25 @@ public class RecordController {
 
     private Logger logger = LoggerFactory.getLogger(RecordController.class);
 
-    @Autowired
     private RecordService recordService;
 
-    @Autowired
     private FormatService formatService;
 
-    @Autowired
     private SetService setService;
 
-    @Autowired
     private DisseminationService disseminationService;
 
-    @Autowired
     private Dao setsToRecordDao;
+
+    @Autowired
+    public RecordController(RecordService recordService, FormatService formatService, SetService setService,
+                            DisseminationService disseminationService, Dao setsToRecordDao) {
+        this.recordService = recordService;
+        this.formatService = formatService;
+        this.setService = setService;
+        this.disseminationService = disseminationService;
+        this.setsToRecordDao = setsToRecordDao;
+    }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody

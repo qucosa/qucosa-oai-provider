@@ -31,8 +31,12 @@ public class FormatsController {
 
     private Logger logger = LoggerFactory.getLogger(FormatsController.class);
 
-    @Autowired
     private FormatService formatService;
+
+    @Autowired
+    public FormatsController(FormatService formatService) {
+        this.formatService = formatService;
+    }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
