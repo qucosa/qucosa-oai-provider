@@ -221,7 +221,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
             throw new NotFound(e.getMessage());
         }
 
-        return (formats.size() > 0) ? (Collection<T>) formats : null;
+        return (Collection<T>) formats;
     }
 
     @Override
