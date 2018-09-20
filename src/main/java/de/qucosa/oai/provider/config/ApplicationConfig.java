@@ -1,7 +1,6 @@
 package de.qucosa.oai.provider.config;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.dao.postgres.DisseminationDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.FormatDao;
@@ -102,10 +101,5 @@ public class ApplicationConfig {
     @Bean
     public Dao setsToRecordDao() throws PropertyVetoException, SQLException {
         return new SetsToRecordDao(dataSource().getConnection());
-    }
-
-    @Bean
-    public ErrorDetails errorDetails() {
-        return new ErrorDetails();
     }
 }
