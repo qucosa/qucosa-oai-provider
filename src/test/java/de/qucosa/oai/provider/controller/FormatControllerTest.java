@@ -1,10 +1,10 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.model.Format;
+import de.qucosa.oai.provider.services.FormatService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

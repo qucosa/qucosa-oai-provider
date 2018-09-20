@@ -234,7 +234,7 @@ public class SetDao<T extends Set> implements Dao<T> {
     @Override
     public int delete(String column, String ident, boolean value) throws DeleteFailed {
         String sql = "UPDATE sets SET deleted = ? WHERE " + column + " = ?";
-        int deletedRows = 0;
+        int deletedRows;
 
         try {
             assert connection != null;

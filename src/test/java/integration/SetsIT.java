@@ -65,7 +65,7 @@ public class SetsIT {
         thrown.expectMessage("Creating Set failed, no ID obtained.");
 
         Set set = sets.get(0);
-        set = setService.saveSet(set);
+        setService.saveSet(set);
     }
 
     @Test

@@ -1,8 +1,6 @@
 package de.qucosa.oai.provider.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.dao.postgres.RecordDao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;

@@ -79,7 +79,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
 
             ps.close();
             return object;
-        } catch (SQLException e) { }
+        } catch (SQLException ignore) { }
 
         throw new SaveFailed("Cannot save dissemination.");
     }

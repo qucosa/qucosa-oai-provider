@@ -1,10 +1,6 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.DisseminationService;
-import de.qucosa.oai.provider.services.FormatService;
-import de.qucosa.oai.provider.services.RecordService;
-import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.dao.DisseminationTestDao;
 import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.dao.RecordTestDao;
@@ -16,6 +12,10 @@ import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.RecordTransport;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
+import de.qucosa.oai.provider.services.RecordService;
+import de.qucosa.oai.provider.services.SetService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

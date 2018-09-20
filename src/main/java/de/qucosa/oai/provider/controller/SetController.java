@@ -55,7 +55,7 @@ public class SetController {
 
     @RequestMapping(value = "{setspec}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Set> find(@PathVariable String setspec) {
+    public ResponseEntity find(@PathVariable String setspec) {
         Set set = null;
 
         try {
@@ -70,7 +70,7 @@ public class SetController {
                     HttpStatus.NOT_FOUND, "", e).response();
         }
 
-        return new ResponseEntity<Set>(set, HttpStatus.OK);
+        return new ResponseEntity(set, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

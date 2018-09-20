@@ -78,7 +78,7 @@ public class RecordController {
             }
 
             for (RecordTransport rt : inputData) {
-                Collection<Format> formats = null;
+                Collection<Format> formats;
                 Format format = null;
 
                 try {
@@ -105,7 +105,7 @@ public class RecordController {
                             HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).response();
                 }
 
-                Collection<Record> records = null;
+                Collection<Record> records;
                 Record record = null;
 
                 try {
@@ -255,7 +255,7 @@ public class RecordController {
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Record> find(@PathVariable String uid) {
-        Record record = null;
+        Record record;
 
         try {
             Collection<Record> records = recordService.findRecord("uid", uid);

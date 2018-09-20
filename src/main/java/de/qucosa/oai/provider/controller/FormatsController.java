@@ -57,7 +57,7 @@ public class FormatsController {
     @ResponseBody
     public ResponseEntity find(@PathVariable String mdprefix) {
         Collection<Format> formats;
-        Format format = null;
+        Format format;
 
         try {
             formats = formatService.find("mdprefix", mdprefix);
@@ -79,7 +79,7 @@ public class FormatsController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public <T> ResponseEntity save(@RequestBody String input) {
-        T output = null;
+        T output;
         ObjectMapper om = new ObjectMapper();
 
         try {

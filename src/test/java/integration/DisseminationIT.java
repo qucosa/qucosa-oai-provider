@@ -1,8 +1,6 @@
 package integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.services.DisseminationService;
-import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
@@ -10,6 +8,8 @@ import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
@@ -122,7 +122,7 @@ public class DisseminationIT {
 
     @Test
     public void Mark_dissemination_as_deleted() throws DeleteFailed, NotFound {
-        Format format = null;
+        Format format;
 
         try {
             format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
@@ -131,7 +131,7 @@ public class DisseminationIT {
         }
 
         assert format != null;
-        Dissemination dissemination = null;
+        Dissemination dissemination;
 
         try {
             dissemination = disseminationService.findByMultipleValues(
