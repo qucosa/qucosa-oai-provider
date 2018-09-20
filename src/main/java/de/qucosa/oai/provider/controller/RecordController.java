@@ -78,12 +78,17 @@ public class RecordController {
             }
 
             for (RecordTransport rt : inputData) {
+                Collection<Format> formats = null;
                 Format format = null;
 
                 try {
-                    format = (Format) formatService.find("mdprefix", rt.getFormat().getMdprefix()).iterator().next();
+                    formats = formatService.find("mdprefix", rt.getFormat().getMdprefix());
 
-                    if (format.getFormatId() == null) {
+                    if (!formats.isEmpty()) {
+                        format = formats.iterator().next();
+                    }
+
+                    if (format == null) {
 
                         try {
                             format = formatService.saveFormat(rt.getFormat());
@@ -100,12 +105,17 @@ public class RecordController {
                             HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).response();
                 }
 
+                Collection<Record> records = null;
                 Record record = null;
 
                 try {
-                    record = (Record) recordService.findRecord("uid", rt.getRecord().getUid()).iterator().next();
+                    records = recordService.findRecord("uid", rt.getRecord().getUid());
 
-                    if (record.getRecordId() == null) {
+                    if (!records.isEmpty()) {
+                        record = records.iterator().next();
+                    }
+
+                    if (record == null) {
 
                         try {
                             record = recordService.saveRecord(rt.getRecord());
@@ -128,7 +138,7 @@ public class RecordController {
                     try {
                         Collection<Set> sets = setService.find("setspec", set.getSetSpec());
 
-                        if (sets != null) {
+                        if (!sets.isEmpty()) {
                             readSet = sets.iterator().next();
                         } else {
                             logger.info("Cannot find set (" + set.getSetSpec() + ").");
@@ -245,10 +255,17 @@ public class RecordController {
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Record> find(@PathVariable String uid) {
-        Record record;
+        Record record = null;
 
         try {
-            record = (Record) recordService.findRecord("uid", uid).iterator().next();
+            Collection<Record> records = recordService.findRecord("uid", uid);
+
+            if (!records.isEmpty()) {
+                return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{uid}",
+                        HttpStatus.NOT_FOUND, "Cannot find record.", null).response();
+            }
+
+            record = records.iterator().next();
         } catch (NotFound e) {
             return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{uid}",
                     HttpStatus.NOT_FOUND, null, e).response();

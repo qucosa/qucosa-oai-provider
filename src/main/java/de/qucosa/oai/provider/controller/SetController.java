@@ -56,10 +56,15 @@ public class SetController {
     @RequestMapping(value = "{setspec}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Set> find(@PathVariable String setspec) {
-        Set set;
+        Set set = null;
 
         try {
-            set = (Set) setService.find("setspec", setspec).iterator().next();
+            Collection<Set> sets = setService.find("setspec", setspec);
+
+            if (!sets.isEmpty()) {
+                set = sets.iterator().next();
+            }
+
         } catch (NotFound e) {
             return new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
                     HttpStatus.NOT_FOUND, "", e).response();

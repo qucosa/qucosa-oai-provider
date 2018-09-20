@@ -94,8 +94,8 @@ public class DisseminationController {
             try {
                 Collection<Format> formats = formatService.find("mdprefix", mdprefix);
 
-                if (formats != null) {
-                    format = (Format) formatService.find("mdprefix", mdprefix).iterator().next();
+                if (!formats.isEmpty()) {
+                    format = formats.iterator().next();
                 } else {
                     return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
                             HttpStatus.NOT_FOUND, "Cannot find format.", null).response();

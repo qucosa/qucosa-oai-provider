@@ -41,7 +41,7 @@ public class FormatsController {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity findAll() {
-        List<Format> formats;
+        Collection<Format> formats;
 
         try {
             formats = formatService.findAll();
@@ -57,19 +57,23 @@ public class FormatsController {
     @ResponseBody
     public ResponseEntity find(@PathVariable String mdprefix) {
         Collection<Format> formats;
+        Format format = null;
 
         try {
             formats = formatService.find("mdprefix", mdprefix);
 
-            if (formats == null) {return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
+            if (formats.isEmpty()) {
+                return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
                     HttpStatus.NOT_FOUND, "Cannot find format.", null).response();
             }
+
+            format = formats.iterator().next();
         } catch (NotFound e) {
             return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
                     HttpStatus.NOT_FOUND, "", e).response();
         }
 
-        return new ResponseEntity(formats.iterator().next(), HttpStatus.OK);
+        return new ResponseEntity(format, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
