@@ -34,9 +34,6 @@ public class SetController {
     @Autowired
     private SetService setService;
 
-    @Autowired
-    private ErrorDetails errorDetails;
-
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<Collection<Set>> findAll() {
@@ -45,8 +42,7 @@ public class SetController {
         try {
             sets = setService.findAll();
         } catch (NotFound e) {
-            return errorDetails.create(
-                    this.getClass().getName(), "findAll", "GET:sets",
+            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:sets",
                     HttpStatus.NOT_FOUND, "", e).response();
         }
 
@@ -61,7 +57,7 @@ public class SetController {
         try {
             set = (Set) setService.find("setspec", setspec).iterator().next();
         } catch (NotFound e) {
-            return errorDetails.create(this.getClass().getName(), "find", "GET:sets/" + setspec,
+            return new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
                     HttpStatus.NOT_FOUND, "", e).response();
         }
 
@@ -85,7 +81,7 @@ public class SetController {
             } catch (SaveFailed e1) {
                 logger.error("Cannot save set collections.", e1);
             } catch (IOException e1) {
-                return errorDetails.create(this.getClass().getName(), "save", "POST:sets",
+                return new ErrorDetails(this.getClass().getName(), "save", "POST:sets",
                         HttpStatus.BAD_REQUEST, "", e).response();
             }
         } catch (SaveFailed e) {
@@ -93,7 +89,7 @@ public class SetController {
         }
 
         if (output == null) {
-            return errorDetails.create(this.getClass().getName(), "save", "POST:sets",
+            return new ErrorDetails(this.getClass().getName(), "save", "POST:sets",
                     HttpStatus.NOT_ACCEPTABLE, "Cannot save set objects.", null).response();
         }
 
@@ -108,7 +104,7 @@ public class SetController {
         try {
             set = setService.updateSet(input, setspec);
         } catch (UpdateFailed e) {
-            return errorDetails.create(this.getClass().getName(), "update", "PUT:sets/" + setspec,
+            return new ErrorDetails(this.getClass().getName(), "update", "PUT:sets/" + setspec,
                     HttpStatus.NOT_ACCEPTABLE, null, e).response();
         }
 
@@ -124,7 +120,7 @@ public class SetController {
         try {
             deleted = setService.deleteSet("setspec", setspec, delete);
         } catch (DeleteFailed e) {
-            return errorDetails.create(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + delete,
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + delete,
                     HttpStatus.NOT_ACCEPTABLE, null, e).response();
         }
 

@@ -34,9 +34,6 @@ public class FormatsController {
     @Autowired
     private FormatService formatService;
 
-    @Autowired
-    private ErrorDetails errorDetails;
-
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity findAll() {
@@ -45,7 +42,7 @@ public class FormatsController {
         try {
             formats = formatService.findAll();
         } catch (NotFound e) {
-            return errorDetails.create(this.getClass().getName(), "findAll", "GET:formats",
+            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:formats",
                     HttpStatus.NOT_FOUND, "", e).response();
         }
 
@@ -60,11 +57,11 @@ public class FormatsController {
         try {
             formats = formatService.find("mdprefix", mdprefix);
 
-            if (formats == null) {return errorDetails.create(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
+            if (formats == null) {return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
                     HttpStatus.NOT_FOUND, "Cannot find format.", null).response();
             }
         } catch (NotFound e) {
-            return errorDetails.create(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
+            return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
                     HttpStatus.NOT_FOUND, "", e).response();
         }
 
@@ -86,14 +83,14 @@ public class FormatsController {
                 Collection<Format> formats = formatService.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
                 output = (T) formats;
             } catch (IOException e1) {
-                return errorDetails.create(this.getClass().getName(), "save", "POST:formats",
+                return new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
                         HttpStatus.BAD_REQUEST, "", e).response();
             } catch (SaveFailed saveFailed) {
-                return errorDetails.create(this.getClass().getName(), "save", "POST:formats",
+                return new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
                         HttpStatus.NOT_ACCEPTABLE, "", saveFailed).response();
             }
         } catch (SaveFailed e) {
-            return errorDetails.create(this.getClass().getName(), "save", "POST:formats",
+            return new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
                     HttpStatus.NOT_ACCEPTABLE, "", e).response();
         }
 
@@ -108,7 +105,7 @@ public class FormatsController {
         try {
             format = formatService.updateFormat(input, mdprefix);
         } catch (UpdateFailed e) {
-            return errorDetails.create(this.getClass().getName(), "update", "PUT:formats/" + mdprefix,
+            return new ErrorDetails(this.getClass().getName(), "update", "PUT:formats/" + mdprefix,
                     HttpStatus.NOT_ACCEPTABLE, "", e).response();
         }
 
@@ -123,7 +120,7 @@ public class FormatsController {
         try {
             deleted = formatService.deleteFormat("mdprefix", mdprefix, value);
         } catch (DeleteFailed e) {
-            return errorDetails.create(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + value,
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + value,
                     HttpStatus.NOT_ACCEPTABLE, "", e).response();
         }
 

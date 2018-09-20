@@ -32,9 +32,6 @@ public class DisseminationController {
     private Logger logger = LoggerFactory.getLogger(FormatsController.class);
 
     @Autowired
-    private ErrorDetails errorDetails;
-
-    @Autowired
     private DisseminationService disseminationService;
 
     @Autowired
@@ -48,7 +45,7 @@ public class DisseminationController {
         try {
             disseminations = disseminationService.findAllByUid("recordid", uid);
         } catch (NotFound e) {
-            return errorDetails.create(this.getClass().getName(), "find", "GET:dissemination/" + uid,
+            return new ErrorDetails(this.getClass().getName(), "find", "GET:dissemination/" + uid,
                     HttpStatus.NOT_FOUND, "", e).response();
         }
 
@@ -65,10 +62,10 @@ public class DisseminationController {
             dissemination = om.readValue(input, Dissemination.class);
             dissemination = disseminationService.saveDissemination(dissemination);
         } catch (IOException e) {
-            return errorDetails.create(this.getClass().getName(), "save", "POST:dissemination",
+            return new ErrorDetails(this.getClass().getName(), "save", "POST:dissemination",
                     HttpStatus.BAD_REQUEST, "", e).response();
         } catch (SaveFailed e) {
-            return errorDetails.create(this.getClass().getName(), "save", "POST:dissemination",
+            return new ErrorDetails(this.getClass().getName(), "save", "POST:dissemination",
                     HttpStatus.NOT_ACCEPTABLE, "", e).response();
         }
 
@@ -96,11 +93,11 @@ public class DisseminationController {
                 if (formats != null) {
                     format = (Format) formatService.find("mdprefix", mdprefix).iterator().next();
                 } else {
-                    return errorDetails.create(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
+                    return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
                             HttpStatus.NOT_FOUND, "Cannot find format.", null).response();
                 }
             } catch (NotFound fnf) {
-                return errorDetails.create(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
                         HttpStatus.NOT_FOUND, null, fnf).response();
             }
 
@@ -110,11 +107,11 @@ public class DisseminationController {
                 dissemination.setDeleted(delete);
                 dissemination = disseminationService.deleteDissemination(dissemination);
             } catch (NotFound dnf) {
-                return errorDetails.create(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
                         HttpStatus.NOT_FOUND, null, dnf).response();
             }
         } catch (DeleteFailed e) {
-            return errorDetails.create(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
                     HttpStatus.NOT_ACCEPTABLE, null, e).response();
         }
 
