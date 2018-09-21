@@ -152,7 +152,7 @@ public class SetsIT {
     }
 
     @Test
-    public void Udate_set_data_row_not_successful_if_setspec_is_wrong() throws UpdateFailed {
+    public void Update_set_data_row_not_successful_if_setspec_is_wrong() throws UpdateFailed {
         thrown.expect(UpdateFailed.class);
         thrown.expectMessage("Cannot update set.");
         Set set = sets.get(0);
