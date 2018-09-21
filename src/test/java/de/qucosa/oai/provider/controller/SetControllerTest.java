@@ -1,12 +1,29 @@
+/**
+ ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ */
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.sets.SetApi;
 import de.qucosa.oai.provider.dao.SetTestDao;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.services.SetService;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -45,6 +62,9 @@ public class SetControllerTest {
     @Autowired
     private MockMvc mvc;
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @Before
     public void setUp() throws IOException {
         sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
@@ -60,10 +80,10 @@ public class SetControllerTest {
         }
 
         @Bean
-        public SetApi setApi() {
-            SetApi setApi = new SetApi();
-            setApi.setDao(setDao());
-            return setApi;
+        public SetService setService() {
+            SetService setService = new SetService();
+            setService.setDao(setDao());
+            return setService;
         }
     }
 
@@ -76,6 +96,16 @@ public class SetControllerTest {
     }
 
     @Test
+    public void Find_no_set_by_setspec() throws Exception {
+        mvc.perform(get("/sets/ddc:120")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.statuscode", is("404")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot found set.")))
+                .andExpect(jsonPath("$.method", is("find")));
+    }
+
+    @Test
     public void Find_all_sets() throws Exception {
         mvc.perform(get("/sets")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -84,9 +114,21 @@ public class SetControllerTest {
     }
 
     @Test
+    public void Save_single_set_object_not_successful() throws Exception {
+        Set set = sets.get(0);
+        set.setIdentifier(1);
+
+        mvc.perform(post("/sets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(set)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.errorMsg", is("Cannot save set objects.")))
+                .andExpect(jsonPath("$.method", is("save")));
+    }
+
+    @Test
     public void Save_single_set_object() throws Exception {
         Set set = sets.get(0);
-
         mvc.perform(post("/sets")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(set)))
@@ -104,7 +146,7 @@ public class SetControllerTest {
     }
 
     @Test
-    public void Update_sets() throws Exception {
+    public void Update_set() throws Exception {
         Set set = sets.get(0);
         set.setSetName("quatsch");
         mvc.perform(put("/sets/ddc:1200")
@@ -115,6 +157,18 @@ public class SetControllerTest {
     }
 
     @Test
+    public void Update_set_not_successful() throws Exception {
+        Set set = sets.get(0);
+        set.setSetName("quatsch");
+        mvc.perform(put("/sets/ddc:120")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(set)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.errorMsg", is("Cannot update set.")))
+                .andExpect(jsonPath("$.statuscode", is("406")));
+    }
+
+    @Test
     public void Mark_set_as_delete() throws Exception {
         MvcResult mvcResult = mvc.perform(delete("/sets/ddc:1200/true")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -122,6 +176,14 @@ public class SetControllerTest {
                 .andReturn();
         int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
         assertThat(1).isEqualTo(deleted);
+    }
+
+    @Test
+    public void Mark_set_as_delete_not_successful() throws Exception {
+        mvc.perform(delete("/sets/ddc:120/true")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.errorMsg", is("Cannot delete set.")));
     }
 
     @Test

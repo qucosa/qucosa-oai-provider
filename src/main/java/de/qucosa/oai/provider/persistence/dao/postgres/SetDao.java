@@ -1,3 +1,18 @@
+/**
+ ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ */
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
 import de.qucosa.oai.provider.persistence.Dao;
@@ -234,7 +249,7 @@ public class SetDao<T extends Set> implements Dao<T> {
     @Override
     public int delete(String column, String ident, boolean value) throws DeleteFailed {
         String sql = "UPDATE sets SET deleted = ? WHERE " + column + " = ?";
-        int deletedRows = 0;
+        int deletedRows;
 
         try {
             assert connection != null;
@@ -245,16 +260,14 @@ public class SetDao<T extends Set> implements Dao<T> {
             deletedRows = ps.executeUpdate();
             connection.commit();
 
-            if (deletedRows == 0) {
-                throw new DeleteFailed("Set mark as deleted failed, no rwos affected.");
+            if (deletedRows > 0) {
+                return deletedRows;
             }
 
             ps.close();
-        } catch (SQLException e) {
-            throw new DeleteFailed("Set mark as deleted failed, no rwos affected.", e);
-        }
+        } catch (SQLException ignore) { }
 
-        return deletedRows;
+        throw new DeleteFailed("Cannot delete set.");
     }
 
     @Override

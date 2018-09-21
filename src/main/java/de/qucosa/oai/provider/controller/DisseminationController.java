@@ -1,13 +1,31 @@
+/**
+ ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ */
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
-import de.qucosa.oai.provider.api.format.FormatApi;
+import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,48 +44,58 @@ import java.util.Collection;
 @RestController
 public class DisseminationController {
 
-    @Autowired
-    private DisseminationApi disseminationApi;
+    private Logger logger = LoggerFactory.getLogger(FormatsController.class);
+
+    private DisseminationService disseminationService;
+
+    private FormatService formatService;
 
     @Autowired
-    private FormatApi formatApi;
+    public DisseminationController(FormatService formatService, DisseminationService disseminationService) {
+        this.formatService = formatService;
+        this.disseminationService = disseminationService;
+    }
 
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Collection<Dissemination>> find(@PathVariable String uid) {
+    public ResponseEntity find(@PathVariable String uid) {
         Collection<Dissemination> disseminations;
 
         try {
-            disseminations = disseminationApi.findAllByUid("recordid", uid);
+            disseminations = disseminationService.findAllByUid("recordid", uid);
         } catch (NotFound e) {
-            return new ResponseEntity("Cannot find disseminations.", HttpStatus.BAD_REQUEST);
+            return new ErrorDetails(this.getClass().getName(), "find", "GET:dissemination/" + uid,
+                    HttpStatus.NOT_FOUND, "", e).response();
         }
 
-        return new ResponseEntity<Collection<Dissemination>>(disseminations, HttpStatus.OK);
+        return new ResponseEntity(disseminations, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Dissemination> save(@RequestBody String input) {
+    public ResponseEntity save(@RequestBody String input) {
         ObjectMapper om = new ObjectMapper();
         Dissemination dissemination;
 
         try {
             dissemination = om.readValue(input, Dissemination.class);
-            dissemination = disseminationApi.saveDissemination(dissemination);
+            dissemination = disseminationService.saveDissemination(dissemination);
         } catch (IOException e) {
-            return new ResponseEntity("Dissemination mapping failed.", HttpStatus.BAD_REQUEST);
+            return new ErrorDetails(this.getClass().getName(), "save", "POST:dissemination",
+                    HttpStatus.BAD_REQUEST, "", e).response();
         } catch (SaveFailed e) {
-            return new ResponseEntity("Dissemination cannot save.", HttpStatus.BAD_REQUEST);
+            return new ErrorDetails(this.getClass().getName(), "save", "POST:dissemination",
+                    HttpStatus.NOT_ACCEPTABLE, "", e).response();
         }
 
-        return new ResponseEntity<Dissemination>(dissemination, HttpStatus.OK);
+        return new ResponseEntity(dissemination, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{uid}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Dissemination> update(@RequestBody Dissemination input, @PathVariable String uid) {
-        return new ResponseEntity<Dissemination>(new Dissemination(), HttpStatus.OK);
+    public ResponseEntity update(@RequestBody Dissemination input, @PathVariable String uid) {
+        // @todo clarify if is update the dissemination object meaningful.
+        return new ResponseEntity(new Dissemination(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "{uid}/{mdprefix}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -79,21 +107,31 @@ public class DisseminationController {
             Format format;
 
             try {
-                format = (Format) formatApi.find("mdprefix", mdprefix).iterator().next();
-            } catch (NotFound notFound) {
-                return new ResponseEntity("Cannot find format with prefix " + mdprefix + ".", HttpStatus.BAD_REQUEST);
+                Collection<Format> formats = formatService.find("mdprefix", mdprefix);
+
+                if (!formats.isEmpty()) {
+                    format = formats.iterator().next();
+                } else {
+                    return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
+                            HttpStatus.NOT_FOUND, "Cannot find format.", null).response();
+                }
+            } catch (NotFound fnf) {
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
+                        HttpStatus.NOT_FOUND, null, fnf).response();
             }
 
             try {
-                dissemination = disseminationApi.findByMultipleValues("formatid = %s AND recordid = %s", String.valueOf(format.getFormatId()), uid);
+                dissemination = disseminationService.findByMultipleValues("formatid = %s AND recordid = %s", String.valueOf(format.getFormatId()), uid);
 
                 dissemination.setDeleted(delete);
-                dissemination = disseminationApi.deleteDissemination(dissemination);
-            } catch (NotFound notFound) {
-                return new ResponseEntity("Cannot find dissemination.", HttpStatus.NOT_FOUND);
+                dissemination = disseminationService.deleteDissemination(dissemination);
+            } catch (NotFound dnf) {
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
+                        HttpStatus.NOT_FOUND, null, dnf).response();
             }
         } catch (DeleteFailed e) {
-            return new ResponseEntity("Cannot delete dissemination.", HttpStatus.BAD_REQUEST);
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
+                    HttpStatus.NOT_ACCEPTABLE, null, e).response();
         }
 
         return new ResponseEntity(dissemination, HttpStatus.OK);

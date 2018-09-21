@@ -1,10 +1,21 @@
+/**
+ ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ */
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
-import de.qucosa.oai.provider.api.format.FormatApi;
-import de.qucosa.oai.provider.api.record.RecordApi;
-import de.qucosa.oai.provider.api.sets.SetApi;
 import de.qucosa.oai.provider.dao.DisseminationTestDao;
 import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.dao.RecordTestDao;
@@ -16,6 +27,10 @@ import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.RecordTransport;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
+import de.qucosa.oai.provider.services.RecordService;
+import de.qucosa.oai.provider.services.SetService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,10 +87,10 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public FormatApi formatApi() {
-            FormatApi formatApi = new FormatApi();
-            formatApi.setDao(formatDao());
-            return formatApi;
+        public FormatService formatService() {
+            FormatService formatService = new FormatService();
+            formatService.setDao(formatDao());
+            return formatService;
         }
 
         @Bean
@@ -84,10 +99,10 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public RecordApi recordApi() {
-            RecordApi recordApi = new RecordApi();
-            recordApi.setDao(recordDao());
-            return recordApi;
+        public RecordService recordService() {
+            RecordService recordService = new RecordService();
+            recordService.setDao(recordDao());
+            return recordService;
         }
 
         @Bean
@@ -96,10 +111,10 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public SetApi setApi() {
-            SetApi setApi = new SetApi();
-            setApi.setDao(setDao());
-            return setApi;
+        public SetService setService() {
+            SetService setService = new SetService();
+            setService.setDao(setDao());
+            return setService;
         }
 
         @Bean
@@ -108,10 +123,10 @@ public class RecordControllerTest {
         }
 
         @Bean
-        public DisseminationApi disseminationApi() {
-            DisseminationApi disseminationApi = new DisseminationApi();
-            disseminationApi.setDao(disseminationDao());
-            return disseminationApi;
+        public DisseminationService disseminationService() {
+            DisseminationService disseminationService = new DisseminationService();
+            disseminationService.setDao(disseminationDao());
+            return disseminationService;
         }
 
         @Bean
@@ -142,6 +157,15 @@ public class RecordControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(records.get(0))))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void Update_record_object_not_successful_if_uid_is_wrong() throws Exception {
+        mvc.perform(put("/records/oai:example:org:qucosa:5887")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(records.get(0))))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.errorMsg", is("Unequal uid parameter with record object uid.")));
     }
 
     @Test

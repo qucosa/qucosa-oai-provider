@@ -1,8 +1,21 @@
+/**
+ ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ */
 package integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
-import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.config.ApplicationConfig;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
@@ -10,6 +23,8 @@ import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
@@ -36,9 +51,9 @@ public class DisseminationIT {
 
     private List<Dissemination> disseminations = null;
 
-    private DisseminationApi disseminationApi;
+    private DisseminationService disseminationService;
 
-    private FormatApi formatApi;
+    private FormatService formatService;
 
     @Autowired
     private Dao disseminationDao;
@@ -53,10 +68,10 @@ public class DisseminationIT {
     public void init() throws IOException {
         ObjectMapper om = new ObjectMapper();
         disseminations  = om.readValue(TestData.DISSEMINATIONS, om.getTypeFactory().constructCollectionType(List.class, Dissemination.class));
-        disseminationApi = new DisseminationApi();
-        disseminationApi.setDao(disseminationDao);
-        formatApi = new FormatApi();
-        formatApi.setDao(formatDao);
+        disseminationService = new DisseminationService();
+        disseminationService.setDao(disseminationDao);
+        formatService = new FormatService();
+        formatService.setDao(formatDao);
     }
 
     @Test
@@ -64,7 +79,7 @@ public class DisseminationIT {
         Format format = null;
 
         try {
-            format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
+            format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
         } catch (NotFound ignore) {
 
         }
@@ -72,7 +87,7 @@ public class DisseminationIT {
         Dissemination dissemination = disseminations.get(0);
         assert format != null;
         dissemination.setFormatId(format.getFormatId());
-        dissemination = disseminationApi.saveDissemination(dissemination);
+        dissemination = disseminationService.saveDissemination(dissemination);
 
         if (dissemination != null) {
             assertThat(dissemination.getDissId()).isNotNull();
@@ -81,8 +96,8 @@ public class DisseminationIT {
 
     @Test
     public void Find_dissemination_by_multiple_criterias() throws NotFound {
-        Format format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
-        Dissemination dissemination = disseminationApi.findByMultipleValues(
+        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        Dissemination dissemination = disseminationService.findByMultipleValues(
                 "id_format=%s AND id_record=%s",
                 String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
         assertThat(dissemination.getDissId()).isNotNull();
@@ -91,20 +106,50 @@ public class DisseminationIT {
     }
 
     @Test
+    public void Find_dissemination_by_multiple_criterias_not_successful_if_exists() throws NotFound {
+        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        Dissemination dissemination = disseminationService.findByMultipleValues(
+                "id_format=%s AND id_record=%s",
+                String.valueOf(format.getFormatId()), "oai:example:org:qucosa:5887");
+        assertThat(dissemination).isNull();
+    }
+
+    @Test
+    public void Find_dissemination_by_multiple_criterias_not_successful_because_format_id_failed() throws NotFound {
+        thrown.expect(NotFound.class);
+        thrown.expectMessage("Cannot find dissemination becaue record_id or format_id failed.");
+
+        Dissemination dissemination = disseminationService.findByMultipleValues(
+                "id_format=%s AND id_record=%s",
+                null, String.valueOf("oai:example:org:qucosa:55887"));
+    }
+
+    @Test
+    public void Find_dissemination_by_multiple_criterias_not_successful_because_record_id_failed() throws NotFound {
+        thrown.expect(NotFound.class);
+        thrown.expectMessage("Cannot find dissemination becaue record_id or format_id failed.");
+
+        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        Dissemination dissemination = disseminationService.findByMultipleValues(
+                "id_format=%s AND id_record=%s",
+                String.valueOf(format.getFormatId()), "");
+    }
+
+    @Test
     public void Mark_dissemination_as_deleted() throws DeleteFailed, NotFound {
-        Format format = null;
+        Format format;
 
         try {
-            format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
+            format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
         } catch (NotFound notFound) {
             throw new NotFound("Cannot find format.");
         }
 
-        Dissemination dissemination = null;
+        assert format != null;
+        Dissemination dissemination;
 
         try {
-            assert format != null;
-            dissemination = disseminationApi.findByMultipleValues(
+            dissemination = disseminationService.findByMultipleValues(
                     "id_format=%s AND id_record=%s",
                     String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
         } catch (NotFound notFound) {
@@ -114,7 +159,7 @@ public class DisseminationIT {
         assert dissemination != null;
         dissemination.setFormatId(format.getFormatId());
         dissemination.setDeleted(true);
-        dissemination = disseminationApi.deleteDissemination(dissemination);
+        dissemination = disseminationService.deleteDissemination(dissemination);
         assertThat(dissemination.isDeleted()).isTrue();
     }
 
@@ -123,7 +168,7 @@ public class DisseminationIT {
         Format format = null;
 
         try {
-            format = (Format) formatApi.find("mdprefix", "oai_dc").iterator().next();
+            format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
         } catch (NotFound notFound) {
             notFound.printStackTrace();
         }
@@ -132,7 +177,7 @@ public class DisseminationIT {
 
         try {
             assert format != null;
-            dissemination = disseminationApi.findByMultipleValues(
+            dissemination = disseminationService.findByMultipleValues(
                     "id_format=%s AND id_record=%s",
                     String.valueOf(format.getFormatId()), "oai:example:org:qucosa:55887");
         } catch (NotFound notFound) {
@@ -142,7 +187,7 @@ public class DisseminationIT {
         assert dissemination != null;
         dissemination.setFormatId(format.getFormatId());
         dissemination.setDeleted(false);
-        dissemination = disseminationApi.deleteDissemination(dissemination);
+        dissemination = disseminationService.deleteDissemination(dissemination);
         assertThat(dissemination.isDeleted()).isFalse();
     }
 }

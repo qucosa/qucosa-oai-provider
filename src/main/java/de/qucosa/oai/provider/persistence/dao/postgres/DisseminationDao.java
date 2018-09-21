@@ -1,3 +1,18 @@
+/**
+ ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ */
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
 import de.qucosa.oai.provider.persistence.Dao;
@@ -44,12 +59,9 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
             selectDiss = this.findByMultipleValues(
                     "id_format=? AND id_record=?",
                     String.valueOf(object.getFormatId()), object.getRecordId());
-        } catch (NotFound ignore) {
+        } catch (NotFound ignore) { }
 
-        }
-
-        assert selectDiss != null;
-        if (selectDiss.getDissId() == null) {
+        if (selectDiss != null && selectDiss.getDissId() != null) {
             return null;
         }
 
@@ -68,7 +80,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SaveFailed("Creating dissemination failed, no rows affected.");
+                throw new SaveFailed("Cannot save dissemination.");
             }
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
@@ -81,12 +93,10 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
             }
 
             ps.close();
+            return object;
+        } catch (SQLException ignore) { }
 
-        } catch (SQLException e) {
-            throw new SaveFailed(e.getMessage());
-        }
-
-        return object;
+        throw new SaveFailed("Cannot save dissemination.");
     }
 
     @Override
@@ -122,6 +132,11 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
     @Override
     public T findByMultipleValues(String clause, String... values) throws NotFound {
         clause = clause.replace("%s", "?");
+
+        if (values[0] == null || values[0].isEmpty() || values[1] == null || values[1].isEmpty()) {
+            throw new NotFound("Cannot find dissemination becaue record_id or format_id failed.");
+        }
+
         String sql = "SELECT id, id_format, lastmoddate, xmldata, id_record, deleted FROM disseminations WHERE " + clause;
 
         try {
@@ -129,9 +144,10 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
             ps.setLong(1, Long.valueOf(values[0]));
             ps.setString(2, values[1]);
             ResultSet resultSet = ps.executeQuery();
-            Dissemination dissemination = new Dissemination();
+            Dissemination dissemination = null;
 
             while (resultSet.next()) {
+                dissemination = new Dissemination();
                 dissemination.setDissId(resultSet.getLong("id"));
                 dissemination.setFormatId(resultSet.getLong("id_format"));
                 dissemination.setRecordId(resultSet.getString("id_record"));

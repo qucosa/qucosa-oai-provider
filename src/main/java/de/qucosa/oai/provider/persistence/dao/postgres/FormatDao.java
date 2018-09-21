@@ -1,3 +1,18 @@
+/**
+ ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ */
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
 import de.qucosa.oai.provider.persistence.Dao;
@@ -51,7 +66,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SaveFailed("Creating format failed, no rows affected.");
+                throw new SaveFailed("Cannot save format.");
             }
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
@@ -66,7 +81,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
             ps.close();
 
         } catch (SQLException e) {
-            throw new SaveFailed(e.getMessage());
+            throw new SaveFailed("Cannot save format.", e);
         }
 
         return object;
@@ -221,7 +236,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
             throw new NotFound(e.getMessage());
         }
 
-        return (formats.size() > 0) ? (Collection<T>) formats : null;
+        return (Collection<T>) formats;
     }
 
     @Override
@@ -243,7 +258,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
             connection.commit();
 
             if (deletedRows == 0) {
-                throw new DeleteFailed("Format mark as deleted failed, no rwos affected.");
+                throw new DeleteFailed("Cannot delete format.");
             }
 
             ps.close();

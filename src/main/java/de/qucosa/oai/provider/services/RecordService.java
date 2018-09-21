@@ -1,70 +1,52 @@
-package de.qucosa.oai.provider.api.record;
+/**
+ ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ */
+package de.qucosa.oai.provider.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.dao.postgres.RecordDao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.RecordTransport;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-@Component
-public class RecordApi<T> {
+@Service
+public class RecordService<T> {
     private Dao dao;
 
-    private T inputData;
-
-    public RecordApi() {}
-
-    public RecordApi(T input) throws IOException {
-
-        if (input instanceof String) {
-            ObjectMapper om = new ObjectMapper();
-            String ip = (String) input;
-
-            try {
-                inputData = om.readValue(ip.getBytes("UTF-8"), om.getTypeFactory().constructCollectionType(List.class, Record.class));
-            } catch (IOException e) {
-
-                try {
-                    inputData = (T) om.readValue(ip.getBytes("UTF-8"), Record.class);
-                } catch (IOException e1) {
-                    throw e;
-                }
-            }
-        }
-
-        if (input instanceof Record) {
-            inputData = input;
-        }
-
-        if (input instanceof List) {
-            inputData = input;
-        }
-
-        setDao(new RecordDao<>());
-    }
+    public RecordService() {}
 
     public void setDao(Dao dao) {
         this.dao = dao;
-    }
-
-    public T getInputData() {
-        return inputData;
     }
 
     public Record saveRecord(Record record) throws SaveFailed {
         return (Record) dao.saveAndSetIdentifier(record);
     }
 
-    public Record updateRecord(Record record) throws UpdateFailed {
+    public Record updateRecord(Record record, String uid) throws UpdateFailed {
+
+        if (!record.getUid().equals(uid) || uid.isEmpty()) {
+            throw new UpdateFailed("Unequal uid parameter with record object uid.");
+        }
+
         return (Record) dao.update(record);
     }
 

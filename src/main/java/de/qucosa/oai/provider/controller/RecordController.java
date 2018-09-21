@@ -1,10 +1,22 @@
+/**
+ ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ */
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
-import de.qucosa.oai.provider.api.format.FormatApi;
-import de.qucosa.oai.provider.api.record.RecordApi;
-import de.qucosa.oai.provider.api.sets.SetApi;
+import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
@@ -15,6 +27,10 @@ import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.RecordTransport;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.SetsToRecord;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
+import de.qucosa.oai.provider.services.RecordService;
+import de.qucosa.oai.provider.services.SetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +45,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 @RequestMapping("/records")
@@ -37,20 +54,25 @@ public class RecordController {
 
     private Logger logger = LoggerFactory.getLogger(RecordController.class);
 
-    @Autowired
-    private RecordApi recordApi;
+    private RecordService recordService;
 
-    @Autowired
-    private FormatApi formatApi;
+    private FormatService formatService;
 
-    @Autowired
-    private SetApi setApi;
+    private SetService setService;
 
-    @Autowired
-    private DisseminationApi disseminationApi;
+    private DisseminationService disseminationService;
 
-    @Autowired
     private Dao setsToRecordDao;
+
+    @Autowired
+    public RecordController(RecordService recordService, FormatService formatService, SetService setService,
+                            DisseminationService disseminationService, Dao setsToRecordDao) {
+        this.recordService = recordService;
+        this.formatService = formatService;
+        this.setService = setService;
+        this.disseminationService = disseminationService;
+        this.setsToRecordDao = setsToRecordDao;
+    }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -61,25 +83,31 @@ public class RecordController {
             List<RecordTransport> inputData = om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
 
             if (inputData == null || inputData.size() == 0) {
-                return new ResponseEntity("Record transport mapping failed.", HttpStatus.BAD_REQUEST);
+                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.BAD_REQUEST, "Record transport mapping failed.", null).response();
             }
 
-            if (!recordApi.checkIfOaiDcDisseminationExists(inputData)) {
-                return new ResponseEntity("OAI_DC dissemination failed.", HttpStatus.BAD_REQUEST);
+            if (!recordService.checkIfOaiDcDisseminationExists(inputData)) {
+                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.BAD_REQUEST, "OAI_DC dissemination failed.", null).response();
             }
 
             for (RecordTransport rt : inputData) {
+                Collection<Format> formats;
                 Format format = null;
 
                 try {
-                    format = (Format) formatApi.find("mdprefix", rt.getFormat().getMdprefix()).iterator().next();
+                    formats = formatService.find("mdprefix", rt.getFormat().getMdprefix());
 
-                    if (format.getFormatId() == null) {
+                    if (!formats.isEmpty()) {
+                        format = formats.iterator().next();
+                    }
+
+                    if (format == null) {
 
                         try {
-                            format = formatApi.saveFormat(rt.getFormat());
+                            format = formatService.saveFormat(rt.getFormat());
                         } catch (SaveFailed e1) {
-                            // @todo build / init an error object?
                             logger.error("Cannot save format.", e1);
                         }
                     }
@@ -87,22 +115,26 @@ public class RecordController {
                     logger.warn("Cannot find format.", e);
                 }
 
-                // @todo return an error object?
                 if (format == null) {
-                    return new ResponseEntity("Cannot find or save format.", HttpStatus.BAD_REQUEST);
+                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                            HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).response();
                 }
 
+                Collection<Record> records;
                 Record record = null;
 
                 try {
-                    record = (Record) recordApi.findRecord("uid", rt.getRecord().getUid()).iterator().next();
+                    records = recordService.findRecord("uid", rt.getRecord().getUid());
 
-                    if (record.getRecordId() == null) {
+                    if (!records.isEmpty()) {
+                        record = records.iterator().next();
+                    }
+
+                    if (record == null) {
 
                         try {
-                            record = recordApi.saveRecord(rt.getRecord());
+                            record = recordService.saveRecord(rt.getRecord());
                         } catch (SaveFailed e1) {
-                            // @todo build / init an error object?
                             logger.error("Cannot save record..", e1);
                         }
                     }
@@ -110,27 +142,31 @@ public class RecordController {
                     logger.info("Cannot find record by uid (" + rt.getRecord().getUid() + ").", e);
                 }
 
-                // @todo return an error object?
                 if (record == null) {
-                    return new ResponseEntity("Cannot find or save record.", HttpStatus.BAD_REQUEST);
+                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                            HttpStatus.NOT_ACCEPTABLE, "Cannot find or save record.", null).response();
                 }
 
                 for (Set set : rt.getSets()) {
                     Set readSet = null;
 
                     try {
-                        readSet = (Set) setApi.find("setspec", set.getSetSpec()).iterator().next();
-                    } catch (NotFound e) {
-                        logger.info("Cannot find set (" + set.getSetSpec() + ").");
-                    }
+                        Collection<Set> sets = setService.find("setspec", set.getSetSpec());
+
+                        if (!sets.isEmpty()) {
+                            readSet = sets.iterator().next();
+                        } else {
+                            logger.info("Cannot find set (" + set.getSetSpec() + ").");
+                        }
+                    } catch (NotFound ignore) { }
 
                     if (readSet == null) {
 
                         try {
-                            set = setApi.saveSet(set);
+                            set = setService.saveSet(set);
                         } catch (SaveFailed e) {
-                            logger.error("Cannot save set (" + set.getSetSpec() + ")", e);
-                            return new ResponseEntity("Cannot save set (" + set.getSetSpec() + ".", HttpStatus.BAD_REQUEST);
+                            return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                    HttpStatus.BAD_REQUEST, null, e).response();
                         }
                     } else {
                         set = readSet;
@@ -158,8 +194,8 @@ public class RecordController {
                         try {
                             setsToRecordDao.saveAndSetIdentifier(setsToRecord);
                         } catch (SaveFailed e) {
-                            logger.error("Cannot save set to record entry for (set:" + set.getSetId() + " / record:" + record.getRecordId() + ").", e);
-                            return new ResponseEntity("Cannot save set to record entry for (set:" + set.getSetId() + " / record:" + record.getRecordId() + ").", HttpStatus.BAD_REQUEST);
+                            return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                    HttpStatus.NOT_ACCEPTABLE, null, e).response();
                         }
                     }
                 }
@@ -168,13 +204,19 @@ public class RecordController {
                 rt.getDissemination().setRecordId(record.getUid());
 
                 try {
-                    disseminationApi.saveDissemination(rt.getDissemination());
+
+                    if (disseminationService.saveDissemination(rt.getDissemination()) == null) {
+                        return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination because exists.", null).response();
+                    }
                 } catch (SaveFailed e) {
-                    return new ResponseEntity("Cannot save dissemination.", HttpStatus.BAD_REQUEST);
+                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                            HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination.", null).response();
                 }
             }
         } catch (IOException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                    HttpStatus.BAD_REQUEST, null, e).response();
         }
 
         return new ResponseEntity(HttpStatus.OK);
@@ -190,12 +232,14 @@ public class RecordController {
             Record record = om.readValue(input, Record.class);
 
             try {
-                updatedRecord = recordApi.updateRecord(record);
+                updatedRecord = recordService.updateRecord(record, uid);
             } catch (UpdateFailed e) {
-                return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+                return new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{uid}",
+                        HttpStatus.NOT_ACCEPTABLE, null, e).response();
             }
         } catch (IOException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{uid}",
+                    HttpStatus.BAD_REQUEST, null, e).response();
         }
 
         return new ResponseEntity(updatedRecord, HttpStatus.OK);
@@ -206,16 +250,18 @@ public class RecordController {
     public ResponseEntity delete(@PathVariable String uid, @PathVariable boolean delete) {
         int deleted;
         try {
-            Record record = (Record) recordApi.findRecord("uid", uid).iterator().next();
+            Record record = (Record) recordService.findRecord("uid", uid).iterator().next();
             record.setDeleted(delete);
 
             try {
-                deleted = recordApi.deleteRecord(record);
+                deleted = recordService.deleteRecord(record);
             } catch (DeleteFailed deleteFailed) {
-                return new ResponseEntity("Cannot delete record.", HttpStatus.BAD_REQUEST);
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
+                        HttpStatus.NOT_ACCEPTABLE, null, deleteFailed).response();
             }
         } catch (NotFound e) {
-            return new ResponseEntity("Cannot find record with uid (" + uid + ").", HttpStatus.BAD_REQUEST);
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
+                    HttpStatus.NOT_FOUND, null, e).response();
         }
 
         return new ResponseEntity(deleted, HttpStatus.OK);
@@ -227,11 +273,20 @@ public class RecordController {
         Record record;
 
         try {
-            record = (Record) recordApi.findRecord("uid", uid).iterator().next();
+            Collection<Record> records = recordService.findRecord("uid", uid);
+
+            if (!records.isEmpty()) {
+                return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{uid}",
+                        HttpStatus.NOT_FOUND, "Cannot find record.", null).response();
+            }
+
+            record = records.iterator().next();
         } catch (NotFound e) {
-            return new ResponseEntity("Cannot find record with uid (" + uid + ").", HttpStatus.BAD_REQUEST);
+            return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{uid}",
+                    HttpStatus.NOT_FOUND, null, e).response();
         }
 
         return new ResponseEntity<Record>(record, HttpStatus.OK);
     }
+
 }

@@ -1,3 +1,18 @@
+/**
+ ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ */
 package de.qucosa.oai.provider.dao;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,8 +38,13 @@ public class SetTestDao<T extends Set> implements Dao<T> {
 
     @Override
     public T saveAndSetIdentifier(T object) throws SaveFailed {
-        object.setIdentifier(new Long(1));
-        return object;
+
+        if (object.getIdentifier() == null) {
+            object.setIdentifier(new Long(1));
+            return object;
+        }
+
+        throw new SaveFailed("Cannot save set objects.");
     }
 
     @Override
@@ -41,8 +61,7 @@ public class SetTestDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public T update(T object) throws UpdateFailed {
-        Set set = object;
+    public Set update(Set object) throws UpdateFailed {
         ObjectMapper om = new ObjectMapper();
 
         try {
@@ -50,18 +69,18 @@ public class SetTestDao<T extends Set> implements Dao<T> {
 
             for (Set iter : sets) {
 
-                if (iter.getSetSpec().equals(set.getSetSpec())) {
-                    iter.setSetName(set.getSetName());
-                    iter.setSetDescription(set.getSetDescription());
-                    set = iter;
-                    break;
+                if (iter.getSetSpec().equals(object.getSetSpec())) {
+                    iter.setSetName(object.getSetName());
+                    iter.setSetDescription(object.getSetDescription());
+                    object = iter;
+                    return object;
                 }
             }
         } catch (IOException e) {
             throw new UpdateFailed("Cannot find sets.");
         }
 
-        return (T) set;
+        throw new UpdateFailed("Cannot update set.");
     }
 
     @Override
@@ -80,6 +99,10 @@ public class SetTestDao<T extends Set> implements Dao<T> {
             throw new NotFound("Cannot find sets.");
         }
 
+        if (sets.size() == 0) {
+            throw new NotFound("No sets found.");
+        }
+
         return (Collection<T>) sets;
     }
 
@@ -92,6 +115,7 @@ public class SetTestDao<T extends Set> implements Dao<T> {
     public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
         ObjectMapper om = new ObjectMapper();
         Collection<Set> sets = null;
+        boolean find = false;
 
         try {
             sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
@@ -100,6 +124,18 @@ public class SetTestDao<T extends Set> implements Dao<T> {
         }
 
         assert sets != null;
+
+        for (Set set : sets) {
+
+            if (set.getSetSpec().equals(value)) {
+                find = true;
+                break;
+            }
+        }
+
+        if (!find) {
+            throw new NotFound("Cannot found set.");
+        }
 
         return (Collection<T>) sets;
     }
@@ -112,7 +148,6 @@ public class SetTestDao<T extends Set> implements Dao<T> {
     @Override
     public int delete(String column, String ident, boolean value) throws DeleteFailed {
         ObjectMapper om = new ObjectMapper();
-        int deleted = 0;
 
         try {
             JsonNode nodes = om.readTree(TestData.SETS);
@@ -124,14 +159,14 @@ public class SetTestDao<T extends Set> implements Dao<T> {
                 }
 
                 if (entry.get(column).asText().equals(ident)) {
-                    deleted = 1;
+                    return 1;
                 }
             }
         } catch (IOException e) {
             logger.error("Cannot parse tree from sets data input objects.", e);
         }
 
-        return deleted;
+        throw new DeleteFailed("Cannot delete set.");
     }
 
     @Override

@@ -1,10 +1,21 @@
+/**
+    ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+    ~
+    ~ Licensed under the Apache License, Version 2.0 (the "License");
+    ~ you may not use this file except in compliance with the License.
+    ~ You may obtain a copy of the License at
+    ~
+    ~     http://www.apache.org/licenses/LICENSE-2.0
+    ~
+    ~ Unless required by applicable law or agreed to in writing, software
+    ~ distributed under the License is distributed on an "AS IS" BASIS,
+    ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    ~ See the License for the specific language governing permissions and
+    ~ limitations under the License.
+ */
 package de.qucosa.oai.provider.config;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import de.qucosa.oai.provider.api.dissemination.DisseminationApi;
-import de.qucosa.oai.provider.api.format.FormatApi;
-import de.qucosa.oai.provider.api.record.RecordApi;
-import de.qucosa.oai.provider.api.sets.SetApi;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.dao.postgres.DisseminationDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.FormatDao;
@@ -15,6 +26,10 @@ import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.FormatService;
+import de.qucosa.oai.provider.services.RecordService;
+import de.qucosa.oai.provider.services.SetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,10 +71,10 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public SetApi setApi() throws PropertyVetoException, SQLException {
-        SetApi setApi = new SetApi();
-        setApi.setDao(setDao());
-        return setApi;
+    public SetService setService() throws PropertyVetoException, SQLException {
+        SetService setService = new SetService();
+        setService.setDao(setDao());
+        return setService;
     }
 
     @Bean
@@ -68,10 +83,10 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public RecordApi recordApi() throws PropertyVetoException, SQLException {
-        RecordApi recordApi = new RecordApi();
-        recordApi.setDao(recordDao());
-        return recordApi;
+    public RecordService recordService() throws PropertyVetoException, SQLException {
+        RecordService recordService = new RecordService();
+        recordService.setDao(recordDao());
+        return recordService;
     }
 
     @Bean
@@ -80,10 +95,10 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public FormatApi formatApi() throws PropertyVetoException, SQLException {
-        FormatApi formatApi = new FormatApi();
-        formatApi.setDao(formatDao());
-        return  formatApi;
+    public FormatService formatService() throws PropertyVetoException, SQLException {
+        FormatService formatService = new FormatService();
+        formatService.setDao(formatDao());
+        return  formatService;
     }
 
     @Bean
@@ -92,10 +107,10 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public DisseminationApi disseminationApi() throws PropertyVetoException, SQLException {
-        DisseminationApi api = new DisseminationApi();
-        api.setDao(disseminationDao());
-        return api;
+    public DisseminationService disseminationService() throws PropertyVetoException, SQLException {
+        DisseminationService disseminationService = new DisseminationService();
+        disseminationService.setDao(disseminationDao());
+        return disseminationService;
     }
 
     @Bean

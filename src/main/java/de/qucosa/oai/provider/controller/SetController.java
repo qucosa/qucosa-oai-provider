@@ -1,12 +1,28 @@
+/**
+ ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ */
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.sets.SetApi;
+import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.services.SetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +46,12 @@ public class SetController {
 
     private Logger logger = LoggerFactory.getLogger(SetController.class);
 
+    private SetService setService;
+
     @Autowired
-    private SetApi setApi;
+    public SetController(SetService setService) {
+        this.setService = setService;
+    }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -39,9 +59,10 @@ public class SetController {
         Collection<Set> sets;
 
         try {
-            sets = setApi.findAll();
+            sets = setService.findAll();
         } catch (NotFound e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:sets",
+                    HttpStatus.NOT_FOUND, "", e).response();
         }
 
         return new ResponseEntity<Collection<Set>>(sets, HttpStatus.OK);
@@ -49,16 +70,22 @@ public class SetController {
 
     @RequestMapping(value = "{setspec}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Set> find(@PathVariable String setspec) {
-        Set set;
+    public ResponseEntity find(@PathVariable String setspec) {
+        Set set = null;
 
         try {
-            set = (Set) setApi.find("setspec", setspec).iterator().next();
+            Collection<Set> sets = setService.find("setspec", setspec);
+
+            if (!sets.isEmpty()) {
+                set = sets.iterator().next();
+            }
+
         } catch (NotFound e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+            return new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
+                    HttpStatus.NOT_FOUND, "", e).response();
         }
 
-        return new ResponseEntity<Set>(set, HttpStatus.OK);
+        return new ResponseEntity(set, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -68,24 +95,26 @@ public class SetController {
         ObjectMapper om = new ObjectMapper();
 
         try {
-            Set set = setApi.saveSet(om.readValue(input, Set.class));
+            Set set = setService.saveSet(om.readValue(input, Set.class));
             output = (T) set;
         } catch (IOException e) {
 
             try {
-                List<Set> sets = setApi.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
+                List<Set> sets = setService.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
                 output = (T) sets;
             } catch (SaveFailed e1) {
                 logger.error("Cannot save set collections.", e1);
             } catch (IOException e1) {
-                return new ResponseEntity("Cannot parse set input data.", HttpStatus.BAD_REQUEST);
+                return new ErrorDetails(this.getClass().getName(), "save", "POST:sets",
+                        HttpStatus.BAD_REQUEST, "", e).response();
             }
         } catch (SaveFailed e) {
             logger.error("Cannot save set object.", e);
         }
 
         if (output == null) {
-            return new ResponseEntity("Cannot save set objects.", HttpStatus.NOT_ACCEPTABLE);
+            return new ErrorDetails(this.getClass().getName(), "save", "POST:sets",
+                    HttpStatus.NOT_ACCEPTABLE, "Cannot save set objects.", null).response();
         }
 
         return new ResponseEntity<T>(output, HttpStatus.OK);
@@ -97,9 +126,10 @@ public class SetController {
         Set set;
 
         try {
-            set = setApi.updateSet(input, setspec);
+            set = setService.updateSet(input, setspec);
         } catch (UpdateFailed e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+            return new ErrorDetails(this.getClass().getName(), "update", "PUT:sets/" + setspec,
+                    HttpStatus.NOT_ACCEPTABLE, null, e).response();
         }
 
 
@@ -112,9 +142,10 @@ public class SetController {
         int deleted;
 
         try {
-            deleted = setApi.deleteSet("setspec", setspec, delete);
+            deleted = setService.deleteSet("setspec", setspec, delete);
         } catch (DeleteFailed e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + delete,
+                    HttpStatus.NOT_ACCEPTABLE, null, e).response();
         }
 
         return new ResponseEntity(deleted, HttpStatus.OK);

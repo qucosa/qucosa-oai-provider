@@ -1,10 +1,25 @@
+/**
+ ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ */
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.api.format.FormatApi;
 import de.qucosa.oai.provider.dao.FormatTestDao;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.model.Format;
+import de.qucosa.oai.provider.services.FormatService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,10 +80,10 @@ public class FormatControllerTest {
         }
 
         @Bean
-        public FormatApi formatApi() {
-            FormatApi formatApi = new FormatApi();
-            formatApi.setDao(formatDao());
-            return formatApi;
+        public FormatService formatService() {
+            FormatService formatService = new FormatService();
+            formatService.setDao(formatDao());
+            return formatService;
         }
     }
 
@@ -80,6 +95,18 @@ public class FormatControllerTest {
                 .content(om.writeValueAsString(format)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.formatid", is(1)));
+    }
+
+    @Test
+    public void Save_single_format_object_not_successful() throws Exception {
+        Format format = formats.get(0);
+        format.setIdentifier(1);
+        mvc.perform(post("/formats")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(format)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.statuscode", is("406")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot save format.")));
     }
 
     @Test
@@ -103,6 +130,18 @@ public class FormatControllerTest {
     }
 
     @Test
+    public void Update_format_not_successful() throws Exception {
+        Format format = formats.get(0);
+        format.setNamespace("mist");
+        mvc.perform(put("/formats/oai_c")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(format)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.statuscode", is("406")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot update format.")));
+    }
+
+    @Test
     public void Find_format_by_mdprefix_successful() throws Exception {
         mvc.perform(get("/formats/oai_dc")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -114,7 +153,9 @@ public class FormatControllerTest {
     public void Find_format_by_mdprefix_not_successful() throws Exception {
         mvc.perform(get("/formats/oai_d")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.statuscode", is("404")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot find format.")));
     }
 
     @Test
@@ -132,6 +173,15 @@ public class FormatControllerTest {
                 .andExpect(status().isOk()).andReturn();
         int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
         assertThat(1).isEqualTo(deleted);
+    }
+
+    @Test
+    public void Mark_format_as_delete_not_successful() throws Exception {
+        mvc.perform(delete("/formats/oai_d/true")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.statuscode", is("406")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot delete format.")));
     }
 
     @Test
