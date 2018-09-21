@@ -113,11 +113,11 @@ public class DisseminationController {
                 if (!formats.isEmpty()) {
                     format = formats.iterator().next();
                 } else {
-                    return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
+                    return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + undo,
                             HttpStatus.NOT_FOUND, "Cannot find format.", null).response();
                 }
             } catch (NotFound fnf) {
-                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + undo,
                         HttpStatus.NOT_FOUND, null, fnf).response();
             }
 
@@ -129,20 +129,20 @@ public class DisseminationController {
                 } else if (undo.equals("undo")) {
                     dissemination.setDeleted(false);
                 } else {
-                    return errorDetails.create(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + undo,
+                    return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + undo,
                             HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
                 }
 
                 disseminationService.deleteDissemination(dissemination, undo);
             } catch (NotFound dnf) {
-                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + undo,
                         HttpStatus.NOT_FOUND, null, dnf).response();
             } catch (UndoDeleteFailed undoDeleteFailed) {
-                return errorDetails.create(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + undo,
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + undo,
                         HttpStatus.NOT_ACCEPTABLE, null, undoDeleteFailed).response();
             }
         } catch (DeleteFailed e) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + delete,
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:dissemination/" + uid + "/" + mdprefix + "/" + undo,
                     HttpStatus.NOT_ACCEPTABLE, null, e).response();
         }
 

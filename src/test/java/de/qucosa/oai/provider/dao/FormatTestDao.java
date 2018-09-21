@@ -168,7 +168,7 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
                 }
             }
 
-            if (del == false) {
+            if (!del) {
                 throw new DeleteFailed("Cannot delete format.");
             }
         } catch (IOException e) {
@@ -193,7 +193,7 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
                 }
             }
 
-            if (undoDel == false) {
+            if (!undoDel) {
                 throw new UndoDeleteFailed("Cannot undo delete format.");
             }
 

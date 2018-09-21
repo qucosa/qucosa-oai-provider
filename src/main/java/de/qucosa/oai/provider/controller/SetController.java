@@ -69,6 +69,7 @@ public class SetController {
         return new ResponseEntity<Collection<Set>>(sets, HttpStatus.OK);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @RequestMapping(value = "{setspec}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity find(@PathVariable String setspec) {
@@ -148,12 +149,15 @@ public class SetController {
             } else if (undo.equals("undo")) {
                 setService.undoDeleteSet(setspec);
             } else {
-                return errorDetails.create(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
                         HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
             }
         } catch (DeleteFailed e) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + delete,
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
                     HttpStatus.NOT_ACCEPTABLE, null, e).response();
+        } catch (UndoDeleteFailed undoDeleteFailed) {
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
+                    HttpStatus.NOT_ACCEPTABLE, null, undoDeleteFailed).response();
         }
 
         return new ResponseEntity(true, HttpStatus.OK);

@@ -44,7 +44,7 @@ public interface Dao<T extends HasIdentifier> {
 
     void delete(String ident) throws DeleteFailed;
 
-    void undoDelete(String ident) throws UndoDeleteFailed;
+    void undoDelete(String ident) throws UndoDeleteFailed, DeleteFailed;
 
     void delete(T object) throws DeleteFailed;
 

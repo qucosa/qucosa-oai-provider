@@ -162,13 +162,13 @@ public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
             for (JsonNode node : nodes) {
                 Dissemination dissemination = om.readValue(node.toString(), Dissemination.class);
 
-                if (dissemination.getFormatId().equals(Long.valueOf(object.getFormatId())) && dissemination.getRecordId().equals(object.getRecordId())) {
+                if (dissemination.getFormatId().equals(object.getFormatId()) && dissemination.getRecordId().equals(object.getRecordId())) {
                     undoDel = true;
                     break;
                 }
             }
 
-            if (undoDel == false) {
+            if (!undoDel) {
                 throw new UndoDeleteFailed("Cannot undo delete dissemination.");
             }
         } catch (IOException e) {
@@ -187,14 +187,14 @@ public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
             for (JsonNode node : nodes) {
                 Dissemination dissemination = om.readValue(node.toString(), Dissemination.class);
 
-                if (dissemination.getFormatId().equals(Long.valueOf(object.getFormatId())) && dissemination.getRecordId().equals(object.getRecordId())) {
+                if (dissemination.getFormatId().equals(object.getFormatId()) && dissemination.getRecordId().equals(object.getRecordId())) {
                     del = true;
                     break;
 
                 }
             }
 
-            if (del == false) {
+            if (!del) {
                 throw new DeleteFailed("Cannot delete dissemination.");
             }
         } catch (IOException e) {

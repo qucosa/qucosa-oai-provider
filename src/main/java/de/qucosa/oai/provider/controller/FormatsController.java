@@ -148,12 +148,15 @@ public class FormatsController {
             } else if (undo.equals("undo")) {
                 formatService.undoDeleteFormat(mdprefix);
             } else {
-                return errorDetails.create(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + undo,
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + undo,
                         HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
             }
         } catch (DeleteFailed e) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + value,
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + undo,
                     HttpStatus.NOT_ACCEPTABLE, "", e).response();
+        } catch (UndoDeleteFailed undoDeleteFailed) {
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + undo,
+                    HttpStatus.NOT_ACCEPTABLE, "", undoDeleteFailed).response();
         }
 
         return new ResponseEntity(true, HttpStatus.OK);

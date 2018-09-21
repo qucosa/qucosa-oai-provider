@@ -248,9 +248,34 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public int delete(String column, String ident, boolean value) throws DeleteFailed {
-        String sql = "UPDATE sets SET deleted = ? WHERE " + column + " = ?";
-        int deletedRows;
+    public void delete(String ident) throws DeleteFailed {
+
+        if (!deleteOrUndoDelete(ident, true)) {
+            throw new DeleteFailed("Cannot delete set.");
+        }
+    }
+
+    @Override
+    public void undoDelete(String ident) throws UndoDeleteFailed {
+
+        if (!deleteOrUndoDelete(ident, false)) {
+            throw new UndoDeleteFailed("Cannot undo delete set.");
+        }
+    }
+
+    @Override
+    public void delete(T object) throws DeleteFailed {
+
+    }
+
+    @Override
+    public void undoDelete(T object) throws UndoDeleteFailed {
+
+    }
+
+    private boolean deleteOrUndoDelete(String ident, boolean value) {
+        String sql = "UPDATE sets SET deleted = ? WHERE deleted = ?";
+        boolean del = false;
 
         try {
             assert connection != null;

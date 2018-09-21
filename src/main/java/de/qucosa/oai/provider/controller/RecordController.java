@@ -251,20 +251,30 @@ public class RecordController {
     public ResponseEntity delete(@PathVariable String uid, @PathVariable(value = "undo", required = false) String undo) {
         try {
             Record record = (Record) recordService.findRecord("uid", uid).iterator().next();
-            record.setDeleted(delete);
 
             try {
-                deleted = recordService.deleteRecord(record);
+
+                if (undo == null || undo.isEmpty()) {
+                    recordService.deleteRecord(record.getUid());
+                } else if (undo.equals("undo")) {
+                    recordService.undoDeleteRecord(record.getUid());
+                } else {
+                    return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
+                            HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
+                }
             } catch (DeleteFailed deleteFailed) {
                 return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
                         HttpStatus.NOT_ACCEPTABLE, null, deleteFailed).response();
+            } catch (UndoDeleteFailed undoDeleteFailed) {
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
+                        HttpStatus.NOT_ACCEPTABLE, null, undoDeleteFailed).response();
             }
         } catch (NotFound e) {
             return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
                     HttpStatus.NOT_FOUND, null, e).response();
         }
 
-        return new ResponseEntity(deleted, HttpStatus.OK);
+        return new ResponseEntity(true, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

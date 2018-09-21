@@ -148,7 +148,7 @@ public class RecordTestDao<T extends Record> implements Dao<T> {
                 }
             }
 
-            if (del == false) {
+            if (!del) {
                 throw new DeleteFailed("Cannot delete record.");
             }
         } catch (IOException e) {
@@ -172,7 +172,7 @@ public class RecordTestDao<T extends Record> implements Dao<T> {
                 }
             }
 
-            if (undoDel == false) {
+            if (!undoDel) {
                 throw new UndoDeleteFailed("Cannot undo delete record.");
             }
         } catch (IOException e) {
