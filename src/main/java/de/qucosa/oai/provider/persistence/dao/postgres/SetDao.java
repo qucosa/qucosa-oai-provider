@@ -264,12 +264,12 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public void delete(T object) throws DeleteFailed {
+    public void delete(T object) {
 
     }
 
     @Override
-    public void undoDelete(T object) throws UndoDeleteFailed {
+    public void undoDelete(T object) {
 
     }
 
