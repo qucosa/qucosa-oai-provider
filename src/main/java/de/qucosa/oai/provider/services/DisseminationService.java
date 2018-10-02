@@ -47,9 +47,7 @@ public class DisseminationService<T> {
 
         if (undo == null || undo.isEmpty()) {
             dao.delete(dissemination);
-        }
-
-        if (undo != null && undo.equals("undo")) {
+        } else if (undo != null && undo.equals("undo")) {
             dao.undoDelete(dissemination);
         }
     }
