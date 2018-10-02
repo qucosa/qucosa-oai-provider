@@ -20,6 +20,7 @@ import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.SetService;
@@ -68,6 +69,7 @@ public class SetController {
         return new ResponseEntity<Collection<Set>>(sets, HttpStatus.OK);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @RequestMapping(value = "{setspec}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity find(@PathVariable String setspec) {
@@ -136,18 +138,28 @@ public class SetController {
         return new ResponseEntity<Set>(set, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "{setspec}/{delete}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = {"{setspec}", "{setspec}/{undo}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity delete(@PathVariable String setspec, @PathVariable boolean delete) {
-        int deleted;
+    public ResponseEntity delete(@PathVariable String setspec, @PathVariable(value = "undo", required = false) String undo) {
 
         try {
-            deleted = setService.deleteSet("setspec", setspec, delete);
+
+            if (undo == null || undo.isEmpty()) {
+                setService.deleteSet(setspec);
+            } else if (undo.equals("undo")) {
+                setService.undoDeleteSet(setspec);
+            } else {
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
+                        HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
+            }
         } catch (DeleteFailed e) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + delete,
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
                     HttpStatus.NOT_ACCEPTABLE, null, e).response();
+        } catch (UndoDeleteFailed undoDeleteFailed) {
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
+                    HttpStatus.NOT_ACCEPTABLE, null, undoDeleteFailed).response();
         }
 
-        return new ResponseEntity(deleted, HttpStatus.OK);
+        return new ResponseEntity(true, HttpStatus.OK);
     }
 }

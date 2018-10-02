@@ -155,16 +155,15 @@ public class DisseminationControllerTest {
     }
 
     @Test
-    public void Mark_disseminations_as_deleted() throws Exception {
-        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetadiss/true")
+    public void Mark_disseminations_as_deleted_successful() throws Exception {
+        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetadiss")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.deleted", is(true)));
+                .andExpect(status().isOk());
     }
 
     @Test
     public void Mark_disseminations_as_deleted_not_successful_if_has_wrong_format() throws Exception {
-        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetaiss/true")
+        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetaiss")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMsg", is("Cannot find format.")));
@@ -172,17 +171,40 @@ public class DisseminationControllerTest {
 
     @Test
     public void Mark_disseminations_as_deleted_not_successful_if_has_wrong_uid() throws Exception {
-        mvc.perform(delete("/dissemination/oai:example:org:qucosa:5887/xmetadiss/true")
+        mvc.perform(delete("/dissemination/oai:example:org:qucosa:5887/xmetadiss")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMsg", is("Cannot find dissemination.")));
     }
 
     @Test
-    public void Mark_disseminations_as_not_deleted() throws Exception {
-        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetadiss/false")
+    public void Undo_Mark_disseminations_as_deleted_successful() throws Exception {
+        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetadiss/undo")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.deleted", is(false)));
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void Undo_Mark_disseminations_as_deleted_not_successful_if_has_wrong_format() throws Exception {
+        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetadis/undo")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorMsg", is("Cannot find format.")));
+    }
+
+    @Test
+    public void Undo_Mark_disseminations_as_deleted_not_successful_if_has_wrong_uid() throws Exception {
+        mvc.perform(delete("/dissemination/oai:example:org:qucosa:5887/xmetadiss/undo")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorMsg", is("Cannot find dissemination.")));
+    }
+
+    @Test
+    public void Undo_Mark_disseminations_as_deleted_not_successful_if_undo_param_is_wrong() throws Exception {
+        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetadiss/und")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorMsg", is("The undo param is set, but wrong.")));
     }
 }

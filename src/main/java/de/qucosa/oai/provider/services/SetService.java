@@ -19,6 +19,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import org.springframework.stereotype.Component;
@@ -64,7 +65,11 @@ public class SetService<T> {
         return output;
     }
 
-    public int deleteSet(String column, String setspec, boolean value) throws DeleteFailed {
-        return dao.delete(column, setspec, value);
+    public void deleteSet(String setspec) throws DeleteFailed {
+        dao.delete(setspec);
+    }
+
+    public void undoDeleteSet(String setspec) throws UndoDeleteFailed {
+        dao.undoDelete(setspec);
     }
 }

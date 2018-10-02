@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.FormatService;
@@ -136,18 +137,28 @@ public class FormatsController {
         return new ResponseEntity(format, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "{mdprefix}/{value}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = {"{mdprefix}", "{mdprefix}/{undo}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity delete(@PathVariable String mdprefix, @PathVariable boolean value) {
-        int deleted;
+    public ResponseEntity delete(@PathVariable String mdprefix, @PathVariable(value = "undo", required = false) String undo) {
 
         try {
-            deleted = formatService.deleteFormat("mdprefix", mdprefix, value);
+
+            if (undo == null || undo.isEmpty()) {
+                formatService.deleteFormat(mdprefix);
+            } else if (undo.equals("undo")) {
+                formatService.undoDeleteFormat(mdprefix);
+            } else {
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + undo,
+                        HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
+            }
         } catch (DeleteFailed e) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + value,
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + undo,
                     HttpStatus.NOT_ACCEPTABLE, "", e).response();
+        } catch (UndoDeleteFailed undoDeleteFailed) {
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + undo,
+                    HttpStatus.NOT_ACCEPTABLE, "", undoDeleteFailed).response();
         }
 
-        return new ResponseEntity(deleted, HttpStatus.OK);
+        return new ResponseEntity(true, HttpStatus.OK);
     }
 }

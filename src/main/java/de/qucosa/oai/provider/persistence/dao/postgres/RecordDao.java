@@ -19,6 +19,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Record;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -162,31 +163,50 @@ public class RecordDao<T extends Record> implements Dao<T> {
     }
 
     @Override
-    public int delete(String column, String ident, boolean value) throws DeleteFailed {
-        String sql = "UPDATE records SET deleted = ? WHERE " + column + " = ?";
-        int deletedRows = 0;
+    public void delete(String ident) throws DeleteFailed {
 
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setBoolean(1, value);
-            ps.setString(2, ident);
-            deletedRows = ps.executeUpdate();
-
-            if (deletedRows == 0) {
-                throw new DeleteFailed("Record mark as deleted failed, no rwos affected.");
-            }
-
-            ps.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (!deleteOrUndoDelete(ident, true)) {
+            throw new DeleteFailed("Cannot delete set.");
         }
-
-
-        return deletedRows;
     }
 
     @Override
-    public Record delete(Record object) throws DeleteFailed {
-        return null;
+    public void undoDelete(String ident) throws UndoDeleteFailed {
+
+        if (!deleteOrUndoDelete(ident, false)) {
+            throw new UndoDeleteFailed("Cannot undo delete set.");
+        }
+    }
+
+    @Override
+    public void undoDelete(T object) throws UndoDeleteFailed {
+
+    }
+
+    @Override
+    public void delete(Record object) throws DeleteFailed {
+    }
+
+    private boolean deleteOrUndoDelete(String ident, boolean value) {
+        String sql = "UPDATE records SET deleted = ? WHERE uid = ?";
+        boolean del = false;
+
+        try {
+            assert connection != null;
+            PreparedStatement ps = connection.prepareStatement(sql);
+            connection.setAutoCommit(false);
+            ps.setBoolean(1, value);
+            ps.setString(2, ident);
+
+            if (ps.executeUpdate() > 0) {
+                del = true;
+            }
+
+            connection.commit();
+
+            ps.close();
+        } catch (SQLException ignore) { }
+
+        return del;
     }
 }

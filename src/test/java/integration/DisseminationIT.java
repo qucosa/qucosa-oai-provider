@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.DisseminationService;
@@ -159,12 +160,12 @@ public class DisseminationIT {
         assert dissemination != null;
         dissemination.setFormatId(format.getFormatId());
         dissemination.setDeleted(true);
-        dissemination = disseminationService.deleteDissemination(dissemination);
+        disseminationService.deleteDissemination(dissemination, null);
         assertThat(dissemination.isDeleted()).isTrue();
     }
 
     @Test
-    public void Mark_dissemination_as_not_deleted() throws DeleteFailed {
+    public void Mark_dissemination_as_not_deleted() throws DeleteFailed, UndoDeleteFailed {
         Format format = null;
 
         try {
@@ -187,7 +188,7 @@ public class DisseminationIT {
         assert dissemination != null;
         dissemination.setFormatId(format.getFormatId());
         dissemination.setDeleted(false);
-        dissemination = disseminationService.deleteDissemination(dissemination);
+        disseminationService.deleteDissemination(dissemination, "undo");
         assertThat(dissemination.isDeleted()).isFalse();
     }
 }

@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.services.RecordService;
 import org.junit.Before;
@@ -82,16 +83,12 @@ public class RecordsIT {
     @Test
     public void Mark_record_as_deleted() throws DeleteFailed {
         Record record = records.get(0);
-        record.setDeleted(true);
-        int deleted = recordService.deleteRecord(record);
-        assertThat(1).isEqualTo(deleted);
+        recordService.deleteRecord(record.getUid());
     }
 
     @Test
-    public void Mark_record_as_not_deleted() throws DeleteFailed {
+    public void Undo_mark_record_as_not_deleted() throws UndoDeleteFailed {
         Record record = records.get(0);
-        record.setDeleted(false);
-        int deleted = recordService.deleteRecord(record);
-        assertThat(1).isEqualTo(deleted);
+        recordService.undoDeleteRecord(record.getUid());
     }
 }

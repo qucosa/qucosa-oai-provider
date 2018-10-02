@@ -19,6 +19,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import org.springframework.stereotype.Service;
 
@@ -42,8 +43,13 @@ public class DisseminationService<T> {
         return null;
     }
 
-    public Dissemination deleteDissemination(Dissemination dissemination) throws DeleteFailed {
-        return (Dissemination) dao.delete(dissemination);
+    public void deleteDissemination(Dissemination dissemination, String undo) throws DeleteFailed, UndoDeleteFailed {
+
+        if (undo == null || undo.isEmpty()) {
+            dao.delete(dissemination);
+        } else if (undo != null && undo.equals("undo")) {
+            dao.undoDelete(dissemination);
+        }
     }
 
     public Collection<Dissemination> findAllByUid(String property, String value) throws NotFound {

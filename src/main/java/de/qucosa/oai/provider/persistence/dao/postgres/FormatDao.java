@@ -19,6 +19,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -245,32 +246,50 @@ public class FormatDao<T extends Format> implements Dao<T> {
     }
 
     @Override
-    public int delete(String column, String ident, boolean value) throws DeleteFailed {
-        String sql = "UPDATE formats SET deleted = ? WHERE " + column + " = ?";
-        int deletedRows;
+    public void delete(String ident) throws DeleteFailed {
+
+        if (!deleteOrUndoDelete(ident, true)) {
+            throw new DeleteFailed("Cannot delete format.");
+        }
+    }
+
+    @Override
+    public void undoDelete(String ident) throws UndoDeleteFailed {
+
+        if (!deleteOrUndoDelete(ident, false)) {
+            throw new UndoDeleteFailed("Cannot undo delete format.");
+        }
+    }
+
+    @Override
+    public void delete(T object) throws DeleteFailed {
+    }
+
+    @Override
+    public void undoDelete(T object) throws UndoDeleteFailed {
+
+    }
+
+    private boolean deleteOrUndoDelete(String ident, boolean value) {
+        String sql = "UPDATE formats SET deleted = ? WHERE mdprefix = ?";
+        boolean del = false;
 
         try {
+            assert connection != null;
             PreparedStatement ps = connection.prepareStatement(sql);
             connection.setAutoCommit(false);
             ps.setBoolean(1, value);
             ps.setString(2, ident);
-            deletedRows = ps.executeUpdate();
-            connection.commit();
 
-            if (deletedRows == 0) {
-                throw new DeleteFailed("Cannot delete format.");
+            if (ps.executeUpdate() > 0) {
+                del = true;
             }
 
+            connection.commit();
+
             ps.close();
-        } catch (SQLException e) {
-            throw new DeleteFailed(e.getMessage());
-        }
+        } catch (SQLException ignore) { }
 
-        return deletedRows;
-    }
-
-    @Override
-    public T delete(T object) throws DeleteFailed {
-        return null;
+        return del;
     }
 }

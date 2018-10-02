@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import testdata.TestData;
@@ -152,37 +153,61 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
     }
 
     @Override
-    public int delete(String column, String ident, boolean value) throws DeleteFailed {
+    public void delete(String ident) throws DeleteFailed {
         ObjectMapper om = new ObjectMapper();
+        boolean del = false;
 
         try {
             JsonNode jsonNodes = om.readTree(TestData.FORMATS);
-            int i = 0;
 
             for (JsonNode node : jsonNodes) {
-                i++;
 
-                if (!node.has(column)) {
-                    throw new RuntimeException("Cannot find " + column + " in formats table.");
-                }
-
-                if (node.get(column).asText().equals(ident)) {
-                    Format format = om.readValue(node.toString(), Format.class);
-                    format.setFormatId(Long.valueOf(i));
-                    format.setDeleted(value);
-
-                    if (format.getFormatId() != null) {
-                        return  1;
-                    }
+                if (node.get("mdprefix").asText().equals(ident)) {
+                    del = true;
+                    break;
                 }
             }
-        } catch (IOException ignore) { }
 
-        throw new DeleteFailed("Cannot delete format.");
+            if (!del) {
+                throw new DeleteFailed("Cannot delete format.");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot parse formats json.");
+        }
     }
 
     @Override
-    public T delete(T object) throws DeleteFailed {
-        return null;
+    public void undoDelete(String ident) throws UndoDeleteFailed {
+        ObjectMapper om = new ObjectMapper();
+        boolean undoDel = false;
+
+        try {
+            JsonNode jsonNodes = om.readTree(TestData.FORMATS);
+
+            for (JsonNode node : jsonNodes) {
+
+                if (node.get("mdprefix").asText().equals(ident)) {
+                    undoDel = true;
+                    break;
+
+                }
+            }
+
+            if (!undoDel) {
+                throw new UndoDeleteFailed("Cannot undo delete format.");
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot parse formats json.");
+        }
+    }
+
+    @Override
+    public void delete(T object) throws DeleteFailed {
+    }
+
+    @Override
+    public void undoDelete(T object) throws UndoDeleteFailed {
+
     }
 }

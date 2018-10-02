@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.persistence.dao.postgres.SetDao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.SetService;
@@ -119,22 +120,27 @@ public class SetsIT {
     @Test
     public void Mark_set_as_deleted() throws DeleteFailed {
         Set set = sets.get(0);
-        int deleted = setService.deleteSet("setspec", set.getSetSpec(), true);
-        assertThat(1).isEqualTo(deleted);
+        setService.deleteSet(set.getSetSpec());
     }
 
     @Test
-    public void Mark_set_as_deleted_not_successful() throws DeleteFailed {
+    public void Mark_set_as_deleted_not_successful_if_setspec_is_wrong() throws DeleteFailed {
         thrown.expect(DeleteFailed.class);
         thrown.expectMessage("Cannot delete set.");
-        int deleted = setService.deleteSet("setspec", "ddc:120", true);
+        setService.deleteSet("ddc:120");
     }
 
     @Test
-    public void Undo_deleted() throws DeleteFailed {
+    public void Undo_deleted() throws UndoDeleteFailed {
         Set set = sets.get(0);
-        int deleted = setService.deleteSet("setspec", set.getSetSpec(), false);
-        assertThat(1).isEqualTo(deleted);
+        setService.undoDeleteSet(set.getSetSpec());
+    }
+
+    @Test
+    public void Undo_deleted_not_successful_if_setspec_is_wrong() throws UndoDeleteFailed {
+        thrown.expect(UndoDeleteFailed.class);
+        thrown.expectMessage("Cannot undo delete set.");
+        setService.undoDeleteSet("ddc:120");
     }
 
     @Test
@@ -146,7 +152,7 @@ public class SetsIT {
     }
 
     @Test
-    public void Udate_set_data_row_not_successful() throws UpdateFailed {
+    public void Update_set_data_row_not_successful_if_setspec_is_wrong() throws UpdateFailed {
         thrown.expect(UpdateFailed.class);
         thrown.expectMessage("Cannot update set.");
         Set set = sets.get(0);

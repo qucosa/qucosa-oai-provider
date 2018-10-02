@@ -34,13 +34,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import testdata.TestData;
 
 import java.io.IOException;
 import java.util.List;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -169,30 +167,39 @@ public class SetControllerTest {
     }
 
     @Test
-    public void Mark_set_as_delete() throws Exception {
-        MvcResult mvcResult = mvc.perform(delete("/sets/ddc:1200/true")
+    public void Mark_set_as_delete_successful() throws Exception {
+        mvc.perform(delete("/sets/ddc:1200")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk())
-                .andReturn();
-        int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
-        assertThat(1).isEqualTo(deleted);
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void Mark_set_as_delete_not_successful() throws Exception {
-        mvc.perform(delete("/sets/ddc:120/true")
+    public void Mark_set_as_delete_not_successful_if_setspec_is_wrong() throws Exception {
+        mvc.perform(delete("/sets/ddc:120")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.errorMsg", is("Cannot delete set.")));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void Mark_set_as_not_delete() throws Exception {
-        MvcResult mvcResult = mvc.perform(delete("/sets/ddc:1200/false")
+    public void Undo_mark_set_as_delete_successful() throws Exception {
+        mvc.perform(delete("/sets/ddc:1200/undo")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk())
-                .andReturn();
-        int deleted = Integer.valueOf(mvcResult.getResponse().getContentAsString());
-        assertThat(1).isEqualTo(deleted);
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void Undo_mark_set_as_delete_not_successful_if_undo_param_is_wrong() throws Exception {
+        mvc.perform(delete("/sets/ddc:1200/und")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorMsg", is("The undo param is set, but wrong.")));
+    }
+
+    @Test
+    public void Undo_mark_set_as_delete_not_successful_if_setspec_is_wrong() throws Exception {
+        mvc.perform(delete("/sets/ddc:120/undo")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorMsg", is("Cannot undo delete set.")));
     }
 }
