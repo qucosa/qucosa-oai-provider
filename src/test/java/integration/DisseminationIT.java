@@ -137,7 +137,7 @@ public class DisseminationIT {
     }
 
     @Test
-    public void Mark_dissemination_as_deleted() throws DeleteFailed, NotFound {
+    public void Mark_dissemination_as_deleted() throws DeleteFailed, NotFound, UndoDeleteFailed {
         Format format;
 
         try {
