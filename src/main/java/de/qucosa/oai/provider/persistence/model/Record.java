@@ -26,7 +26,7 @@ import java.io.Serializable;
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Record extends ResourceSupport implements Serializable, HasIdentifier {
-    @JsonProperty("recordid")
+    @JsonProperty("recordId")
     private Long recordId;
 
     @JsonProperty("pid")
@@ -40,7 +40,7 @@ public class Record extends ResourceSupport implements Serializable, HasIdentifi
 
     @Override
     public void setIdentifier(Object identifier) {
-        setRecordId(recordId);
+        setRecordId(Long.valueOf(identifier.toString()));
     }
 
     @Override
@@ -51,7 +51,9 @@ public class Record extends ResourceSupport implements Serializable, HasIdentifi
 
     public Long getRecordId() { return recordId; }
 
-    public void setRecordId(Long recordId) {  }
+    public void setRecordId(Long recordId) {
+        this.recordId = recordId;
+    }
 
     public String getPid() { return pid; }
 
