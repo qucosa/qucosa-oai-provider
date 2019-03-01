@@ -285,7 +285,7 @@ public class RecordController {
         try {
             Collection<Record> records = recordService.findRecord("uid", uid);
 
-            if (!records.isEmpty()) {
+            if (records.isEmpty()) {
                 return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{uid}",
                         HttpStatus.NOT_FOUND, "Cannot find record.", null).response();
             }
