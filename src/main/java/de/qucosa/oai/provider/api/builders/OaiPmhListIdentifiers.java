@@ -18,5 +18,5 @@
 
 package de.qucosa.oai.provider.api.builders;
 
-public class OaiPmhistIdentifiers implements OaiPmhListBuilder {
+public class OaiPmhListIdentifiers implements OaiPmhListBuilder {
 }
