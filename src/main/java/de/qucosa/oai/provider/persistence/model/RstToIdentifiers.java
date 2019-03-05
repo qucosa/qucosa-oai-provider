@@ -18,7 +18,7 @@
 
 package de.qucosa.oai.provider.persistence.model;
 
-public class RstToIdentifiers {
+public class RstToIdentifiers implements HasIdentifier {
     private Long rstId;
 
     private Long recordId;
@@ -37,5 +37,15 @@ public class RstToIdentifiers {
 
     public void setRecordId(Long recordId) {
         this.recordId = recordId;
+    }
+
+    @Override
+    public void setIdentifier(Object identifier) {
+
+    }
+
+    @Override
+    public Object getIdentifier() {
+        return null;
     }
 }
