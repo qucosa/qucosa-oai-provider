@@ -18,6 +18,10 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.model.Dissemination;
+import de.qucosa.oai.provider.persistence.model.Record;
 import org.w3c.dom.Document;
 
 public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuilder {
@@ -28,6 +32,25 @@ public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuild
 
     @Override
     public Document list() {
+        oaiPmhTemplate.appendChild(listNode());
         return null;
+    }
+
+    private void iterateRecords() {
+
+        for (Record record : records) {
+
+            try {
+                Dissemination dissemination = disseminationService.findByMultipleValues(
+                        "id_format=? AND id_record=?",
+                        String.valueOf(format.getIdentifier()),
+                        record.getUid());
+            } catch (NotFound notFound) {
+
+            }
+
+            Document identifierTemplate = DocumentXmlUtils.document(getClass().getResourceAsStream(
+                    "/templates/identifier.xml"), true);
+        }
     }
 }
