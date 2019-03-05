@@ -18,8 +18,10 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.model.Format;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 public abstract class OaiPmhList {
     protected String verb;
@@ -38,5 +40,11 @@ public abstract class OaiPmhList {
 
     public void setFormat(Format format) {
         this.format = format;
+    }
+
+    protected Node listNode() {
+        Document document = DocumentXmlUtils.document(null, true);
+        Node node = document.createElement(verb);
+        return node;
     }
 }
