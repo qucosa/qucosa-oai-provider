@@ -16,10 +16,27 @@
  *
  */
 
-package de.qucosa.oai.provider.api.builders;
+package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.persistence.model.Format;
 import org.w3c.dom.Document;
 
-public interface OaiPmhListBuilder {
-    public Document list();
+public abstract class OaiPmhList {
+    protected String verb;
+
+    protected Format format;
+
+    protected Document oaiPmhTemplate;
+
+    public OaiPmhList(Document oaiPmhTemplate) {
+        this.oaiPmhTemplate = oaiPmhTemplate;
+    }
+
+    public void setVerb(String verb) {
+        this.verb = verb;
+    }
+
+    public void setFormat(Format format) {
+        this.format = format;
+    }
 }
