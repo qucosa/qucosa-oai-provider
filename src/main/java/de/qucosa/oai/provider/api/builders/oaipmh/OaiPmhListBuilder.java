@@ -16,13 +16,15 @@
  *
  */
 
-package de.qucosa.oai.provider.api.builders;
+package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.persistence.model.Format;
 import org.w3c.dom.Document;
 
-public class OaiPmhListIdentifiers implements OaiPmhListBuilder {
-    @Override
-    public Document list() {
-        return null;
-    }
+public interface OaiPmhListBuilder {
+    public Document list();
+
+    public void setFormat(Format format);
+
+    public void setVerb(String verb);
 }
