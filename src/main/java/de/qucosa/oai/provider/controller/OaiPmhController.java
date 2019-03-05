@@ -23,6 +23,7 @@ import de.qucosa.oai.provider.api.builders.oaipmh.OaiPmhFactory;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
 import de.qucosa.oai.provider.services.SetService;
@@ -61,11 +62,15 @@ public class OaiPmhController {
 
     private SetService setService;
 
+    private DisseminationService disseminationService;
+
     @Autowired
-    public OaiPmhController(RecordService recordService, FormatService formatService, SetService setService) {
+    public OaiPmhController(RecordService recordService, FormatService formatService, SetService setService,
+                            DisseminationService disseminationService) {
         this.recordService = recordService;
         this.formatService = formatService;
         this.setService = setService;
+        this.disseminationService = disseminationService;
     }
 
     @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}", "{verb}/{metadataPrefix}/{from}",
@@ -93,7 +98,7 @@ public class OaiPmhController {
         }
 
         OaiPmhFactory oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
-        Document oaiPmhList = oaiPmhFactory.createList(verb, format, records);
+        Document oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService);
 
         return new ResponseEntity(oaiPmhList, HttpStatus.OK);
     }
