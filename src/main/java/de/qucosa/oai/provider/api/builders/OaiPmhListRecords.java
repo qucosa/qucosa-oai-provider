@@ -18,5 +18,11 @@
 
 package de.qucosa.oai.provider.api.builders;
 
+import org.w3c.dom.Document;
+
 public class OaiPmhListRecords implements OaiPmhListBuilder {
+    @Override
+    public Document list() {
+        return null;
+    }
 }

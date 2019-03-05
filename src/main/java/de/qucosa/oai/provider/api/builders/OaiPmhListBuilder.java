@@ -18,5 +18,8 @@
 
 package de.qucosa.oai.provider.api.builders;
 
+import org.w3c.dom.Document;
+
 public interface OaiPmhListBuilder {
+    public Document list();
 }
