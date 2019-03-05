@@ -16,11 +16,16 @@
  *
  */
 
-package de.qucosa.oai.provider.api.builders;
+package de.qucosa.oai.provider.api.builders.oaipmh;
 
 import org.w3c.dom.Document;
 
-public class OaiPmhListRecords implements OaiPmhListBuilder {
+public class OaiPmhListRecords extends OaiPmhList implements OaiPmhListBuilder {
+
+    public OaiPmhListRecords(Document oaiPmhTemplate) {
+        super(oaiPmhTemplate);
+    }
+
     @Override
     public Document list() {
         return null;
