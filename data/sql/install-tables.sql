@@ -98,3 +98,39 @@ WITH (
 );
 ALTER TABLE public.sets_to_records
 OWNER TO postgres;
+
+
+-- Table: public.resumption_tokens
+-- DROP TABLE public.resumption_tokens;
+CREATE TABLE public.resumption_tokens
+(
+  token_id bigint NOT NULL,
+  expiration_date timestamp with time zone NOT NULL,
+  cursor bigint NOT NULL,
+  CONSTRAINT pk_token_id PRIMARY KEY (token_id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.resumption_tokens
+  OWNER TO postgres;
+
+
+-- Table: public.rst_to_identifiers
+-- DROP TABLE public.rst_to_identifiers;
+CREATE TABLE public.rst_to_identifiers
+(
+  rst_id bigint NOT NULL,
+  record_id bigint NOT NULL,
+  CONSTRAINT fk_record_id FOREIGN KEY (record_id)
+      REFERENCES public.records (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT fk_rst_id FOREIGN KEY (rst_id)
+      REFERENCES public.resumption_tokens (token_id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.rst_to_identifiers
+  OWNER TO postgres;
