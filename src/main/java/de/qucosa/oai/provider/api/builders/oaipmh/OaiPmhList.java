@@ -20,8 +20,12 @@ package de.qucosa.oai.provider.api.builders.oaipmh;
 
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.model.Format;
+import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.services.DisseminationService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.util.Collection;
 
 public abstract class OaiPmhList {
     protected String verb;
@@ -29,6 +33,10 @@ public abstract class OaiPmhList {
     protected Format format;
 
     protected Document oaiPmhTemplate;
+
+    protected Collection<Record> records;
+
+    protected DisseminationService disseminationService;
 
     public OaiPmhList(Document oaiPmhTemplate) {
         this.oaiPmhTemplate = oaiPmhTemplate;
@@ -40,6 +48,14 @@ public abstract class OaiPmhList {
 
     public void setFormat(Format format) {
         this.format = format;
+    }
+
+    public void setRecords(Collection<Record> records) {
+        this.records = records;
+    }
+
+    public void setDisseminationService(DisseminationService disseminationService) {
+        this.disseminationService = disseminationService;
     }
 
     protected Node listNode() {
