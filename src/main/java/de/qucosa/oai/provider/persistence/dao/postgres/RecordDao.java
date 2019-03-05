@@ -121,7 +121,32 @@ public class RecordDao<T extends Record> implements Dao<T> {
 
     @Override
     public Collection<T> findAll() throws NotFound {
-        return null;
+        Collection<Record> records = new ArrayList<>();
+        String sql = "SELECT * FROM records";
+
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet resultSet = stmt.executeQuery(sql);
+
+            if (resultSet.next()) {
+
+                do {
+                    Record record = new Record();
+                    record.setIdentifier(resultSet.getLong("id"));
+                    record.setPid(resultSet.getString("pid"));
+                    record.setUid(resultSet.getString("uid"));
+                    record.setDeleted(resultSet.getBoolean("deleted"));
+                    records.add(record);
+                } while (resultSet.next());
+            }
+
+            resultSet.close();
+            stmt.close();
+        } catch (SQLException e) {
+            throw new NotFound(e.getMessage());
+        }
+
+        return (Collection<T>) records;
     }
 
     @Override
