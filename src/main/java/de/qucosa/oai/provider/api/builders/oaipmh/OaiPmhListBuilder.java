@@ -19,7 +19,11 @@
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
 import de.qucosa.oai.provider.persistence.model.Format;
+import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.services.DisseminationService;
 import org.w3c.dom.Document;
+
+import java.util.Collection;
 
 public interface OaiPmhListBuilder {
     public Document list();
@@ -27,4 +31,8 @@ public interface OaiPmhListBuilder {
     public void setFormat(Format format);
 
     public void setVerb(String verb);
+
+    public void setRecords(Collection<Record> records);
+
+    public void setDisseminationService(DisseminationService disseminationService);
 }
