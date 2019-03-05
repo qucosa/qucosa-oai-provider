@@ -63,6 +63,10 @@ public class RecordService<T> {
         return dao.findByPropertyAndValue(column, uid);
     }
 
+    public Collection<Record> findAll() throws NotFound {
+        return dao.findAll();
+    }
+
     public boolean checkIfOaiDcDisseminationExists(List<RecordTransport> input) {
         boolean exists = false;
 
