@@ -19,7 +19,6 @@
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
-import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.services.DisseminationService;
@@ -28,6 +27,7 @@ import org.w3c.dom.Document;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
@@ -45,13 +45,15 @@ public class OaiPmhFactory {
     }
 
     public OaiPmhFactory(InputStream inputStream) {
-        oaiPmhTemplate = DocumentXmlUtils.document(inputStream, true);
+        oaiPmhTemplate = DocumentXmlUtils.document(inputStream, false);
     }
 
     public Document createList(String verb, Format format, Collection<Record> records,
-                               DisseminationService disseminationService) {
+                               DisseminationService disseminationService) throws IOException {
         buildList(verb, format, records, disseminationService);
-        return listBuilder.list();
+
+        listBuilder.list();
+        return oaiPmhTemplate;
     }
 
     protected void buildList(String verb, Format format, Collection<Record> records, DisseminationService disseminationService) {
