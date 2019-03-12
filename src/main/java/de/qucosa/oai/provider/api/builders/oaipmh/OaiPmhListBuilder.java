@@ -23,10 +23,11 @@ import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.services.DisseminationService;
 import org.w3c.dom.Document;
 
+import java.io.IOException;
 import java.util.Collection;
 
 public interface OaiPmhListBuilder {
-    public Document list();
+    public void list() throws IOException;
 
     public void setFormat(Format format);
 
