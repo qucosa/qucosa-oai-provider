@@ -23,7 +23,7 @@ import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.services.DisseminationService;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 
 import java.util.Collection;
 
@@ -58,9 +58,9 @@ public abstract class OaiPmhList {
         this.disseminationService = disseminationService;
     }
 
-    protected Node listNode() {
+    protected Element listNode() {
         Document document = DocumentXmlUtils.document(null, true);
-        Node node = document.createElement(verb);
-        return node;
+        Element element = document.createElement(verb);
+        return element;
     }
 }
