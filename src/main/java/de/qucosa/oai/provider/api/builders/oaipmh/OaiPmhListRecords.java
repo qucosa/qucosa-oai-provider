@@ -27,7 +27,6 @@ public class OaiPmhListRecords extends OaiPmhList implements OaiPmhListBuilder {
     }
 
     @Override
-    public Document list() {
-        return null;
+    public void list() {
     }
 }
