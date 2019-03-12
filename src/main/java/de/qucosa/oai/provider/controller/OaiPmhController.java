@@ -20,6 +20,7 @@ package de.qucosa.oai.provider.controller;
 
 import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.api.builders.oaipmh.OaiPmhFactory;
+import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
@@ -41,6 +42,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.w3c.dom.Document;
 
+import java.io.IOException;
 import java.util.Collection;
 
 @RequestMapping("/oai")
@@ -98,7 +100,13 @@ public class OaiPmhController {
         }
 
         OaiPmhFactory oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
-        Document oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService);
+        Document oaiPmhList = null;
+
+        try {
+            oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return new ResponseEntity(oaiPmhList, HttpStatus.OK);
     }
