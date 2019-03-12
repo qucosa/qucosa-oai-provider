@@ -23,6 +23,8 @@ import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Record;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuilder {
 
@@ -31,9 +33,10 @@ public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuild
     }
 
     @Override
-    public Document list() {
-        oaiPmhTemplate.appendChild(listNode());
-        return null;
+    public void list() {
+        Element element = (Element) oaiPmhTemplate.getDocumentElement();
+        Node imported = oaiPmhTemplate.importNode(listNode(), true);
+        element.appendChild(imported);
     }
 
     private void iterateRecords() {
