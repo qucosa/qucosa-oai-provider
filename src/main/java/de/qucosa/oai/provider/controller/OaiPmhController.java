@@ -80,13 +80,15 @@ public class OaiPmhController {
     }
 
     @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}", "{verb}/{metadataPrefix}/{from}",
-            "{verb}/{metadataPrefix}/{from}/{until}"},
+            "{verb}/{metadataPrefix}/{from}/{until}", "{verb}/{resumptionToken}",
+            "{verb}/{resumptionToken}/{from}", "{verb}/{resumptionToken}/{from}/{until}"},
             produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     public ResponseEntity findAll(@PathVariable String verb,
                                   @PathVariable(value = "metadataPrefix", required = false) String metadataPrefix,
                                   @PathVariable(value = "from", required = false) String from,
-                                  @PathVariable(value = "until", required = false) String until) throws IOException {
+                                  @PathVariable(value = "until", required = false) String until,
+                                  @PathVariable(value = "resumptionToken", required = false) String resumptionToken) throws IOException {
         Format format = findFormat(metadataPrefix);
         Collection<Record> records;
 
