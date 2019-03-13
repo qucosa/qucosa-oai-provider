@@ -21,7 +21,10 @@ package de.qucosa.oai.provider.api.builders.oaipmh;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.SetService;
+import de.qucosa.oai.provider.services.SetsToRecordService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -37,6 +40,10 @@ public abstract class OaiPmhList {
     protected Collection<Record> records;
 
     protected DisseminationService disseminationService;
+
+    protected SetService<Set> setSetService;
+
+    protected SetsToRecordService setsToRecordService;
 
     public OaiPmhList(Document oaiPmhTemplate) {
         this.oaiPmhTemplate = oaiPmhTemplate;
@@ -56,6 +63,14 @@ public abstract class OaiPmhList {
 
     public void setDisseminationService(DisseminationService disseminationService) {
         this.disseminationService = disseminationService;
+    }
+
+    public void setSetService(SetService<Set> setSetService) {
+        this.setSetService = setSetService;
+    }
+
+    public void setSetToRecordService(SetsToRecordService setToRecordService) {
+        this.setsToRecordService = setToRecordService;
     }
 
     protected Element listNode() {
