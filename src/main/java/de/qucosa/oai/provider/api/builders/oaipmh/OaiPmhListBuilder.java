@@ -18,22 +18,29 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.DisseminationService;
-import org.w3c.dom.Document;
+import de.qucosa.oai.provider.services.SetService;
+import de.qucosa.oai.provider.services.SetsToRecordService;
 
 import java.io.IOException;
 import java.util.Collection;
 
 public interface OaiPmhListBuilder {
-    public void list() throws IOException;
-
-    public void setFormat(Format format);
-
-    public void setVerb(String verb);
+    public void list() throws IOException, NotFound;
 
     public void setRecords(Collection<Record> records);
 
     public void setDisseminationService(DisseminationService disseminationService);
+
+    public void setSetService(SetService<Set> setService);
+
+    public void setVerb(String verb);
+
+    public void setFormat(Format format);
+
+    public void setSetToRecordService(SetsToRecordService setToRecordService);
 }
