@@ -22,9 +22,12 @@ import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.persistence.model.Set;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import java.util.Collection;
 
 public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuilder {
 
@@ -33,27 +36,46 @@ public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuild
     }
 
     @Override
-    public void list() {
-        Element element = (Element) oaiPmhTemplate.getDocumentElement();
-        Node imported = oaiPmhTemplate.importNode(listNode(), true);
+    public void list() throws NotFound {
+        Node listNode = listNode();
+        Element element = oaiPmhTemplate.getDocumentElement();
+        Node imported = oaiPmhTemplate.importNode(listNode, true);
         element.appendChild(imported);
+
+        buildIdentirierList();
     }
 
-    private void iterateRecords() {
+    private void buildIdentirierList() throws NotFound {
+        Node listIdentifiers = oaiPmhTemplate.getElementsByTagName(verb).item(0);
 
         for (Record record : records) {
+            record = records.iterator().next();
+            Collection<Set> sets = setsToRecordService.findByPropertyAndValue("rc.id", String.valueOf(record.getIdentifier()));
 
-            try {
-                Dissemination dissemination = disseminationService.findByMultipleValues(
-                        "id_format=? AND id_record=?",
-                        String.valueOf(format.getIdentifier()),
-                        record.getUid());
-            } catch (NotFound notFound) {
+            Dissemination dissemination = disseminationService.findByMultipleValues(
+                    "id_format = %s AND id_record = %s", String.valueOf(format.getIdentifier()), record.getUid());
 
-            }
+            Document identifierTpl = DocumentXmlUtils.document(
+                    getClass().getResourceAsStream("/templates/identifier.xml"), true);
+            Node identifier = identifierTpl.getElementsByTagName("identifier").item(0);
+            identifier.setTextContent(record.getUid());
 
-            Document identifierTemplate = DocumentXmlUtils.document(getClass().getResourceAsStream(
-                    "/templates/identifier.xml"), true);
+            Node datestamp = identifierTpl.getElementsByTagName("datestamp").item(0);
+            datestamp.setTextContent(dissemination.getLastmoddate().toString());
+
+            writeSetsInHeader(identifierTpl, sets);
+
+            listIdentifiers.appendChild(oaiPmhTemplate.importNode(identifierTpl.getDocumentElement(), true));
+        }
+    }
+
+    private void writeSetsInHeader(Document identifierTpl, Collection<Set> sets) {
+        Node header = identifierTpl.getElementsByTagName("header").item(0);
+
+        for (Set set : sets) {
+            Node node = identifierTpl.createElement("setspec");
+            node.setTextContent(set.getSetSpec());
+            header.appendChild(identifierTpl.importNode(node, true));
         }
     }
 }
