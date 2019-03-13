@@ -21,6 +21,8 @@ import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persistence.model.HasIdentifier;
+import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.SetsToRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -29,10 +31,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Repository
-public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord> {
+public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord>, HasIdentifier {
 
     private Connection connection;
 
@@ -93,7 +97,32 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
 
     @Override
     public Collection findByPropertyAndValue(String property, String value) throws NotFound {
-        return null;
+        String sql = "select rc.id, rc.pid, rc.uid, st.id, st.setspec, st.setname, st.setdescription " +
+                "from sets_to_records " +
+                "left join records rc on rc.id = id_record " +
+                "left join sets st on st.id = id_set " +
+                "where " + property + "  = ?";
+        List<Set> setList = new ArrayList<>();
+
+        try {
+            PreparedStatement pst = connection.prepareStatement(sql);
+            pst.setLong(1, Long.valueOf(value));
+            ResultSet resultSet = pst.executeQuery();
+
+            while (resultSet.next()) {
+                Set set = new Set();
+                set.setSetSpec(resultSet.getString("setspec"));
+                set.setSetName(resultSet.getString("setname"));
+                set.setSetDescription(resultSet.getString("setdescription"));
+                setList.add(set);
+            }
+
+            resultSet.close();
+        } catch (SQLException e) {
+            throw  new NotFound(e.getMessage());
+        }
+
+        return setList;
     }
 
     @Override
@@ -113,6 +142,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
                 setsToRecord.setIdRecord(resultSet.getLong("id_record"));
             }
 
+            resultSet.close();
             return (T) setsToRecord;
         } catch (SQLException e) {
             throw new NotFound(e.getMessage());
@@ -131,10 +161,30 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
 
     @Override
     public void delete(SetsToRecord object) throws DeleteFailed {
+        String sql = "DELETE FROM sets_to_records WHERE id_set = ? AND id_record = ?";
+
+        try {
+            PreparedStatement pst = connection.prepareStatement(sql);
+            pst.setLong(1, object.getIdSet());
+            pst.setLong(2, object.getIdRecord());
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            throw new DeleteFailed(e.getMessage());
+        }
     }
 
     @Override
     public void undoDelete(SetsToRecord object) throws UndoDeleteFailed {
 
+    }
+
+    @Override
+    public void setIdentifier(Object identifier) {
+
+    }
+
+    @Override
+    public Object getIdentifier() {
+        return null;
     }
 }
