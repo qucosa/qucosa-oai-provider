@@ -19,10 +19,15 @@
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.DisseminationService;
+import de.qucosa.oai.provider.services.SetService;
+import de.qucosa.oai.provider.services.SetsToRecordService;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,33 +50,48 @@ public class OaiPmhFactory {
     }
 
     public OaiPmhFactory(InputStream inputStream) {
-        oaiPmhTemplate = DocumentXmlUtils.document(inputStream, false);
+        oaiPmhTemplate = DocumentXmlUtils.document(inputStream, true);
     }
 
     public Document createList(String verb, Format format, Collection<Record> records,
-                               DisseminationService disseminationService) throws IOException {
-        buildList(verb, format, records, disseminationService);
+                               DisseminationService disseminationService,
+                               SetService<Set> setService,
+                               SetsToRecordService setsToRecordService) throws IOException, NotFound {
+        buildList(verb, format, records, disseminationService, setService, setsToRecordService);
+        setOaiPmhAttributes(verb, format);
 
         listBuilder.list();
         return oaiPmhTemplate;
     }
 
-    protected void buildList(String verb, Format format, Collection<Record> records, DisseminationService disseminationService) {
+    protected void buildList(String verb, Format format, Collection<Record> records,
+                             DisseminationService disseminationService, SetService<Set> setService,
+                             SetsToRecordService setsToRecordService) {
         switch (verb) {
             case "ListIdentifiers":
                 listBuilder = new OaiPmhListIdentifiers(oaiPmhTemplate);
-                listBuilder.setFormat(format);
                 listBuilder.setVerb(verb);
+                listBuilder.setFormat(format);
                 listBuilder.setRecords(records);
                 listBuilder.setDisseminationService(disseminationService);
+                listBuilder.setSetService(setService);
+                listBuilder.setSetToRecordService(setsToRecordService);
                 break;
             case "ListRecords":
                 listBuilder = new OaiPmhListRecords(oaiPmhTemplate);
-                listBuilder.setFormat(format);
                 listBuilder.setVerb(verb);
+                listBuilder.setFormat(format);
                 listBuilder.setRecords(records);
                 listBuilder.setDisseminationService(disseminationService);
+                listBuilder.setSetService(setService);
+                listBuilder.setSetToRecordService(setsToRecordService);
                 break;
         }
+    }
+
+    private void setOaiPmhAttributes(String verb, Format format) {
+        Node element = oaiPmhTemplate.getElementsByTagName("request").item(0);
+        element.getAttributes().getNamedItem("metadataPrefix").setNodeValue(format.getMdprefix());
+        element.getAttributes().getNamedItem("verb").setNodeValue(verb);
     }
 }
