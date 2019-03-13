@@ -28,6 +28,7 @@ import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
 import de.qucosa.oai.provider.services.SetService;
+import de.qucosa.oai.provider.services.SetsToRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,22 +67,26 @@ public class OaiPmhController {
 
     private DisseminationService disseminationService;
 
+    private SetsToRecordService setsToRecordService;
+
     @Autowired
     public OaiPmhController(RecordService recordService, FormatService formatService, SetService setService,
-                            DisseminationService disseminationService) {
+                            DisseminationService disseminationService, SetsToRecordService setsToRecordService) {
         this.recordService = recordService;
         this.formatService = formatService;
         this.setService = setService;
         this.disseminationService = disseminationService;
+        this.setsToRecordService = setsToRecordService;
     }
 
     @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}", "{verb}/{metadataPrefix}/{from}",
-            "{verb}/{metadataPrefix}/{from}/{until}"}, produces = MediaType.APPLICATION_XML_VALUE)
+            "{verb}/{metadataPrefix}/{from}/{until}"},
+            produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     public ResponseEntity findAll(@PathVariable String verb,
                                   @PathVariable(value = "metadataPrefix", required = false) String metadataPrefix,
                                   @PathVariable(value = "from", required = false) String from,
-                                  @PathVariable(value = "until", required = false) String until) {
+                                  @PathVariable(value = "until", required = false) String until) throws IOException {
         Format format = findFormat(metadataPrefix);
         Collection<Record> records;
 
@@ -103,12 +108,12 @@ public class OaiPmhController {
         Document oaiPmhList = null;
 
         try {
-            oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService);
-        } catch (IOException e) {
+            oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService, setService, setsToRecordService);
+        } catch (IOException | NotFound e) {
             e.printStackTrace();
         }
 
-        return new ResponseEntity(oaiPmhList, HttpStatus.OK);
+        return new ResponseEntity(DocumentXmlUtils.resultXml(oaiPmhList), HttpStatus.OK);
     }
 
     private Format findFormat(String metadataPrefix) {
