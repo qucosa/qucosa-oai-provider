@@ -65,19 +65,15 @@ public class RecordController {
 
     private DisseminationService disseminationService;
 
-    private Dao setsToRecordDao;
-
     private SetsToRecordService setsToRecordService;
 
     @Autowired
     public RecordController(RecordService recordService, FormatService formatService, SetService setService,
-                            DisseminationService disseminationService, Dao setsToRecordDao,
-                            SetsToRecordService setsToRecordService) {
+                            DisseminationService disseminationService, SetsToRecordService setsToRecordService) {
         this.recordService = recordService;
         this.formatService = formatService;
         this.setService = setService;
         this.disseminationService = disseminationService;
-        this.setsToRecordDao = setsToRecordDao;
         this.setsToRecordService = setsToRecordService;
     }
 
@@ -315,7 +311,7 @@ public class RecordController {
             boolean strExsists = false;
 
             try {
-                SetsToRecord findStr = (SetsToRecord) setsToRecordDao.findByMultipleValues(
+                SetsToRecord findStr = (SetsToRecord) setsToRecordService.findByMultipleValues(
                         "id_set=%s AND id_record=%s",
                         String.valueOf(set.getIdentifier()), String.valueOf(record.getIdentifier()));
 
@@ -333,7 +329,7 @@ public class RecordController {
                 setsToRecord.setIdSet(Long.valueOf(set.getIdentifier().toString()));
 
                 try {
-                    setsToRecordDao.saveAndSetIdentifier(setsToRecord);
+                    setsToRecordService.saveAndSetIdentifier(setsToRecord);
                 } catch (SaveFailed e) {
                     return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                             HttpStatus.NOT_ACCEPTABLE, null, e).response();
