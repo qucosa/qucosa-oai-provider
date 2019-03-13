@@ -32,6 +32,7 @@ import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
 import de.qucosa.oai.provider.services.SetService;
+import de.qucosa.oai.provider.services.SetsToRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,14 +67,18 @@ public class RecordController {
 
     private Dao setsToRecordDao;
 
+    private SetsToRecordService setsToRecordService;
+
     @Autowired
     public RecordController(RecordService recordService, FormatService formatService, SetService setService,
-                            DisseminationService disseminationService, Dao setsToRecordDao) {
+                            DisseminationService disseminationService, Dao setsToRecordDao,
+                            SetsToRecordService setsToRecordService) {
         this.recordService = recordService;
         this.formatService = formatService;
         this.setService = setService;
         this.disseminationService = disseminationService;
         this.setsToRecordDao = setsToRecordDao;
+        this.setsToRecordService = setsToRecordService;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -183,8 +188,10 @@ public class RecordController {
 
                         if (findStr != null && findStr.getIdSet() != null && findStr.getIdRecord() != null) {
                             strExsists = true;
+                            // @todo delete exists data rows
+                            setsToRecordService.delete(findStr);
                         }
-                    } catch (NotFound e) {
+                    } catch (NotFound | DeleteFailed e) {
                         logger.info("Cannot find set to record entry (set:" + set.getIdentifier() + " / record:" + record.getRecordId() + ").", e);
                     }
 
