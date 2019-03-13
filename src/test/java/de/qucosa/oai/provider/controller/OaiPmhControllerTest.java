@@ -49,8 +49,8 @@ public class OaiPmhControllerTest {
     private MockMvc mvc;
 
     @Test
-    @DisplayName("Find all formats for build oai pmh identifiers list in xml.")
-    public void findAllFormats() throws Exception {
+    @DisplayName("Find all oai pmh identifiers and write this in xml.")
+    public void findListIdentifiers() throws Exception {
         MvcResult mvcResult = mvc.perform(
                 get("/oai/ListIdentifiers/oai_dc")
                 .contentType(MediaType.APPLICATION_XML_VALUE))
