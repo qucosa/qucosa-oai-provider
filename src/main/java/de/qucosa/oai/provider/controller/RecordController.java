@@ -100,113 +100,21 @@ public class RecordController {
             }
 
             for (RecordTransport rt : inputData) {
-                Collection<Format> formats;
-                Format format = null;
-
-                try {
-                    formats = formatService.find("mdprefix", rt.getFormat().getMdprefix());
-
-                    if (!formats.isEmpty()) {
-                        format = formats.iterator().next();
-                    }
-
-                    if (format == null) {
-
-                        try {
-                            format = formatService.saveFormat(rt.getFormat());
-                        } catch (SaveFailed e1) {
-                            logger.error("Cannot save format.", e1);
-                        }
-                    }
-                } catch (NotFound e) {
-                    logger.warn("Cannot find format.", e);
-                }
+                Format format = format(rt);
 
                 if (format == null) {
                     return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                             HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).response();
                 }
 
-                Collection<Record> records;
-                Record record = null;
-
-                try {
-                    records = recordService.findRecord("uid", rt.getRecord().getUid());
-
-                    if (!records.isEmpty()) {
-                        record = records.iterator().next();
-                    }
-
-                    if (record == null) {
-
-                        try {
-                            record = recordService.saveRecord(rt.getRecord());
-                        } catch (SaveFailed e1) {
-                            logger.error("Cannot save record..", e1);
-                        }
-                    }
-                } catch (NotFound e) {
-                    logger.info("Cannot find record by uid (" + rt.getRecord().getUid() + ").", e);
-                }
+                Record record = record(rt);
 
                 if (record == null) {
                     return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                             HttpStatus.NOT_ACCEPTABLE, "Cannot find or save record.", null).response();
                 }
 
-                for (Set set : rt.getSets()) {
-                    Set readSet = null;
-
-                    try {
-                        Collection<Set> sets = setService.find("setspec", set.getSetSpec());
-
-                        if (!sets.isEmpty()) {
-                            readSet = sets.iterator().next();
-                        } else {
-                            logger.info("Cannot find set (" + set.getSetSpec() + ").");
-                        }
-                    } catch (NotFound ignore) { }
-
-                    if (readSet == null) {
-
-                        try {
-                            set = setService.saveSet(set);
-                        } catch (SaveFailed e) {
-                            return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                                    HttpStatus.BAD_REQUEST, null, e).response();
-                        }
-                    } else {
-                        set = readSet;
-                    }
-
-                    boolean strExsists = false;
-
-                    try {
-                        SetsToRecord findStr = (SetsToRecord) setsToRecordDao.findByMultipleValues(
-                                "id_set=%s AND id_record=%s",
-                                String.valueOf(set.getIdentifier()), String.valueOf(record.getIdentifier()));
-
-                        if (findStr != null && findStr.getIdSet() != null && findStr.getIdRecord() != null) {
-                            strExsists = true;
-                            setsToRecordService.delete(findStr);
-                        }
-                    } catch (NotFound | DeleteFailed e) {
-                        logger.info("Cannot find set to record entry (set:" + set.getIdentifier() + " / record:" + record.getRecordId() + ").", e);
-                    }
-
-                    if (!strExsists) {
-                        SetsToRecord setsToRecord = new SetsToRecord();
-                        setsToRecord.setIdRecord(record.getRecordId());
-                        setsToRecord.setIdSet(Long.valueOf(set.getIdentifier().toString()));
-
-                        try {
-                            setsToRecordDao.saveAndSetIdentifier(setsToRecord);
-                        } catch (SaveFailed e) {
-                            return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                                    HttpStatus.NOT_ACCEPTABLE, null, e).response();
-                        }
-                    }
-                }
+                saveSets(rt, record);
 
                 rt.getDissemination().setFormatId(format.getFormatId());
                 rt.getDissemination().setRecordId(record.getUid());
@@ -321,4 +229,118 @@ public class RecordController {
         return new ResponseEntity<Record>(record, HttpStatus.OK);
     }
 
+    private Format format(RecordTransport rt) {
+        Collection<Format> formats;
+
+        try {
+            formats = formatService.find("mdprefix", rt.getFormat().getMdprefix());
+            Format format = null;
+
+            if (!formats.isEmpty()) {
+                format = formats.iterator().next();
+            }
+
+            if (format == null) {
+
+                try {
+                    format = formatService.saveFormat(rt.getFormat());
+                } catch (SaveFailed e1) {
+                    logger.error("Cannot save format.", e1);
+                }
+            }
+
+            return format;
+        } catch (NotFound e) {
+            logger.warn("Cannot find format.", e);
+        }
+
+        return null;
+    }
+
+    private Record record(RecordTransport rt) {
+        Collection<Record> records;
+        Record record = null;
+
+        try {
+            records = recordService.findRecord("uid", rt.getRecord().getUid());
+
+            if (!records.isEmpty()) {
+                record = records.iterator().next();
+            }
+
+            if (record == null) {
+
+                try {
+                    record = recordService.saveRecord(rt.getRecord());
+                } catch (SaveFailed e1) {
+                    logger.error("Cannot save record..", e1);
+                }
+            }
+
+            return record;
+        } catch (NotFound e) {
+            logger.info("Cannot find record by uid (" + rt.getRecord().getUid() + ").", e);
+        }
+
+        return null;
+    }
+
+    private ResponseEntity saveSets(RecordTransport rt, Record record) {
+
+        for (Set set : rt.getSets()) {
+            Set readSet = null;
+
+            try {
+                Collection<Set> sets = setService.find("setspec", set.getSetSpec());
+
+                if (!sets.isEmpty()) {
+                    readSet = sets.iterator().next();
+                } else {
+                    logger.info("Cannot find set (" + set.getSetSpec() + ").");
+                }
+            } catch (NotFound ignore) { }
+
+            if (readSet == null) {
+
+                try {
+                    set = setService.saveSet(set);
+                } catch (SaveFailed e) {
+                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                            HttpStatus.BAD_REQUEST, null, e).response();
+                }
+            } else {
+                set = readSet;
+            }
+
+            boolean strExsists = false;
+
+            try {
+                SetsToRecord findStr = (SetsToRecord) setsToRecordDao.findByMultipleValues(
+                        "id_set=%s AND id_record=%s",
+                        String.valueOf(set.getIdentifier()), String.valueOf(record.getIdentifier()));
+
+                if (findStr != null && findStr.getIdSet() != null && findStr.getIdRecord() != null) {
+                    strExsists = true;
+                    setsToRecordService.delete(findStr);
+                }
+            } catch (NotFound | DeleteFailed e) {
+                logger.info("Cannot find set to record entry (set:" + set.getIdentifier() + " / record:" + record.getRecordId() + ").", e);
+            }
+
+            if (!strExsists) {
+                SetsToRecord setsToRecord = new SetsToRecord();
+                setsToRecord.setIdRecord(record.getRecordId());
+                setsToRecord.setIdSet(Long.valueOf(set.getIdentifier().toString()));
+
+                try {
+                    setsToRecordDao.saveAndSetIdentifier(setsToRecord);
+                } catch (SaveFailed e) {
+                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                            HttpStatus.NOT_ACCEPTABLE, null, e).response();
+                }
+            }
+        }
+
+        return null;
+    }
 }
