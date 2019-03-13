@@ -188,7 +188,6 @@ public class RecordController {
 
                         if (findStr != null && findStr.getIdSet() != null && findStr.getIdRecord() != null) {
                             strExsists = true;
-                            // @todo delete exists data rows
                             setsToRecordService.delete(findStr);
                         }
                     } catch (NotFound | DeleteFailed e) {
