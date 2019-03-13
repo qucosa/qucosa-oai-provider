@@ -29,6 +29,7 @@ import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
 import de.qucosa.oai.provider.services.SetService;
+import de.qucosa.oai.provider.services.SetsToRecordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,5 +118,12 @@ public class ApplicationConfig {
     @Bean
     public Dao setsToRecordDao() throws PropertyVetoException, SQLException {
         return new SetsToRecordDao(dataSource().getConnection());
+    }
+
+    @Bean
+    public SetsToRecordService setsToRecordService() throws PropertyVetoException, SQLException {
+        SetsToRecordService setsToRecordService = new SetsToRecordService();
+        setsToRecordService.setDao(setsToRecordDao());
+        return setsToRecordService;
     }
 }
