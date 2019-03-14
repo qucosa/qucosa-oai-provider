@@ -25,47 +25,109 @@ import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 
-public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<T> {
+@Repository
+public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<ResumptionToken> {
+    private Connection connection;
+
+    @Autowired
+    public ResumptionTokenDao(Connection connection) {
+
+        if (connection == null) {
+            throw new IllegalArgumentException("Connection cannot be null");
+        }
+
+        this.connection = connection;
+    }
+
+    public ResumptionTokenDao() {
+        this.connection = null;
+    }
+
     @Override
-    public T saveAndSetIdentifier(T object) throws SaveFailed {
+    public ResumptionToken saveAndSetIdentifier(ResumptionToken object) throws SaveFailed {
+        String sql = "INSERT INTO resumption_tokens (token_id, expiration_date, cursor)" +
+                " VALUES (?, ?, ?)" +
+                " ON CONFLICT (token_id)" +
+                " DO NOTHING";
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, object.getTokenId());
+            statement.setTimestamp(2, object.getExpirationDate());
+            statement.setLong(3, object.getCursor());
+            int affectedRows = statement.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new SaveFailed("Cannot save resumption token (" + object.getTokenId() + ").");
+            }
+
+        } catch (SQLException e) {
+            throw new SaveFailed("Cannot save resumption token (" + object.getTokenId() + ").", e);
+        }
+
+        return object;
+    }
+
+    @Override
+    public Collection<ResumptionToken> saveAndSetIdentifier(Collection<ResumptionToken> objects) throws SaveFailed {
         return null;
     }
 
     @Override
-    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
+    public ResumptionToken update(ResumptionToken object) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public T update(T object) throws UpdateFailed {
+    public Collection<ResumptionToken> update(Collection<ResumptionToken> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
+    public Collection<ResumptionToken> findAll() throws NotFound {
         return null;
     }
 
     @Override
-    public Collection<T> findAll() throws NotFound {
+    public ResumptionToken findById(String id) throws NotFound {
+        String sql = "SELECT token_id, expiration_date, cursor FROM resumption_tokens WHERE token_id = ?";
+        ResumptionToken resumptionToken = new ResumptionToken();
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, id);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                resumptionToken.setTokenId(resultSet.getString("token_id"));
+                resumptionToken.setExpirationDate(resultSet.getTimestamp("expiration_date"));
+                resumptionToken.setCursor(resultSet.getLong("cursor"));
+            }
+
+            resultSet.close();
+        } catch (SQLException e) {
+            throw new NotFound("Resumption token " + id + " not found.", e);
+        }
+
+        return resumptionToken;
+    }
+
+    @Override
+    public Collection<ResumptionToken> findByPropertyAndValue(String property, String value) throws NotFound {
         return null;
     }
 
     @Override
-    public T findById(String id) throws NotFound {
-        return null;
-    }
-
-    @Override
-    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
-        return null;
-    }
-
-    @Override
-    public T findByMultipleValues(String clause, String... values) throws NotFound {
+    public ResumptionToken findByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
@@ -80,12 +142,12 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<T> {
     }
 
     @Override
-    public void delete(T object) throws DeleteFailed {
+    public void delete(ResumptionToken object) throws DeleteFailed {
 
     }
 
     @Override
-    public void undoDelete(T object) throws UndoDeleteFailed {
+    public void undoDelete(ResumptionToken object) throws UndoDeleteFailed {
 
     }
 }
