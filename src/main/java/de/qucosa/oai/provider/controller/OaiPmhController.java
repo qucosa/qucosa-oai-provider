@@ -22,11 +22,14 @@ import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.api.builders.oaipmh.OaiPmhFactory;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
+import de.qucosa.oai.provider.services.ResumptionTokenService;
 import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
 import org.apache.tomcat.util.buf.HexUtils;
@@ -51,7 +54,11 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @RequestMapping("/oai")
@@ -78,14 +85,18 @@ public class OaiPmhController {
 
     private SetsToRecordService setsToRecordService;
 
+    private ResumptionTokenService<ResumptionToken> resumptionTokenService;
+
     @Autowired
     public OaiPmhController(RecordService recordService, FormatService formatService, SetService setService,
-                            DisseminationService disseminationService, SetsToRecordService setsToRecordService) {
+                            DisseminationService disseminationService, SetsToRecordService setsToRecordService,
+                            ResumptionTokenService<ResumptionToken> resumptionTokenService) {
         this.recordService = recordService;
         this.formatService = formatService;
         this.setService = setService;
         this.disseminationService = disseminationService;
         this.setsToRecordService = setsToRecordService;
+        this.resumptionTokenService = resumptionTokenService;
     }
 
     @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}", "{verb}/{metadataPrefix}/{from}",
@@ -114,6 +125,12 @@ public class OaiPmhController {
 
             if (session.getAttribute("resumptionToken") == null || session.getAttribute("resumptionToken").toString().isEmpty()) {
                 createResumptionToken(session);
+
+                try {
+                    saveResumptionTokenAndPidsPersistent(session, records);
+                } catch (SaveFailed saveFailed) {
+                    saveFailed.printStackTrace();
+                }
             }
         } catch (NotFound notFound) {
             return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
@@ -156,5 +173,47 @@ public class OaiPmhController {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         digest.update(UUID.randomUUID().toString().getBytes("UTF-8"));
         session.setAttribute("resumptionToken", HexUtils.toHexString(digest.digest()));
+    }
+
+    private void saveResumptionTokenAndPidsPersistent(HttpSession session, Collection<Record> records) throws SaveFailed {
+        List<Record> recordList = new ArrayList<>();
+        recordList.addAll(records);
+
+        if (recordList.size() > recordsProPage) {
+            int pageSum = (int) Math.ceil(((double)recordList.size() / (double)recordsProPage));
+            int rcCnt = 0;
+            Timestamp timestamp = new Timestamp(new Date().getTime());
+            int cursor = 0;
+
+            for (int i = 1; i <= pageSum; i++) {
+                ResumptionToken resumptionToken = new ResumptionToken();
+                resumptionToken.setTokenId(session.getAttribute("resumptionToken") + "/" + (rcCnt + 1));
+                resumptionToken.setExpirationDate(timestamp);
+
+                if (rcCnt > 0) {
+                    cursor = ((rcCnt * recordsProPage) - 1);
+                }
+
+                resumptionToken.setCursor(new Long(cursor));
+                rcCnt++;
+                resumptionToken = resumptionTokenService.saveAndSetIdentifier(resumptionToken);
+                int end = 0;
+
+                if (cursor == 0) {
+                    end = recordsProPage;
+                } else {
+                    cursor++;
+                    end = (cursor + recordsProPage);
+                }
+
+                for (int j = cursor; j < end; j++) {
+
+                    if (j < recordList.size()) {
+                        Record record = recordList.get(j);
+                        System.out.println(resumptionToken.getTokenId() + " - " + j + " / " + record.getUid());
+                    }
+                }
+            }
+        }
     }
 }
