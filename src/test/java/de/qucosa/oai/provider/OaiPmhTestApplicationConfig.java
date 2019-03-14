@@ -49,7 +49,7 @@ public class OaiPmhTestApplicationConfig {
 
     private String connUrl;
 
-    protected Connection connection;
+    public Connection connection;
 
     @Bean(destroyMethod = "stop")
     public EmbeddedPostgres postgres() throws IOException, SQLException {
@@ -59,6 +59,8 @@ public class OaiPmhTestApplicationConfig {
                 environment.getProperty("psql.database"),
                 environment.getProperty("psql.user"),
                 environment.getProperty("psql.passwd"));
+        postgres.getProcess().get().importFromFile(
+                new File(getClass().getResource("/db/migration/install-tables.sql").getPath()));
         postgres.getProcess().get().importFromFile(
                 new File(getClass().getResource("/db/migration/psql-oia-provider-test-data.sql").getPath()));
         connection = DriverManager.getConnection(connUrl);
