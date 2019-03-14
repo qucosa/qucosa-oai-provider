@@ -29,10 +29,12 @@ import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
 import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
+import org.apache.tomcat.util.buf.HexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,11 +45,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.w3c.dom.Document;
 
+import javax.servlet.http.HttpSession;
+import javax.websocket.server.PathParam;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.UUID;
 
 @RequestMapping("/oai")
 @RestController
+@Scope("session")
 public class OaiPmhController {
     private Logger logger = LoggerFactory.getLogger(OaiPmhController.class);
 
@@ -80,17 +89,17 @@ public class OaiPmhController {
     }
 
     @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}", "{verb}/{metadataPrefix}/{from}",
-            "{verb}/{metadataPrefix}/{from}/{until}", "{verb}/{resumptionToken}",
-            "{verb}/{resumptionToken}/{from}", "{verb}/{resumptionToken}/{from}/{until}"},
+            "{verb}/{metadataPrefix}/{from}/{until}", "{verb}/{metadataPrefix}/{resumptionToken}",
+            "{verb}/{metadataPrefix}/{from}/{resumptionToken}",
+            "{verb}/{metadataPrefix}/{from}/{until}/{resumptionToken}"},
             produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    public ResponseEntity findAll(@PathVariable String verb,
+    public ResponseEntity findAll(HttpSession session, @PathVariable String verb,
                                   @PathVariable(value = "metadataPrefix", required = false) String metadataPrefix,
                                   @PathVariable(value = "from", required = false) String from,
                                   @PathVariable(value = "until", required = false) String until,
-                                  @PathVariable(value = "resumptionToken", required = false) String resumptionToken) throws IOException {
+                                  @PathParam(value = "resumptionToken") String resumptionToken) throws IOException {
         Format format = findFormat(metadataPrefix);
-        Collection<Record> records;
 
         if (format == null) {
             return new ErrorDetails(this.getClass().getName(), "find", "GET:find",
@@ -98,12 +107,20 @@ public class OaiPmhController {
                     .response();
         }
 
+        Collection<Record> records = null;
+
         try {
             records = recordService.findAll();
+
+            if (session.getAttribute("resumptionToken") == null || session.getAttribute("resumptionToken").toString().isEmpty()) {
+                createResumptionToken(session);
+            }
         } catch (NotFound notFound) {
             return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
                     HttpStatus.NOT_FOUND, "Cannot found records.", notFound)
                     .response();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
 
         OaiPmhFactory oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
@@ -133,5 +150,11 @@ public class OaiPmhController {
         }
 
         return format;
+    }
+
+    private void createResumptionToken(HttpSession session) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        digest.update(UUID.randomUUID().toString().getBytes("UTF-8"));
+        session.setAttribute("resumptionToken", HexUtils.toHexString(digest.digest()));
     }
 }
