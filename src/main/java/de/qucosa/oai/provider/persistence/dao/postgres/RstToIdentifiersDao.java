@@ -26,10 +26,28 @@ import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.HasIdentifier;
 import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.sql.Connection;
 import java.util.Collection;
 
 public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<T> {
+    private Connection connection;
+
+    @Autowired
+    public RstToIdentifiersDao(Connection connection) {
+
+        if (connection == null) {
+            throw new IllegalArgumentException("Connection cannot be null");
+        }
+
+        this.connection = connection;
+    }
+
+    public RstToIdentifiersDao() {
+        this.connection = null;
+    }
+
     @Override
     public T saveAndSetIdentifier(T object) throws SaveFailed {
         return null;
