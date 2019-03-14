@@ -30,7 +30,7 @@ import java.sql.Timestamp;
 public class ResumptionToken implements Serializable, HasIdentifier {
 
     @JsonProperty("tokenId")
-    private Long tokenId;
+    private String tokenId;
 
     @JsonProperty("expirationDate")
     private Timestamp expirationDate;
@@ -40,7 +40,7 @@ public class ResumptionToken implements Serializable, HasIdentifier {
 
     @Override
     public void setIdentifier(Object identifier) {
-        setTokenId(Long.valueOf(identifier.toString()));
+        setTokenId(identifier.toString());
     }
 
     @Override
@@ -48,11 +48,11 @@ public class ResumptionToken implements Serializable, HasIdentifier {
         return getIdentifier();
     }
 
-    public Long getTokenId() {
+    public String getTokenId() {
         return tokenId;
     }
 
-    public void setTokenId(Long tokenId) {
+    public void setTokenId(String tokenId) {
         this.tokenId = tokenId;
     }
 
