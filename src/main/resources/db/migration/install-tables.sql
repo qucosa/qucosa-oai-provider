@@ -104,9 +104,9 @@ OWNER TO postgres;
 -- DROP TABLE public.resumption_tokens;
 CREATE TABLE public.resumption_tokens
 (
-  token_id bigint NOT NULL,
   expiration_date timestamp with time zone NOT NULL,
   cursor bigint NOT NULL,
+  token_id character varying(150) NOT NULL,
   CONSTRAINT pk_token_id PRIMARY KEY (token_id)
 )
 WITH (
@@ -120,8 +120,8 @@ ALTER TABLE public.resumption_tokens
 -- DROP TABLE public.rst_to_identifiers;
 CREATE TABLE public.rst_to_identifiers
 (
-  rst_id bigint NOT NULL,
   record_id bigint NOT NULL,
+  rst_id character varying(150) NOT NULL,
   CONSTRAINT fk_record_id FOREIGN KEY (record_id)
       REFERENCES public.records (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
