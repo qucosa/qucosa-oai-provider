@@ -23,12 +23,14 @@ import de.qucosa.oai.provider.persistence.dao.postgres.ResumptionTokenDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.RstToIdentifiersDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.SetDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.SetsToRecordDao;
+import de.qucosa.oai.provider.persistence.dao.postgres.views.OaiPmhListsDao;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
@@ -36,6 +38,7 @@ import de.qucosa.oai.provider.services.ResumptionTokenService;
 import de.qucosa.oai.provider.services.RstToIdentifiersService;
 import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
+import de.qucosa.oai.provider.services.views.OaiPmhListsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,5 +158,17 @@ public class ApplicationConfig {
         RstToIdentifiersService rstToIdentifiersService = new RstToIdentifiersService();
         rstToIdentifiersService.setDao(rstToIdentifiersDao());
         return rstToIdentifiersService;
+    }
+
+    @Bean
+    public Dao<OaiPmhLists> oaiPmhListsDao() {
+        return new OaiPmhListsDao<OaiPmhLists>();
+    }
+
+    @Bean
+    public OaiPmhListsService oaiPmhListsService() {
+        OaiPmhListsService oaiPmhListsService = new OaiPmhListsService();
+        oaiPmhListsService.setDao(oaiPmhListsDao());
+        return oaiPmhListsService;
     }
 }
