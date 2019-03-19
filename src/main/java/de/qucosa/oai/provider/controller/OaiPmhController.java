@@ -27,6 +27,7 @@ import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
+import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
@@ -153,11 +154,12 @@ public class OaiPmhController {
                             ResumptionToken resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
                                     ? resumptionTokenService.findById(session.getAttribute("resumptionToken").toString() + "/1")
                                     : resumptionTokenService.findById(resumptionToken);
+                            Collection<OaiPmhLists> oaiPmhLists = (Collection<OaiPmhLists>) oaiPmhListsService.findByMultipleValues(
+                                    "rst_id = %s AND format = %s", resumptionTokenObj.getTokenId(),
+                                    format.getIdentifier().toString());
 
                             oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService,
-                                    setService, setsToRecordService,
-                                    resumptionTokenObj,
-                                    recordsProPage);
+                                    setService, setsToRecordService, resumptionTokenObj, recordsProPage, oaiPmhLists);
                         } catch (IOException | NotFound e) {
                             e.printStackTrace();
                         }
