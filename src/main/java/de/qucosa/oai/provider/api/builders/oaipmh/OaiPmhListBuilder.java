@@ -23,6 +23,7 @@ import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
@@ -31,21 +32,23 @@ import java.io.IOException;
 import java.util.Collection;
 
 public interface OaiPmhListBuilder {
-    public void list() throws IOException, NotFound;
+    void list() throws IOException, NotFound;
 
-    public void setRecords(Collection<Record> records);
+    void setRecords(Collection<Record> records);
 
-    public void setDisseminationService(DisseminationService disseminationService);
+    void setDisseminationService(DisseminationService disseminationService);
 
-    public void setSetService(SetService<Set> setService);
+    void setSetService(SetService<Set> setService);
 
-    public void setVerb(String verb);
+    void setVerb(String verb);
 
-    public void setFormat(Format format);
+    void setFormat(Format format);
 
-    public void setSetToRecordService(SetsToRecordService setToRecordService);
+    void setSetToRecordService(SetsToRecordService setToRecordService);
 
-    public void setResumptionToken(ResumptionToken resumptionToken);
+    void setResumptionToken(ResumptionToken resumptionToken);
 
-    public void setRecordsProPage(int recordsProPage);
+    void setRecordsProPage(int recordsProPage);
+
+    void setOaiPmhLists(Collection<OaiPmhLists> oaiPmhLists);
 }
