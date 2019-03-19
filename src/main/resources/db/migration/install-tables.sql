@@ -146,7 +146,7 @@ CREATE OR REPLACE VIEW public.oai_pmh_lists AS
     diss.lastmoddate,
     diss.xmldata,
     diss.deleted AS dissemination_status,
-    fm.id
+    fm.id AS format
    FROM rst_to_identifiers rti
      LEFT JOIN resumption_tokens rt ON rti.rst_id::text = rt.token_id::text
      LEFT JOIN records rc ON rti.record_id = rc.id
