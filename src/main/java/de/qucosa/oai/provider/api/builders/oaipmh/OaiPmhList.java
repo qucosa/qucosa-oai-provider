@@ -23,6 +23,7 @@ import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
@@ -49,6 +50,8 @@ public abstract class OaiPmhList {
     protected ResumptionToken resumptionToken;
 
     protected int recordsProPage;
+
+    protected Collection<OaiPmhLists> oaiPmhLists;
 
     public OaiPmhList(Document oaiPmhTemplate) {
         this.oaiPmhTemplate = oaiPmhTemplate;
@@ -84,6 +87,10 @@ public abstract class OaiPmhList {
 
     public void setRecordsProPage(int recordsProPage) {
         this.recordsProPage = recordsProPage;
+    }
+
+    public void setOaiPmhLists(Collection<OaiPmhLists> oaiPmhLists) {
+        this.oaiPmhLists = oaiPmhLists;
     }
 
     protected Element listNode() {
