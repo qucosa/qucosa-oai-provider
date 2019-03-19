@@ -26,10 +26,12 @@ import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
+import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
 import de.qucosa.oai.provider.services.ResumptionTokenService;
+import de.qucosa.oai.provider.services.RstToIdentifiersService;
 import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
 import org.apache.tomcat.util.buf.HexUtils;
@@ -87,16 +89,20 @@ public class OaiPmhController {
 
     private ResumptionTokenService<ResumptionToken> resumptionTokenService;
 
+    private RstToIdentifiersService rstToIdentifiersService;
+
     @Autowired
     public OaiPmhController(RecordService recordService, FormatService formatService, SetService setService,
                             DisseminationService disseminationService, SetsToRecordService setsToRecordService,
-                            ResumptionTokenService<ResumptionToken> resumptionTokenService) {
+                            ResumptionTokenService<ResumptionToken> resumptionTokenService,
+                            RstToIdentifiersService rstToIdentifiersService) {
         this.recordService = recordService;
         this.formatService = formatService;
         this.setService = setService;
         this.disseminationService = disseminationService;
         this.setsToRecordService = setsToRecordService;
         this.resumptionTokenService = resumptionTokenService;
+        this.rstToIdentifiersService = rstToIdentifiersService;
     }
 
     @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}", "{verb}/{metadataPrefix}/{from}",
@@ -119,17 +125,40 @@ public class OaiPmhController {
         }
 
         Collection<Record> records = null;
+        OaiPmhFactory oaiPmhFactory = null;
+        Document oaiPmhList = null;
 
         try {
             records = recordService.findAll();
 
-            if (session.getAttribute("resumptionToken") == null || session.getAttribute("resumptionToken").toString().isEmpty()) {
-                createResumptionToken(session);
+            if (records.size() > recordsProPage) {
 
-                try {
-                    saveResumptionTokenAndPidsPersistent(session, records);
-                } catch (SaveFailed saveFailed) {
-                    saveFailed.printStackTrace();
+                if (session.getAttribute("resumptionToken") == null || session.getAttribute("resumptionToken").toString().isEmpty()) {
+
+                    try {
+
+                        if (resumptionToken == null || resumptionToken.isEmpty()) {
+                            createResumptionToken(session);
+                            saveResumptionTokenAndPidsPersistent(session, records);
+                        }
+
+                        oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
+
+                        try {
+                            ResumptionToken resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
+                                    ? resumptionTokenService.findById(session.getAttribute("resumptionToken").toString() + "/1")
+                                    : resumptionTokenService.findById(resumptionToken);
+
+                            oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService,
+                                    setService, setsToRecordService,
+                                    resumptionTokenObj,
+                                    recordsProPage);
+                        } catch (IOException | NotFound e) {
+                            e.printStackTrace();
+                        }
+                    } catch (SaveFailed saveFailed) {
+                        saveFailed.printStackTrace();
+                    }
                 }
             }
         } catch (NotFound notFound) {
@@ -140,13 +169,15 @@ public class OaiPmhController {
             e.printStackTrace();
         }
 
-        OaiPmhFactory oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
-        Document oaiPmhList = null;
+        if (records.size() < recordsProPage) {
+            oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
 
-        try {
-            oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService, setService, setsToRecordService);
-        } catch (IOException | NotFound e) {
-            e.printStackTrace();
+            try {
+                oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService, setService,
+                        setsToRecordService);
+            } catch (IOException | NotFound e) {
+                e.printStackTrace();
+            }
         }
 
         return new ResponseEntity(DocumentXmlUtils.resultXml(oaiPmhList), HttpStatus.OK);
@@ -178,6 +209,7 @@ public class OaiPmhController {
     private void saveResumptionTokenAndPidsPersistent(HttpSession session, Collection<Record> records) throws SaveFailed {
         List<Record> recordList = new ArrayList<>();
         recordList.addAll(records);
+        Collection<RstToIdentifiers> rstToIdentifiersCollection = new ArrayList<>();
 
         if (recordList.size() > recordsProPage) {
             int pageSum = (int) Math.ceil(((double)recordList.size() / (double)recordsProPage));
@@ -210,10 +242,15 @@ public class OaiPmhController {
 
                     if (j < recordList.size()) {
                         Record record = recordList.get(j);
-                        System.out.println(resumptionToken.getTokenId() + " - " + j + " / " + record.getUid());
+                        RstToIdentifiers rstToIdentifiers = new RstToIdentifiers();
+                        rstToIdentifiers.setRecordId(record.getRecordId());
+                        rstToIdentifiers.setRstId(resumptionToken.getTokenId());
+                        rstToIdentifiersCollection.add(rstToIdentifiers);
                     }
                 }
             }
+
+            rstToIdentifiersService.saveAndSetIdentifier(rstToIdentifiersCollection);
         }
     }
 }
