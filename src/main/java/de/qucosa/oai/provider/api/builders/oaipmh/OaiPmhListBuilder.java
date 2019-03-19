@@ -43,4 +43,8 @@ public interface OaiPmhListBuilder {
     public void setFormat(Format format);
 
     public void setSetToRecordService(SetsToRecordService setToRecordService);
+
+    public void setResumptionToken(String resumptionToken);
+
+    public void setRecordsProPage(int recordsProPage);
 }
