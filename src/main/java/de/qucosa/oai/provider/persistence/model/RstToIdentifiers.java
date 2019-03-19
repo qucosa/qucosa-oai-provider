@@ -19,15 +19,15 @@
 package de.qucosa.oai.provider.persistence.model;
 
 public class RstToIdentifiers implements HasIdentifier {
-    private Long rstId;
+    private String rstId;
 
     private Long recordId;
 
-    public Long getRstId() {
+    public String getRstId() {
         return rstId;
     }
 
-    public void setRstId(Long rstId) {
+    public void setRstId(String rstId) {
         this.rstId = rstId;
     }
 
