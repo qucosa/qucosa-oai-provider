@@ -18,6 +18,7 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
@@ -66,6 +67,7 @@ public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuild
             writeSetsInHeader(identifierTpl, sets);
 
             listIdentifiers.appendChild(oaiPmhTemplate.importNode(identifierTpl.getDocumentElement(), true));
+            addResumtionToken();
         }
     }
 
@@ -77,5 +79,22 @@ public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuild
             node.setTextContent(set.getSetSpec());
             header.appendChild(identifierTpl.importNode(node, true));
         }
+    }
+
+    private void addResumtionToken() {
+        Node nodeByVerb = oaiPmhTemplate.getElementsByTagName(verb).item(0);
+        Document resumptionTokenDoc = DocumentXmlUtils.document(
+                getClass().getResourceAsStream("/templates/resumption-token.xml"), true);
+        Node resumptionTokenElem = resumptionTokenDoc.getDocumentElement();
+        resumptionTokenElem.setTextContent(resumptionToken.getTokenId());
+        resumptionTokenElem.getAttributes().getNamedItem("cursor").setNodeValue(String.valueOf(resumptionToken.getCursor()));
+        resumptionTokenElem.getAttributes().getNamedItem("expirationDate").setNodeValue(
+                DateTimeConverter.sqlTimestampToString(resumptionToken.getExpirationDate())
+        );
+        resumptionTokenElem.getAttributes().getNamedItem("completeListSize").setNodeValue(
+                String.valueOf(records.size())
+        );
+
+        nodeByVerb.appendChild(oaiPmhTemplate.importNode(resumptionTokenDoc.getDocumentElement(), true));
     }
 }
