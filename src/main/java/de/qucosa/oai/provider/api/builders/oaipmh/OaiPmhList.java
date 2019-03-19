@@ -21,6 +21,7 @@ package de.qucosa.oai.provider.api.builders.oaipmh;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.SetService;
@@ -45,7 +46,7 @@ public abstract class OaiPmhList {
 
     protected SetsToRecordService setsToRecordService;
 
-    protected String resumtionToken;
+    protected ResumptionToken resumptionToken;
 
     protected int recordsProPage;
 
@@ -77,8 +78,8 @@ public abstract class OaiPmhList {
         this.setsToRecordService = setToRecordService;
     }
 
-    public void setResumtionToken(String resumtionToken) {
-        this.resumtionToken = resumtionToken;
+    public void setResumptionToken(ResumptionToken resumptionToken) {
+        this.resumptionToken = resumptionToken;
     }
 
     public void setRecordsProPage(int recordsProPage) {
