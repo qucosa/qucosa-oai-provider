@@ -45,6 +45,10 @@ public abstract class OaiPmhList {
 
     protected SetsToRecordService setsToRecordService;
 
+    protected String resumtionToken;
+
+    protected int recordsProPage;
+
     public OaiPmhList(Document oaiPmhTemplate) {
         this.oaiPmhTemplate = oaiPmhTemplate;
     }
@@ -71,6 +75,14 @@ public abstract class OaiPmhList {
 
     public void setSetToRecordService(SetsToRecordService setToRecordService) {
         this.setsToRecordService = setToRecordService;
+    }
+
+    public void setResumtionToken(String resumtionToken) {
+        this.resumtionToken = resumtionToken;
+    }
+
+    public void setRecordsProPage(int recordsProPage) {
+        this.recordsProPage = recordsProPage;
     }
 
     protected Element listNode() {
