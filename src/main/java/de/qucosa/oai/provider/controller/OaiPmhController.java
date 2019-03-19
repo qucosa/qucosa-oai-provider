@@ -34,6 +34,7 @@ import de.qucosa.oai.provider.services.ResumptionTokenService;
 import de.qucosa.oai.provider.services.RstToIdentifiersService;
 import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
+import de.qucosa.oai.provider.services.views.OaiPmhListsService;
 import org.apache.tomcat.util.buf.HexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,11 +92,14 @@ public class OaiPmhController {
 
     private RstToIdentifiersService rstToIdentifiersService;
 
+    private OaiPmhListsService oaiPmhListsService;
+
     @Autowired
     public OaiPmhController(RecordService recordService, FormatService formatService, SetService setService,
                             DisseminationService disseminationService, SetsToRecordService setsToRecordService,
                             ResumptionTokenService<ResumptionToken> resumptionTokenService,
-                            RstToIdentifiersService rstToIdentifiersService) {
+                            RstToIdentifiersService rstToIdentifiersService,
+                            OaiPmhListsService oaiPmhListsService) {
         this.recordService = recordService;
         this.formatService = formatService;
         this.setService = setService;
@@ -103,6 +107,7 @@ public class OaiPmhController {
         this.setsToRecordService = setsToRecordService;
         this.resumptionTokenService = resumptionTokenService;
         this.rstToIdentifiersService = rstToIdentifiersService;
+        this.oaiPmhListsService = oaiPmhListsService;
     }
 
     @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}", "{verb}/{metadataPrefix}/{from}",
