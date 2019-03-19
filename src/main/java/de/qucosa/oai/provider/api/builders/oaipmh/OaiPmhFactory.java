@@ -22,6 +22,7 @@ import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.SetService;
@@ -68,7 +69,7 @@ public class OaiPmhFactory {
                                DisseminationService disseminationService,
                                SetService<Set> setService,
                                SetsToRecordService setsToRecordService,
-                               String resumptionToken,
+                               ResumptionToken resumptionToken,
                                int recordsProPage) throws IOException, NotFound {
         buildList(verb, format, records, disseminationService, setService, setsToRecordService, resumptionToken, recordsProPage);
         setOaiPmhAttributes(verb, format);
@@ -80,7 +81,7 @@ public class OaiPmhFactory {
     protected void buildList(String verb, Format format, Collection<Record> records,
                              DisseminationService disseminationService, SetService<Set> setService,
                              SetsToRecordService setsToRecordService,
-                             String resumptionToken,
+                             ResumptionToken resumptionToken,
                              int recordsProPage) {
         switch (verb) {
             case "ListIdentifiers":
