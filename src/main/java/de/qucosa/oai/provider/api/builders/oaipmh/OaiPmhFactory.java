@@ -57,7 +57,20 @@ public class OaiPmhFactory {
                                DisseminationService disseminationService,
                                SetService<Set> setService,
                                SetsToRecordService setsToRecordService) throws IOException, NotFound {
-        buildList(verb, format, records, disseminationService, setService, setsToRecordService);
+        buildList(verb, format, records, disseminationService, setService, setsToRecordService, null, 0);
+        setOaiPmhAttributes(verb, format);
+
+        listBuilder.list();
+        return oaiPmhTemplate;
+    }
+
+    public Document createList(String verb, Format format, Collection<Record> records,
+                               DisseminationService disseminationService,
+                               SetService<Set> setService,
+                               SetsToRecordService setsToRecordService,
+                               String resumptionToken,
+                               int recordsProPage) throws IOException, NotFound {
+        buildList(verb, format, records, disseminationService, setService, setsToRecordService, resumptionToken, recordsProPage);
         setOaiPmhAttributes(verb, format);
 
         listBuilder.list();
@@ -66,27 +79,26 @@ public class OaiPmhFactory {
 
     protected void buildList(String verb, Format format, Collection<Record> records,
                              DisseminationService disseminationService, SetService<Set> setService,
-                             SetsToRecordService setsToRecordService) {
+                             SetsToRecordService setsToRecordService,
+                             String resumptionToken,
+                             int recordsProPage) {
         switch (verb) {
             case "ListIdentifiers":
                 listBuilder = new OaiPmhListIdentifiers(oaiPmhTemplate);
-                listBuilder.setVerb(verb);
-                listBuilder.setFormat(format);
-                listBuilder.setRecords(records);
-                listBuilder.setDisseminationService(disseminationService);
-                listBuilder.setSetService(setService);
-                listBuilder.setSetToRecordService(setsToRecordService);
                 break;
             case "ListRecords":
                 listBuilder = new OaiPmhListRecords(oaiPmhTemplate);
-                listBuilder.setVerb(verb);
-                listBuilder.setFormat(format);
-                listBuilder.setRecords(records);
-                listBuilder.setDisseminationService(disseminationService);
-                listBuilder.setSetService(setService);
-                listBuilder.setSetToRecordService(setsToRecordService);
                 break;
         }
+
+        listBuilder.setVerb(verb);
+        listBuilder.setFormat(format);
+        listBuilder.setRecords(records);
+        listBuilder.setDisseminationService(disseminationService);
+        listBuilder.setSetService(setService);
+        listBuilder.setSetToRecordService(setsToRecordService);
+        listBuilder.setResumptionToken(resumptionToken);
+        listBuilder.setRecordsProPage(recordsProPage);
     }
 
     private void setOaiPmhAttributes(String verb, Format format) {
