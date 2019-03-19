@@ -20,17 +20,20 @@ import de.qucosa.oai.provider.persistence.dao.postgres.DisseminationDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.FormatDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.RecordDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.ResumptionTokenDao;
+import de.qucosa.oai.provider.persistence.dao.postgres.RstToIdentifiersDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.SetDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.SetsToRecordDao;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
+import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
 import de.qucosa.oai.provider.services.ResumptionTokenService;
+import de.qucosa.oai.provider.services.RstToIdentifiersService;
 import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
 import org.slf4j.Logger;
@@ -140,5 +143,17 @@ public class ApplicationConfig {
         ResumptionTokenService resumptionTokenService = new ResumptionTokenService();
         resumptionTokenService.setDao(resumptionTokenDao());
         return resumptionTokenService;
+    }
+
+    @Bean
+    public Dao<RstToIdentifiers> rstToIdentifiersDao() throws SQLException {
+        return new RstToIdentifiersDao<RstToIdentifiers>(dataSource().getConnection());
+    }
+
+    @Bean
+    public RstToIdentifiersService rstToIdentifiersService() throws SQLException {
+        RstToIdentifiersService rstToIdentifiersService = new RstToIdentifiersService();
+        rstToIdentifiersService.setDao(rstToIdentifiersDao());
+        return rstToIdentifiersService;
     }
 }
