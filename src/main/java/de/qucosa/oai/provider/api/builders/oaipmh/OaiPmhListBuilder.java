@@ -21,6 +21,7 @@ package de.qucosa.oai.provider.api.builders.oaipmh;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
+import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.SetService;
@@ -44,7 +45,7 @@ public interface OaiPmhListBuilder {
 
     public void setSetToRecordService(SetsToRecordService setToRecordService);
 
-    public void setResumptionToken(String resumptionToken);
+    public void setResumptionToken(ResumptionToken resumptionToken);
 
     public void setRecordsProPage(int recordsProPage);
 }
