@@ -24,6 +24,7 @@ import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
@@ -58,7 +59,7 @@ public class OaiPmhFactory {
                                DisseminationService disseminationService,
                                SetService<Set> setService,
                                SetsToRecordService setsToRecordService) throws IOException, NotFound {
-        buildList(verb, format, records, disseminationService, setService, setsToRecordService, null, 0);
+        buildList(verb, format, records, disseminationService, setService, setsToRecordService, null, 0, null);
         setOaiPmhAttributes(verb, format);
 
         listBuilder.list();
@@ -66,12 +67,11 @@ public class OaiPmhFactory {
     }
 
     public Document createList(String verb, Format format, Collection<Record> records,
-                               DisseminationService disseminationService,
-                               SetService<Set> setService,
-                               SetsToRecordService setsToRecordService,
-                               ResumptionToken resumptionToken,
-                               int recordsProPage) throws IOException, NotFound {
-        buildList(verb, format, records, disseminationService, setService, setsToRecordService, resumptionToken, recordsProPage);
+                               DisseminationService disseminationService, SetService<Set> setService,
+                               SetsToRecordService setsToRecordService, ResumptionToken resumptionToken,
+                               int recordsProPage, Collection<OaiPmhLists> oaiPmhLists) throws IOException, NotFound {
+        buildList(verb, format, records, disseminationService, setService, setsToRecordService, resumptionToken,
+                recordsProPage, oaiPmhLists);
         setOaiPmhAttributes(verb, format);
 
         listBuilder.list();
@@ -80,9 +80,8 @@ public class OaiPmhFactory {
 
     protected void buildList(String verb, Format format, Collection<Record> records,
                              DisseminationService disseminationService, SetService<Set> setService,
-                             SetsToRecordService setsToRecordService,
-                             ResumptionToken resumptionToken,
-                             int recordsProPage) {
+                             SetsToRecordService setsToRecordService, ResumptionToken resumptionToken,
+                             int recordsProPage, Collection<OaiPmhLists> oaiPmhLists) {
         switch (verb) {
             case "ListIdentifiers":
                 listBuilder = new OaiPmhListIdentifiers(oaiPmhTemplate);
@@ -100,6 +99,7 @@ public class OaiPmhFactory {
         listBuilder.setSetToRecordService(setsToRecordService);
         listBuilder.setResumptionToken(resumptionToken);
         listBuilder.setRecordsProPage(recordsProPage);
+        listBuilder.setOaiPmhLists(oaiPmhLists);
     }
 
     private void setOaiPmhAttributes(String verb, Format format) {
