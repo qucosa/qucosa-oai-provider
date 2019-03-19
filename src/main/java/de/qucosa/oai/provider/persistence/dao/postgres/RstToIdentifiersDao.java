@@ -27,10 +27,14 @@ import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.HasIdentifier;
 import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Collection;
 
+@Repository
 public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<T> {
     private Connection connection;
 
@@ -55,6 +59,33 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<T> {
 
     @Override
     public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
+        String sql = "INSERT INTO rst_to_identifiers (record_id, rst_id)" +
+                " VALUES (?, ?)";
+
+        try {
+            PreparedStatement pst = connection.prepareStatement(sql);
+            connection.setAutoCommit(false);
+
+            for (RstToIdentifiers rstToIdentifiers : objects) {
+                pst.clearParameters();
+                pst.setLong(1, rstToIdentifiers.getRecordId());
+                pst.setString(2, rstToIdentifiers.getRstId());
+                pst.addBatch();
+            }
+
+            pst.clearParameters();
+            int[] insertRows = pst.executeBatch();
+
+            if (insertRows.length != objects.size()) {
+                throw new SaveFailed("Not all rows saved.");
+            }
+
+            connection.commit();
+            pst.close();
+        } catch (SQLException e) {
+            throw new SaveFailed(e.getMessage());
+        }
+
         return null;
     }
 
