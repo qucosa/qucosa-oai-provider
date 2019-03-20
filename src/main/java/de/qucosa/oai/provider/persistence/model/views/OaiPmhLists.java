@@ -39,6 +39,9 @@ public class OaiPmhLists implements Serializable, HasIdentifier {
     @JsonProperty("uid")
     private String uid;
 
+    @JsonProperty("recordId")
+    private Long recordId;
+
     @JsonProperty("recordStatus")
     private boolean recordStatus;
 
@@ -76,6 +79,14 @@ public class OaiPmhLists implements Serializable, HasIdentifier {
 
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public Long getRecordId() {
+        return recordId;
+    }
+
+    public void setRecordId(Long recordId) {
+        this.recordId = recordId;
     }
 
     public boolean isRecordStatus() {
