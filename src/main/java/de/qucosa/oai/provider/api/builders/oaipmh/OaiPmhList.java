@@ -18,6 +18,7 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
@@ -29,6 +30,7 @@ import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import java.util.Collection;
 
@@ -97,5 +99,32 @@ public abstract class OaiPmhList {
         Document document = DocumentXmlUtils.document(null, true);
         Element element = document.createElement(verb);
         return element;
+    }
+
+    protected void writeSetsInHeader(Document identifierTpl, Collection<Set> sets) {
+        Node header = identifierTpl.getElementsByTagName("header").item(0);
+
+        for (Set set : sets) {
+            Node node = identifierTpl.createElement("setspec");
+            node.setTextContent(set.getSetSpec());
+            header.appendChild(identifierTpl.importNode(node, true));
+        }
+    }
+
+    protected void addResumtionToken() {
+        Node nodeByVerb = oaiPmhTemplate.getElementsByTagName(verb).item(0);
+        Document resumptionTokenDoc = DocumentXmlUtils.document(
+                getClass().getResourceAsStream("/templates/resumption-token.xml"), true);
+        Node resumptionTokenElem = resumptionTokenDoc.getDocumentElement();
+        resumptionTokenElem.setTextContent(resumptionToken.getTokenId());
+        resumptionTokenElem.getAttributes().getNamedItem("cursor").setNodeValue(String.valueOf(resumptionToken.getCursor()));
+        resumptionTokenElem.getAttributes().getNamedItem("expirationDate").setNodeValue(
+                DateTimeConverter.sqlTimestampToString(resumptionToken.getExpirationDate())
+        );
+        resumptionTokenElem.getAttributes().getNamedItem("completeListSize").setNodeValue(
+                String.valueOf(records.size())
+        );
+
+        nodeByVerb.appendChild(oaiPmhTemplate.importNode(resumptionTokenDoc.getDocumentElement(), true));
     }
 }
