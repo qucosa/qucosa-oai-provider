@@ -161,12 +161,12 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public Dao<OaiPmhLists> oaiPmhListsDao() {
-        return new OaiPmhListsDao<OaiPmhLists>();
+    public Dao<OaiPmhLists> oaiPmhListsDao() throws SQLException {
+        return new OaiPmhListsDao<OaiPmhLists>(dataSource().getConnection());
     }
 
     @Bean
-    public OaiPmhListsService oaiPmhListsService() {
+    public OaiPmhListsService oaiPmhListsService() throws SQLException {
         OaiPmhListsService oaiPmhListsService = new OaiPmhListsService();
         oaiPmhListsService.setDao(oaiPmhListsDao());
         return oaiPmhListsService;
