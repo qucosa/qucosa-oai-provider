@@ -150,6 +150,11 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
+    public Collection<SetsToRecord> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        return null;
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
 
     }

@@ -164,6 +164,11 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
     }
 
     @Override
+    public Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        return null;
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed { }
 
     @Override

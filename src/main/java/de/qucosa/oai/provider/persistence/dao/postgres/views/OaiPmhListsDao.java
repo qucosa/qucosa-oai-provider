@@ -29,6 +29,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
@@ -47,6 +51,7 @@ public class OaiPmhListsDao<T extends OaiPmhLists> implements Dao<OaiPmhLists> {
     }
 
     public OaiPmhListsDao() { }
+
 
     @Override
     public OaiPmhLists saveAndSetIdentifier(OaiPmhLists object) throws SaveFailed {
@@ -86,6 +91,38 @@ public class OaiPmhListsDao<T extends OaiPmhLists> implements Dao<OaiPmhLists> {
     @Override
     public OaiPmhLists findByMultipleValues(String clause, String... values) throws NotFound {
         return null;
+    }
+
+    @Override
+    public Collection<OaiPmhLists> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        if (values[0] == null || values[0].isEmpty() || values[1] == null || values[1].isEmpty()) {
+            throw new NotFound("Cannot find oai omh list entries becaue resumptionToken or format_id failed.");
+        }
+
+        clause = clause.replace("%s", "?");
+        String sql = "SELECT * FROM oai_pmh_lists WHERE " + clause;
+        Collection<OaiPmhLists> pmhLists = new ArrayList<>();
+
+        try {
+            PreparedStatement pst = connection.prepareStatement(sql);
+            pst.setString(1, values[0]);
+            pst.setLong(2, Long.valueOf(values[1]));
+            ResultSet resultSet = pst.executeQuery();
+
+            while (resultSet.next()) {
+                OaiPmhLists oaiPmhLists = new OaiPmhLists();
+                oaiPmhLists.setUid(resultSet.getString("uid"));
+                oaiPmhLists.setLastModDate(resultSet.getTimestamp("lastmoddate"));
+                oaiPmhLists.setExpirationDate(resultSet.getTimestamp("expiration_date"));
+                oaiPmhLists.setXmldata(resultSet.getString("xmldata"));
+                oaiPmhLists.setRecordStatus(resultSet.getBoolean("record_status"));
+                oaiPmhLists.setDisseminationStatus(resultSet.getBoolean("dissemination_status"));
+                pmhLists.add(oaiPmhLists);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return pmhLists;
     }
 
     @Override

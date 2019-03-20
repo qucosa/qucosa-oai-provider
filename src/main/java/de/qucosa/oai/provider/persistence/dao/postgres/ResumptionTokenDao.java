@@ -132,6 +132,11 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
+    public Collection<ResumptionToken> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        return null;
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
 
     }

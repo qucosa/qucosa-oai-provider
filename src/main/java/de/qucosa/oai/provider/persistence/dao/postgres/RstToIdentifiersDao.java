@@ -120,6 +120,11 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<T> {
     }
 
     @Override
+    public Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        return null;
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
 
     }
