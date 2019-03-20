@@ -142,6 +142,7 @@ CREATE OR REPLACE VIEW public.oai_pmh_lists AS
  SELECT rti.rst_id,
     rt.expiration_date,
     rc.uid,
+    rc.id AS record_id,
     rc.deleted AS record_status,
     diss.lastmoddate,
     diss.xmldata,
