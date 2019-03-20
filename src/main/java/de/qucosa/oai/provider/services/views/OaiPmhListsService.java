@@ -31,7 +31,7 @@ public class OaiPmhListsService<T> {
         this.dao = dao;
     }
 
-    public OaiPmhLists findByMultipleValues(String clause, String... values) throws NotFound {
+    public OaiPmhLists findRowsByMultipleValues(String clause, String... values) throws NotFound {
         return (OaiPmhLists) dao.findByMultipleValues(clause, values);
     }
 }
