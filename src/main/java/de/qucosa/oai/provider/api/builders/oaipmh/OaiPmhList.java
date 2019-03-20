@@ -111,12 +111,16 @@ public abstract class OaiPmhList {
         }
     }
 
-    protected void addResumtionToken() {
+    protected void addResumtionToken(int dataSize) {
         Node nodeByVerb = oaiPmhTemplate.getElementsByTagName(verb).item(0);
         Document resumptionTokenDoc = DocumentXmlUtils.document(
                 getClass().getResourceAsStream("/templates/resumption-token.xml"), true);
         Node resumptionTokenElem = resumptionTokenDoc.getDocumentElement();
-        resumptionTokenElem.setTextContent(resumptionToken.getTokenId());
+
+        if ((dataSize - Integer.parseInt(String.valueOf(resumptionToken.getCursor()))) >= recordsProPage) {
+            resumptionTokenElem.setTextContent(resumptionToken.getTokenId());
+        }
+
         resumptionTokenElem.getAttributes().getNamedItem("cursor").setNodeValue(String.valueOf(resumptionToken.getCursor()));
         resumptionTokenElem.getAttributes().getNamedItem("expirationDate").setNodeValue(
                 DateTimeConverter.sqlTimestampToString(resumptionToken.getExpirationDate())
