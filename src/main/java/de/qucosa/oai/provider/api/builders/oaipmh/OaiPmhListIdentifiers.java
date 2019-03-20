@@ -101,6 +101,8 @@ public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuild
             }
         }
 
-        addResumtionToken();
+        if (resumptionToken != null) {
+            addResumtionToken(records.size());
+        }
     }
 }
