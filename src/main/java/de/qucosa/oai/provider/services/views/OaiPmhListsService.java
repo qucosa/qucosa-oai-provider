@@ -22,6 +22,8 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 
+import java.util.Collection;
+
 public class OaiPmhListsService<T> {
     private Dao dao;
 
@@ -31,7 +33,7 @@ public class OaiPmhListsService<T> {
         this.dao = dao;
     }
 
-    public OaiPmhLists findRowsByMultipleValues(String clause, String... values) throws NotFound {
-        return (OaiPmhLists) dao.findByMultipleValues(clause, values);
+    public Collection<OaiPmhLists> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        return dao.findRowsByMultipleValues(clause, values);
     }
 }
