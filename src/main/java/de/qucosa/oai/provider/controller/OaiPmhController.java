@@ -131,59 +131,66 @@ public class OaiPmhController {
         }
 
         Collection<Record> records = null;
+        Collection<OaiPmhLists> oaiPmhLists = null;
         OaiPmhFactory oaiPmhFactory = null;
         Document oaiPmhList = null;
+        ResumptionToken resumptionTokenObj = null;
 
         try {
             records = recordService.findAll();
+        } catch (NotFound notFound) {
+            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                    HttpStatus.NOT_FOUND, "Cannot found records.", notFound).response();
+        }
 
-            if (records.size() > recordsProPage) {
+        if (records.size() > recordsProPage) {
+            oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
 
-                if (session.getAttribute("resumptionToken") == null || session.getAttribute("resumptionToken").toString().isEmpty()) {
+            if (session.getAttribute("resumptionToken") == null || session.getAttribute("resumptionToken").toString().isEmpty()) {
+
+                if (resumptionToken == null || resumptionToken.isEmpty()) {
 
                     try {
-
-                        if (resumptionToken == null || resumptionToken.isEmpty()) {
-                            createResumptionToken(session);
-                            saveResumptionTokenAndPidsPersistent(session, records);
-                        }
-
-                        oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
-
-                        try {
-                            ResumptionToken resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
-                                    ? resumptionTokenService.findById(session.getAttribute("resumptionToken").toString() + "/1")
-                                    : resumptionTokenService.findById(resumptionToken);
-                            Collection<OaiPmhLists> oaiPmhLists = (Collection<OaiPmhLists>) oaiPmhListsService.findByMultipleValues(
-                                    "rst_id = %s AND format = %s", resumptionTokenObj.getTokenId(),
-                                    format.getIdentifier().toString());
-
-                            oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService,
-                                    setService, setsToRecordService, resumptionTokenObj, recordsProPage, oaiPmhLists);
-                        } catch (IOException | NotFound e) {
-                            e.printStackTrace();
-                        }
-                    } catch (SaveFailed saveFailed) {
+                        createResumptionToken(session);
+                        saveResumptionTokenAndPidsPersistent(session, records);
+                    } catch (SaveFailed | NoSuchAlgorithmException saveFailed) {
                         saveFailed.printStackTrace();
                     }
                 }
             }
-        } catch (NotFound notFound) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, "Cannot found records.", notFound)
-                    .response();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
 
-        if (records.size() < recordsProPage) {
+            try {
+                resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
+                        ? resumptionTokenService.findById(session.getAttribute("resumptionToken").toString() + "/1")
+                        : resumptionTokenService.findById(resumptionToken);
+            } catch (NotFound notFound) {
+                notFound.printStackTrace();
+            }
+
+            try {
+                oaiPmhLists = (Collection<OaiPmhLists>) oaiPmhListsService.findRowsByMultipleValues(
+                        "rst_id = %s AND format = %s", resumptionTokenObj.getTokenId(),
+                        format.getIdentifier().toString());
+            } catch (NotFound notFound) {
+                notFound.printStackTrace();
+            }
+
+            try {
+                oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService,
+                        setService, setsToRecordService, resumptionTokenObj, recordsProPage, oaiPmhLists);
+            } catch (NotFound notFound) {
+                notFound.printStackTrace();
+            }
+        } else {
             oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
 
             try {
                 oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService, setService,
                         setsToRecordService);
             } catch (IOException | NotFound e) {
-                e.printStackTrace();
+                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                        HttpStatus.NOT_FOUND, "Cannot found records.", e)
+                        .response();
             }
         }
 
