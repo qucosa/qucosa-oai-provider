@@ -153,6 +153,11 @@ public class FormatTestDao<T extends Format> implements Dao<T> {
     }
 
     @Override
+    public Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        return null;
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
         ObjectMapper om = new ObjectMapper();
         boolean del = false;
