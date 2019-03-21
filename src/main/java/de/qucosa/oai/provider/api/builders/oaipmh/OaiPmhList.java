@@ -106,64 +106,40 @@ public abstract class OaiPmhList {
         element.appendChild(imported);
     }
 
-    protected void buildIdentifierList() throws NotFound {
+    protected Document addHeaderTpl(Object object) throws NotFound {
+        Document identifierTpl = DocumentXmlUtils.document(
+                getClass().getResourceAsStream("/templates/identifier.xml"), true);
+        Node identifier = identifierTpl.getElementsByTagName("identifier").item(0);
+        Node datestamp = identifierTpl.getElementsByTagName("datestamp").item(0);
+        Node header = identifierTpl.getElementsByTagName("header").item(0);
 
-        if (oaiPmhLists == null || oaiPmhLists.isEmpty()) {
-            createListHeader(oaiPmhTemplate.getElementsByTagName(verb).item(0),
-                    records);
-        } else {
-            createListHeader(oaiPmhTemplate.getElementsByTagName(verb).item(0),
-                    oaiPmhLists);
-        }
+        if (object instanceof OaiPmhLists) {
 
-        if (resumptionToken != null) {
-            addResumtionToken(records.size());
-        }
-    }
-
-    protected void createListHeader(Node identifiers, Collection collection) throws NotFound {
-        int i = 0;
-
-        for (Object object : collection) {
-            Document identifierTpl = DocumentXmlUtils.document(
-                    getClass().getResourceAsStream("/templates/identifier.xml"), true);
-            Node identifier = identifierTpl.getElementsByTagName("identifier").item(0);
-            Node datestamp = identifierTpl.getElementsByTagName("datestamp").item(0);
-            Node header = identifierTpl.getElementsByTagName("header").item(0);
-
-            if (object instanceof Record) {
-                i++;
-
-                if (((Record) object).isDeleted()) {
-                    ((Element) header).setAttribute("status", String.valueOf(((Record) object).isDeleted()));
-                }
-
-                identifier.setTextContent(((Record) object).getUid());
-                datestamp.setTextContent(dissemination("id_format = %s AND id_record = %s",
-                        String.valueOf(format.getIdentifier()), ((Record) object).getUid()).getLastmoddate().toString());
-
-                writeSetsInHeader(identifierTpl, header, sets("rc.id", String.valueOf(((Record) object).getIdentifier())));
-
-                identifiers.appendChild(oaiPmhTemplate.importNode(identifierTpl.getDocumentElement(), true));
-
-                if (i == recordsProPage) {
-                    break;
-                }
-            } else if (object instanceof OaiPmhLists) {
-
-                if (((OaiPmhLists) object).isRecordStatus()) {
-                    ((Element) header).setAttribute("status", String.valueOf(((OaiPmhLists) object).isRecordStatus()));
-                }
-
-                identifier.setTextContent(((OaiPmhLists) object).getUid());
-                datestamp.setTextContent(dissemination("id_format = %s AND id_record = %s",
-                        String.valueOf(format.getIdentifier()), ((OaiPmhLists) object).getUid()).getLastmoddate().toString());
-
-                writeSetsInHeader(identifierTpl, header, sets("rc.id", String.valueOf(((OaiPmhLists) object).getRecordId())));
-
-                identifiers.appendChild(oaiPmhTemplate.importNode(identifierTpl.getDocumentElement(), true));
+            if (((OaiPmhLists) object).isRecordStatus()) {
+                ((Element) header).setAttribute("status", "deleted");
             }
+
+            identifier.setTextContent(((OaiPmhLists) object).getUid());
+            datestamp.setTextContent(dissemination("id_format = %s AND id_record = %s",
+                    String.valueOf(format.getIdentifier()), ((OaiPmhLists) object).getUid()).getLastmoddate().toString());
+            writeSetsInHeader(identifierTpl,
+                    header,
+                    sets("rc.id", String.valueOf(((OaiPmhLists) object).getRecordId())));
+        } else if (object instanceof Record) {
+
+            if (((Record) object).isDeleted()) {
+                ((Element) header).setAttribute("status", "deleted");
+            }
+
+            identifier.setTextContent(((Record) object).getUid());
+            datestamp.setTextContent(dissemination("id_format = %s AND id_record = %s",
+                    String.valueOf(format.getIdentifier()), ((Record) object).getUid()).getLastmoddate().toString());
+            writeSetsInHeader(identifierTpl,
+                    header,
+                    sets("rc.id", String.valueOf(((Record) object).getIdentifier())));
         }
+
+        return identifierTpl;
     }
 
     protected void writeSetsInHeader(Document identifierTpl, Node header, Collection<Set> sets) {
