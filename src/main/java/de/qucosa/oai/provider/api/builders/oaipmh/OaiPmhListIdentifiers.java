@@ -20,6 +20,9 @@ package de.qucosa.oai.provider.api.builders.oaipmh;
 
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+import java.util.Collection;
 
 public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuilder {
 
@@ -30,6 +33,25 @@ public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuild
     @Override
     public void list() throws NotFound {
         listNode();
-        buildIdentifierList();
+
+        if (oaiPmhLists == null || oaiPmhLists.isEmpty()) {
+            addList(records);
+        } else {
+            addList(oaiPmhLists);
+        }
+    }
+
+    private void addList(Collection collection) throws NotFound {
+        Node verbNode = oaiPmhTemplate.getElementsByTagName(verb).item(0);
+
+        for (Object object : collection) {
+            Document headerTpl = addHeaderTpl(object);
+            Node imported = oaiPmhTemplate.importNode(headerTpl.getDocumentElement(), true);
+            verbNode.appendChild(imported);
+        }
+
+        if (resumptionToken != null) {
+            addResumtionToken(records.size());
+        }
     }
 }
