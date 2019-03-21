@@ -97,10 +97,13 @@ public abstract class OaiPmhList {
         this.oaiPmhLists = oaiPmhLists;
     }
 
-    protected Element listNode() {
+    protected void listNode() {
         Document document = DocumentXmlUtils.document(null, true);
-        Element element = document.createElement(verb);
-        return element;
+        Element listNode = document.createElement(verb);
+
+        Element element = oaiPmhTemplate.getDocumentElement();
+        Node imported = oaiPmhTemplate.importNode(listNode, true);
+        element.appendChild(imported);
     }
 
 
