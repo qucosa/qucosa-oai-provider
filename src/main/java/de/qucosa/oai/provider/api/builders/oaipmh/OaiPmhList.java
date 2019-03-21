@@ -106,6 +106,20 @@ public abstract class OaiPmhList {
         element.appendChild(imported);
     }
 
+    protected void buildIdentifierList() throws NotFound {
+
+        if (oaiPmhLists == null || oaiPmhLists.isEmpty()) {
+            createListHeader(oaiPmhTemplate.getElementsByTagName(verb).item(0),
+                    records);
+        } else {
+            createListHeader(oaiPmhTemplate.getElementsByTagName(verb).item(0),
+                    oaiPmhLists);
+        }
+
+        if (resumptionToken != null) {
+            addResumtionToken(records.size());
+        }
+    }
 
     protected void createListHeader(Node identifiers, Collection collection) throws NotFound {
         int i = 0;
