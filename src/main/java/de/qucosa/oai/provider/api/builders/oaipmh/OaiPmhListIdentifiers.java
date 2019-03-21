@@ -31,11 +31,7 @@ public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuild
 
     @Override
     public void list() throws NotFound {
-        Node listNode = listNode();
-        Element element = oaiPmhTemplate.getDocumentElement();
-        Node imported = oaiPmhTemplate.importNode(listNode, true);
-        element.appendChild(imported);
-
+        listNode();
         buildIdentirierList();
     }
 
