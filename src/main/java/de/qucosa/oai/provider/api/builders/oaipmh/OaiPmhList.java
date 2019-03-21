@@ -20,6 +20,8 @@ package de.qucosa.oai.provider.api.builders.oaipmh;
 
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
+import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
@@ -101,8 +103,53 @@ public abstract class OaiPmhList {
         return element;
     }
 
-    protected void writeSetsInHeader(Document identifierTpl, Collection<Set> sets) {
-        Node header = identifierTpl.getElementsByTagName("header").item(0);
+
+    protected void createListHeader(Node identifiers, Collection collection) throws NotFound {
+        int i = 0;
+
+        for (Object object : collection) {
+            Document identifierTpl = DocumentXmlUtils.document(
+                    getClass().getResourceAsStream("/templates/identifier.xml"), true);
+            Node identifier = identifierTpl.getElementsByTagName("identifier").item(0);
+            Node datestamp = identifierTpl.getElementsByTagName("datestamp").item(0);
+            Node header = identifierTpl.getElementsByTagName("header").item(0);
+
+            if (object instanceof Record) {
+                i++;
+
+                if (((Record) object).isDeleted()) {
+                    ((Element) header).setAttribute("status", String.valueOf(((Record) object).isDeleted()));
+                }
+
+                identifier.setTextContent(((Record) object).getUid());
+                datestamp.setTextContent(dissemination("id_format = %s AND id_record = %s",
+                        String.valueOf(format.getIdentifier()), ((Record) object).getUid()).getLastmoddate().toString());
+
+                writeSetsInHeader(identifierTpl, header, sets("rc.id", String.valueOf(((Record) object).getIdentifier())));
+
+                identifiers.appendChild(oaiPmhTemplate.importNode(identifierTpl.getDocumentElement(), true));
+
+                if (i == recordsProPage) {
+                    break;
+                }
+            } else if (object instanceof OaiPmhLists) {
+
+                if (((OaiPmhLists) object).isRecordStatus()) {
+                    ((Element) header).setAttribute("status", String.valueOf(((OaiPmhLists) object).isRecordStatus()));
+                }
+
+                identifier.setTextContent(((OaiPmhLists) object).getUid());
+                datestamp.setTextContent(dissemination("id_format = %s AND id_record = %s",
+                        String.valueOf(format.getIdentifier()), ((OaiPmhLists) object).getUid()).getLastmoddate().toString());
+
+                writeSetsInHeader(identifierTpl, header, sets("rc.id", String.valueOf(((OaiPmhLists) object).getRecordId())));
+
+                identifiers.appendChild(oaiPmhTemplate.importNode(identifierTpl.getDocumentElement(), true));
+            }
+        }
+    }
+
+    protected void writeSetsInHeader(Document identifierTpl, Node header, Collection<Set> sets) {
 
         for (Set set : sets) {
             Node node = identifierTpl.createElement("setspec");
@@ -130,5 +177,13 @@ public abstract class OaiPmhList {
         );
 
         nodeByVerb.appendChild(oaiPmhTemplate.importNode(resumptionTokenDoc.getDocumentElement(), true));
+    }
+
+    protected Collection<Set> sets(String column, String identifier) throws NotFound {
+       return setsToRecordService.findByPropertyAndValue(column, identifier);
+    }
+
+    protected Dissemination dissemination(String clause, String...values) throws NotFound {
+        return disseminationService.findByMultipleValues(clause, values[0], values[1]);
     }
 }
