@@ -32,10 +32,10 @@ public class OaiPmhListIdentifiers extends OaiPmhList implements OaiPmhListBuild
     @Override
     public void list() throws NotFound {
         listNode();
-        buildIdentirierList();
+        buildIdentifierList();
     }
 
-    private void buildIdentirierList() throws NotFound {
+    private void buildIdentifierList() throws NotFound {
 
         if (oaiPmhLists == null || oaiPmhLists.isEmpty()) {
             createListHeader(oaiPmhTemplate.getElementsByTagName(verb).item(0),
