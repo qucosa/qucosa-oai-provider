@@ -163,8 +163,9 @@ public class OaiPmhController {
 
             try {
                 resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
-                        ? resumptionTokenService.findById(session.getAttribute("resumptionToken").toString() + "/1")
-                        : resumptionTokenService.findById(resumptionToken);
+                        ? null
+                        : resumptionTokenService.findRowsByMultipleValues("token_id = %s AND format_id = %s",
+                                resumptionToken, String.valueOf(format.getFormatId())).iterator().next();
             } catch (NotFound notFound) {
                 notFound.printStackTrace();
             }
