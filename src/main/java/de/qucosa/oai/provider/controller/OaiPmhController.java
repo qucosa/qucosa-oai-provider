@@ -79,6 +79,8 @@ public class OaiPmhController {
 
     private int cursor = 0;
 
+    private Format format;
+
     private RecordService recordService;
 
     private FormatService formatService;
@@ -122,7 +124,7 @@ public class OaiPmhController {
                                   @PathVariable(value = "from", required = false) String from,
                                   @PathVariable(value = "until", required = false) String until,
                                   @PathParam(value = "resumptionToken") String resumptionToken) throws IOException {
-        Format format = findFormat(metadataPrefix);
+        format = findFormat(metadataPrefix);
 
         if (format == null) {
             return new ErrorDetails(this.getClass().getName(), "find", "GET:find",
@@ -235,6 +237,7 @@ public class OaiPmhController {
                 ResumptionToken resumptionToken = new ResumptionToken();
                 resumptionToken.setTokenId(session.getAttribute("resumptionToken") + "/" + (rcCnt + 1));
                 resumptionToken.setExpirationDate(timestamp);
+                resumptionToken.setFormatId(format.getFormatId());
 
                 if (rcCnt > 0) {
                     cursor = ((rcCnt * recordsProPage) - 1);
