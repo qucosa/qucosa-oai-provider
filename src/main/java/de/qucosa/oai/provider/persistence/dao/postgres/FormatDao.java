@@ -207,7 +207,26 @@ public class FormatDao<T extends Format> implements Dao<T> {
 
     @Override
     public T findById(String id) throws NotFound {
-        return null;
+        String sql = "SELECT id. mdprefix, schemaurl, namespace, deleted FROM formats where id = ?";
+        Format format = new Format();
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setLong(1, Long.valueOf(id));
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                format.setFormatId(resultSet.getLong("id"));
+                format.setNamespace(resultSet.getString("namespace"));
+                format.setMdprefix(resultSet.getString("mdprefix"));
+                format.setSchemaUrl(resultSet.getString("schemaurl"));
+                format.setDeleted(resultSet.getBoolean("deleted"));
+            }
+        } catch (SQLException e) {
+            throw new NotFound("Format with id (" + id + ") not found.", e);
+        }
+
+        return (T) format;
     }
 
     @Override
