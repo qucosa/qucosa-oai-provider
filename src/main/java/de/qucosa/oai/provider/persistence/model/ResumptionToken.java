@@ -38,6 +38,9 @@ public class ResumptionToken implements Serializable, HasIdentifier {
     @JsonProperty("cursor")
     private Long cursor;
 
+    @JsonProperty("formatId")
+    private Long formatId;
+
     @Override
     public void setIdentifier(Object identifier) {
         setTokenId(identifier.toString());
@@ -70,5 +73,13 @@ public class ResumptionToken implements Serializable, HasIdentifier {
 
     public void setCursor(Long cursor) {
         this.cursor = cursor;
+    }
+
+    public Long getFormatId() {
+        return formatId;
+    }
+
+    public void setFormatId(Long formatId) {
+        this.formatId = formatId;
     }
 }
