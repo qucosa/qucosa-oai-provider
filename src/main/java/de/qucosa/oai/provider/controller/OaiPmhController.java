@@ -110,7 +110,7 @@ public class OaiPmhController {
         this.oaiPmhListsService = oaiPmhListsService;
     }
 
-    @GetMapping(value = {"{verb}", "{verb}/{resumptionToken}", "{verb}/{metadataPrefix}",
+    @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}", "{verb}/{resumptionToken}",
             "{verb}/{metadataPrefix}/{from}", "{verb}/{metadataPrefix}/{from}/{until}",
             "{verb}/{metadataPrefix}/{resumptionToken}", "{verb}/{metadataPrefix}/{from}/{resumptionToken}",
             "{verb}/{metadataPrefix}/{from}/{until}/{resumptionToken}"},
@@ -151,8 +151,11 @@ public class OaiPmhController {
             try {
                 resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
                         ? saveResumptionTokenAndPidsPersistent(createResumptionToken(), records)
-                        : resumptionTokenService.findRowsByMultipleValues("token_id = %s AND format_id = %s",
-                                resumptionToken, String.valueOf(format.getFormatId())).iterator().next();
+                        : resumptionTokenService.findById(resumptionToken);
+
+                if (resumptionToken != null) {
+                    format = (Format) formatService.findById(String.valueOf(resumptionTokenObj.getFormatId()));
+                }
             } catch (NotFound notFound) {
                 notFound.printStackTrace();
             } catch (SaveFailed saveFailed) {
@@ -263,7 +266,6 @@ public class OaiPmhController {
 
         }
 
-        return resumptionTokenService.findRowsByMultipleValues("token_id = %s AND format_id = %s",
-                token + "/1" , String.valueOf(format.getFormatId())).iterator().next();
+        return resumptionTokenService.findById(token + "/1");
     }
 }
