@@ -145,22 +145,17 @@ public class OaiPmhController {
         if (records.size() > recordsProPage) {
             oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
 
-            if (resumptionToken == null || resumptionToken.isEmpty()) {
-
-                try {
-                    saveResumptionTokenAndPidsPersistent(createResumptionToken(), records);
-                } catch (SaveFailed | NoSuchAlgorithmException saveFailed) {
-                    saveFailed.printStackTrace();
-                }
-            }
-
             try {
                 resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
-                        ? null
+                        ? saveResumptionTokenAndPidsPersistent(createResumptionToken(), records)
                         : resumptionTokenService.findRowsByMultipleValues("token_id = %s AND format_id = %s",
                                 resumptionToken, String.valueOf(format.getFormatId())).iterator().next();
             } catch (NotFound notFound) {
                 notFound.printStackTrace();
+            } catch (SaveFailed saveFailed) {
+                saveFailed.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
             }
 
             try {
@@ -216,7 +211,7 @@ public class OaiPmhController {
         return HexUtils.toHexString(digest.digest());
     }
 
-    private void saveResumptionTokenAndPidsPersistent(String token, Collection<Record> records) throws SaveFailed {
+    private ResumptionToken saveResumptionTokenAndPidsPersistent(String token, Collection<Record> records) throws SaveFailed, NotFound {
         List<Record> recordList = new ArrayList<>();
         recordList.addAll(records);
         Collection<RstToIdentifiers> rstToIdentifiersCollection = new ArrayList<>();
@@ -262,6 +257,10 @@ public class OaiPmhController {
             }
 
             rstToIdentifiersService.saveAndSetIdentifier(rstToIdentifiersCollection);
+
         }
+
+        return resumptionTokenService.findRowsByMultipleValues("token_id = %s AND format_id = %s",
+                token + "/1" , String.valueOf(format.getFormatId())).iterator().next();
     }
 }
