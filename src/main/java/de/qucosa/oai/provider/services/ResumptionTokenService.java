@@ -19,6 +19,7 @@
 package de.qucosa.oai.provider.services;
 
 import de.qucosa.oai.provider.persistence.Dao;
+import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
@@ -38,5 +39,9 @@ public class ResumptionTokenService<T> {
 
     public ResumptionToken findById(String id) throws NotFound {
         return (ResumptionToken) dao.findById(id);
+    }
+
+    public void delete() throws DeleteFailed {
+        dao.delete();
     }
 }
