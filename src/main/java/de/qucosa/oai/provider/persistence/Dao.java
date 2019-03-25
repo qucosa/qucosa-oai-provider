@@ -44,6 +44,8 @@ public interface Dao<T extends HasIdentifier> {
 
     Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound;
 
+    void delete();
+
     void delete(String ident) throws DeleteFailed;
 
     void undoDelete(String ident) throws UndoDeleteFailed;

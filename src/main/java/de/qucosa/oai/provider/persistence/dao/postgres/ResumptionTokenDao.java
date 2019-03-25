@@ -139,6 +139,11 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
+    public void delete() {
+
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
 
     }

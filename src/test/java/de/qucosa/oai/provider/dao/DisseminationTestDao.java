@@ -147,6 +147,11 @@ public class DisseminationTestDao<T extends Dissemination> implements Dao<T> {
     }
 
     @Override
+    public void delete() {
+
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
 
     }

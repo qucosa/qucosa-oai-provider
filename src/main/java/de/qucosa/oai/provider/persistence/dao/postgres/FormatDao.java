@@ -270,6 +270,11 @@ public class FormatDao<T extends Format> implements Dao<T> {
     }
 
     @Override
+    public void delete() {
+
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
 
         if (!deleteOrUndoDelete(ident, true)) {

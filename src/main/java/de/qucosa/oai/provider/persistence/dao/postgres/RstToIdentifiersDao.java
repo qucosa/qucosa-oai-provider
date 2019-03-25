@@ -125,6 +125,11 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<T> {
     }
 
     @Override
+    public void delete() {
+
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
 
     }

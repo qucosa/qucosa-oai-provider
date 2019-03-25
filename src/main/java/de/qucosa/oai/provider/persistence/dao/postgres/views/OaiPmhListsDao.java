@@ -127,6 +127,11 @@ public class OaiPmhListsDao<T extends OaiPmhLists> implements Dao<OaiPmhLists> {
     }
 
     @Override
+    public void delete() {
+
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
 
     }

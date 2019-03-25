@@ -74,6 +74,11 @@ public class SetsToRecordTestDao<T extends SetsToRecord> implements Dao<T> {
     }
 
     @Override
+    public void delete() {
+
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
 
     }

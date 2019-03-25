@@ -138,6 +138,11 @@ public class RecordTestDao<T extends Record> implements Dao<T> {
     }
 
     @Override
+    public void delete() {
+
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
         ObjectMapper om = new ObjectMapper();
         boolean del = false;

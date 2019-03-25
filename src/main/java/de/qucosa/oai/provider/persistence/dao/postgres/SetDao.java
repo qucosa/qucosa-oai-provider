@@ -253,6 +253,11 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
+    public void delete() {
+
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
 
         if (!deleteOrUndoDelete(ident, true)) {
