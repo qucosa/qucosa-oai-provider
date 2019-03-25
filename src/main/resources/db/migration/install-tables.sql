@@ -131,7 +131,7 @@ CREATE TABLE public.rst_to_identifiers
       ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT fk_rst_id FOREIGN KEY (rst_id)
       REFERENCES public.resumption_tokens (token_id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+      ON UPDATE NO ACTION ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
