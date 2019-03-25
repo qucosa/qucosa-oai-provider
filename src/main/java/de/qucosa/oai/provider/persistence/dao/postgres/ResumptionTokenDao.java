@@ -26,7 +26,7 @@ import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
@@ -40,8 +40,11 @@ import java.util.Collection;
 public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<ResumptionToken> {
     private Connection connection;
 
-    @Autowired
-    private Environment environment;
+    @Value("${expiries.hours}")
+    private Integer expiriesHours;
+
+    @Value("${expiries.hours.unit}")
+    private String expiriesHoursUnit;
 
     @Autowired
     public ResumptionTokenDao(Connection connection) {
@@ -145,7 +148,7 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
 
     @Override
     public void delete() throws DeleteFailed {
-        String sql = "DELETE FROM resumption_tokens where expiration_date < NOW() - INTERVAL '" + environment.getProperty("expiries.hours") + "'";
+        String sql = "DELETE FROM resumption_tokens where expiration_date < NOW() - INTERVAL '" + expiriesHours + " " + expiriesHoursUnit + "'";
 
         try {
             Statement statement = connection.createStatement();
