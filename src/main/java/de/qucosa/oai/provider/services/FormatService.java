@@ -55,6 +55,10 @@ public class FormatService<T> {
         return (Format) dao.update(input);
     }
 
+    public Format findById(String id) throws NotFound {
+        return (Format) dao.findById(id);
+    }
+
     public Collection<Format> find(String column, String value) throws NotFound {
         return dao.findByPropertyAndValue(column, value);
     }
