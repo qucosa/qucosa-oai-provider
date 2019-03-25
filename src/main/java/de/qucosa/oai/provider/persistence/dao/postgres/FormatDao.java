@@ -207,7 +207,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
 
     @Override
     public T findById(String id) throws NotFound {
-        String sql = "SELECT id. mdprefix, schemaurl, namespace, deleted FROM formats where id = ?";
+        String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats where id = ?";
         Format format = new Format();
 
         try {
