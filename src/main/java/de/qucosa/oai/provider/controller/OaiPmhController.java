@@ -110,9 +110,9 @@ public class OaiPmhController {
         this.oaiPmhListsService = oaiPmhListsService;
     }
 
-    @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}", "{verb}/{metadataPrefix}/{from}",
-            "{verb}/{metadataPrefix}/{from}/{until}", "{verb}/{metadataPrefix}/{resumptionToken}",
-            "{verb}/{metadataPrefix}/{from}/{resumptionToken}",
+    @GetMapping(value = {"{verb}", "{verb}/{resumptionToken}", "{verb}/{metadataPrefix}",
+            "{verb}/{metadataPrefix}/{from}", "{verb}/{metadataPrefix}/{from}/{until}",
+            "{verb}/{metadataPrefix}/{resumptionToken}", "{verb}/{metadataPrefix}/{from}/{resumptionToken}",
             "{verb}/{metadataPrefix}/{from}/{until}/{resumptionToken}"},
             produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
@@ -121,12 +121,15 @@ public class OaiPmhController {
                                   @PathVariable(value = "from", required = false) String from,
                                   @PathVariable(value = "until", required = false) String until,
                                   @PathParam(value = "resumptionToken") String resumptionToken) throws IOException {
-        format = findFormat(metadataPrefix);
 
-        if (format == null) {
-            return new ErrorDetails(this.getClass().getName(), "find", "GET:find",
-                    HttpStatus.NOT_FOUND, "Cannot found format " + metadataPrefix + ".", null)
-                    .response();
+        if (resumptionToken == null || resumptionToken.isEmpty()) {
+            format = findFormat(metadataPrefix);
+
+            if (format == null) {
+                return new ErrorDetails(this.getClass().getName(), "find", "GET:find",
+                        HttpStatus.NOT_FOUND, "Cannot found format " + metadataPrefix + ".", null)
+                        .response();
+            }
         }
 
         Collection<Record> records = null;
