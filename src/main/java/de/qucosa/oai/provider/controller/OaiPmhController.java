@@ -41,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +51,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.w3c.dom.Document;
 
-import javax.servlet.http.HttpSession;
 import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -67,7 +65,6 @@ import java.util.UUID;
 
 @RequestMapping("/oai")
 @RestController
-@Scope("session")
 public class OaiPmhController {
     private Logger logger = LoggerFactory.getLogger(OaiPmhController.class);
 
@@ -119,7 +116,7 @@ public class OaiPmhController {
             "{verb}/{metadataPrefix}/{from}/{until}/{resumptionToken}"},
             produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    public ResponseEntity findAll(HttpSession session, @PathVariable String verb,
+    public ResponseEntity findAll(@PathVariable String verb,
                                   @PathVariable(value = "metadataPrefix", required = false) String metadataPrefix,
                                   @PathVariable(value = "from", required = false) String from,
                                   @PathVariable(value = "until", required = false) String until,
@@ -148,16 +145,12 @@ public class OaiPmhController {
         if (records.size() > recordsProPage) {
             oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
 
-            if (session.getAttribute("resumptionToken") == null || session.getAttribute("resumptionToken").toString().isEmpty()) {
+            if (resumptionToken == null || resumptionToken.isEmpty()) {
 
-                if (resumptionToken == null || resumptionToken.isEmpty()) {
-
-                    try {
-                        createResumptionToken(session);
-                        saveResumptionTokenAndPidsPersistent(session, records);
-                    } catch (SaveFailed | NoSuchAlgorithmException saveFailed) {
-                        saveFailed.printStackTrace();
-                    }
+                try {
+                    saveResumptionTokenAndPidsPersistent(createResumptionToken(), records);
+                } catch (SaveFailed | NoSuchAlgorithmException saveFailed) {
+                    saveFailed.printStackTrace();
                 }
             }
 
@@ -217,13 +210,13 @@ public class OaiPmhController {
         return format;
     }
 
-    private void createResumptionToken(HttpSession session) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    private String createResumptionToken() throws NoSuchAlgorithmException, UnsupportedEncodingException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         digest.update(UUID.randomUUID().toString().getBytes("UTF-8"));
-        session.setAttribute("resumptionToken", HexUtils.toHexString(digest.digest()));
+        return HexUtils.toHexString(digest.digest());
     }
 
-    private void saveResumptionTokenAndPidsPersistent(HttpSession session, Collection<Record> records) throws SaveFailed {
+    private void saveResumptionTokenAndPidsPersistent(String token, Collection<Record> records) throws SaveFailed {
         List<Record> recordList = new ArrayList<>();
         recordList.addAll(records);
         Collection<RstToIdentifiers> rstToIdentifiersCollection = new ArrayList<>();
@@ -236,7 +229,7 @@ public class OaiPmhController {
 
             for (int i = 1; i <= pageSum; i++) {
                 ResumptionToken resumptionToken = new ResumptionToken();
-                resumptionToken.setTokenId(session.getAttribute("resumptionToken") + "/" + (rcCnt + 1));
+                resumptionToken.setTokenId(token + "/" + (rcCnt + 1));
                 resumptionToken.setExpirationDate(timestamp);
                 resumptionToken.setFormatId(format.getFormatId());
 
