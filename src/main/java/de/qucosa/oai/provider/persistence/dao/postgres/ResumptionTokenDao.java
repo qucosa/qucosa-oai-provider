@@ -32,6 +32,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
@@ -54,8 +55,8 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
 
     @Override
     public ResumptionToken saveAndSetIdentifier(ResumptionToken object) throws SaveFailed {
-        String sql = "INSERT INTO resumption_tokens (token_id, expiration_date, cursor)" +
-                " VALUES (?, ?, ?)" +
+        String sql = "INSERT INTO resumption_tokens (token_id, expiration_date, cursor, format_id)" +
+                " VALUES (?, ?, ?, ?)" +
                 " ON CONFLICT (token_id)" +
                 " DO NOTHING";
 
@@ -64,6 +65,7 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
             statement.setString(1, object.getTokenId());
             statement.setTimestamp(2, object.getExpirationDate());
             statement.setLong(3, object.getCursor());
+            statement.setLong(4, object.getFormatId());
             int affectedRows = statement.executeUpdate();
 
             if (affectedRows == 0) {
@@ -98,27 +100,8 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public ResumptionToken findById(String id) throws NotFound {
-        String sql = "SELECT token_id, expiration_date, cursor FROM resumption_tokens WHERE token_id = ?";
-        ResumptionToken resumptionToken = new ResumptionToken();
-
-        try {
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, id);
-            ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                resumptionToken.setTokenId(resultSet.getString("token_id"));
-                resumptionToken.setExpirationDate(resultSet.getTimestamp("expiration_date"));
-                resumptionToken.setCursor(resultSet.getLong("cursor"));
-            }
-
-            resultSet.close();
-        } catch (SQLException e) {
-            throw new NotFound("Resumption token " + id + " not found.", e);
-        }
-
-        return resumptionToken;
+    public ResumptionToken findById(String id) {
+        return null;
     }
 
     @Override
@@ -133,7 +116,31 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
 
     @Override
     public Collection<ResumptionToken> findRowsByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+        clause = clause.replace("%s", "?");
+        String sql = "SELECT token_id, expiration_date, cursor, format_id FROM resumption_tokens WHERE " + clause;
+        Collection<ResumptionToken> resumptionTokens = new ArrayList<>();
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, values[0]);
+            statement.setLong(2, Long.valueOf(values[1]));
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                ResumptionToken resumptionToken = new ResumptionToken();
+                resumptionToken.setTokenId(resultSet.getString("token_id"));
+                resumptionToken.setExpirationDate(resultSet.getTimestamp("expiration_date"));
+                resumptionToken.setCursor(resultSet.getLong("cursor"));
+                resumptionToken.setFormatId(resultSet.getLong("format_id"));
+                resumptionTokens.add(resumptionToken);
+            }
+
+            resultSet.close();
+        } catch (SQLException e) {
+            throw new NotFound("Resumption token not found.", e);
+        }
+
+        return resumptionTokens;
     }
 
     @Override
