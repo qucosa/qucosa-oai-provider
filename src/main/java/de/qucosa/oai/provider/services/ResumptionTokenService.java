@@ -23,6 +23,8 @@ import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 
+import java.util.Collection;
+
 public class ResumptionTokenService<T> {
     private Dao dao;
 
@@ -36,7 +38,7 @@ public class ResumptionTokenService<T> {
         return (ResumptionToken) dao.saveAndSetIdentifier(object);
     }
 
-    public ResumptionToken findById(String id) throws NotFound {
-        return (ResumptionToken) dao.findById(id);
+    public Collection<ResumptionToken> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        return dao.findRowsByMultipleValues(clause, values);
     }
 }
