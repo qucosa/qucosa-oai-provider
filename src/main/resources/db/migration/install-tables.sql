@@ -68,7 +68,7 @@ CREATE TABLE public.disseminations
   CONSTRAINT dissemination_pkey PRIMARY KEY (id),
   CONSTRAINT dissemination_format_fkey FOREIGN KEY (id_format)
       REFERENCES public.formats (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+      ON UPDATE NO ACTION ON DELETE CASCADE,
   CONSTRAINT dissemination_record_fkey FOREIGN KEY (id_record)
       REFERENCES public.records (uid) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE CASCADE
@@ -128,7 +128,7 @@ CREATE TABLE public.rst_to_identifiers
   rst_id character varying(150) NOT NULL,
   CONSTRAINT fk_record_id FOREIGN KEY (record_id)
       REFERENCES public.records (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+      ON UPDATE NO ACTION ON DELETE CASCADE,
   CONSTRAINT fk_rst_id FOREIGN KEY (rst_id)
       REFERENCES public.resumption_tokens (token_id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE CASCADE
