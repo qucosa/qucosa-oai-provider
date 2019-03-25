@@ -107,7 +107,11 @@ CREATE TABLE public.resumption_tokens
   expiration_date timestamp with time zone NOT NULL,
   cursor bigint NOT NULL,
   token_id character varying(150) NOT NULL,
-  CONSTRAINT pk_token_id PRIMARY KEY (token_id)
+  format_id bigint NOT NULL,
+  CONSTRAINT pk_token_id PRIMARY KEY (token_id),
+  CONSTRAINT fk_id_format FOREIGN KEY (format_id)
+      REFERENCES public.formats (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
 )
 WITH (
   OIDS=FALSE
@@ -141,18 +145,17 @@ ALTER TABLE public.rst_to_identifiers
 CREATE OR REPLACE VIEW public.oai_pmh_lists AS
  SELECT rti.rst_id,
     rt.expiration_date,
+    rt.format_id AS format,
     rc.uid,
     rc.id AS record_id,
     rc.deleted AS record_status,
     diss.lastmoddate,
     diss.xmldata,
-    diss.deleted AS dissemination_status,
-    fm.id AS format
+    diss.deleted AS dissemination_status
    FROM rst_to_identifiers rti
      LEFT JOIN resumption_tokens rt ON rti.rst_id::text = rt.token_id::text
      LEFT JOIN records rc ON rti.record_id = rc.id
-     LEFT JOIN disseminations diss ON rc.uid::text = diss.id_record::text
-     LEFT JOIN formats fm ON fm.id = diss.id_format;
+     LEFT JOIN disseminations diss ON rc.uid::text = diss.id_record::text;
 
 ALTER TABLE public.oai_pmh_lists
   OWNER TO postgres;
