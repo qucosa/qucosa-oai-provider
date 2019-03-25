@@ -32,6 +32,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collection;
 
 @Repository
@@ -139,8 +140,15 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public void delete() {
+    public void delete() throws DeleteFailed {
+        String sql = "DELETE FROM resumption_tokens where expiration_date < NOW() - INTERVAL '24 hours'";
 
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(sql);
+        } catch (SQLException e) {
+            throw new DeleteFailed("Cannot delete resumptionToken row.", e);
+        }
     }
 
     @Override
