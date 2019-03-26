@@ -56,7 +56,7 @@ public class OaiPmhControllerWithoutResumtionTokenTest {
     private MockMvc mvc;
 
     @Test
-    @DisplayName("Load xml by ListIdentifers verb without reumsption token.")
+    @DisplayName("Load xml by ListIdentifers verb.")
     public void hasListIdentifiersNode() throws Exception {
         MvcResult mvcResult = mvc.perform(
                 get("/oai/ListIdentifiers/oai_dc")
@@ -73,5 +73,26 @@ public class OaiPmhControllerWithoutResumtionTokenTest {
         Node listIdentifiers = document.getElementsByTagName("ListIdentifiers").item(0);
 
         assertThat(listIdentifiers.getNodeName()).isEqualTo("ListIdentifiers");
+    }
+
+    @Test
+    @DisplayName("Load xml by ListRecords verb.")
+    public void hasListRecordsNode() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/oai/ListRecords/oai_dc")
+                        .contentType(MediaType.APPLICATION_XML_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String content = mvcResult.getResponse().getContentAsString();
+
+        assertThat(content).isNotEmpty();
+
+        Document document = DocumentXmlUtils.document(
+                new ByteArrayInputStream(content.getBytes("UTF-8")), true);
+
+        assertThat(document).isNotNull();
+
+        Node listIdentifiers = document.getElementsByTagName("ListRecords").item(0);
+
+        assertThat(listIdentifiers.getNodeName()).isEqualTo("ListRecords");
     }
 }
