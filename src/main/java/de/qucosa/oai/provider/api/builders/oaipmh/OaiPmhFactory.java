@@ -89,6 +89,18 @@ public class OaiPmhFactory {
             case "ListRecords":
                 listBuilder = new OaiPmhListRecords(oaiPmhTemplate);
                 break;
+            case "ListSets":
+                listBuilder = null;
+                break;
+            case "ListMetadataFormats":
+                listBuilder = null;
+                break;
+            case "Identify":
+                listBuilder = null;
+                break;
+            case "GetRecord":
+                listBuilder = null;
+                break;
         }
 
         listBuilder.setVerb(verb);
