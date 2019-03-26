@@ -39,7 +39,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -50,14 +49,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = {QucosaOaiProviderApplication.class, OaiPmhTestApplicationConfig.class})
 @TestPropertySource("classpath:application-test.properties")
 @AutoConfigureMockMvc
-public class OaiPmhControllerTest {
-    private Logger logger = LoggerFactory.getLogger(OaiPmhControllerTest.class);
+public class OaiPmhControllerWithoutResumtionTokenTest {
+    private Logger logger = LoggerFactory.getLogger(OaiPmhControllerWithoutResumtionTokenTest.class);
 
     @Autowired
     private MockMvc mvc;
 
     @Test
-    @DisplayName("Load xml by ListIdentifers verb.")
+    @DisplayName("Load xml by ListIdentifers verb without reumsption token.")
     public void hasListIdentifiersNode() throws Exception {
         MvcResult mvcResult = mvc.perform(
                 get("/oai/ListIdentifiers/oai_dc")
