@@ -20,6 +20,7 @@ package de.qucosa.oai.provider.controller;
 
 import de.qucosa.oai.provider.OaiPmhTestApplicationConfig;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
+import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -30,18 +31,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.xmlunit.matchers.CompareMatcher;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {QucosaOaiProviderApplication.class, OaiPmhTestApplicationConfig.class})
+@TestPropertySource("classpath:application-test.properties")
 @AutoConfigureMockMvc
 public class OaiPmhControllerTest {
     private Logger logger = LoggerFactory.getLogger(OaiPmhControllerTest.class);
@@ -53,10 +60,19 @@ public class OaiPmhControllerTest {
     @DisplayName("Load xml by ListIdentifers verb.")
     public void hasListIdentifiersNode() throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/oai/ListIdentifiers?resumptionToken='c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1'")
+                get("/oai/ListIdentifiers/oai_dc")
                 .contentType(MediaType.APPLICATION_XML_VALUE))
                 .andExpect(status().isOk()).andReturn();
         String content = mvcResult.getResponse().getContentAsString();
-        assertThat(content, CompareMatcher.isIdenticalTo("<ListIdentifiers>"));
+        assertThat(content).isNotEmpty();
+
+        Document document = DocumentXmlUtils.document(
+                new ByteArrayInputStream(content.getBytes("UTF-8")), true);
+
+        assertThat(document).isNotNull();
+
+        Node listIdentifiers = document.getElementsByTagName("ListIdentifiers").item(0);
+
+        assertThat(listIdentifiers.getNodeName()).isEqualTo("ListIdentifiers");
     }
 }
