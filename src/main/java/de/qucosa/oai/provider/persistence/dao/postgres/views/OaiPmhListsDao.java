@@ -111,6 +111,7 @@ public class OaiPmhListsDao<T extends OaiPmhLists> implements Dao<OaiPmhLists> {
 
             while (resultSet.next()) {
                 OaiPmhLists oaiPmhLists = new OaiPmhLists();
+                oaiPmhLists.setRstId(resultSet.getString("rst_id"));
                 oaiPmhLists.setUid(resultSet.getString("uid"));
                 oaiPmhLists.setRecordId(resultSet.getLong("record_id"));
                 oaiPmhLists.setLastModDate(resultSet.getTimestamp("lastmoddate"));
