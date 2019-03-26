@@ -18,8 +18,8 @@
 
 package de.qucosa.oai.provider.controller;
 
-import de.qucosa.oai.provider.QucosaOaiProviderApplication;
 import de.qucosa.oai.provider.OaiPmhTestApplicationConfig;
+import de.qucosa.oai.provider.QucosaOaiProviderApplication;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -33,8 +33,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.xmlunit.matchers.CompareMatcher;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -49,13 +50,13 @@ public class OaiPmhControllerTest {
     private MockMvc mvc;
 
     @Test
-    @DisplayName("Find all oai pmh identifiers and write this in xml.")
-    public void findListIdentifiers() throws Exception {
+    @DisplayName("Load xml by ListIdentifers verb.")
+    public void hasListIdentifiersNode() throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/oai/ListIdentifiers/oai_dc")
+                get("/oai/ListIdentifiers?resumptionToken='c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1'")
                 .contentType(MediaType.APPLICATION_XML_VALUE))
                 .andExpect(status().isOk()).andReturn();
         String content = mvcResult.getResponse().getContentAsString();
-        assertThat(content).isNotEmpty();
+        assertThat(content, CompareMatcher.isIdenticalTo("<ListIdentifiers>"));
     }
 }
