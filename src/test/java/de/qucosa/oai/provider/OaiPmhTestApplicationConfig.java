@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import ru.yandex.qatools.embed.postgresql.EmbeddedPostgres;
@@ -39,7 +38,6 @@ import java.sql.SQLException;
 
 import static ru.yandex.qatools.embed.postgresql.distribution.Version.Main.V9_5;
 
-@PropertySource("classpath:application-test.properties")
 @TestConfiguration
 public class OaiPmhTestApplicationConfig {
     private Logger logger = LoggerFactory.getLogger(OaiPmhTestApplicationConfig.class);
@@ -59,10 +57,11 @@ public class OaiPmhTestApplicationConfig {
                 environment.getProperty("psql.database"),
                 environment.getProperty("psql.user"),
                 environment.getProperty("psql.passwd"));
+//        postgres.getProcess().get().importFromFileWithArgs(
+//                new File(getClass().getResource("/db/migration/install-tables.sql").getPath()),
+//                "-v");
         postgres.getProcess().get().importFromFile(
-                new File(getClass().getResource("/db/migration/install-tables.sql").getPath()));
-        postgres.getProcess().get().importFromFile(
-                new File(getClass().getResource("/db/migration/psql-oia-provider-test-data.sql").getPath()));
+                new File(getClass().getResource("/db/migration/psql-oia-provider-test-data.backup").getPath()));
         connection = DriverManager.getConnection(connUrl);
         return postgres;
     }
