@@ -5,7 +5,7 @@
 -- Dumped from database version 9.5.8
 -- Dumped by pg_dump version 9.5.8
 
--- Started on 2019-03-11 09:22:46 CET
+-- Started on 2019-03-26 08:11:52 CET
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -24,7 +24,7 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- TOC entry 2287 (class 0 OID 0)
+-- TOC entry 2293 (class 0 OID 0)
 -- Dependencies: 1
 -- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
@@ -35,7 +35,7 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 SET search_path = public, pg_catalog;
 
 --
--- TOC entry 283 (class 1255 OID 30761)
+-- TOC entry 284 (class 1255 OID 30761)
 -- Name: generate_sets_to_records(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -94,21 +94,6 @@ CREATE TABLE formats (
 ALTER TABLE formats OWNER TO postgres;
 
 --
--- TOC entry 263 (class 1259 OID 19391)
--- Name: oaiprovider; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE oaiprovider
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE oaiprovider OWNER TO postgres;
-
---
 -- TOC entry 266 (class 1259 OID 32049)
 -- Name: records; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -129,9 +114,10 @@ ALTER TABLE records OWNER TO postgres;
 --
 
 CREATE TABLE resumption_tokens (
-    token_id bigint NOT NULL,
     expiration_date timestamp with time zone NOT NULL,
-    cursor bigint NOT NULL
+    cursor bigint NOT NULL,
+    token_id character varying(150) NOT NULL,
+    format_id bigint NOT NULL
 );
 
 
@@ -143,12 +129,50 @@ ALTER TABLE resumption_tokens OWNER TO postgres;
 --
 
 CREATE TABLE rst_to_identifiers (
-    rst_id bigint NOT NULL,
-    record_id bigint NOT NULL
+    record_id bigint NOT NULL,
+    rst_id character varying(150) NOT NULL
 );
 
 
 ALTER TABLE rst_to_identifiers OWNER TO postgres;
+
+--
+-- TOC entry 271 (class 1259 OID 34289)
+-- Name: oai_pmh_lists; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW oai_pmh_lists AS
+ SELECT rti.rst_id,
+    rt.expiration_date,
+    rt.format_id AS format,
+    rc.uid,
+    rc.id AS record_id,
+    rc.deleted AS record_status,
+    diss.lastmoddate,
+    diss.xmldata,
+    diss.deleted AS dissemination_status
+   FROM (((rst_to_identifiers rti
+     LEFT JOIN resumption_tokens rt ON (((rti.rst_id)::text = (rt.token_id)::text)))
+     LEFT JOIN records rc ON ((rti.record_id = rc.id)))
+     LEFT JOIN disseminations diss ON (((rc.uid)::text = (diss.id_record)::text)));
+
+
+ALTER TABLE oai_pmh_lists OWNER TO postgres;
+
+--
+-- TOC entry 263 (class 1259 OID 19391)
+-- Name: oaiprovider; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE oaiprovider
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE oaiprovider OWNER TO postgres;
 
 --
 -- TOC entry 264 (class 1259 OID 32030)
@@ -180,7 +204,7 @@ CREATE TABLE sets_to_records (
 ALTER TABLE sets_to_records OWNER TO postgres;
 
 --
--- TOC entry 2276 (class 0 OID 32062)
+-- TOC entry 2282 (class 0 OID 32062)
 -- Dependencies: 267
 -- Data for Name: disseminations; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -302,7 +326,7 @@ COPY disseminations (id, id_format, lastmoddate, xmldata, deleted, id_record) FR
 
 
 --
--- TOC entry 2274 (class 0 OID 32041)
+-- TOC entry 2280 (class 0 OID 32041)
 -- Dependencies: 265
 -- Data for Name: formats; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -314,7 +338,7 @@ COPY formats (id, mdprefix, schemaurl, namespace, deleted) FROM stdin;
 
 
 --
--- TOC entry 2288 (class 0 OID 0)
+-- TOC entry 2294 (class 0 OID 0)
 -- Dependencies: 263
 -- Name: oaiprovider; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -323,13 +347,12 @@ SELECT pg_catalog.setval('oaiprovider', 211, true);
 
 
 --
--- TOC entry 2275 (class 0 OID 32049)
+-- TOC entry 2281 (class 0 OID 32049)
 -- Dependencies: 266
 -- Data for Name: records; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY records (id, pid, uid, deleted) FROM stdin;
-18	qucosa:32394	qucosa:32394	f
 28	qucosa:24994	qucosa:24994	f
 31	qucosa:30859	qucosa:30859	f
 36	qucosa:30725	qucosa:30725	f
@@ -385,31 +408,156 @@ COPY records (id, pid, uid, deleted) FROM stdin;
 203	qucosa:70489	qucosa:70489	f
 206	qucosa:70508	qucosa:70508	f
 209	qucosa:70487	qucosa:70487	f
+18	qucosa:32394	qucosa:32394	t
 \.
 
 
 --
--- TOC entry 2278 (class 0 OID 34196)
+-- TOC entry 2284 (class 0 OID 34196)
 -- Dependencies: 269
 -- Data for Name: resumption_tokens; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY resumption_tokens (token_id, expiration_date, cursor) FROM stdin;
+COPY resumption_tokens (expiration_date, cursor, token_id, format_id) FROM stdin;
+2019-03-26 08:05:15.158+01	0	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1	17
+2019-03-26 08:05:15.158+01	9	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/2	17
+2019-03-26 08:05:15.158+01	19	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/3	17
+2019-03-26 08:05:15.158+01	29	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/4	17
+2019-03-26 08:05:15.158+01	39	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/5	17
+2019-03-26 08:05:15.158+01	49	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/6	17
+2019-03-26 08:05:31.335+01	0	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/1	17
+2019-03-26 08:05:31.335+01	9	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/2	17
+2019-03-26 08:05:31.335+01	19	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/3	17
+2019-03-26 08:05:31.335+01	29	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/4	17
+2019-03-26 08:05:31.335+01	39	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/5	17
+2019-03-26 08:05:31.335+01	49	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/6	17
 \.
 
 
 --
--- TOC entry 2279 (class 0 OID 34201)
+-- TOC entry 2285 (class 0 OID 34201)
 -- Dependencies: 270
 -- Data for Name: rst_to_identifiers; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY rst_to_identifiers (rst_id, record_id) FROM stdin;
+COPY rst_to_identifiers (record_id, rst_id) FROM stdin;
+28	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1
+31	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1
+36	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1
+40	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1
+43	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1
+47	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1
+51	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1
+55	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1
+59	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1
+62	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/1
+65	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/2
+68	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/2
+71	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/2
+74	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/2
+78	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/2
+81	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/2
+84	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/2
+88	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/2
+91	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/2
+94	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/2
+97	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/3
+101	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/3
+104	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/3
+109	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/3
+113	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/3
+116	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/3
+120	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/3
+123	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/3
+126	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/3
+129	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/3
+132	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/4
+135	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/4
+138	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/4
+142	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/4
+145	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/4
+148	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/4
+152	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/4
+156	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/4
+159	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/4
+163	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/4
+166	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/5
+170	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/5
+173	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/5
+176	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/5
+179	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/5
+182	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/5
+185	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/5
+188	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/5
+191	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/5
+194	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/5
+197	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/6
+200	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/6
+203	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/6
+206	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/6
+209	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/6
+18	c898267ed5a9ad3f656800cf146019822c7ffa33426208d9992f9210fac3a7e9/6
+28	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/1
+31	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/1
+36	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/1
+40	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/1
+43	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/1
+47	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/1
+51	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/1
+55	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/1
+59	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/1
+62	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/1
+65	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/2
+68	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/2
+71	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/2
+74	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/2
+78	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/2
+81	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/2
+84	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/2
+88	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/2
+91	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/2
+94	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/2
+97	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/3
+101	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/3
+104	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/3
+109	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/3
+113	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/3
+116	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/3
+120	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/3
+123	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/3
+126	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/3
+129	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/3
+132	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/4
+135	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/4
+138	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/4
+142	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/4
+145	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/4
+148	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/4
+152	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/4
+156	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/4
+159	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/4
+163	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/4
+166	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/5
+170	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/5
+173	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/5
+176	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/5
+179	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/5
+182	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/5
+185	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/5
+188	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/5
+191	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/5
+194	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/5
+197	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/6
+200	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/6
+203	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/6
+206	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/6
+209	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/6
+18	672be96bd50b710d84b73a8c24b5ff7666f312b8fda556c0c62f75d1135a5619/6
 \.
 
 
 --
--- TOC entry 2273 (class 0 OID 32030)
+-- TOC entry 2279 (class 0 OID 32030)
 -- Dependencies: 264
 -- Data for Name: sets; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -444,7 +592,7 @@ COPY sets (id, setspec, setname, setdescription, deleted) FROM stdin;
 
 
 --
--- TOC entry 2277 (class 0 OID 32081)
+-- TOC entry 2283 (class 0 OID 32081)
 -- Dependencies: 268
 -- Data for Name: sets_to_records; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -614,11 +762,503 @@ COPY sets_to_records (id_set, id_record) FROM stdin;
 153	203
 56	206
 139	209
+19	18
+20	18
+23	18
+24	18
+25	18
+26	18
+32	31
+33	31
+32	36
+38	36
+32	40
+32	43
+45	43
+32	47
+48	47
+32	51
+52	51
+32	55
+56	55
+32	59
+32	62
+52	62
+32	65
+33	65
+32	68
+32	71
+33	71
+32	74
+75	74
+32	78
+45	78
+32	81
+33	81
+85	84
+38	84
+20	91
+23	91
+24	91
+25	91
+26	91
+20	94
+23	94
+24	94
+25	94
+26	94
+98	97
+20	97
+23	97
+24	97
+25	97
+26	97
+56	101
+20	101
+23	101
+24	101
+25	101
+26	101
+105	104
+106	104
+20	104
+23	104
+24	104
+25	104
+26	104
+45	109
+110	109
+32	113
+117	116
+56	116
+20	116
+23	116
+24	116
+25	116
+26	116
+110	120
+32	123
+32	126
+75	126
+105	129
+33	129
+20	129
+23	129
+24	129
+25	129
+26	129
+105	132
+20	132
+23	132
+24	132
+25	132
+26	132
+110	135
+139	138
+20	138
+23	138
+24	138
+25	138
+26	138
+139	142
+139	145
+20	145
+23	145
+24	145
+25	145
+26	145
+149	148
+110	148
+149	152
+153	152
+20	152
+23	152
+24	152
+25	152
+26	152
+149	156
+153	156
+20	156
+23	156
+24	156
+25	156
+26	156
+160	159
+20	159
+23	159
+24	159
+25	159
+26	159
+153	163
+167	166
+153	166
+167	170
+139	173
+153	173
+20	173
+23	173
+24	173
+25	173
+26	173
+149	176
+153	176
+20	176
+23	176
+24	176
+25	176
+26	176
+167	179
+110	185
+20	188
+23	188
+24	188
+25	188
+26	188
+25	191
+23	191
+24	191
+20	191
+26	191
+110	194
+139	197
+153	197
+110	200
+153	203
+56	206
+139	209
+19	18
+20	18
+23	18
+24	18
+25	18
+26	18
+32	31
+33	31
+32	36
+38	36
+32	40
+32	43
+45	43
+32	47
+48	47
+32	51
+52	51
+32	55
+56	55
+32	59
+32	62
+52	62
+32	65
+33	65
+32	68
+32	71
+33	71
+32	74
+75	74
+32	78
+45	78
+32	81
+33	81
+85	84
+38	84
+20	91
+23	91
+24	91
+25	91
+26	91
+20	94
+23	94
+24	94
+25	94
+26	94
+98	97
+20	97
+23	97
+24	97
+25	97
+26	97
+56	101
+20	101
+23	101
+24	101
+25	101
+26	101
+105	104
+106	104
+20	104
+23	104
+24	104
+25	104
+26	104
+45	109
+110	109
+32	113
+117	116
+56	116
+20	116
+23	116
+24	116
+25	116
+26	116
+110	120
+32	123
+32	126
+75	126
+105	129
+33	129
+20	129
+23	129
+24	129
+25	129
+26	129
+105	132
+20	132
+23	132
+24	132
+25	132
+26	132
+110	135
+139	138
+20	138
+23	138
+24	138
+25	138
+26	138
+139	142
+139	145
+20	145
+23	145
+24	145
+25	145
+26	145
+149	148
+110	148
+149	152
+153	152
+20	152
+23	152
+24	152
+25	152
+26	152
+149	156
+153	156
+20	156
+23	156
+24	156
+25	156
+26	156
+160	159
+20	159
+23	159
+24	159
+25	159
+26	159
+153	163
+167	166
+153	166
+167	170
+139	173
+153	173
+20	173
+23	173
+24	173
+25	173
+26	173
+149	176
+153	176
+20	176
+23	176
+24	176
+25	176
+26	176
+167	179
+110	185
+20	188
+23	188
+24	188
+25	188
+26	188
+25	191
+23	191
+24	191
+20	191
+26	191
+110	194
+139	197
+153	197
+110	200
+153	203
+56	206
+139	209
+19	18
+20	18
+23	18
+24	18
+25	18
+26	18
+32	31
+33	31
+32	36
+38	36
+32	40
+32	43
+45	43
+32	47
+48	47
+32	51
+52	51
+32	55
+56	55
+32	59
+32	62
+52	62
+32	65
+33	65
+32	68
+32	71
+33	71
+32	74
+75	74
+32	78
+45	78
+32	81
+33	81
+85	84
+38	84
+20	91
+23	91
+24	91
+25	91
+26	91
+20	94
+23	94
+24	94
+25	94
+26	94
+98	97
+20	97
+23	97
+24	97
+25	97
+26	97
+56	101
+20	101
+23	101
+24	101
+25	101
+26	101
+105	104
+106	104
+20	104
+23	104
+24	104
+25	104
+26	104
+45	109
+110	109
+32	113
+117	116
+56	116
+20	116
+23	116
+24	116
+25	116
+26	116
+110	120
+32	123
+32	126
+75	126
+105	129
+33	129
+20	129
+23	129
+24	129
+25	129
+26	129
+105	132
+20	132
+23	132
+24	132
+25	132
+26	132
+110	135
+139	138
+20	138
+23	138
+24	138
+25	138
+26	138
+139	142
+139	145
+20	145
+23	145
+24	145
+25	145
+26	145
+149	148
+110	148
+149	152
+153	152
+20	152
+23	152
+24	152
+25	152
+26	152
+149	156
+153	156
+20	156
+23	156
+24	156
+25	156
+26	156
+160	159
+20	159
+23	159
+24	159
+25	159
+26	159
+153	163
+167	166
+153	166
+167	170
+139	173
+153	173
+20	173
+23	173
+24	173
+25	173
+26	173
+149	176
+153	176
+20	176
+23	176
+24	176
+25	176
+26	176
+167	179
+110	185
+20	188
+23	188
+24	188
+25	188
+26	188
+25	191
+23	191
+24	191
+20	191
+26	191
+110	194
+139	197
+153	197
+110	200
+153	203
+56	206
+139	209
 \.
 
 
 --
--- TOC entry 2149 (class 2606 OID 32070)
+-- TOC entry 2153 (class 2606 OID 32070)
 -- Name: dissemination_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -627,7 +1267,7 @@ ALTER TABLE ONLY disseminations
 
 
 --
--- TOC entry 2139 (class 2606 OID 32046)
+-- TOC entry 2143 (class 2606 OID 32046)
 -- Name: formats_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -636,7 +1276,7 @@ ALTER TABLE ONLY formats
 
 
 --
--- TOC entry 2141 (class 2606 OID 32048)
+-- TOC entry 2145 (class 2606 OID 32048)
 -- Name: mdprefix_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -645,7 +1285,7 @@ ALTER TABLE ONLY formats
 
 
 --
--- TOC entry 2151 (class 2606 OID 34200)
+-- TOC entry 2155 (class 2606 OID 34299)
 -- Name: pk_token_id; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -654,7 +1294,7 @@ ALTER TABLE ONLY resumption_tokens
 
 
 --
--- TOC entry 2143 (class 2606 OID 32057)
+-- TOC entry 2147 (class 2606 OID 32057)
 -- Name: record_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -663,7 +1303,7 @@ ALTER TABLE ONLY records
 
 
 --
--- TOC entry 2145 (class 2606 OID 32061)
+-- TOC entry 2149 (class 2606 OID 32061)
 -- Name: record_uid_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -672,7 +1312,7 @@ ALTER TABLE ONLY records
 
 
 --
--- TOC entry 2147 (class 2606 OID 32059)
+-- TOC entry 2151 (class 2606 OID 32059)
 -- Name: record_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -681,7 +1321,7 @@ ALTER TABLE ONLY records
 
 
 --
--- TOC entry 2135 (class 2606 OID 32038)
+-- TOC entry 2139 (class 2606 OID 32038)
 -- Name: sets_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -690,7 +1330,7 @@ ALTER TABLE ONLY sets
 
 
 --
--- TOC entry 2137 (class 2606 OID 32040)
+-- TOC entry 2141 (class 2606 OID 32040)
 -- Name: setspec_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -699,7 +1339,7 @@ ALTER TABLE ONLY sets
 
 
 --
--- TOC entry 2152 (class 2606 OID 32071)
+-- TOC entry 2156 (class 2606 OID 32071)
 -- Name: dissemination_format_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -708,7 +1348,7 @@ ALTER TABLE ONLY disseminations
 
 
 --
--- TOC entry 2153 (class 2606 OID 32076)
+-- TOC entry 2157 (class 2606 OID 32076)
 -- Name: dissemination_record_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -717,7 +1357,16 @@ ALTER TABLE ONLY disseminations
 
 
 --
--- TOC entry 2157 (class 2606 OID 34209)
+-- TOC entry 2160 (class 2606 OID 34284)
+-- Name: fk_id_format; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY resumption_tokens
+    ADD CONSTRAINT fk_id_format FOREIGN KEY (format_id) REFERENCES formats(id);
+
+
+--
+-- TOC entry 2161 (class 2606 OID 34209)
 -- Name: fk_record_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -726,16 +1375,16 @@ ALTER TABLE ONLY rst_to_identifiers
 
 
 --
--- TOC entry 2156 (class 2606 OID 34204)
+-- TOC entry 2162 (class 2606 OID 34300)
 -- Name: fk_rst_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY rst_to_identifiers
-    ADD CONSTRAINT fk_rst_id FOREIGN KEY (rst_id) REFERENCES resumption_tokens(token_id);
+    ADD CONSTRAINT fk_rst_id FOREIGN KEY (rst_id) REFERENCES resumption_tokens(token_id) ON DELETE CASCADE;
 
 
 --
--- TOC entry 2154 (class 2606 OID 32084)
+-- TOC entry 2158 (class 2606 OID 32084)
 -- Name: str_record_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -744,7 +1393,7 @@ ALTER TABLE ONLY sets_to_records
 
 
 --
--- TOC entry 2155 (class 2606 OID 32089)
+-- TOC entry 2159 (class 2606 OID 32089)
 -- Name: str_set_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -753,8 +1402,8 @@ ALTER TABLE ONLY sets_to_records
 
 
 --
--- TOC entry 2286 (class 0 OID 0)
--- Dependencies: 6
+-- TOC entry 2292 (class 0 OID 0)
+-- Dependencies: 89
 -- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
 
@@ -764,7 +1413,7 @@ GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
--- Completed on 2019-03-11 09:22:46 CET
+-- Completed on 2019-03-26 08:11:52 CET
 
 --
 -- PostgreSQL database dump complete
