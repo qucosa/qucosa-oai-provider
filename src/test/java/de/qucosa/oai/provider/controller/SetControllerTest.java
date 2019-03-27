@@ -16,162 +16,270 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.OaiPmhTestApplicationConfig;
+import de.qucosa.oai.provider.QucosaOaiProviderApplication;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.services.SetService;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import testdata.TestData;
 
+import java.io.IOException;
 import java.util.List;
 
+import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@ExtendWith({SpringExtension.class})
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = {QucosaOaiProviderApplication.class, OaiPmhTestApplicationConfig.class})
 @TestPropertySource("classpath:application-test.properties")
+@AutoConfigureMockMvc
 public class SetControllerTest {
+    private Logger logger = LoggerFactory.getLogger(SetControllerTest.class);
+
     private List<Set> sets = null;
+
+    @Autowired
+    private SetService setService;
 
     @Autowired
     private ObjectMapper om;
 
     @Autowired
-    private TestRestTemplate restTemplate;
+    private MockMvc mvc;
 
-//    @TestPropertySource("classpath:application.properties")
-//    @TestConfiguration
-//    public static class SetControllerTestConfiguration {
-//
-//        @Bean
-//        public Dao setDao() {
-//            return new SetTestDao<Set>();
-//        }
-//
-//        @Bean
-//        public SetService setService() {
-//            SetService setService = new SetService();
-//            setService.setDao(setDao());
-//            return setService;
-//        }
-//    }
+    @BeforeAll
+    public void setUp() throws IOException {
+        om = new ObjectMapper();
+        sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
+    }
 
-//    @Test
-//    public void Find_set_by_setspec() throws Exception {
-//        mvc.perform(get("/sets/ddc:1200")
-//                .contentType(MediaType.APPLICATION_JSON_VALUE))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.setspec", is("ddc:1200")));
-//    }
+    @Test
+    @DisplayName("Find all inserted sets.")
+    @Order(1)
+    public void finAll() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/sets")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String content = mvcResult.getResponse().getContentAsString();
 
-//    @Test
-//    public void Find_no_set_by_setspec() throws Exception {
-//        mvc.perform(get("/sets/ddc:120")
-//                .contentType(MediaType.APPLICATION_JSON_VALUE))
-//                .andExpect(status().isNotFound())
-//                .andExpect(jsonPath("$.statuscode", is("404")))
-//                .andExpect(jsonPath("$.errorMsg", is("Cannot found set.")))
-//                .andExpect(jsonPath("$.method", is("find")));
-//    }
-//
-//    @Test
-//    public void Find_all_sets() throws Exception {
-//        mvc.perform(get("/sets")
-//                .contentType(MediaType.APPLICATION_JSON_VALUE))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$", hasSize(2)));
-//    }
-//
-//    @Test
-//    public void Save_single_set_object_not_successful() throws Exception {
-//        Set set = sets.get(0);
-//        set.setIdentifier(1);
-//
-//        mvc.perform(post("/sets")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(om.writeValueAsString(set)))
-//                .andExpect(status().isNotAcceptable())
-//                .andExpect(jsonPath("$.errorMsg", is("Cannot save set objects.")))
-//                .andExpect(jsonPath("$.method", is("save")));
-//    }
-//
-//    @Test
-//    public void Save_single_set_object() throws Exception {
-//        Set set = sets.get(0);
-//        mvc.perform(post("/sets")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(om.writeValueAsString(set)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.setid", is(1)));
-//    }
-//
-//    @Test
-//    public void Save_collection_of_sets() throws Exception {
-//        mvc.perform(post("/sets")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(om.writeValueAsString(sets)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$", hasSize(2)));
-//    }
-//
-//    @Test
-//    public void Update_set() throws Exception {
-//        Set set = sets.get(0);
-//        set.setSetName("quatsch");
-//        mvc.perform(put("/sets/ddc:1200")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(om.writeValueAsString(set)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.setname", is("quatsch")));
-//    }
-//
-//    @Test
-//    public void Update_set_not_successful() throws Exception {
-//        Set set = sets.get(0);
-//        set.setSetName("quatsch");
-//        mvc.perform(put("/sets/ddc:120")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(om.writeValueAsString(set)))
-//                .andExpect(status().isNotAcceptable())
-//                .andExpect(jsonPath("$.errorMsg", is("Cannot update set.")))
-//                .andExpect(jsonPath("$.statuscode", is("406")));
-//    }
-//
-//    @Test
-//    public void Mark_set_as_delete_successful() throws Exception {
-//        mvc.perform(delete("/sets/ddc:1200")
-//                .contentType(MediaType.APPLICATION_JSON_VALUE))
-//                .andExpect(status().isOk());
-//    }
-//
-//    @Test
-//    public void Mark_set_as_delete_not_successful_if_setspec_is_wrong() throws Exception {
-//        mvc.perform(delete("/sets/ddc:120")
-//                .contentType(MediaType.APPLICATION_JSON_VALUE))
-//                .andExpect(status().isBadRequest());
-//    }
-//
-//    @Test
-//    public void Undo_mark_set_as_delete_successful() throws Exception {
-//        mvc.perform(delete("/sets/ddc:1200/undo")
-//                .contentType(MediaType.APPLICATION_JSON_VALUE))
-//                .andExpect(status().isOk());
-//    }
-//
-//    @Test
-//    public void Undo_mark_set_as_delete_not_successful_if_undo_param_is_wrong() throws Exception {
-//        mvc.perform(delete("/sets/ddc:1200/und")
-//                .contentType(MediaType.APPLICATION_JSON_VALUE))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.errorMsg", is("The undo param is set, but wrong.")));
-//    }
-//
-//    @Test
-//    public void Undo_mark_set_as_delete_not_successful_if_setspec_is_wrong() throws Exception {
-//        mvc.perform(delete("/sets/ddc:120/undo")
-//                .contentType(MediaType.APPLICATION_JSON_VALUE))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.errorMsg", is("Cannot undo delete set.")));
-//    }
+        assertThat(content).isNotEmpty();
+
+        List<Set> data = om.readValue(content, om.getTypeFactory().constructCollectionType(List.class, Set.class));
+
+        assertThat(data).isNotNull();
+        assertThat(data.size()).isGreaterThan(0);
+    }
+
+    @Test
+    @DisplayName("Find a set object by setspec.")
+    @Order(2)
+    public void findSet() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/sets/ddc:610")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String content = mvcResult.getResponse().getContentAsString();
+
+        assertThat(content).isNotEmpty();
+
+        Set set = om.readValue(content, Set.class);
+
+        assertThat(set).isNotNull();
+        assertThat(set.getSetSpec()).isEqualTo("ddc:610");
+    }
+
+    @Test
+    @DisplayName("If set not found in table returns a error details object.")
+    @Order(3)
+    public void setNotFound() throws Exception {
+        Set set = sets.get(0);
+
+        mvc.perform(
+                get("/sets/" + set.getSetSpec())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.statuscode", is("404")))
+                .andExpect(jsonPath("$.errorMsg", is("Set with setspec " + set.getSetSpec() + " is does not exists.")))
+                .andExpect(jsonPath("$.method", is("find")));
+    }
+
+    @Test
+    @DisplayName("If cannot save set object then returns a error details object.")
+    @Order(4)
+    public void saveSetNotSuccessful() throws Exception {
+        Set set = (Set) setService.find("setspec", "ddc:610").iterator().next();
+        mvc.perform(
+                post("/sets")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(set)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.statuscode", is("406")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot save set objects.")))
+                .andExpect(jsonPath("$.method", is("save")));
+    }
+
+    @Test
+    @DisplayName("If the save set process is successful then returns the saved set object.")
+    @Order(5)
+    public void saveSetIsSuccessful() throws Exception {
+        Set set = sets.get(0);
+        MvcResult mvcResult = mvc.perform(
+                post("/sets")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(set)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Set responseSet = om.readValue(response, Set.class);
+
+        assertThat(responseSet).isNotNull();
+        assertThat(responseSet.getSetSpec()).isEqualTo(set.getSetSpec());
+
+        setService.delete(responseSet);
+    }
+
+    @Test
+    @DisplayName("Save an set collection, if this process successful then returns an collection object with saved sets.")
+    @Order(6)
+    public void saveSetCollectionIsSuccessful() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                post("/sets")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(sets)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        List<Set> responseList = om.readValue(response,
+                om.getTypeFactory().constructCollectionType(List.class, Set.class));
+
+        assertThat(responseList).isNotNull();
+        assertThat(responseList.size()).isGreaterThan(0);
+        assertThat(responseList.size()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Update a exists set object is successful.")
+    @Order(7)
+    public void updateSet() throws Exception {
+        Set set = (Set) setService.find("setspec", "ddc:610").iterator().next();
+        set.setSetDescription("This set has a desc now.");
+
+        MvcResult mvcResult = mvc.perform(
+                put("/sets/" + set.getSetSpec())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(set)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+        Set responseSet = om.readValue(response, Set.class);
+
+        assertThat(responseSet).isNotNull();
+        assertThat(responseSet.getSetDescription()).isEqualTo(set.getSetDescription());
+    }
+
+    @Test
+    @DisplayName("Mark a set object as deleted.")
+    @Order(8)
+    public void markSetAsDeleted() throws Exception {
+        Set set = (Set) setService.find("setspec", "ddc:610").iterator().next();
+        set.setDeleted(true);
+
+        MvcResult mvcResult = mvc.perform(
+                put("/sets/" + set.getSetSpec())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(set)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+        Set responseSet = om.readValue(response, Set.class);
+
+        assertThat(responseSet).isNotNull();
+        assertThat(responseSet.isDeleted()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Undo the set delete mark.")
+    @Order(9)
+    public void undoDeleteMarked() throws Exception {
+        Set set = (Set) setService.find("setspec", "ddc:610").iterator().next();
+        set.setDeleted(false);
+
+        MvcResult mvcResult = mvc.perform(
+                put("/sets/" + set.getSetSpec())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(set)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+        Set responseSet = om.readValue(response, Set.class);
+
+        assertThat(responseSet).isNotNull();
+        assertThat(responseSet.isDeleted()).isFalse();
+    }
+
+    @Test
+    @DisplayName("Delete set hard from the sets table.")
+    @Order(10)
+    public void hardDeleteSet() throws Exception {
+        Set set = (Set) setService.find("setspec", "ddc:610").iterator().next();
+
+        MvcResult mvcResult = mvc.perform(
+                delete("/sets")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(set)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+        assertThat(Boolean.parseBoolean(response)).isTrue();
+    }
+
+    @Test
+    @DisplayName("Hard delete set was not successful and returns a error details object.")
+    @Order(11)
+    public void hardDeleteNotSuccessful() throws Exception {
+        Set set = sets.get(0);
+        set.setSetSpec("ddc:8000");
+
+        mvc.perform(
+                delete("/sets")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(set)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.statuscode", is("400")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot hard delete set.")));
+    }
 }
