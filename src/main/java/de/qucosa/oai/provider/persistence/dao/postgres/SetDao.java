@@ -274,8 +274,20 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public void delete(T object) {
+    public void delete(T object) throws DeleteFailed {
+        String sql = "DELETE FROM sets WHERE setspec = ?";
 
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, object.getSetSpec());
+            int del = statement.executeUpdate();
+
+            if (del == 0) {
+                throw new DeleteFailed("Cannot hard delete set.");
+            }
+        } catch (SQLException e) {
+            throw new DeleteFailed("Cannot hard delete set.", e);
+        }
     }
 
     @Override
@@ -284,7 +296,7 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     private boolean deleteOrUndoDelete(String ident, boolean value) {
-        String sql = "UPDATE sets SET deleted = ? WHERE deleted = ?";
+        String sql = "UPDATE sets SET deleted = ? WHERE setspec = ?";
         boolean del = false;
 
         try {
