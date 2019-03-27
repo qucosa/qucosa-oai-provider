@@ -112,11 +112,11 @@ public class FormatsController {
                         HttpStatus.BAD_REQUEST, "", e).response();
             } catch (SaveFailed saveFailed) {
                 return new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
-                        HttpStatus.NOT_ACCEPTABLE, "", saveFailed).response();
+                        HttpStatus.NOT_ACCEPTABLE, saveFailed.getMessage(), saveFailed).response();
             }
         } catch (SaveFailed e) {
             return new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
-                    HttpStatus.NOT_ACCEPTABLE, "", e).response();
+                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
         }
 
         return new ResponseEntity(output, HttpStatus.OK);
@@ -131,7 +131,7 @@ public class FormatsController {
             format = formatService.updateFormat(input, mdprefix);
         } catch (UpdateFailed e) {
             return new ErrorDetails(this.getClass().getName(), "update", "PUT:formats/" + mdprefix,
-                    HttpStatus.NOT_ACCEPTABLE, "", e).response();
+                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
         }
 
         return new ResponseEntity(format, HttpStatus.OK);
