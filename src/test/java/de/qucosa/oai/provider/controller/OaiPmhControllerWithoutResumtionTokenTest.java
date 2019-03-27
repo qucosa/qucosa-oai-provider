@@ -21,6 +21,8 @@ package de.qucosa.oai.provider.controller;
 import de.qucosa.oai.provider.OaiPmhTestApplicationConfig;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
+import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -37,8 +39,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -54,6 +60,14 @@ public class OaiPmhControllerWithoutResumtionTokenTest {
 
     @Autowired
     private MockMvc mvc;
+
+    private XPath xPath;
+
+    @BeforeAll
+    public void setUp() throws IOException {
+        XmlNamespacesConfig namespacesConfig = new XmlNamespacesConfig(getClass().getResourceAsStream("/config/namespaces.json"));
+        xPath = DocumentXmlUtils.xpath(namespacesConfig.getNamespaces());
+    }
 
     @Test
     @DisplayName("Load xml by ListIdentifers verb.")
@@ -94,5 +108,39 @@ public class OaiPmhControllerWithoutResumtionTokenTest {
         Node listIdentifiers = document.getElementsByTagName("ListRecords").item(0);
 
         assertThat(listIdentifiers.getNodeName()).isEqualTo("ListRecords");
+    }
+
+    @Test
+    @DisplayName("Has a record the status deleted then must metadata removed from xml.")
+    public void isRecordDeleted() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/oai/ListRecords/oai_dc")
+                        .contentType(MediaType.APPLICATION_XML_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String content = mvcResult.getResponse().getContentAsString();
+
+        assertThat(content).isNotEmpty();
+
+        Document document = DocumentXmlUtils.document(
+                new ByteArrayInputStream(content.getBytes("UTF-8")), true);
+
+        NodeList nodeList = (NodeList) xPath.compile(
+                "/OAI-PMH/ListRecords/record/header[@status='deleted']").evaluate(document, XPathConstants.NODESET);
+
+        assertThat(nodeList.getLength()).isGreaterThan(0);
+
+        for (int i = 0; i < nodeList.getLength(); i++) {
+
+            if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                Node node = nodeList.item(i);
+                Node record = node.getParentNode();
+
+                if (record.getNodeName().equals("record")) {
+                    Node metadata = (Node) xPath.compile("metadata").evaluate(record, XPathConstants.NODE);
+
+                    assertThat(metadata.hasChildNodes()).isFalse();
+                }
+            }
+        }
     }
 }
