@@ -353,11 +353,11 @@ SELECT pg_catalog.setval('oaiprovider', 211, true);
 --
 
 COPY records (id, pid, uid, deleted) FROM stdin;
-28	qucosa:24994	qucosa:24994	f
+28	qucosa:24994	qucosa:24994	t
 31	qucosa:30859	qucosa:30859	f
 36	qucosa:30725	qucosa:30725	f
 40	qucosa:30751	qucosa:30751	f
-43	qucosa:30738	qucosa:30738	f
+43	qucosa:30738	qucosa:30738	t
 47	qucosa:31145	qucosa:31145	f
 51	qucosa:31834	qucosa:31834	f
 55	qucosa:30805	qucosa:30805	f
