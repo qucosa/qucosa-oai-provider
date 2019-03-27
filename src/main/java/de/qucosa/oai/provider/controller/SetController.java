@@ -20,7 +20,6 @@ import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.SetService;
@@ -44,7 +43,6 @@ import java.util.List;
 @RequestMapping("/sets")
 @RestController
 public class SetController {
-
     private Logger logger = LoggerFactory.getLogger(SetController.class);
 
     private SetService setService;
@@ -78,14 +76,13 @@ public class SetController {
         try {
             Collection<Set> sets = setService.find("setspec", setspec);
 
-            if (!sets.isEmpty()) {
-                set = sets.iterator().next();
+            if (sets.isEmpty()) {
+                return new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
+                        HttpStatus.NOT_FOUND, "Set with setspec " + setspec + " is does not exists.", null).response();
             }
 
-        } catch (NotFound e) {
-            return new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
-                    HttpStatus.NOT_FOUND, "", e).response();
-        }
+            set = sets.iterator().next();
+        } catch (NotFound ignored) { }
 
         return new ResponseEntity(set, HttpStatus.OK);
     }
@@ -138,26 +135,15 @@ public class SetController {
         return new ResponseEntity<Set>(set, HttpStatus.OK);
     }
 
-    @RequestMapping(value = {"{setspec}", "{setspec}/{undo}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity delete(@PathVariable String setspec, @PathVariable(value = "undo", required = false) String undo) {
+    public ResponseEntity delete(@RequestBody Set input) {
 
         try {
-
-            if (undo == null || undo.isEmpty()) {
-                setService.deleteSet(setspec);
-            } else if (undo.equals("undo")) {
-                setService.undoDeleteSet(setspec);
-            } else {
-                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
-                        HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
-            }
-        } catch (DeleteFailed e) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
-                    HttpStatus.NOT_ACCEPTABLE, null, e).response();
-        } catch (UndoDeleteFailed undoDeleteFailed) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
-                    HttpStatus.NOT_ACCEPTABLE, null, undoDeleteFailed).response();
+            setService.delete(input);
+        } catch (DeleteFailed deleteFailed) {
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/",
+                    HttpStatus.BAD_REQUEST, deleteFailed.getMessage(), deleteFailed).response();
         }
 
         return new ResponseEntity(true, HttpStatus.OK);
