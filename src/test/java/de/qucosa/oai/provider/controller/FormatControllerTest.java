@@ -124,6 +124,14 @@ public class FormatControllerTest {
                 .andExpect(jsonPath("$.errorMsg", is("Cannot found format.")));
     }
 
+    @Test
+    @DisplayName("Save new format is successful.")
+    @Order(4)
+    public void saveFormat() {
+        Format format = formats.get(2);
+        format.getMdprefix();
+    }
+
 //
 //    @Test
 //    public void Save_single_format_object() throws Exception {
