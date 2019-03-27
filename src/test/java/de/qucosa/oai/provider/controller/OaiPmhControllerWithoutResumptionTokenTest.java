@@ -55,8 +55,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = {QucosaOaiProviderApplication.class, OaiPmhTestApplicationConfig.class})
 @TestPropertySource("classpath:application-test.properties")
 @AutoConfigureMockMvc
-public class OaiPmhControllerWithoutResumtionTokenTest {
-    private Logger logger = LoggerFactory.getLogger(OaiPmhControllerWithoutResumtionTokenTest.class);
+public class OaiPmhControllerWithoutResumptionTokenTest {
+    private Logger logger = LoggerFactory.getLogger(OaiPmhControllerWithoutResumptionTokenTest.class);
 
     @Autowired
     private MockMvc mvc;
