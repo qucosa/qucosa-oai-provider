@@ -72,4 +72,8 @@ public class SetService<T> {
     public void undoDeleteSet(String setspec) throws UndoDeleteFailed {
         dao.undoDelete(setspec);
     }
+
+    public void delete(Set set) throws DeleteFailed {
+        dao.delete(set);
+    }
 }
