@@ -81,7 +81,7 @@ public class FormatsController {
 
             if (formats.isEmpty()) {
                 return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
-                    HttpStatus.NOT_FOUND, "Cannot find format.", null).response();
+                    HttpStatus.NOT_FOUND, "Cannot found format.", null).response();
             }
 
             format = formats.iterator().next();
