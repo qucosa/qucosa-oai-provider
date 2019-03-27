@@ -15,9 +15,11 @@
  */
 package de.qucosa.oai.provider.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.OaiPmhTestApplicationConfig;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
+import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.FormatService;
@@ -47,6 +49,8 @@ import java.util.List;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -127,64 +131,96 @@ public class FormatControllerTest {
     @Test
     @DisplayName("Save new format is successful.")
     @Order(4)
-    public void saveFormat() {
+    public void saveFormat() throws Exception {
         Format format = formats.get(2);
-        format.getMdprefix();
+        MvcResult mvcResult = mvc.perform(
+                post("/formats")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(format)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Format responseFormat = om.readValue(response, Format.class);
+
+        assertThat(responseFormat).isNotNull();
+        assertThat(responseFormat.getMdprefix()).isEqualTo("epicur");
     }
 
-//
-//    @Test
-//    public void Save_single_format_object() throws Exception {
-//        Format format = formats.get(0);
-//        mvc.perform(post("/formats")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(om.writeValueAsString(format)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.formatid", is(1)));
-//    }
-//
-//    @Test
-//    public void Save_single_format_object_not_successful() throws Exception {
-//        Format format = formats.get(0);
-//        format.setIdentifier(1);
-//        mvc.perform(post("/formats")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(om.writeValueAsString(format)))
-//                .andExpect(status().isNotAcceptable())
-//                .andExpect(jsonPath("$.statuscode", is("406")))
-//                .andExpect(jsonPath("$.errorMsg", is("Cannot save format.")));
-//    }
-//
-//    @Test
-//    public void Save_format_collection() throws Exception {
-//        mvc.perform(post("/formats")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(om.writeValueAsString(formats)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$", hasSize(3)));
-//    }
-//
-//    @Test
-//    public void Update_format() throws Exception {
-//        Format format = formats.get(0);
-//        format.setNamespace("mist");
-//        mvc.perform(put("/formats/oai_dc")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(om.writeValueAsString(format)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.namespace", is("mist")));
-//    }
-//
-//    @Test
-//    public void Update_format_not_successful() throws Exception {
-//        Format format = formats.get(0);
-//        format.setNamespace("mist");
-//        mvc.perform(put("/formats/oai_c")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(om.writeValueAsString(format)))
-//                .andExpect(status().isNotAcceptable())
-//                .andExpect(jsonPath("$.statuscode", is("406")))
-//                .andExpect(jsonPath("$.errorMsg", is("Cannot update format.")));
-//    }
-//
+    @Test
+    @DisplayName("Format cannot save.")
+    @Order(5)
+    public void formatNotSaved() throws Exception {
+        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+
+        mvc.perform(
+                post("/formats")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(format)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.statuscode", is("406")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot save format.")));
+    }
+
+    @Test
+    @DisplayName("Update format is successful.")
+    @Order(6)
+    public void updateFormat() throws Exception {
+        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        format.setNamespace("update_ns");
+        format.setSchemaUrl("update_url");
+
+        MvcResult mvcResult = mvc.perform(
+                put("/formats/oai_dc")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(format)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Format responseFormat = om.readValue(response, Format.class);
+        assertThat(responseFormat).isNotNull();
+        assertThat(responseFormat.getNamespace()).isEqualTo("update_ns");
+        assertThat(responseFormat.getSchemaUrl()).isEqualTo("update_url");
+    }
+
+    @Test
+    @DisplayName("Cannot update format object.")
+    @Order(7)
+    public void formatNotUpdated() throws Exception {
+        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        format.setMdprefix("test");
+
+        mvc.perform(
+                put("/formats/test")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(format)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.statuscode", is("406")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot update format.")));
+    }
+
+    @Test
+    @DisplayName("Mark format as deleted.")
+    @Order(8)
+    public void markAsDeleted() throws Exception {
+        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        format.setDeleted(true);
+
+        MvcResult mvcResult = mvc.perform(
+                put("/formats/oai_dc")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(format)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Format responseFormat = om.readValue(response, Format.class);
+
+        assertThat(responseFormat).isNotNull();
+        assertThat(responseFormat.isDeleted()).isTrue();
+    }
 }
