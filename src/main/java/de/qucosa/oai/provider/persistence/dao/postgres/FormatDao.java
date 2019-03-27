@@ -157,7 +157,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
             connection.commit();
 
             if (updateRows == 0) {
-                throw new UpdateFailed("Update format is failed, no affected rows.");
+                throw new UpdateFailed("Cannot update format.");
             }
 
             ps.close();
