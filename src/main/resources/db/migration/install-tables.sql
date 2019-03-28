@@ -111,7 +111,7 @@ CREATE TABLE public.resumption_tokens
   CONSTRAINT pk_token_id PRIMARY KEY (token_id),
   CONSTRAINT fk_id_format FOREIGN KEY (format_id)
       REFERENCES public.formats (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION
+      ON UPDATE NO ACTION ON DELETE CASCADE
 )
 WITH (
   OIDS=FALSE
