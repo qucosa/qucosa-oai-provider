@@ -103,7 +103,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
             int updatedRows = ps.executeUpdate();
 
             if (updatedRows == 0) {
-                throw new UpdateFailed("Record update failed, no rwos affected.");
+                throw new UpdateFailed("Cannot update record.");
             }
 
             ps.close();
@@ -165,6 +165,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
             ps.setString(1, value);
             ResultSet resultSet = ps.executeQuery();
 
+
             while (resultSet.next()) {
                 record.setIdentifier(resultSet.getLong("id"));
                 record.setPid(resultSet.getString("pid"));
@@ -173,10 +174,14 @@ public class RecordDao<T extends Record> implements Dao<T> {
                 records.add(record);
             }
 
+            if (records.size() == 0) {
+                throw new NotFound("Cannot found record.");
+            }
+
             resultSet.close();
             ps.close();
         } catch (SQLException e) {
-            throw new NotFound(e.getMessage());
+            throw new NotFound("SQL-ERROR: Cannot found record.", e);
         }
 
         return (Collection<T>) records;
@@ -199,18 +204,24 @@ public class RecordDao<T extends Record> implements Dao<T> {
 
     @Override
     public void delete(String ident) throws DeleteFailed {
+        String sql = "DELETE FROM records WHERE uid = ?";
 
-        if (!deleteOrUndoDelete(ident, true)) {
-            throw new DeleteFailed("Cannot delete set.");
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, ident);
+            int deletedRows = statement.executeUpdate();
+
+            if (deletedRows == 0) {
+                throw new DeleteFailed("SQL-ERROR: Cannot delete record.");
+            }
+        } catch (SQLException e) {
+            throw new DeleteFailed("SQL-ERROR: Cannot delete record.", e);
         }
     }
 
     @Override
     public void undoDelete(String ident) throws UndoDeleteFailed {
 
-        if (!deleteOrUndoDelete(ident, false)) {
-            throw new UndoDeleteFailed("Cannot undo delete set.");
-        }
     }
 
     @Override
@@ -220,28 +231,5 @@ public class RecordDao<T extends Record> implements Dao<T> {
 
     @Override
     public void delete(Record object) throws DeleteFailed {
-    }
-
-    private boolean deleteOrUndoDelete(String ident, boolean value) {
-        String sql = "UPDATE records SET deleted = ? WHERE uid = ?";
-        boolean del = false;
-
-        try {
-            assert connection != null;
-            PreparedStatement ps = connection.prepareStatement(sql);
-            connection.setAutoCommit(false);
-            ps.setBoolean(1, value);
-            ps.setString(2, ident);
-
-            if (ps.executeUpdate() > 0) {
-                del = true;
-            }
-
-            connection.commit();
-
-            ps.close();
-        } catch (SQLException ignore) { }
-
-        return del;
     }
 }
