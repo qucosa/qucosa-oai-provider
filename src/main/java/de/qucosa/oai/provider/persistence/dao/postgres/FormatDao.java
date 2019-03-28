@@ -300,7 +300,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
             int deleteRows = statement.executeUpdate();
 
             if (deleteRows == 0) {
-                throw new DeleteFailed("Cannot delete format.");
+                throw new DeleteFailed("Cannot delete format " + object.getMdprefix() + ".");
             }
         } catch (SQLException e) {
             throw new DeleteFailed(e.getMessage(), e);
