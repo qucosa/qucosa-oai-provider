@@ -292,6 +292,19 @@ public class FormatDao<T extends Format> implements Dao<T> {
 
     @Override
     public void delete(T object) throws DeleteFailed {
+        String sql = "DELETE FROM formats where mdprefix = ?";
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, object.getMdprefix());
+            int deleteRows = statement.executeUpdate();
+
+            if (deleteRows == 0) {
+                throw new DeleteFailed("Cannot delete format.");
+            }
+        } catch (SQLException e) {
+            throw new DeleteFailed(e.getMessage(), e);
+        }
     }
 
     @Override
