@@ -67,6 +67,10 @@ public class FormatService<T> {
         return (List<Format>) dao.findAll();
     }
 
+    public void delete(Format format) throws DeleteFailed {
+        dao.delete(format);
+    }
+
     public void deleteFormat(String ident) throws DeleteFailed {
         dao.delete(ident);
     }
