@@ -15,11 +15,9 @@
  */
 package de.qucosa.oai.provider.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.OaiPmhTestApplicationConfig;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.FormatService;
@@ -48,6 +46,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -222,5 +221,59 @@ public class FormatControllerTest {
 
         assertThat(responseFormat).isNotNull();
         assertThat(responseFormat.isDeleted()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Undo mark format as deleted.")
+    @Order(9)
+    public void markAsDeletedUndo() throws Exception {
+        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        format.setDeleted(false);
+
+        MvcResult mvcResult = mvc.perform(
+                put("/formats/oai_dc")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(format)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Format responseFormat = om.readValue(response, Format.class);
+
+        assertThat(responseFormat).isNotNull();
+        assertThat(responseFormat.isDeleted()).isFalse();
+    }
+
+    @Test
+    @DisplayName("Hard deleted format from table.")
+    @Order(10)
+    public void deleteFormat() throws Exception {
+        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        MvcResult mvcResult = mvc.perform(
+                delete("/formats")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(format)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+        assertThat(Boolean.parseBoolean(response)).isTrue();
+    }
+
+    @Test
+    @DisplayName("Hard delete format from table is not successful because the mdprefix is wrong.")
+    @Order(11)
+    public void hardDeleteNotSuccessful() throws Exception {
+        Format format = (Format) formatService.find("mdprefix", "xmetadissplus").iterator().next();
+        format.setMdprefix("test");
+
+        mvc.perform(
+                delete("/formats")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(format)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.statuscode", is("406")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot delete format " + format.getMdprefix() + ".")));
     }
 }
