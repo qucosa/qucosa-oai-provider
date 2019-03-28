@@ -75,7 +75,6 @@ public class FormatControllerTest {
 
     @BeforeAll
     public void setUp() throws IOException {
-        om = new ObjectMapper();
         formats = om.readValue(TestData.FORMATS, om.getTypeFactory().constructCollectionType(List.class, Format.class));
     }
 

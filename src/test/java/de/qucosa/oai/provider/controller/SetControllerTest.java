@@ -74,7 +74,6 @@ public class SetControllerTest {
 
     @BeforeAll
     public void setUp() throws IOException {
-        om = new ObjectMapper();
         sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
     }
 
