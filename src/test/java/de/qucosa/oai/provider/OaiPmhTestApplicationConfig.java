@@ -57,9 +57,6 @@ public class OaiPmhTestApplicationConfig {
                 environment.getProperty("psql.database"),
                 environment.getProperty("psql.user"),
                 environment.getProperty("psql.passwd"));
-//        postgres.getProcess().get().importFromFileWithArgs(
-//                new File(getClass().getResource("/db/migration/install-tables.sql").getPath()),
-//                "-v");
         postgres.getProcess().get().importFromFile(
                 new File(getClass().getResource("/db/migration/psql-oia-provider-test-data.backup").getPath()));
         connection = DriverManager.getConnection(connUrl);
