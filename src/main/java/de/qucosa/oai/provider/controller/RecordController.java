@@ -147,45 +147,58 @@ public class RecordController {
                 updatedRecord = recordService.updateRecord(record, uid);
             } catch (UpdateFailed e) {
                 return new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{uid}",
-                        HttpStatus.NOT_ACCEPTABLE, null, e).response();
+                        HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
             }
         } catch (IOException e) {
             return new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{uid}",
-                    HttpStatus.BAD_REQUEST, null, e).response();
+                    HttpStatus.BAD_REQUEST, "Bad request input.", e).response();
         }
 
         return new ResponseEntity(updatedRecord, HttpStatus.OK);
     }
 
-    @RequestMapping(value = {"{uid}", "{uid}/{undo}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = {"{uid}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity delete(@PathVariable String uid, @PathVariable(value = "undo", required = false) String undo) {
+    public ResponseEntity delete(@PathVariable String uid) {
+        boolean isDeleted = false;
+
         try {
             Record record = (Record) recordService.findRecord("uid", uid).iterator().next();
 
             try {
-
-                if (undo == null || undo.isEmpty()) {
-                    recordService.deleteRecord(record.getUid());
-                } else if (undo.equals("undo")) {
-                    recordService.undoDeleteRecord(record.getUid());
-                } else {
-                    return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
-                            HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
-                }
+                recordService.delete(record);
             } catch (DeleteFailed deleteFailed) {
-                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
-                        HttpStatus.NOT_ACCEPTABLE, null, deleteFailed).response();
-            } catch (UndoDeleteFailed undoDeleteFailed) {
-                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
-                        HttpStatus.NOT_ACCEPTABLE, null, undoDeleteFailed).response();
+                deleteFailed.printStackTrace();
             }
-        } catch (NotFound e) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
-                    HttpStatus.NOT_FOUND, null, e).response();
+        } catch (NotFound notFound) {
+            notFound.printStackTrace();
         }
+//        try {
+//            Record record = (Record) recordService.findRecord("uid", uid).iterator().next();
+//
+//            try {
+//
+//                if (undo == null || undo.isEmpty()) {
+//                    recordService.deleteRecord(record.getUid());
+//                } else if (undo.equals("undo")) {
+//                    recordService.undoDeleteRecord(record.getUid());
+//                } else {
+//                    return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
+//                            HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
+//                }
+//            } catch (DeleteFailed deleteFailed) {
+//                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
+//                        HttpStatus.NOT_ACCEPTABLE, null, deleteFailed).response();
+//            } catch (UndoDeleteFailed undoDeleteFailed) {
+//                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
+//                        HttpStatus.NOT_ACCEPTABLE, null, undoDeleteFailed).response();
+//            }
+//        } catch (NotFound e) {
+//            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
+//                    HttpStatus.NOT_FOUND, null, e).response();
+//        }
 
-        return new ResponseEntity(true, HttpStatus.OK);
+        return new ResponseEntity(isDeleted, HttpStatus.OK);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -213,13 +226,13 @@ public class RecordController {
 
             if (records.isEmpty()) {
                 return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{uid}",
-                        HttpStatus.NOT_FOUND, "Cannot find record.", null).response();
+                        HttpStatus.NOT_FOUND, "Cannot found record.", null).response();
             }
 
             record = records.iterator().next();
         } catch (NotFound e) {
             return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{uid}",
-                    HttpStatus.NOT_FOUND, null, e).response();
+                    HttpStatus.NOT_FOUND, e.getMessage(), e).response();
         }
 
         return new ResponseEntity<Record>(record, HttpStatus.OK);
