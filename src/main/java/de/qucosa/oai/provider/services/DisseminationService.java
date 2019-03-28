@@ -20,6 +20,7 @@ import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +40,8 @@ public class DisseminationService<T> {
         return (Dissemination) dao.saveAndSetIdentifier(dissemination);
     }
 
-    public Dissemination updateDissemination() {
-        return null;
+    public Dissemination update(Dissemination dissemination) throws UpdateFailed {
+        return (Dissemination) dao.update(dissemination);
     }
 
     public void deleteDissemination(Dissemination dissemination, String undo) throws DeleteFailed, UndoDeleteFailed {
@@ -52,11 +53,15 @@ public class DisseminationService<T> {
         }
     }
 
-    public Collection<Dissemination> findAllByUid(String property, String value) throws NotFound {
+    public Dissemination findByMultipleValues(String clause, String... values) throws NotFound {
+        return (Dissemination) dao.findByMultipleValues(clause, values);
+    }
+
+    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
         return dao.findByPropertyAndValue(property, value);
     }
 
-    public Dissemination findByMultipleValues(String clause, String... values) throws NotFound {
-        return (Dissemination) dao.findByMultipleValues(clause, values);
+    public void delete(Dissemination dissemination) throws DeleteFailed {
+        dao.delete(dissemination);
     }
 }
