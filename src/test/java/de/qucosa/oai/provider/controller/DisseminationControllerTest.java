@@ -16,43 +16,69 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.dao.DisseminationTestDao;
-import de.qucosa.oai.provider.dao.FormatTestDao;
-import de.qucosa.oai.provider.persistence.Dao;
+import de.qucosa.oai.provider.OaiPmhTestApplicationConfig;
+import de.qucosa.oai.provider.QucosaOaiProviderApplication;
+import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
+import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
+import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import testdata.TestData;
 
+import javax.xml.xpath.XPath;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = {QucosaOaiProviderApplication.class, OaiPmhTestApplicationConfig.class})
+@TestPropertySource("classpath:application-test.properties")
 @AutoConfigureMockMvc
 public class DisseminationControllerTest {
+    private Logger logger = LoggerFactory.getLogger(DisseminationControllerTest.class);
 
     private List<Dissemination> disseminations = null;
+
+    private Format format;
+
+    private XPath xPath;
+
+    @Autowired
+    private DisseminationService disseminationService;
+
+    @Autowired
+    private FormatService formatService;
 
     @Autowired
     private ObjectMapper om;
@@ -61,142 +87,174 @@ public class DisseminationControllerTest {
     private MockMvc mvc;
 
     @BeforeAll
-    public void setUp() throws IOException {
-        disseminations = om.readValue(TestData.DISSEMINATIONS, om.getTypeFactory().constructCollectionType(List.class, Dissemination.class));
+    public void setUp() throws IOException, SaveFailed {
+        disseminations = om.readValue(TestData.DISSEMINATIONS,
+                om.getTypeFactory().constructCollectionType(List.class, Dissemination.class));
+        List<Format> formats = om.readValue(TestData.FORMATS,
+                om.getTypeFactory().constructCollectionType(List.class, Format.class));
+        format = formatService.saveFormat(formats.get(2));
+        XmlNamespacesConfig namespacesConfig = new XmlNamespacesConfig(getClass().getResourceAsStream(
+                "/config/namespaces.json"));
+        xPath = DocumentXmlUtils.xpath(namespacesConfig.getNamespaces());
     }
 
-    @TestPropertySource("classpath:application.properties")
-    @TestConfiguration
-    public static class SetControllerTestConfiguration {
+    /**
+     * Value qucosa:32394 is referenced in psql-oia-provider-test-data.backup file.
+     */
+    @Test
+    @DisplayName("Find all disseminations by record uid.")
+    @Order(1)
+    public void findDisseminations() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/disseminations/qucosa:32394")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
 
-        @Bean
-        public Dao formatDao() {
-            return new FormatTestDao<Format>();
-        }
+        assertThat(response).isNotEmpty();
 
-        @Bean
-        public FormatService formatApi() {
-            FormatService formatService = new FormatService();
-            formatService.setDao(formatDao());
-            return formatService;
-        }
+        Collection<Dissemination> disseminations = om.readValue(response,
+                om.getTypeFactory().constructCollectionType(List.class, Dissemination.class));
 
-        @Bean
-        public Dao disseminationDao() {
-            return new DisseminationTestDao();
-        }
-
-        @Bean
-        public DisseminationService disseminationService() {
-            DisseminationService disseminationService = new DisseminationService();
-            disseminationService.setDao(disseminationDao());
-            return disseminationService;
-        }
+        assertThat(disseminations).isNotNull();
+        assertThat(disseminations.size()).isGreaterThan(0);
     }
 
     @Test
-    public void Save_dissemintaion() throws Exception {
-        mvc.perform(post("/dissemination")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(disseminations.get(0))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.dissid", is(1)));
+    @DisplayName("Find not disseminations because record uid is wrong / not exists in database.")
+    @Order(2)
+    public void findNotDisseminations() throws Exception {
+        mvc.perform(
+                get("/disseminations/qucosa:00000")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.statuscode", is("404")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot found dissemination. UID qucosa:00000 does not exists.")));
     }
 
     @Test
-    public void Save_dissemintaion_not_successful__if_recordid_failed() throws Exception {
-        Dissemination dissemination = disseminations.get(0);
+    @DisplayName("Save new dissemination.")
+    @Order(3)
+    public void saveDissemination() throws Exception {
+        Dissemination dissemination = disseminations.get(2);
+        dissemination.setFormatId(format.getFormatId());
+
+        MvcResult mvcResult = mvc.perform(
+                post("/disseminations")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(dissemination)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Dissemination responseObj = om.readValue(response, Dissemination.class);
+
+        assertThat(responseObj).isNotNull();
+        assertThat(responseObj.getDissId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Save dissemination is not succussful because record failed.")
+    @Order(4)
+    public void saveDisseminationWithoutRecord() throws Exception {
+        Dissemination dissemination = disseminations.get(2);
+        dissemination.setFormatId(format.getFormatId());
         dissemination.setRecordId(null);
 
-        mvc.perform(post("/dissemination")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(dissemination)))
+        mvc.perform(
+                post("/disseminations")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(dissemination)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination.")))
-                .andExpect(jsonPath("$.statuscode", is("406")));
+                .andExpect(jsonPath("$.statuscode", is("406")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because record or format failed.")));
     }
 
     @Test
-    public void Save_dissemintaion_not_successful__if_formatid_failed() throws Exception {
-        Dissemination dissemination = disseminations.get(0);
-        dissemination.setFormatId(null);
+    @DisplayName("Save dissemination is not succussful because format failed.")
+    @Order(5)
+    public void saveDisseminationWithoutFormat() throws Exception {
+        Dissemination dissemination = disseminations.get(2);
+        dissemination.setFormatId(new Long(0));
 
-        mvc.perform(post("/dissemination")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(dissemination)))
+        mvc.perform(
+                post("/disseminations")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(dissemination)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination.")))
-                .andExpect(jsonPath("$.statuscode", is("406")));
+                .andExpect(jsonPath("$.statuscode", is("406")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because record or format failed.")));
     }
 
+    /**
+     * This test has a dependency to the saveDissemination with order number 2 and is not running as stand alone test.
+     * Value qucosa:32394 is referenced in psql-oia-provider-test-data.backup file.
+     * @throws Exception
+     */
     @Test
-    public void Find_disseminations_by_uid() throws Exception {
-        mvc.perform(get("/dissemination/oai:example:org:qucosa:55887")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)));
+    @DisplayName("Save dissemination is not succussful because exists in table.")
+    @Order(6)
+    public void saveDisseminationBecauseExists() throws Exception {
+        Dissemination dissemination = disseminations.get(2);
+        dissemination.setFormatId(format.getFormatId());
+        dissemination.setRecordId("qucosa:32394");
+
+        mvc.perform(
+                post("/disseminations")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(dissemination)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.statuscode", is("406")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because data row is exists.")));
     }
 
+    /**
+     * Value 17 and qucosa:32394 are referenced in psql-oia-provider-test-data.backup file.
+     */
     @Test
-    public void Find_disseminations_by_uid_not_successful() throws Exception {
-        MvcResult mvcResult = mvc.perform(get("/dissemination/oai:example:org:qucosa:5588")
-                .contentType(MediaType.APPLICATION_JSON))
+    @DisplayName("Update dissemination object with delete property for mark object as deleted.")
+    @Order(7)
+    public void updateDissemination() throws Exception {
+        Dissemination dissemination = disseminationService.findByMultipleValues(
+                "id_format = %s AND id_record = %s",
+                String.valueOf(17),
+                "qucosa:32394");
+        dissemination.setDeleted(true);
+
+        MvcResult mvcResult = mvc.perform(
+                put("/disseminations/" + dissemination.getRecordId() + "/oai_dc")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(dissemination)))
                 .andExpect(status().isOk()).andReturn();
-        String res = mvcResult.getResponse().getContentAsString();
-        assertThat(res).isEmpty();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Dissemination responseObj = om.readValue(response, Dissemination.class);
+
+        assertThat(responseObj).isNotNull();
+        assertThat(responseObj.isDeleted()).isTrue();
     }
 
+    /**
+     * Value 17 and qucosa:32394 are referenced in psql-oia-provider-test-data.backup file.
+     */
     @Test
-    public void Mark_disseminations_as_deleted_successful() throws Exception {
-        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetadiss")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void Mark_disseminations_as_deleted_not_successful_if_has_wrong_format() throws Exception {
-        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetaiss")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorMsg", is("Cannot find format.")));
-    }
-
-    @Test
-    public void Mark_disseminations_as_deleted_not_successful_if_has_wrong_uid() throws Exception {
-        mvc.perform(delete("/dissemination/oai:example:org:qucosa:5887/xmetadiss")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorMsg", is("Cannot find dissemination.")));
-    }
-
-    @Test
-    public void Undo_Mark_disseminations_as_deleted_successful() throws Exception {
-        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetadiss/undo")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void Undo_Mark_disseminations_as_deleted_not_successful_if_has_wrong_format() throws Exception {
-        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetadis/undo")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorMsg", is("Cannot find format.")));
-    }
-
-    @Test
-    public void Undo_Mark_disseminations_as_deleted_not_successful_if_has_wrong_uid() throws Exception {
-        mvc.perform(delete("/dissemination/oai:example:org:qucosa:5887/xmetadiss/undo")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorMsg", is("Cannot find dissemination.")));
-    }
-
-    @Test
-    public void Undo_Mark_disseminations_as_deleted_not_successful_if_undo_param_is_wrong() throws Exception {
-        mvc.perform(delete("/dissemination/oai:example:org:qucosa:55887/xmetadiss/und")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorMsg", is("The undo param is set, but wrong.")));
+    @DisplayName("Delete dissemination from table.")
+    @Order(8)
+    public void deleteDissemination() throws Exception {
+        Dissemination dissemination = disseminationService.findByMultipleValues(
+                "id_format = %s AND id_record = %s",
+                String.valueOf(17),
+                "qucosa:32394");
+        MvcResult mvcResult = mvc.perform(
+                delete("/disseminations")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(dissemination)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+        assertThat(response).isNotEmpty();
+        assertThat(Boolean.parseBoolean(response)).isTrue();
     }
 }
