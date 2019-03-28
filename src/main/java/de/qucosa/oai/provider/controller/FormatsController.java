@@ -21,7 +21,6 @@ import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.FormatService;
@@ -137,28 +136,19 @@ public class FormatsController {
         return new ResponseEntity(format, HttpStatus.OK);
     }
 
-    @RequestMapping(value = {"{mdprefix}", "{mdprefix}/{undo}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity delete(@PathVariable String mdprefix, @PathVariable(value = "undo", required = false) String undo) {
+    public ResponseEntity delete(@RequestBody Format input) {
+        boolean isDeleted = false;
 
         try {
-
-            if (undo == null || undo.isEmpty()) {
-                formatService.deleteFormat(mdprefix);
-            } else if (undo.equals("undo")) {
-                formatService.undoDeleteFormat(mdprefix);
-            } else {
-                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + undo,
-                        HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
-            }
-        } catch (DeleteFailed e) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + undo,
-                    HttpStatus.NOT_ACCEPTABLE, "", e).response();
-        } catch (UndoDeleteFailed undoDeleteFailed) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats/" + mdprefix + "/" + undo,
-                    HttpStatus.NOT_ACCEPTABLE, "", undoDeleteFailed).response();
+            formatService.delete(input);
+            isDeleted = true;
+        } catch (DeleteFailed deleteFailed) {
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats",
+                    HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).response();
         }
 
-        return new ResponseEntity(true, HttpStatus.OK);
+        return new ResponseEntity(isDeleted, HttpStatus.OK);
     }
 }
