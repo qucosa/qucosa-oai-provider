@@ -19,7 +19,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.RecordTransport;
@@ -51,12 +50,8 @@ public class RecordService<T> {
         return (Record) dao.update(record);
     }
 
-    public void deleteRecord(String uid) throws DeleteFailed {
-        dao.delete(uid);
-    }
-
-    public void undoDeleteRecord(String uid) throws UndoDeleteFailed {
-        dao.undoDelete(uid);
+    public void delete(Record record) throws DeleteFailed {
+        dao.delete(record.getUid());
     }
 
     public Collection<Record> findRecord(String column, String uid) throws NotFound {
