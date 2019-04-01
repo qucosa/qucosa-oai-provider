@@ -132,9 +132,9 @@ public class OaiPmhController {
             }
         }
 
-        Collection<Record> records = null;
+        Collection<Record> records;
         Collection<OaiPmhLists> oaiPmhLists = null;
-        OaiPmhFactory oaiPmhFactory = null;
+        OaiPmhFactory oaiPmhFactory;
         Document oaiPmhList = null;
         ResumptionToken resumptionTokenObj = null;
 
@@ -241,7 +241,7 @@ public class OaiPmhController {
                 resumptionToken.setCursor(new Long(cursor));
                 rcCnt++;
                 resumptionToken = resumptionTokenService.saveAndSetIdentifier(resumptionToken);
-                int end = 0;
+                int end;
 
                 if (cursor == 0) {
                     end = recordsProPage;
