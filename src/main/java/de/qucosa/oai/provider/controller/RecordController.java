@@ -158,7 +158,6 @@ public class RecordController {
     @RequestMapping(value = {"{uid}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity delete(@PathVariable String uid) {
-        boolean isDeleted = false;
         Record record = null;
 
         try {
@@ -170,8 +169,9 @@ public class RecordController {
                 if (record != null) {
                     try {
                         recordService.delete(record);
-                        isDeleted = true;
                     } catch (DeleteFailed deleteFailed) {
+                        return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}",
+                                HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).response();
                     }
                 }
             }
@@ -182,7 +182,7 @@ public class RecordController {
                     HttpStatus.NOT_FOUND, "Cannot found record.", null).response();
         }
 
-        return new ResponseEntity(isDeleted, HttpStatus.OK);
+        return new ResponseEntity(true, HttpStatus.OK);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
