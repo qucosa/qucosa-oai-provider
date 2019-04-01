@@ -218,8 +218,7 @@ public class OaiPmhController {
     }
 
     private ResumptionToken saveResumptionTokenAndPidsPersistent(String token, Collection<Record> records) throws SaveFailed, NotFound {
-        List<Record> recordList = new ArrayList<>();
-        recordList.addAll(records);
+        List<Record> recordList = new ArrayList<>(records);
         Collection<RstToIdentifiers> rstToIdentifiersCollection = new ArrayList<>();
 
         if (recordList.size() > recordsProPage) {
