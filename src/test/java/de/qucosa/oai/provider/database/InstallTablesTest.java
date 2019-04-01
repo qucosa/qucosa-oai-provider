@@ -178,7 +178,6 @@ public class InstallTablesTest {
     private ResultSet dataRows(String tableName) throws SQLException {
         String sql = "SELECT * FROM " + tableName;
         Statement statement = config.connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(sql);
-        return resultSet;
+        return statement.executeQuery(sql);
     }
 }
