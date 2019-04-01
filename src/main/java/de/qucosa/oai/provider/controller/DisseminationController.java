@@ -94,7 +94,7 @@ public class DisseminationController {
     @RequestMapping(value = "{uid}/{mdprefix}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity update(@RequestBody Dissemination input, @PathVariable String uid) {
-        Dissemination dissemination = null;
+        Dissemination dissemination;
 
         try {
             dissemination = disseminationService.update(input);
@@ -109,16 +109,14 @@ public class DisseminationController {
     @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity delete(@RequestBody Dissemination input) {
-        boolean isDeleted = false;
 
         try {
             disseminationService.delete(input);
-            isDeleted = true;
         } catch (DeleteFailed deleteFailed) {
             return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:disseminations",
                     HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).response();
         }
 
-        return new ResponseEntity(isDeleted, HttpStatus.OK);
+        return new ResponseEntity(true, HttpStatus.OK);
     }
 }
