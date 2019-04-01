@@ -188,7 +188,7 @@ public class RecordController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity findAll() {
-        Collection<Record> records = null;
+        Collection<Record> records;
 
         try {
             records = recordService.findAll();
