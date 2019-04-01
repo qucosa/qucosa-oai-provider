@@ -17,11 +17,9 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.ErrorDetails;
-import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
@@ -166,7 +164,7 @@ public class RecordController {
             Record record = (Record) recordService.findRecord("uid", uid).iterator().next();
 
             try {
-                recordService.delete(record, uid);
+                recordService.delete(record);
                 isDeleted = true;
             } catch (DeleteFailed deleteFailed) {
                 return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}",
