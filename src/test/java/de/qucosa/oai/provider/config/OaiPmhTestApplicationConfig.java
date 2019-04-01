@@ -53,7 +53,7 @@ public class OaiPmhTestApplicationConfig {
     public EmbeddedPostgres postgres() throws IOException, SQLException {
         EmbeddedPostgres postgres = new EmbeddedPostgres(V9_5);
         connUrl = postgres.start(environment.getProperty("psql.host"),
-                Integer.valueOf(environment.getProperty("psql.port").toString()),
+                Integer.valueOf(environment.getProperty("psql.port")),
                 environment.getProperty("psql.database"),
                 environment.getProperty("psql.user"),
                 environment.getProperty("psql.passwd"));

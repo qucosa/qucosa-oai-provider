@@ -154,7 +154,7 @@ public class OaiPmhController {
                         : resumptionTokenService.findById(resumptionToken);
 
                 if (resumptionToken != null) {
-                    format = (Format) formatService.findById(String.valueOf(resumptionTokenObj.getFormatId()));
+                    format = formatService.findById(String.valueOf(resumptionTokenObj.getFormatId()));
                 }
             } catch (NotFound notFound) {
                 notFound.printStackTrace();

@@ -139,7 +139,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
             throw new UpdateFailed("SQL-ERROR: Cannot update dissemination.", e);
         }
 
-        return (T) object;
+        return object;
     }
 
     @Override

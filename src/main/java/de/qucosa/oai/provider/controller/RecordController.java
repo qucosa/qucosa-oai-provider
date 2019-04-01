@@ -308,7 +308,7 @@ public class RecordController {
             boolean strExsists = false;
 
             try {
-                SetsToRecord findStr = (SetsToRecord) setsToRecordService.findByMultipleValues(
+                SetsToRecord findStr = setsToRecordService.findByMultipleValues(
                         "id_set=%s AND id_record=%s",
                         String.valueOf(set.getIdentifier()), String.valueOf(record.getIdentifier()));
 
