@@ -16,7 +16,7 @@
  *
  */
 
-package de.qucosa.oai.provider;
+package de.qucosa.oai.provider.config;
 
 import org.postgresql.Driver;
 import org.slf4j.Logger;
