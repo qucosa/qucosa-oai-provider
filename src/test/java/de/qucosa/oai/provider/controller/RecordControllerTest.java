@@ -16,8 +16,8 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.config.OaiPmhTestApplicationConfig;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
+import de.qucosa.oai.provider.config.OaiPmhTestApplicationConfig;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.RecordTransport;
 import de.qucosa.oai.provider.services.RecordService;
@@ -183,13 +183,10 @@ public class RecordControllerTest {
     @Test
     @DisplayName("Delete record from table.")
     @Order(7)
-    public void deleteRecord() throws Exception {
-        Record record = (Record) recordService.findRecord("uid", "qucosa:32394").iterator().next();
-
+    public void isDeleted() throws Exception {
         MvcResult mvcResult = mvc.perform(
                 delete("/records/qucosa:32394")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(record)))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
         assertThat(response).isNotEmpty();
@@ -197,25 +194,9 @@ public class RecordControllerTest {
     }
 
     @Test
-    @DisplayName("Delete record is not successful because record object uid is unequal with uid parameter.")
-    @Order(8)
-    public void notDeleted_1() throws Exception {
-        Record record = (Record) recordService.findRecord("uid", "qucosa:32394").iterator().next();
-        record.setUid("qucosa:00000");
-
-        mvc.perform(
-                delete("/records/qucosa:32394")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(record)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406")))
-                .andExpect(jsonPath("$.errorMsg", is("Unequal uid parameter with record object uid.")));
-    }
-
-    @Test
     @DisplayName("Delete record is not successful because uid parameter is does not exists in racords table.")
-    @Order(9)
-    public void notDeleted_2() throws Exception {
+    @Order(8)
+    public void isNotDeleted() throws Exception {
         mvc.perform(
                 delete("/records/qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
