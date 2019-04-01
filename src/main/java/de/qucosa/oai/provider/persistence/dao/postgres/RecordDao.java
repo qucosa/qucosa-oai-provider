@@ -175,7 +175,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
             }
 
             if (records.size() == 0) {
-                throw new NotFound("Cannot found record.");
+                return null;
             }
 
             resultSet.close();
