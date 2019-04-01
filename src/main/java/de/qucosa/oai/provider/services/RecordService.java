@@ -50,7 +50,12 @@ public class RecordService<T> {
         return (Record) dao.update(record);
     }
 
-    public void delete(Record record) throws DeleteFailed {
+    public void delete(Record record, String uid) throws DeleteFailed {
+
+        if (record.getUid().equals(uid)) {
+            throw new DeleteFailed("Unequal uid parameter with record object uid.");
+        }
+
         dao.delete(record.getUid());
     }
 
