@@ -260,17 +260,11 @@ public class SetDao<T extends Set> implements Dao<T> {
     @Override
     public void delete(String ident) throws DeleteFailed {
 
-        if (!deleteOrUndoDelete(ident, true)) {
-            throw new DeleteFailed("Cannot delete set.");
-        }
     }
 
     @Override
     public void undoDelete(String ident) throws UndoDeleteFailed {
 
-        if (!deleteOrUndoDelete(ident, false)) {
-            throw new UndoDeleteFailed("Cannot undo delete set.");
-        }
     }
 
     @Override
@@ -293,28 +287,5 @@ public class SetDao<T extends Set> implements Dao<T> {
     @Override
     public void undoDelete(T object) {
 
-    }
-
-    private boolean deleteOrUndoDelete(String ident, boolean value) {
-        String sql = "UPDATE sets SET deleted = ? WHERE setspec = ?";
-        boolean del = false;
-
-        try {
-            assert connection != null;
-            PreparedStatement ps = connection.prepareStatement(sql);
-            connection.setAutoCommit(false);
-            ps.setBoolean(1, value);
-            ps.setString(2, ident);
-
-            if (ps.executeUpdate() > 0) {
-                del = true;
-            }
-
-            connection.commit();
-
-            ps.close();
-        } catch (SQLException ignore) { }
-
-        return del;
     }
 }

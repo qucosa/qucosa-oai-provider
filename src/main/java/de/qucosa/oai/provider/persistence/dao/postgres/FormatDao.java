@@ -277,17 +277,11 @@ public class FormatDao<T extends Format> implements Dao<T> {
     @Override
     public void delete(String ident) throws DeleteFailed {
 
-        if (!deleteOrUndoDelete(ident, true)) {
-            throw new DeleteFailed("Cannot delete format.");
-        }
     }
 
     @Override
     public void undoDelete(String ident) throws UndoDeleteFailed {
 
-        if (!deleteOrUndoDelete(ident, false)) {
-            throw new UndoDeleteFailed("Cannot undo delete format.");
-        }
     }
 
     @Override
@@ -310,28 +304,5 @@ public class FormatDao<T extends Format> implements Dao<T> {
     @Override
     public void undoDelete(T object) throws UndoDeleteFailed {
 
-    }
-
-    private boolean deleteOrUndoDelete(String ident, boolean value) {
-        String sql = "UPDATE formats SET deleted = ? WHERE mdprefix = ?";
-        boolean del = false;
-
-        try {
-            assert connection != null;
-            PreparedStatement ps = connection.prepareStatement(sql);
-            connection.setAutoCommit(false);
-            ps.setBoolean(1, value);
-            ps.setString(2, ident);
-
-            if (ps.executeUpdate() > 0) {
-                del = true;
-            }
-
-            connection.commit();
-
-            ps.close();
-        } catch (SQLException ignore) { }
-
-        return del;
     }
 }
