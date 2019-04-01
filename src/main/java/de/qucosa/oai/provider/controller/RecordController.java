@@ -166,37 +166,16 @@ public class RecordController {
             Record record = (Record) recordService.findRecord("uid", uid).iterator().next();
 
             try {
-                recordService.delete(record);
+                recordService.delete(record, uid);
+                isDeleted = true;
             } catch (DeleteFailed deleteFailed) {
-                deleteFailed.printStackTrace();
+                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}",
+                        HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).response();
             }
         } catch (NotFound notFound) {
-            notFound.printStackTrace();
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}",
+                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound).response();
         }
-//        try {
-//            Record record = (Record) recordService.findRecord("uid", uid).iterator().next();
-//
-//            try {
-//
-//                if (undo == null || undo.isEmpty()) {
-//                    recordService.deleteRecord(record.getUid());
-//                } else if (undo.equals("undo")) {
-//                    recordService.undoDeleteRecord(record.getUid());
-//                } else {
-//                    return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
-//                            HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
-//                }
-//            } catch (DeleteFailed deleteFailed) {
-//                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
-//                        HttpStatus.NOT_ACCEPTABLE, null, deleteFailed).response();
-//            } catch (UndoDeleteFailed undoDeleteFailed) {
-//                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
-//                        HttpStatus.NOT_ACCEPTABLE, null, undoDeleteFailed).response();
-//            }
-//        } catch (NotFound e) {
-//            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}/{delete}",
-//                    HttpStatus.NOT_FOUND, null, e).response();
-//        }
 
         return new ResponseEntity(isDeleted, HttpStatus.OK);
     }
