@@ -212,7 +212,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
             int deletedRows = statement.executeUpdate();
 
             if (deletedRows == 0) {
-                throw new DeleteFailed("SQL-ERROR: Cannot delete record.");
+                throw new DeleteFailed("Cannot delete record.");
             }
         } catch (SQLException e) {
             throw new DeleteFailed("SQL-ERROR: Cannot delete record.", e);
