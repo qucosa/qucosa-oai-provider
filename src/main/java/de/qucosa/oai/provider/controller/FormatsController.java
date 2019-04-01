@@ -139,16 +139,14 @@ public class FormatsController {
     @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity delete(@RequestBody Format input) {
-        boolean isDeleted = false;
 
         try {
             formatService.delete(input);
-            isDeleted = true;
         } catch (DeleteFailed deleteFailed) {
             return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats",
                     HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).response();
         }
 
-        return new ResponseEntity(isDeleted, HttpStatus.OK);
+        return new ResponseEntity(true, HttpStatus.OK);
     }
 }
