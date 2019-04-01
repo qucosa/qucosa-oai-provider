@@ -1371,7 +1371,7 @@ ALTER TABLE ONLY resumption_tokens
 --
 
 ALTER TABLE ONLY rst_to_identifiers
-    ADD CONSTRAINT fk_record_id FOREIGN KEY (record_id) REFERENCES records(id);
+    ADD CONSTRAINT fk_record_id FOREIGN KEY (record_id) REFERENCES records(id) ON DELETE CASCADE;
 
 
 --
