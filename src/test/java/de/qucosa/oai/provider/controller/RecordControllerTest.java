@@ -48,6 +48,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -204,5 +205,15 @@ public class RecordControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.statuscode", is("404")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot found record.")));
+    }
+
+    @Test
+    @DisplayName("Save record trabsport input from camel service.")
+    @Order(9)
+    public void saveRecordInput() throws Exception {
+        mvc.perform(
+                post("/records")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE).content(TestData.RECORDS_INPUT))
+                .andExpect(status().isOk());
     }
 }
