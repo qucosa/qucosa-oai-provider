@@ -23,7 +23,6 @@ import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.services.DisseminationService;
-import de.qucosa.oai.provider.services.FormatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,11 +47,9 @@ public class DisseminationController {
 
     private DisseminationService disseminationService;
 
-    private FormatService formatService;
 
     @Autowired
-    public DisseminationController(FormatService formatService, DisseminationService disseminationService) {
-        this.formatService = formatService;
+    public DisseminationController(DisseminationService disseminationService) {
         this.disseminationService = disseminationService;
     }
 
