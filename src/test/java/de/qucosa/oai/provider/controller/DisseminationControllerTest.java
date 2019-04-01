@@ -17,9 +17,7 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
-import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.config.OaiPmhTestApplicationConfig;
-import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
@@ -45,7 +43,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import testdata.TestData;
 
-import javax.xml.xpath.XPath;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -72,8 +69,6 @@ public class DisseminationControllerTest {
 
     private Format format;
 
-    private XPath xPath;
-
     @Autowired
     private DisseminationService disseminationService;
 
@@ -93,9 +88,6 @@ public class DisseminationControllerTest {
         List<Format> formats = om.readValue(TestData.FORMATS,
                 om.getTypeFactory().constructCollectionType(List.class, Format.class));
         format = formatService.saveFormat(formats.get(2));
-        XmlNamespacesConfig namespacesConfig = new XmlNamespacesConfig(getClass().getResourceAsStream(
-                "/config/namespaces.json"));
-        xPath = DocumentXmlUtils.xpath(namespacesConfig.getNamespaces());
     }
 
     /**

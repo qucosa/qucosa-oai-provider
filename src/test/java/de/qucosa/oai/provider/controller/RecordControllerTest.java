@@ -19,9 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
 import de.qucosa.oai.provider.config.OaiPmhTestApplicationConfig;
 import de.qucosa.oai.provider.persistence.model.Record;
-import de.qucosa.oai.provider.persistence.model.RecordTransport;
 import de.qucosa.oai.provider.services.RecordService;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -41,7 +39,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import testdata.TestData;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -62,10 +59,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RecordControllerTest {
     private Logger logger = LoggerFactory.getLogger(RecordControllerTest.class);
 
-    private List<RecordTransport> transportList = null;
-
-    private List<Record> records = null;
-
     @Autowired
     private RecordService recordService;
 
@@ -74,12 +67,6 @@ public class RecordControllerTest {
 
     @Autowired
     private MockMvc mvc;
-
-    @BeforeAll
-    public void setUp() throws IOException {
-        transportList = om.readValue(TestData.RECORDS_INPUT, om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
-        records = om.readValue(TestData.RECORDS, om.getTypeFactory().constructCollectionType(List.class, Record.class));
-    }
 
     @Test
     @DisplayName("Find all exists records.")
