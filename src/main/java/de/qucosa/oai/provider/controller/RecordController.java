@@ -159,20 +159,27 @@ public class RecordController {
     @ResponseBody
     public ResponseEntity delete(@PathVariable String uid) {
         boolean isDeleted = false;
+        Record record = null;
 
         try {
-            Record record = (Record) recordService.findRecord("uid", uid).iterator().next();
+            Collection<Record> records = recordService.findRecord("uid", uid);
 
-            try {
-                recordService.delete(record);
-                isDeleted = true;
-            } catch (DeleteFailed deleteFailed) {
-                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}",
-                        HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).response();
+            if (records != null) {
+                record = records.iterator().next();
+
+                if (record != null) {
+                    try {
+                        recordService.delete(record);
+                        isDeleted = true;
+                    } catch (DeleteFailed deleteFailed) {
+                    }
+                }
             }
-        } catch (NotFound notFound) {
+        } catch (NotFound ignored) { }
+
+        if (record == null) {
             return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}",
-                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound).response();
+                    HttpStatus.NOT_FOUND, "Cannot found record.", null).response();
         }
 
         return new ResponseEntity(isDeleted, HttpStatus.OK);
@@ -201,7 +208,7 @@ public class RecordController {
         try {
             Collection<Record> records = recordService.findRecord("uid", uid);
 
-            if (records.isEmpty()) {
+            if (records == null) {
                 return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{uid}",
                         HttpStatus.NOT_FOUND, "Cannot found record.", null).response();
             }
@@ -250,7 +257,7 @@ public class RecordController {
         try {
             records = recordService.findRecord("uid", rt.getRecord().getUid());
 
-            if (!records.isEmpty()) {
+            if (records != null) {
                 record = records.iterator().next();
             }
 
