@@ -18,7 +18,7 @@
 
 package de.qucosa.oai.provider.database;
 
-import de.qucosa.oai.provider.OaiPmhTestApplicationConfig;
+import de.qucosa.oai.provider.config.OaiPmhTestApplicationConfig;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
