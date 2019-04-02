@@ -50,7 +50,7 @@ public class ErrorDetails {
     }
 
     public ResponseEntity response() {
-        return new ResponseEntity(this, this.statuscode);
+        return new ResponseEntity<>(this, this.statuscode);
     }
 
     public String getClassname() {
@@ -89,34 +89,21 @@ public class ErrorDetails {
         return requestMethod;
     }
 
-    private ErrorDetails setMethod(String method) {
-        this.method = method;
-        return this;
-    }
-
-    private ErrorDetails setRequestPath(String requestMethodAndPath) {
+    private void setRequestPath(String requestMethodAndPath) {
         String[] req = requestMethodAndPath.split(":");
         this.requestPath = req[1];
         this.requestMethod = req[0];
-        return this;
     }
 
-    private ErrorDetails setException(Exception exception) {
+    private void setException(Exception exception) {
 
         if (exception != null) {
             this.exception = exception;
             setStacktrace(this.exception.getStackTrace());
         }
-
-        return this;
     }
-    private ErrorDetails setStacktrace(StackTraceElement[] stacktrace) {
+
+    private void setStacktrace(StackTraceElement[] stacktrace) {
         this.stacktrace = stacktrace;
-        return this;
-    }
-
-    private ErrorDetails setErrorMsg(String errorMsg) {
-        this.errorMsg = errorMsg;
-        return this;
     }
 }
