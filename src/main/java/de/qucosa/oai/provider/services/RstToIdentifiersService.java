@@ -25,11 +25,11 @@ import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
 import java.util.Collection;
 
 public class RstToIdentifiersService {
-    private Dao dao;
+    private Dao<RstToIdentifiers> dao;
 
     public RstToIdentifiersService(){}
 
-    public void setDao(Dao dao) {
+    public void setDao(Dao<RstToIdentifiers> dao) {
         this.dao = dao;
     }
 
