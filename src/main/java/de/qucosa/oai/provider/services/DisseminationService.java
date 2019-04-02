@@ -26,28 +26,28 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 
 @Service
-public class DisseminationService<T> {
-    private Dao dao;
+public class DisseminationService {
+    private Dao<Dissemination> dao;
 
     public DisseminationService() {}
 
-    public void setDao(Dao dao) {
+    public void setDao(Dao<Dissemination> dao) {
         this.dao = dao;
     }
 
     public Dissemination saveDissemination(Dissemination dissemination) throws SaveFailed {
-        return (Dissemination) dao.saveAndSetIdentifier(dissemination);
+        return dao.saveAndSetIdentifier(dissemination);
     }
 
     public Dissemination update(Dissemination dissemination) throws UpdateFailed {
-        return (Dissemination) dao.update(dissemination);
+        return dao.update(dissemination);
     }
 
     public Dissemination findByMultipleValues(String clause, String... values) throws NotFound {
-        return (Dissemination) dao.findByMultipleValues(clause, values);
+        return dao.findByMultipleValues(clause, values);
     }
 
-    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Dissemination> findByPropertyAndValue(String property, String value) throws NotFound {
         return dao.findByPropertyAndValue(property, value);
     }
 

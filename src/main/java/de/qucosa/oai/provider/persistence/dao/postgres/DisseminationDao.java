@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class DisseminationDao<T extends Dissemination> implements Dao<T> {
+public class DisseminationDao<T extends Dissemination> implements Dao<Dissemination> {
 
     private Connection connection;
 
@@ -107,12 +107,12 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
+    public Collection<Dissemination> saveAndSetIdentifier(Collection<Dissemination> objects) throws SaveFailed {
         return null;
     }
 
     @Override
-    public T update(T object) throws UpdateFailed {
+    public Dissemination update(Dissemination object) throws UpdateFailed {
         String sql = "UPDATE disseminations" +
                 " SET id_format = ?, lastmoddate = ?, xmldata = ?, id_record = ?, deleted = ?" +
                 " WHERE id = ?";
@@ -143,22 +143,22 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
+    public Collection<Dissemination> update(Collection<Dissemination> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public Collection<T> findAll() throws NotFound {
+    public Collection<Dissemination> findAll() throws NotFound {
         return null;
     }
 
     @Override
-    public T findById(String id) throws NotFound {
+    public Dissemination findById(String id) throws NotFound {
         return null;
     }
 
     @Override
-    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Dissemination> findByPropertyAndValue(String property, String value) throws NotFound {
         String sql = "SELECT id, id_format, lastmoddate, xmldata, id_record, deleted FROM disseminations" +
                 " WHERE " + property + " = ?";
         Collection<Dissemination> disseminations = new ArrayList<>();
@@ -187,11 +187,11 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
             throw new NotFound(e.getMessage(), e);
         }
 
-        return (Collection<T>) disseminations;
+        return disseminations;
     }
 
     @Override
-    public T findByMultipleValues(String clause, String... values) throws NotFound {
+    public Dissemination findByMultipleValues(String clause, String... values) throws NotFound {
         clause = clause.replace("%s", "?");
 
         if (values[0] == null || Long.valueOf(values[0]) == 0 || values[1] == null || values[1].isEmpty()) {
@@ -217,14 +217,14 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
                 dissemination.setXmldata(resultSet.getString("xmldata"));
             }
 
-            return (T) dissemination;
+            return dissemination;
         } catch (SQLException e) {
             throw new NotFound("Connat find dissemination.", e);
         }
     }
 
     @Override
-    public Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<Dissemination> findRowsByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
@@ -242,7 +242,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
     }
 
     @Override
-    public void undoDelete(T object) throws UndoDeleteFailed {
+    public void undoDelete(Dissemination object) throws UndoDeleteFailed {
 
     }
 
