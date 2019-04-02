@@ -24,21 +24,21 @@ import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 
-public class ResumptionTokenService<T> {
-    private Dao dao;
+public class ResumptionTokenService {
+    private Dao<ResumptionToken> dao;
 
     public ResumptionTokenService() { }
 
-    public void setDao(Dao dao) {
+    public void setDao(Dao<ResumptionToken> dao) {
         this.dao = dao;
     }
 
     public ResumptionToken saveAndSetIdentifier(ResumptionToken object) throws SaveFailed {
-        return (ResumptionToken) dao.saveAndSetIdentifier(object);
+        return dao.saveAndSetIdentifier(object);
     }
 
     public ResumptionToken findById(String id) throws NotFound {
-        return (ResumptionToken) dao.findById(id);
+        return dao.findById(id);
     }
 
     public void delete() throws DeleteFailed {
