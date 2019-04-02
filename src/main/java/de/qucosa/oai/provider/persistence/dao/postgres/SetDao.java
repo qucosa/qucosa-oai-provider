@@ -36,7 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Repository
-public class SetDao<T extends Set> implements Dao<T> {
+public class SetDao<T extends Set> implements Dao<Set> {
 
     final private Connection connection;
 
@@ -91,7 +91,7 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
+    public Collection<Set> saveAndSetIdentifier(Collection<Set> objects) throws SaveFailed {
         String sql = "INSERT INTO sets (id, setspec, setname, setdescription) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (setspec) ";
@@ -142,7 +142,7 @@ public class SetDao<T extends Set> implements Dao<T> {
             throw new SaveFailed(e.getMessage());
         }
 
-        return (Collection<T>) output;
+        return output;
     }
 
 
@@ -174,12 +174,12 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> update(Collection<T> objects) {
+    public Collection<Set> update(Collection<Set> objects) {
         return null;
     }
 
     @Override
-    public Collection<T> findAll() throws NotFound {
+    public Collection<Set> findAll() throws NotFound {
         String sql = "SELECT id, setspec, setname, setdescription, deleted FROM sets";
         Collection<Set> sets = new ArrayList<>();
 
@@ -204,7 +204,7 @@ public class SetDao<T extends Set> implements Dao<T> {
             e.printStackTrace();
         }
 
-        return (Collection<T>) sets;
+        return sets;
     }
 
     @Override
@@ -213,7 +213,7 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Set> findByPropertyAndValue(String property, String value) throws NotFound {
         String sql = "SELECT id, setspec,setname, setdescription, deleted FROM sets where " + property + " = ?";
         Collection<Set> sets = new ArrayList<>();
 
@@ -239,7 +239,7 @@ public class SetDao<T extends Set> implements Dao<T> {
             throw new NotFound(e.getMessage());
         }
 
-        return (Collection<T>) sets;
+        return sets;
     }
 
     @Override
@@ -248,7 +248,7 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<Set> findRowsByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
@@ -268,7 +268,7 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public void delete(T object) throws DeleteFailed {
+    public void delete(Set object) throws DeleteFailed {
         String sql = "DELETE FROM sets WHERE setspec = ?";
 
         try {
@@ -285,7 +285,7 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public void undoDelete(T object) {
+    public void undoDelete(Set object) {
 
     }
 }
