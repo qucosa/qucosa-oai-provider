@@ -38,7 +38,7 @@ public interface OaiPmhListBuilder {
 
     void setDisseminationService(DisseminationService disseminationService);
 
-    void setSetService(SetService<Set> setService);
+    void setSetService(SetService setService);
 
     void setVerb(String verb);
 
