@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -58,6 +59,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = {QucosaOaiProviderApplication.class, OaiPmhTestApplicationConfig.class})
 @TestPropertySource("classpath:application-test.properties")
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class SetControllerTest {
     private Logger logger = LoggerFactory.getLogger(SetControllerTest.class);
 
@@ -80,7 +82,7 @@ public class SetControllerTest {
     @Test
     @DisplayName("Find all inserted sets.")
     @Order(1)
-    public void finAll() throws Exception {
+    public void findAll() throws Exception {
         MvcResult mvcResult = mvc.perform(
                 get("/sets")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
