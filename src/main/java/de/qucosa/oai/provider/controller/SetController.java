@@ -54,7 +54,7 @@ public class SetController {
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Collection<Set>> findAll() {
+    public ResponseEntity findAll() {
         Collection<Set> sets;
 
         try {
@@ -64,7 +64,7 @@ public class SetController {
                     HttpStatus.NOT_FOUND, "", e).response();
         }
 
-        return new ResponseEntity<Collection<Set>>(sets, HttpStatus.OK);
+        return new ResponseEntity<>(sets, HttpStatus.OK);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -84,23 +84,21 @@ public class SetController {
             set = sets.iterator().next();
         } catch (NotFound ignored) { }
 
-        return new ResponseEntity(set, HttpStatus.OK);
+        return new ResponseEntity<>(set, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public <T> ResponseEntity<T> save(@RequestBody String input) {
-        T output = null;
+    public ResponseEntity save(@RequestBody String input) {
+        Object output = null;
         ObjectMapper om = new ObjectMapper();
 
         try {
-            Set set = setService.saveSet(om.readValue(input, Set.class));
-            output = (T) set;
+            output = setService.saveSet(om.readValue(input, Set.class));
         } catch (IOException e) {
 
             try {
-                List<Set> sets = setService.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
-                output = (T) sets;
+                output = setService.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
             } catch (SaveFailed e1) {
                 logger.error("Cannot save set collections.", e1);
             } catch (IOException e1) {
@@ -116,12 +114,12 @@ public class SetController {
                     HttpStatus.NOT_ACCEPTABLE, "Cannot save set objects.", null).response();
         }
 
-        return new ResponseEntity<T>(output, HttpStatus.OK);
+        return new ResponseEntity<>(output, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{setspec}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Set> update(@RequestBody Set input, @PathVariable String setspec) {
+    public ResponseEntity update(@RequestBody Set input, @PathVariable String setspec) {
         Set set;
 
         try {
@@ -132,7 +130,7 @@ public class SetController {
         }
 
 
-        return new ResponseEntity<Set>(set, HttpStatus.OK);
+        return new ResponseEntity<>(set, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -146,6 +144,6 @@ public class SetController {
                     HttpStatus.BAD_REQUEST, deleteFailed.getMessage(), deleteFailed).response();
         }
 
-        return new ResponseEntity(true, HttpStatus.OK);
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 }
