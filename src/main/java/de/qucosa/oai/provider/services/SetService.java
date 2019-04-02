@@ -19,7 +19,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import org.springframework.stereotype.Component;
@@ -28,8 +27,8 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-public class SetService<T> {
-    private Dao dao;
+public class SetService {
+    private Dao<Set> dao;
 
     public SetService() {}
 
@@ -38,15 +37,15 @@ public class SetService<T> {
     }
 
     public Set saveSet(Set input) throws SaveFailed {
-        return (Set) dao.saveAndSetIdentifier(input);
+        return dao.saveAndSetIdentifier(input);
     }
 
-    public List<Set> saveSets(List<Set> input) throws SaveFailed {
-        return (List<Set>) dao.saveAndSetIdentifier(input);
+    public Collection<Set> saveSets(List<Set> input) throws SaveFailed {
+        return dao.saveAndSetIdentifier(input);
     }
 
-    public List<Set> findAll() throws NotFound {
-        return (List<Set>) dao.findAll();
+    public Collection<Set> findAll() throws NotFound {
+        return dao.findAll();
     }
 
     public Collection<Set> find(String column, String setspec) throws NotFound {
@@ -63,14 +62,6 @@ public class SetService<T> {
         output = (Set) dao.update(input);
 
         return output;
-    }
-
-    public void deleteSet(String setspec) throws DeleteFailed {
-        dao.delete(setspec);
-    }
-
-    public void undoDeleteSet(String setspec) throws UndoDeleteFailed {
-        dao.undoDelete(setspec);
     }
 
     public void delete(Set set) throws DeleteFailed {
