@@ -165,7 +165,7 @@ public class OaiPmhController {
             }
 
             try {
-                oaiPmhLists = (Collection<OaiPmhLists>) oaiPmhListsService.findRowsByMultipleValues(
+                oaiPmhLists = oaiPmhListsService.findRowsByMultipleValues(
                         "rst_id = %s AND format = %s", resumptionTokenObj.getTokenId(),
                         String.valueOf(resumptionTokenObj.getFormatId()));
             } catch (NotFound notFound) {
