@@ -28,17 +28,17 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
-public class RecordService<T> {
-    private Dao dao;
+public class RecordService {
+    private Dao<Record> dao;
 
     public RecordService() {}
 
-    public void setDao(Dao dao) {
+    public void setDao(Dao<Record> dao) {
         this.dao = dao;
     }
 
     public Record saveRecord(Record record) throws SaveFailed {
-        return (Record) dao.saveAndSetIdentifier(record);
+        return dao.saveAndSetIdentifier(record);
     }
 
     public Record updateRecord(Record record, String uid) throws UpdateFailed {
@@ -47,7 +47,7 @@ public class RecordService<T> {
             throw new UpdateFailed("Unequal uid parameter with record object uid.");
         }
 
-        return (Record) dao.update(record);
+        return dao.update(record);
     }
 
     public void delete(Record record) throws DeleteFailed {

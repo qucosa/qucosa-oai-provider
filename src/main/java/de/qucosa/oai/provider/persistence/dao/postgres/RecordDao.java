@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class RecordDao<T extends Record> implements Dao<T> {
+public class RecordDao<T extends Record> implements Dao<Record> {
 
     private Connection connection;
 
@@ -87,7 +87,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
+    public Collection<Record> saveAndSetIdentifier(Collection<Record> objects) throws SaveFailed {
         return null;
     }
 
@@ -115,12 +115,12 @@ public class RecordDao<T extends Record> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
+    public Collection<Record> update(Collection<Record> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public Collection<T> findAll() throws NotFound {
+    public Collection<Record> findAll() throws NotFound {
         Collection<Record> records = new ArrayList<>();
         String sql = "SELECT * FROM records";
 
@@ -146,7 +146,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
             throw new NotFound(e.getMessage());
         }
 
-        return (Collection<T>) records;
+        return records;
     }
 
     @Override
@@ -155,7 +155,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Record> findByPropertyAndValue(String property, String value) throws NotFound {
         Record record = new Record();
         Collection<Record> records = new ArrayList<>();
         String sql = "SELECT * FROM records WHERE " + property + " = ?";
@@ -184,7 +184,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
             throw new NotFound("SQL-ERROR: Cannot found record.", e);
         }
 
-        return (Collection<T>) records;
+        return records;
     }
 
     @Override
@@ -193,7 +193,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<Record> findRowsByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
@@ -225,7 +225,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
     }
 
     @Override
-    public void undoDelete(T object) throws UndoDeleteFailed {
+    public void undoDelete(Record object) throws UndoDeleteFailed {
 
     }
 

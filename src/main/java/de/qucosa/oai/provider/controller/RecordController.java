@@ -134,7 +134,7 @@ public class RecordController {
 
     @RequestMapping(value = "{uid}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Record> update(@RequestBody String input, @PathVariable String uid) {
+    public ResponseEntity update(@RequestBody String input, @PathVariable String uid) {
         ObjectMapper om = new ObjectMapper();
         Record updatedRecord;
 
@@ -152,7 +152,7 @@ public class RecordController {
                     HttpStatus.BAD_REQUEST, "Bad request input.", e).response();
         }
 
-        return new ResponseEntity(updatedRecord, HttpStatus.OK);
+        return new ResponseEntity<>(updatedRecord, HttpStatus.OK);
     }
 
     @RequestMapping(value = {"{uid}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -182,7 +182,7 @@ public class RecordController {
                     HttpStatus.NOT_FOUND, "Cannot found record.", null).response();
         }
 
-        return new ResponseEntity(true, HttpStatus.OK);
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -197,12 +197,12 @@ public class RecordController {
                     HttpStatus.NOT_FOUND, null, notFound).response();
         }
 
-        return new ResponseEntity(records, HttpStatus.OK);
+        return new ResponseEntity<>(records, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Record> find(@PathVariable String uid) {
+    public ResponseEntity find(@PathVariable String uid) {
         Record record;
 
         try {
@@ -219,7 +219,7 @@ public class RecordController {
                     HttpStatus.NOT_FOUND, e.getMessage(), e).response();
         }
 
-        return new ResponseEntity<Record>(record, HttpStatus.OK);
+        return new ResponseEntity<>(record, HttpStatus.OK);
     }
 
     private Format format(RecordTransport rt) {
