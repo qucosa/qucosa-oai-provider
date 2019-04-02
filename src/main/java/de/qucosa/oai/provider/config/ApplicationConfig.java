@@ -83,7 +83,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public SetService setService() throws PropertyVetoException, SQLException {
+    public SetService setService() throws SQLException {
         SetService setService = new SetService();
         setService.setDao(setDao());
         return setService;
