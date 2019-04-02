@@ -19,7 +19,6 @@
 package de.qucosa.oai.provider.services;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.dao.postgres.SetsToRecordDao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
@@ -30,20 +29,20 @@ import java.util.Collection;
 
 @Component
 public class SetsToRecordService {
-    private Dao dao;
+    private Dao<SetsToRecord> dao;
 
     public SetsToRecordService(){}
 
-    public void setDao(Dao<SetsToRecordDao> dao) {
+    public void setDao(Dao<SetsToRecord> dao) {
         this.dao = dao;
     }
 
     public SetsToRecord saveAndSetIdentifier(SetsToRecord object) throws SaveFailed {
-        return (SetsToRecord) dao.saveAndSetIdentifier(object);
+        return dao.saveAndSetIdentifier(object);
     }
 
     public SetsToRecord findByMultipleValues(String clause, String... values) throws NotFound {
-        return (SetsToRecord) dao.findByMultipleValues(clause, values);
+        return dao.findByMultipleValues(clause, values);
     }
 
     public Collection findByPropertyAndValue(String property, String value) throws NotFound {

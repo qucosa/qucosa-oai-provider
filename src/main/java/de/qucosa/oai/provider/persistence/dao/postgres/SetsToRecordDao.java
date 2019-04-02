@@ -71,7 +71,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public Collection saveAndSetIdentifier(Collection objects) throws SaveFailed {
+    public Collection<SetsToRecord> saveAndSetIdentifier(Collection objects) throws SaveFailed {
         return null;
     }
 
@@ -81,12 +81,12 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public Collection update(Collection objects) throws UpdateFailed {
+    public Collection<SetsToRecord> update(Collection objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public Collection findAll() throws NotFound {
+    public Collection<SetsToRecord> findAll() throws NotFound {
         return null;
     }
 
@@ -126,7 +126,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public T findByMultipleValues(String clause, String... values) throws NotFound {
+    public SetsToRecord findByMultipleValues(String clause, String... values) throws NotFound {
         clause = clause.replace("%s", "?");
         String sql = "SELECT * FROM sets_to_records WHERE " + clause;
 
@@ -143,7 +143,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
             }
 
             resultSet.close();
-            return (T) setsToRecord;
+            return setsToRecord;
         } catch (SQLException e) {
             throw new NotFound(e.getMessage());
         }
