@@ -66,7 +66,7 @@ public class FormatsController {
                     HttpStatus.NOT_FOUND, "", e).response();
         }
 
-        return new ResponseEntity(formats, HttpStatus.OK);
+        return new ResponseEntity<>(formats, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{mdprefix}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -89,23 +89,21 @@ public class FormatsController {
                     HttpStatus.NOT_FOUND, "", e).response();
         }
 
-        return new ResponseEntity(format, HttpStatus.OK);
+        return new ResponseEntity<>(format, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public <T> ResponseEntity save(@RequestBody String input) {
-        T output;
+    public ResponseEntity save(@RequestBody String input) {
+        Object output;
         ObjectMapper om = new ObjectMapper();
 
         try {
-            Format format = formatService.saveFormat(om.readValue(input, Format.class));
-            output = (T) format;
+            output = formatService.saveFormat(om.readValue(input, Format.class));
         } catch (IOException e) {
 
             try {
-                Collection<Format> formats = formatService.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
-                output = (T) formats;
+                output = formatService.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
             } catch (IOException e1) {
                 return new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
                         HttpStatus.BAD_REQUEST, "", e).response();
@@ -118,7 +116,7 @@ public class FormatsController {
                     HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
         }
 
-        return new ResponseEntity(output, HttpStatus.OK);
+        return new ResponseEntity<>(output, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{mdprefix}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -133,7 +131,7 @@ public class FormatsController {
                     HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
         }
 
-        return new ResponseEntity(format, HttpStatus.OK);
+        return new ResponseEntity<>(format, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -147,6 +145,6 @@ public class FormatsController {
                     HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).response();
         }
 
-        return new ResponseEntity(true, HttpStatus.OK);
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 }

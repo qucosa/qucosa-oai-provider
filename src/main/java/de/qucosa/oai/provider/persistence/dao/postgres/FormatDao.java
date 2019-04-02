@@ -35,7 +35,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 @Repository
-public class FormatDao<T extends Format> implements Dao<T> {
+public class FormatDao<T extends Format> implements Dao<Format> {
     private Connection connection;
 
     @Autowired
@@ -89,7 +89,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
+    public Collection<Format> saveAndSetIdentifier(Collection<Format> objects) throws SaveFailed {
         String sql = "INSERT INTO formats (id, mdprefix, schemaurl, namespace) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (mdprefix) ";
@@ -139,7 +139,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
             throw new SaveFailed(e.getMessage());
         }
 
-        return (Collection<T>) output;
+        return output;
     }
 
     @Override
@@ -169,12 +169,12 @@ public class FormatDao<T extends Format> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
+    public Collection<Format> update(Collection<Format> objects) {
         return null;
     }
 
     @Override
-    public Collection<T> findAll() throws NotFound {
+    public Collection<Format> findAll() throws NotFound {
         String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats";
         Collection<Format> formats = new ArrayList<>();
 
@@ -202,11 +202,11 @@ public class FormatDao<T extends Format> implements Dao<T> {
         }
 
 
-        return (Collection<T>) formats;
+        return formats;
     }
 
     @Override
-    public T findById(String id) throws NotFound {
+    public Format findById(String id) throws NotFound {
         String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats where id = ?";
         Format format = new Format();
 
@@ -226,11 +226,11 @@ public class FormatDao<T extends Format> implements Dao<T> {
             throw new NotFound("Format with id (" + id + ") not found.", e);
         }
 
-        return (T) format;
+        return format;
     }
 
     @Override
-    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Format> findByPropertyAndValue(String property, String value) throws NotFound {
         String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats where " + property + " = ?";
         Collection<Format> formats = new ArrayList<>();
 
@@ -256,16 +256,16 @@ public class FormatDao<T extends Format> implements Dao<T> {
             throw new NotFound(e.getMessage());
         }
 
-        return (Collection<T>) formats;
+        return formats;
     }
 
     @Override
-    public T findByMultipleValues(String clause, String... values) throws NotFound {
+    public Format findByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
     @Override
-    public Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<Format> findRowsByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
@@ -285,7 +285,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
     }
 
     @Override
-    public void delete(T object) throws DeleteFailed {
+    public void delete(Format object) throws DeleteFailed {
         String sql = "DELETE FROM formats where mdprefix = ?";
 
         try {
@@ -302,7 +302,7 @@ public class FormatDao<T extends Format> implements Dao<T> {
     }
 
     @Override
-    public void undoDelete(T object) throws UndoDeleteFailed {
+    public void undoDelete(Format object) throws UndoDeleteFailed {
 
     }
 }
