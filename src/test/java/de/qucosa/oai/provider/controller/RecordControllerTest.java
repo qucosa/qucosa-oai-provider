@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -123,7 +123,7 @@ public class RecordControllerTest {
     @DisplayName("Update record by deleted property for mark / undo mark as deleted.")
     @Order(4)
     public void update() throws Exception {
-        Record record = (Record) recordService.findRecord("uid", "qucosa:32394").iterator().next();
+        Record record = recordService.findRecord("uid", "qucosa:32394").iterator().next();
         record.setDeleted(true);
 
         MvcResult mvcResult = mvc.perform(

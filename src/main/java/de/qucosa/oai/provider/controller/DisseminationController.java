@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,7 +65,7 @@ public class DisseminationController {
                     HttpStatus.NOT_FOUND, e.getMessage(), e).response();
         }
 
-        return new ResponseEntity(disseminations, HttpStatus.OK);
+        return new ResponseEntity<>(disseminations, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -85,12 +85,13 @@ public class DisseminationController {
                     HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
         }
 
-        return new ResponseEntity(dissemination, HttpStatus.OK);
+        return new ResponseEntity<>(dissemination, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{uid}/{mdprefix}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity update(@RequestBody Dissemination input, @PathVariable String uid) {
+    public ResponseEntity update(@RequestBody Dissemination input, @PathVariable String uid,
+                                 @PathVariable String mdprefix) {
         Dissemination dissemination;
 
         try {
@@ -100,7 +101,7 @@ public class DisseminationController {
                     HttpStatus.NOT_ACCEPTABLE, updateFailed.getMessage(), updateFailed).response();
         }
 
-        return new ResponseEntity(dissemination, HttpStatus.OK);
+        return new ResponseEntity<>(dissemination, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -114,6 +115,6 @@ public class DisseminationController {
                     HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).response();
         }
 
-        return new ResponseEntity(true, HttpStatus.OK);
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,7 @@ import java.util.List;
 @Repository
 public class SetDao<T extends Set> implements Dao<Set> {
 
-    final private Connection connection;
+    private Connection connection;
 
     @Autowired
     public SetDao(Connection connection) {

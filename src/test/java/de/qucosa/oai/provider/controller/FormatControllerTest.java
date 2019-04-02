@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -152,7 +152,7 @@ public class FormatControllerTest {
     @DisplayName("Format cannot save.")
     @Order(5)
     public void formatNotSaved() throws Exception {
-        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
 
         mvc.perform(
                 post("/formats")
@@ -167,7 +167,7 @@ public class FormatControllerTest {
     @DisplayName("Update format is successful.")
     @Order(6)
     public void updateFormat() throws Exception {
-        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
         format.setNamespace("update_ns");
         format.setSchemaUrl("update_url");
 
@@ -190,7 +190,7 @@ public class FormatControllerTest {
     @DisplayName("Cannot update format object.")
     @Order(7)
     public void formatNotUpdated() throws Exception {
-        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
         format.setMdprefix("test");
 
         mvc.perform(
@@ -206,7 +206,7 @@ public class FormatControllerTest {
     @DisplayName("Mark format as deleted.")
     @Order(8)
     public void markAsDeleted() throws Exception {
-        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
         format.setDeleted(true);
 
         MvcResult mvcResult = mvc.perform(
@@ -228,7 +228,7 @@ public class FormatControllerTest {
     @DisplayName("Undo mark format as deleted.")
     @Order(9)
     public void markAsDeletedUndo() throws Exception {
-        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
         format.setDeleted(false);
 
         MvcResult mvcResult = mvc.perform(
@@ -250,7 +250,7 @@ public class FormatControllerTest {
     @DisplayName("Hard deleted format from table.")
     @Order(10)
     public void deleteFormat() throws Exception {
-        Format format = (Format) formatService.find("mdprefix", "oai_dc").iterator().next();
+        Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
         MvcResult mvcResult = mvc.perform(
                 delete("/formats")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -266,7 +266,7 @@ public class FormatControllerTest {
     @DisplayName("Hard delete format from table is not successful because the mdprefix is wrong.")
     @Order(11)
     public void hardDeleteNotSuccessful() throws Exception {
-        Format format = (Format) formatService.find("mdprefix", "xmetadissplus").iterator().next();
+        Format format = formatService.find("mdprefix", "xmetadissplus").iterator().next();
         format.setMdprefix("test");
 
         mvc.perform(

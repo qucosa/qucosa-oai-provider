@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -95,6 +95,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Collection findByPropertyAndValue(String property, String value) throws NotFound {
         String sql = "select rc.id, rc.pid, rc.uid, st.id, st.setspec, st.setname, st.setdescription " +

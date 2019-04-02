@@ -23,7 +23,6 @@ import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
-import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.SetService;
@@ -57,7 +56,7 @@ public class OaiPmhFactory {
 
     public Document createList(String verb, Format format, Collection<Record> records,
                                DisseminationService disseminationService,
-                               SetService<Set> setService,
+                               SetService setService,
                                SetsToRecordService setsToRecordService) throws IOException, NotFound {
         buildList(verb, format, records, disseminationService, setService, setsToRecordService, null, 0, null);
         setOaiPmhAttributes(verb, format);
@@ -67,7 +66,7 @@ public class OaiPmhFactory {
     }
 
     public Document createList(String verb, Format format, Collection<Record> records,
-                               DisseminationService disseminationService, SetService<Set> setService,
+                               DisseminationService disseminationService, SetService setService,
                                SetsToRecordService setsToRecordService, ResumptionToken resumptionToken,
                                int recordsProPage, Collection<OaiPmhLists> oaiPmhLists) throws IOException, NotFound {
         buildList(verb, format, records, disseminationService, setService, setsToRecordService, resumptionToken,
@@ -79,7 +78,7 @@ public class OaiPmhFactory {
     }
 
     protected void buildList(String verb, Format format, Collection<Record> records,
-                             DisseminationService disseminationService, SetService<Set> setService,
+                             DisseminationService disseminationService, SetService setService,
                              SetsToRecordService setsToRecordService, ResumptionToken resumptionToken,
                              int recordsProPage, Collection<OaiPmhLists> oaiPmhLists) {
         switch (verb) {
@@ -103,15 +102,17 @@ public class OaiPmhFactory {
                 break;
         }
 
-        listBuilder.setVerb(verb);
-        listBuilder.setFormat(format);
-        listBuilder.setRecords(records);
-        listBuilder.setDisseminationService(disseminationService);
-        listBuilder.setSetService(setService);
-        listBuilder.setSetToRecordService(setsToRecordService);
-        listBuilder.setResumptionToken(resumptionToken);
-        listBuilder.setRecordsProPage(recordsProPage);
-        listBuilder.setOaiPmhLists(oaiPmhLists);
+        if (listBuilder != null) {
+            listBuilder.setVerb(verb);
+            listBuilder.setFormat(format);
+            listBuilder.setRecords(records);
+            listBuilder.setDisseminationService(disseminationService);
+            listBuilder.setSetService(setService);
+            listBuilder.setSetToRecordService(setsToRecordService);
+            listBuilder.setResumptionToken(resumptionToken);
+            listBuilder.setRecordsProPage(recordsProPage);
+            listBuilder.setOaiPmhLists(oaiPmhLists);
+        }
     }
 
     private void setOaiPmhAttributes(String verb, Format format) {

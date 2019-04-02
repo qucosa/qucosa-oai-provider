@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,7 +59,7 @@ public class SetService {
             throw new UpdateFailed("Cannot update set.");
         }
 
-        output = (Set) dao.update(input);
+        output = dao.update(input);
 
         return output;
     }

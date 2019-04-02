@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -184,7 +184,6 @@ public class DisseminationControllerTest {
     /**
      * This test has a dependency to the saveDissemination with order number 2 and is not running as stand alone test.
      * Value qucosa:32394 is referenced in psql-oia-provider-test-data.backup file.
-     * @throws Exception
      */
     @Test
     @DisplayName("Save dissemination is not succussful because exists in table.")

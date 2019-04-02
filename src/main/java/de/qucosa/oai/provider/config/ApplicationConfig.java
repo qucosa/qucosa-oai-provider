@@ -1,4 +1,4 @@
-/**
+/*
     ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
     ~
     ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,6 +51,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 @Configuration
@@ -72,13 +73,18 @@ public class ApplicationConfig {
     }
 
     @Bean
+    public Connection connection() throws SQLException {
+        return dataSource().getConnection();
+    }
+
+    @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
 
     @Bean
     public Dao<Set> setDao() throws SQLException {
-        return new SetDao<>(dataSource().getConnection());
+        return new SetDao<>(connection());
     }
 
     @Bean
@@ -90,7 +96,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao<Record> recordDao() throws SQLException {
-        return new RecordDao<>(dataSource().getConnection());
+        return new RecordDao<>(connection());
     }
 
     @Bean
@@ -102,7 +108,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao<Format> formatDao() throws SQLException {
-        return new FormatDao<>(dataSource().getConnection());
+        return new FormatDao<>(connection());
     }
 
     @Bean
@@ -114,7 +120,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao<Dissemination> disseminationDao() throws SQLException {
-        return new DisseminationDao<>(dataSource().getConnection());
+        return new DisseminationDao<>(connection());
     }
 
     @Bean
@@ -126,7 +132,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao<SetsToRecord> setsToRecordDao() throws SQLException {
-        return new SetsToRecordDao<>(dataSource().getConnection());
+        return new SetsToRecordDao<>(connection());
     }
 
     @Bean
@@ -138,7 +144,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao<ResumptionToken> resumptionTokenDao() throws SQLException {
-        return new ResumptionTokenDao<>(dataSource().getConnection());
+        return new ResumptionTokenDao<>(connection());
     }
 
     @Bean
@@ -150,7 +156,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao<RstToIdentifiers> rstToIdentifiersDao() throws SQLException {
-        return new RstToIdentifiersDao<>(dataSource().getConnection());
+        return new RstToIdentifiersDao<>(connection());
     }
 
     @Bean
@@ -162,7 +168,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao<OaiPmhLists> oaiPmhListsDao() throws SQLException {
-        return new OaiPmhListsDao<>(dataSource().getConnection());
+        return new OaiPmhListsDao<>(connection());
     }
 
     @Bean

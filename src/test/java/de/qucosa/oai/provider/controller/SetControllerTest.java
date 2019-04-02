@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -134,7 +134,7 @@ public class SetControllerTest {
     @DisplayName("If cannot save set object then returns a error details object.")
     @Order(4)
     public void saveSetNotSuccessful() throws Exception {
-        Set set = (Set) setService.find("setspec", "ddc:610").iterator().next();
+        Set set = setService.find("setspec", "ddc:610").iterator().next();
         mvc.perform(
                 post("/sets")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -192,7 +192,7 @@ public class SetControllerTest {
     @DisplayName("Update a exists set object is successful.")
     @Order(7)
     public void updateSet() throws Exception {
-        Set set = (Set) setService.find("setspec", "ddc:610").iterator().next();
+        Set set = setService.find("setspec", "ddc:610").iterator().next();
         set.setSetDescription("This set has a desc now.");
 
         MvcResult mvcResult = mvc.perform(
@@ -213,7 +213,7 @@ public class SetControllerTest {
     @DisplayName("Mark a set object as deleted.")
     @Order(8)
     public void markSetAsDeleted() throws Exception {
-        Set set = (Set) setService.find("setspec", "ddc:610").iterator().next();
+        Set set = setService.find("setspec", "ddc:610").iterator().next();
         set.setDeleted(true);
 
         MvcResult mvcResult = mvc.perform(
@@ -234,7 +234,7 @@ public class SetControllerTest {
     @DisplayName("Undo the set delete mark.")
     @Order(9)
     public void undoDeleteMarked() throws Exception {
-        Set set = (Set) setService.find("setspec", "ddc:610").iterator().next();
+        Set set = setService.find("setspec", "ddc:610").iterator().next();
         set.setDeleted(false);
 
         MvcResult mvcResult = mvc.perform(
@@ -255,7 +255,7 @@ public class SetControllerTest {
     @DisplayName("Delete set hard from the sets table.")
     @Order(10)
     public void hardDeleteSet() throws Exception {
-        Set set = (Set) setService.find("setspec", "ddc:610").iterator().next();
+        Set set = setService.find("setspec", "ddc:610").iterator().next();
 
         MvcResult mvcResult = mvc.perform(
                 delete("/sets")

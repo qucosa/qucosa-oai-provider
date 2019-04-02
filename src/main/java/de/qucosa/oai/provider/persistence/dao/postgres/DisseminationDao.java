@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -256,7 +256,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             int deleteRows = statement.executeUpdate();
 
             if (deleteRows == 0) {
-                new DeleteFailed("Cannot delete dissemination.");
+                throw new DeleteFailed("Cannot delete dissemination.");
             }
         } catch (SQLException e) {
             throw new DeleteFailed("SQL-ERROR: Cannot delete dissemination.", e);

@@ -36,6 +36,7 @@ import org.w3c.dom.Node;
 
 import java.util.Collection;
 
+@SuppressWarnings("unchecked")
 public abstract class OaiPmhList {
     protected String verb;
 
@@ -47,7 +48,7 @@ public abstract class OaiPmhList {
 
     protected DisseminationService disseminationService;
 
-    protected SetService<Set> setSetService;
+    protected SetService setSetService;
 
     protected SetsToRecordService setsToRecordService;
 
@@ -77,7 +78,7 @@ public abstract class OaiPmhList {
         this.disseminationService = disseminationService;
     }
 
-    public void setSetService(SetService<Set> setSetService) {
+    public void setSetService(SetService setSetService) {
         this.setSetService = setSetService;
     }
 
@@ -172,7 +173,7 @@ public abstract class OaiPmhList {
         nodeByVerb.appendChild(oaiPmhTemplate.importNode(resumptionTokenDoc.getDocumentElement(), true));
     }
 
-    protected Collection<Set> sets(String column, String identifier) throws NotFound {
+    protected Collection sets(String column, String identifier) throws NotFound {
        return setsToRecordService.findByPropertyAndValue(column, identifier);
     }
 

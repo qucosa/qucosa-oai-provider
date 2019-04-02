@@ -46,6 +46,7 @@ public class ResumptionToken implements Serializable, HasIdentifier {
         setTokenId(identifier.toString());
     }
 
+    @SuppressWarnings("InfiniteRecursion")
     @Override
     public Object getIdentifier() {
         return getIdentifier();

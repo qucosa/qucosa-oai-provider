@@ -88,7 +88,7 @@ public class OaiPmhController {
 
     private SetsToRecordService setsToRecordService;
 
-    private ResumptionTokenService<ResumptionToken> resumptionTokenService;
+    private ResumptionTokenService resumptionTokenService;
 
     private RstToIdentifiersService rstToIdentifiersService;
 
@@ -97,7 +97,7 @@ public class OaiPmhController {
     @Autowired
     public OaiPmhController(RecordService recordService, FormatService formatService, SetService setService,
                             DisseminationService disseminationService, SetsToRecordService setsToRecordService,
-                            ResumptionTokenService<ResumptionToken> resumptionTokenService,
+                            ResumptionTokenService resumptionTokenService,
                             RstToIdentifiersService rstToIdentifiersService,
                             OaiPmhListsService oaiPmhListsService) {
         this.recordService = recordService;
@@ -135,7 +135,7 @@ public class OaiPmhController {
         Collection<Record> records;
         Collection<OaiPmhLists> oaiPmhLists = null;
         OaiPmhFactory oaiPmhFactory;
-        Document oaiPmhList = null;
+        Document oaiPmhList;
         ResumptionToken resumptionTokenObj = null;
 
         try {
@@ -165,18 +165,25 @@ public class OaiPmhController {
             }
 
             try {
-                oaiPmhLists = oaiPmhListsService.findRowsByMultipleValues(
-                        "rst_id = %s AND format = %s", resumptionTokenObj.getTokenId(),
-                        String.valueOf(resumptionTokenObj.getFormatId()));
+
+                if (resumptionTokenObj != null) {
+                    oaiPmhLists = oaiPmhListsService.findRowsByMultipleValues(
+                            "rst_id = %s AND format = %s", resumptionTokenObj.getTokenId(),
+                            String.valueOf(resumptionTokenObj.getFormatId()));
+                }
             } catch (NotFound notFound) {
-                notFound.printStackTrace();
+                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                        HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
+                        .response();
             }
 
             try {
                 oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService,
                         setService, setsToRecordService, resumptionTokenObj, recordsProPage, oaiPmhLists);
             } catch (NotFound notFound) {
-                notFound.printStackTrace();
+                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                        HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
+                        .response();
             }
         } else {
             oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
@@ -191,7 +198,7 @@ public class OaiPmhController {
             }
         }
 
-        return new ResponseEntity(DocumentXmlUtils.resultXml(oaiPmhList), HttpStatus.OK);
+        return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhList), HttpStatus.OK);
     }
 
     private Format findFormat(String metadataPrefix) {

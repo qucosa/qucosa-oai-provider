@@ -29,6 +29,7 @@ import org.junit.platform.runner.JUnitPlatform;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.runner.RunWith;
 
+@SuppressWarnings("JUnit5Platform")
 @RunWith(JUnitPlatform.class)
 @DisplayName("Embedded postgres and spring controller test suite.")
 @SelectClasses({InstallTablesTest.class, FormatControllerTest.class, SetControllerTest.class,
