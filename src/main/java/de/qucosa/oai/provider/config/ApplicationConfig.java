@@ -51,7 +51,6 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
-import java.beans.PropertyVetoException;
 import java.sql.SQLException;
 
 @Configuration
