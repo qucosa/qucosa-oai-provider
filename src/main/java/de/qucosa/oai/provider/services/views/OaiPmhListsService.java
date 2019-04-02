@@ -24,7 +24,7 @@ import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 
 import java.util.Collection;
 
-public class OaiPmhListsService<T> {
+public class OaiPmhListsService {
     private Dao dao;
 
     public OaiPmhListsService(){}
