@@ -30,6 +30,7 @@ import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
 import de.qucosa.oai.provider.persistence.model.Set;
+import de.qucosa.oai.provider.persistence.model.SetsToRecord;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
@@ -77,8 +78,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public Dao<Set> setDao() throws PropertyVetoException, SQLException {
-        return (Dao<Set>) new SetDao(dataSource().getConnection());
+    public Dao<Set> setDao() throws SQLException {
+        return new SetDao<>(dataSource().getConnection());
     }
 
     @Bean
@@ -89,48 +90,48 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public Dao recordDao() throws PropertyVetoException, SQLException {
-        return (Dao<Record>) new RecordDao(dataSource().getConnection());
+    public Dao<Record> recordDao() throws SQLException {
+        return new RecordDao<>(dataSource().getConnection());
     }
 
     @Bean
-    public RecordService recordService() throws PropertyVetoException, SQLException {
+    public RecordService recordService() throws SQLException {
         RecordService recordService = new RecordService();
         recordService.setDao(recordDao());
         return recordService;
     }
 
     @Bean
-    public Dao formatDao() throws PropertyVetoException, SQLException {
-        return (Dao<Format>) new FormatDao(dataSource().getConnection());
+    public Dao<Format> formatDao() throws SQLException {
+        return new FormatDao<>(dataSource().getConnection());
     }
 
     @Bean
-    public FormatService formatService() throws PropertyVetoException, SQLException {
+    public FormatService formatService() throws SQLException {
         FormatService formatService = new FormatService();
         formatService.setDao(formatDao());
         return  formatService;
     }
 
     @Bean
-    public Dao disseminationDao() throws PropertyVetoException, SQLException {
-        return (Dao<Dissemination>) new DisseminationDao(dataSource().getConnection());
+    public Dao<Dissemination> disseminationDao() throws SQLException {
+        return new DisseminationDao<>(dataSource().getConnection());
     }
 
     @Bean
-    public DisseminationService disseminationService() throws PropertyVetoException, SQLException {
+    public DisseminationService disseminationService() throws SQLException {
         DisseminationService disseminationService = new DisseminationService();
         disseminationService.setDao(disseminationDao());
         return disseminationService;
     }
 
     @Bean
-    public Dao setsToRecordDao() throws PropertyVetoException, SQLException {
-        return new SetsToRecordDao(dataSource().getConnection());
+    public Dao<SetsToRecord> setsToRecordDao() throws SQLException {
+        return new SetsToRecordDao<>(dataSource().getConnection());
     }
 
     @Bean
-    public SetsToRecordService setsToRecordService() throws PropertyVetoException, SQLException {
+    public SetsToRecordService setsToRecordService() throws SQLException {
         SetsToRecordService setsToRecordService = new SetsToRecordService();
         setsToRecordService.setDao(setsToRecordDao());
         return setsToRecordService;
@@ -150,7 +151,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao<RstToIdentifiers> rstToIdentifiersDao() throws SQLException {
-        return new RstToIdentifiersDao<RstToIdentifiers>(dataSource().getConnection());
+        return new RstToIdentifiersDao<>(dataSource().getConnection());
     }
 
     @Bean
@@ -162,7 +163,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao<OaiPmhLists> oaiPmhListsDao() throws SQLException {
-        return new OaiPmhListsDao<OaiPmhLists>(dataSource().getConnection());
+        return new OaiPmhListsDao<>(dataSource().getConnection());
     }
 
     @Bean
