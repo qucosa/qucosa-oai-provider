@@ -25,11 +25,11 @@ import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 import java.util.Collection;
 
 public class OaiPmhListsService {
-    private Dao dao;
+    private Dao<OaiPmhLists> dao;
 
     public OaiPmhListsService(){}
 
-    public void setDao(Dao dao) {
+    public void setDao(Dao<OaiPmhLists> dao) {
         this.dao = dao;
     }
 
