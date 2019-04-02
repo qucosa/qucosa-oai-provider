@@ -34,7 +34,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 @Repository
-public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<T> {
+public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstToIdentifiers> {
     private Connection connection;
 
     @Autowired
@@ -52,12 +52,12 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<T> {
     }
 
     @Override
-    public T saveAndSetIdentifier(T object) throws SaveFailed {
+    public RstToIdentifiers saveAndSetIdentifier(RstToIdentifiers object) throws SaveFailed {
         return null;
     }
 
     @Override
-    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
+    public Collection<RstToIdentifiers> saveAndSetIdentifier(Collection<RstToIdentifiers> objects) throws SaveFailed {
         String sql = "INSERT INTO rst_to_identifiers (record_id, rst_id)" +
                 " VALUES (?, ?)";
 
@@ -89,37 +89,37 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<T> {
     }
 
     @Override
-    public T update(T object) throws UpdateFailed {
+    public RstToIdentifiers update(RstToIdentifiers object) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
+    public Collection<RstToIdentifiers> update(Collection<RstToIdentifiers> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public Collection<T> findAll() throws NotFound {
+    public Collection<RstToIdentifiers> findAll() throws NotFound {
         return null;
     }
 
     @Override
-    public T findById(String id) throws NotFound {
+    public RstToIdentifiers findById(String id) throws NotFound {
         return null;
     }
 
     @Override
-    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<RstToIdentifiers> findByPropertyAndValue(String property, String value) throws NotFound {
         return null;
     }
 
     @Override
-    public T findByMultipleValues(String clause, String... values) throws NotFound {
+    public RstToIdentifiers findByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
     @Override
-    public Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<RstToIdentifiers> findRowsByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
@@ -139,12 +139,12 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<T> {
     }
 
     @Override
-    public void delete(T object) throws DeleteFailed {
+    public void delete(RstToIdentifiers object) throws DeleteFailed {
 
     }
 
     @Override
-    public void undoDelete(T object) throws UndoDeleteFailed {
+    public void undoDelete(RstToIdentifiers object) throws UndoDeleteFailed {
 
     }
 }
