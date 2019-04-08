@@ -122,6 +122,23 @@ public class OaiPmhController {
                                   @PathVariable(value = "until", required = false) String until,
                                   @PathParam(value = "resumptionToken") String resumptionToken) throws IOException {
 
+        Collection<Record> records;
+        Collection<OaiPmhLists> oaiPmhLists = null;
+        OaiPmhFactory oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
+        Document oaiPmhList;
+        ResumptionToken resumptionTokenObj;
+
+        if (verb.equals("ListSets")) {
+            try {
+                oaiPmhList = oaiPmhFactory.createList(verb, setService);
+                return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhList), HttpStatus.OK);
+            } catch (NotFound notFound) {
+                return new ErrorDetails(this.getClass().getName(), "find", "GET:find",
+                        HttpStatus.NOT_FOUND, "Cannot found sets.", notFound)
+                        .response();
+            }
+        }
+
         if (resumptionToken == null || resumptionToken.isEmpty()) {
             format = findFormat(metadataPrefix);
 
@@ -132,12 +149,6 @@ public class OaiPmhController {
             }
         }
 
-        Collection<Record> records;
-        Collection<OaiPmhLists> oaiPmhLists = null;
-        OaiPmhFactory oaiPmhFactory;
-        Document oaiPmhList;
-        ResumptionToken resumptionTokenObj;
-
         try {
             records = recordService.findAll();
         } catch (NotFound notFound) {
@@ -146,7 +157,6 @@ public class OaiPmhController {
         }
 
         if (records.size() > recordsProPage) {
-            oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
 
             try {
                 resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
