@@ -27,6 +27,7 @@ import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -77,6 +78,15 @@ public class OaiPmhFactory {
         return oaiPmhTemplate;
     }
 
+    public Document createList(String verb, SetService setService) throws IOException, NotFound {
+        buildList(verb, null, null, null, setService, null,
+                null, 0, null);
+        setOaiPmhAttributes(verb, null);
+
+        listBuilder.list();
+        return oaiPmhTemplate;
+    }
+
     protected void buildList(String verb, Format format, Collection<Record> records,
                              DisseminationService disseminationService, SetService setService,
                              SetsToRecordService setsToRecordService, ResumptionToken resumptionToken,
@@ -89,7 +99,7 @@ public class OaiPmhFactory {
                 listBuilder = new OaiPmhListRecords(oaiPmhTemplate);
                 break;
             case "ListSets":
-                listBuilder = null;
+                listBuilder = new OaiPmhListSets(oaiPmhTemplate);
                 break;
             case "ListMetadataFormats":
                 listBuilder = null;
@@ -116,8 +126,15 @@ public class OaiPmhFactory {
     }
 
     private void setOaiPmhAttributes(String verb, Format format) {
+        String request = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toString();
+        String uri = request.substring(0, (request.indexOf(verb) - 1));
         Node element = oaiPmhTemplate.getElementsByTagName("request").item(0);
-        element.getAttributes().getNamedItem("metadataPrefix").setNodeValue(format.getMdprefix());
+        element.setTextContent(uri);
+
+        if (format != null) {
+            element.getAttributes().getNamedItem("metadataPrefix").setNodeValue(format.getMdprefix());
+        }
+
         element.getAttributes().getNamedItem("verb").setNodeValue(verb);
     }
 }
