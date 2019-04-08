@@ -199,9 +199,11 @@ public class SetDao<T extends Set> implements Dao<Set> {
                     set.setDeleted(resultSet.getBoolean("deleted"));
                     sets.add(set);
                 } while(resultSet.next());
+            } else {
+                throw new NotFound("Cannot found sets.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new NotFound("SQL-ERROR: Cannot found sets.", e);
         }
 
         return sets;
