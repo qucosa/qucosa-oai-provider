@@ -19,7 +19,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -235,16 +234,6 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
 
     @Override
     public void delete(String ident) throws DeleteFailed { }
-
-    @Override
-    public void undoDelete(String ident) throws UndoDeleteFailed {
-
-    }
-
-    @Override
-    public void undoDelete(Dissemination object) throws UndoDeleteFailed {
-
-    }
 
     @Override
     public void delete(Dissemination object) throws DeleteFailed {

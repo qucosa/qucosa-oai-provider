@@ -22,7 +22,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,17 +163,7 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public void undoDelete(String ident) throws UndoDeleteFailed {
-
-    }
-
-    @Override
     public void delete(ResumptionToken object) throws DeleteFailed {
-
-    }
-
-    @Override
-    public void undoDelete(ResumptionToken object) throws UndoDeleteFailed {
 
     }
 }

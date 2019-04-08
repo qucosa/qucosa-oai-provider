@@ -19,7 +19,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -280,11 +279,6 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public void undoDelete(String ident) throws UndoDeleteFailed {
-
-    }
-
-    @Override
     public void delete(Format object) throws DeleteFailed {
         String sql = "DELETE FROM formats where mdprefix = ?";
 
@@ -299,10 +293,5 @@ public class FormatDao<T extends Format> implements Dao<Format> {
         } catch (SQLException e) {
             throw new DeleteFailed(e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void undoDelete(Format object) throws UndoDeleteFailed {
-
     }
 }

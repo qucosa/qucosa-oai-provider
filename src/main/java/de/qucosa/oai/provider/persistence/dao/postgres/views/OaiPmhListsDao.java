@@ -22,7 +22,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,17 +137,7 @@ public class OaiPmhListsDao<T extends OaiPmhLists> implements Dao<OaiPmhLists> {
     }
 
     @Override
-    public void undoDelete(String ident) throws UndoDeleteFailed {
-
-    }
-
-    @Override
     public void delete(OaiPmhLists object) throws DeleteFailed {
-
-    }
-
-    @Override
-    public void undoDelete(OaiPmhLists object) throws UndoDeleteFailed {
 
     }
 }

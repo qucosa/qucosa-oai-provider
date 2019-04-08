@@ -19,7 +19,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -265,11 +264,6 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public void undoDelete(String ident) throws UndoDeleteFailed {
-
-    }
-
-    @Override
     public void delete(Set object) throws DeleteFailed {
         String sql = "DELETE FROM sets WHERE setspec = ?";
 
@@ -284,10 +278,5 @@ public class SetDao<T extends Set> implements Dao<Set> {
         } catch (SQLException e) {
             throw new DeleteFailed("Cannot hard delete set.", e);
         }
-    }
-
-    @Override
-    public void undoDelete(Set object) {
-
     }
 }

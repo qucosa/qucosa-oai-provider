@@ -19,7 +19,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.HasIdentifier;
 import de.qucosa.oai.provider.persistence.model.Set;
@@ -166,11 +165,6 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public void undoDelete(String ident) throws UndoDeleteFailed {
-
-    }
-
-    @Override
     public void delete(SetsToRecord object) throws DeleteFailed {
         String sql = "DELETE FROM sets_to_records WHERE id_set = ? AND id_record = ?";
 
@@ -182,11 +176,6 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
         } catch (SQLException e) {
             throw new DeleteFailed(e.getMessage());
         }
-    }
-
-    @Override
-    public void undoDelete(SetsToRecord object) throws UndoDeleteFailed {
-
     }
 
     @Override
