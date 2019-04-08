@@ -61,7 +61,7 @@ public class SetController {
             sets = setService.findAll();
         } catch (NotFound e) {
             return new ErrorDetails(this.getClass().getName(), "findAll", "GET:sets",
-                    HttpStatus.NOT_FOUND, "", e).response();
+                    HttpStatus.NOT_FOUND, e.getMessage(), e).response();
         }
 
         return new ResponseEntity<>(sets, HttpStatus.OK);
