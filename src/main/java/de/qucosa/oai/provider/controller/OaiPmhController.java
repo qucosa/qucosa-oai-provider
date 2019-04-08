@@ -136,7 +136,7 @@ public class OaiPmhController {
         Collection<OaiPmhLists> oaiPmhLists = null;
         OaiPmhFactory oaiPmhFactory;
         Document oaiPmhList;
-        ResumptionToken resumptionTokenObj = null;
+        ResumptionToken resumptionTokenObj;
 
         try {
             records = recordService.findAll();
