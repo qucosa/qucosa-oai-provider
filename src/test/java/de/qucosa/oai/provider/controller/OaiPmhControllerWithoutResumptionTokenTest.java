@@ -145,4 +145,26 @@ public class OaiPmhControllerWithoutResumptionTokenTest {
             }
         }
     }
+
+    @Test
+    @DisplayName("Load xml by ListSets node and check if verb node is exists.")
+    public void listSets() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/oai/ListSets")
+                        .contentType(MediaType.APPLICATION_XML_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String content = mvcResult.getResponse().getContentAsString();
+
+        assertThat(content).isNotEmpty();
+
+        Document document = DocumentXmlUtils.document(
+                new ByteArrayInputStream(content.getBytes("UTF-8")), true);
+
+        assertThat(document).isNotNull();
+
+        Node listIdentifiers = document.getElementsByTagName("ListSets").item(0);
+
+        assertThat(listIdentifiers.getNodeName()).isEqualTo("ListSets");
+
+    }
 }
