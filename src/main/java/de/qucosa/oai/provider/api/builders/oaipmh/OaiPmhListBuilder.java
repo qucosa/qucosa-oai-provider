@@ -22,7 +22,6 @@ import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
-import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.SetService;

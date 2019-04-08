@@ -42,7 +42,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import testdata.TestData;
 
 import java.io.IOException;
-import java.sql.Statement;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
