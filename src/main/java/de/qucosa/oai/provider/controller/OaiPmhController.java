@@ -157,11 +157,17 @@ public class OaiPmhController {
                     format = formatService.findById(String.valueOf(resumptionTokenObj.getFormatId()));
                 }
             } catch (NotFound notFound) {
-                notFound.printStackTrace();
+                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                        HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
+                        .response();
             } catch (SaveFailed saveFailed) {
-                saveFailed.printStackTrace();
+                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                        HttpStatus.NOT_ACCEPTABLE, saveFailed.getMessage(), saveFailed)
+                        .response();
             } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
+                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                        HttpStatus.NOT_FOUND, e.getMessage(), e)
+                        .response();
             }
 
             try {
