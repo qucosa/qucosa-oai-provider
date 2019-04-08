@@ -42,6 +42,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import testdata.TestData;
 
 import java.io.IOException;
+import java.sql.Statement;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -64,6 +65,9 @@ public class SetControllerTest {
     private Logger logger = LoggerFactory.getLogger(SetControllerTest.class);
 
     private List<Set> sets = null;
+
+    @Autowired
+    private OaiPmhTestApplicationConfig config;
 
     @Autowired
     private SetService setService;
