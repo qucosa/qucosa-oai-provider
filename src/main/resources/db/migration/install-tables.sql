@@ -142,7 +142,7 @@ ALTER TABLE public.rst_to_identifiers
 
 -- VIEW: public.oai_pmh_lists
 -- DROP VIEW public.oai_pmh_lists;
-CREATE OR REPLACE VIEW public.oai_pmh_lists AS
+CREATE OR REPLACE VIEW public.oai_pmh_list_by_token AS
  SELECT rti.rst_id,
     rt.expiration_date,
     rt.format_id AS format,

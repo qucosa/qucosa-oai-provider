@@ -138,10 +138,10 @@ ALTER TABLE rst_to_identifiers OWNER TO postgres;
 
 --
 -- TOC entry 271 (class 1259 OID 34289)
--- Name: oai_pmh_lists; Type: VIEW; Schema: public; Owner: postgres
+-- Name: oai_pmh_list_by_token; Type: VIEW; Schema: public; Owner: postgres
 --
 
-CREATE VIEW oai_pmh_lists AS
+CREATE VIEW oai_pmh_list_by_token AS
  SELECT rti.rst_id,
     rt.expiration_date,
     rt.format_id AS format,
@@ -157,7 +157,7 @@ CREATE VIEW oai_pmh_lists AS
      LEFT JOIN disseminations diss ON (((rc.uid)::text = (diss.id_record)::text)));
 
 
-ALTER TABLE oai_pmh_lists OWNER TO postgres;
+ALTER TABLE oai_pmh_list_by_token OWNER TO postgres;
 
 --
 -- TOC entry 263 (class 1259 OID 19391)
