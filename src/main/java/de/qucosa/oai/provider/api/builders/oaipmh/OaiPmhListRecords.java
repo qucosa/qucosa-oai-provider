@@ -21,7 +21,7 @@ package de.qucosa.oai.provider.api.builders.oaipmh;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Record;
-import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
+import de.qucosa.oai.provider.persistence.model.views.OaiPmhListByToken;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -56,12 +56,12 @@ public class OaiPmhListRecords extends OaiPmhList implements OaiPmhListBuilder {
             Node metadata = entry.getElementsByTagName("metadata").item(0);
             InputStream is = null;
 
-            if (object instanceof OaiPmhLists) {
+            if (object instanceof OaiPmhListByToken) {
 
-                if (!((OaiPmhLists) object).isRecordStatus()) {
+                if (!((OaiPmhListByToken) object).isRecordStatus()) {
                     is = new ByteArrayInputStream(dissemination(
                             "id_format = %s AND id_record = %s", String.valueOf(format.getIdentifier()),
-                            ((OaiPmhLists) object).getUid()).getXmldata().getBytes("UTF-8"));
+                            ((OaiPmhListByToken) object).getUid()).getXmldata().getBytes("UTF-8"));
                 }
             } else if (object instanceof Record) {
 
