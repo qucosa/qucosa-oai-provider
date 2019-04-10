@@ -29,10 +29,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -68,21 +70,41 @@ public class FormatsController {
         return new ResponseEntity<>(formats, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "{mdprefix}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/format", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity find(@PathVariable String mdprefix) {
+    public ResponseEntity find(@RequestParam(value = "mdprefix", required = false) String mdprefix,
+                               @RequestParam(value = "formatId", required = false) Long formatId) {
+
+        if (mdprefix == null && formatId == null) {
+            return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
+                    HttpStatus.BAD_REQUEST, "You must set mdprefix or formatId request paramter.", null).response();
+        }
+
+        if (mdprefix != null && formatId != null) {
+            return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
+                    HttpStatus.BAD_REQUEST, "Setting from mdprefix and formatid is not allowed.", null).response();
+        }
+
         Collection<Format> formats;
-        Format format;
+        Format format = null;
 
         try {
-            formats = formatService.find("mdprefix", mdprefix);
 
-            if (formats.isEmpty()) {
-                return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
-                    HttpStatus.NOT_FOUND, "Cannot found format.", null).response();
+            if (mdprefix != null) {
+                formats = formatService.find("mdprefix", mdprefix);
+
+                if (formats.isEmpty()) {
+                    return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
+                            HttpStatus.NOT_FOUND, "Cannot found format.", null).response();
+                }
+
+                format = formats.iterator().next();
             }
 
-            format = formats.iterator().next();
+            if (formatId != null) {
+                format = formatService.findById(String.valueOf(formatId));
+            }
+
         } catch (NotFound e) {
             return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
                     HttpStatus.NOT_FOUND, "", e).response();
