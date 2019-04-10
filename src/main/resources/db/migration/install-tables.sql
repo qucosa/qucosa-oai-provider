@@ -140,8 +140,28 @@ ALTER TABLE public.rst_to_identifiers
   OWNER TO postgres;
 
 
--- VIEW: public.oai_pmh_lists
--- DROP VIEW public.oai_pmh_lists;
+-- VIEW: public.oai_pmh_list
+-- DROP VIEW public.oai_pmh_list;
+CREATE OR REPLACE VIEW public.oai_pmh_list AS
+ SELECT rc.id AS record_id,
+    rc.pid,
+    rc.uid,
+    rc.deleted AS record_status,
+    f.id AS format_id,
+    f.mdprefix,
+    diss.lastmoddate,
+    diss.xmldata,
+    diss.deleted AS diss_status
+   FROM records rc
+     LEFT JOIN disseminations diss ON rc.uid::text = diss.id_record::text
+     LEFT JOIN formats f ON diss.id_format = f.id;
+
+ALTER TABLE public.oai_pmh_list
+  OWNER TO postgres;
+
+
+-- VIEW: public.oai_pmh_list_by_token
+-- DROP VIEW public.oai_pmh_list_by_token;
 CREATE OR REPLACE VIEW public.oai_pmh_list_by_token AS
  SELECT rti.rst_id,
     rt.expiration_date,
