@@ -29,10 +29,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,13 +55,30 @@ public class DisseminationController {
         this.disseminationService = disseminationService;
     }
 
-    @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity find(@PathVariable String uid) {
-        Collection<Dissemination> disseminations;
+    public ResponseEntity find(@RequestParam(value = "uid", required = false) String uid,
+                               @RequestParam(value = "formatId", required = false) Long formatId) {
+        Collection<Dissemination> disseminations = null;
+
+        if (uid == null && formatId == null) {
+            return new ErrorDetails(this.getClass().getName(), "find", "GET:disseminations" + uid,
+                    HttpStatus.BAD_REQUEST, "Parameter uid or formatId failed.", null).response();
+        }
 
         try {
-            disseminations = disseminationService.findByPropertyAndValue("id_record", uid);
+
+            if (uid != null && formatId == null || formatId == 0) {
+                disseminations = disseminationService.findByPropertyAndValue("id_record", uid);
+            }
+
+            if (uid == null && formatId != null || formatId > 0) {
+                disseminations = disseminationService.findByPropertyAndValue("id_format", String.valueOf(formatId));
+            }
+
+            if (uid != null && formatId != null || formatId > 0) {
+                // @todo get dissemination collection with other service query
+            }
         } catch (NotFound e) {
             return new ErrorDetails(this.getClass().getName(), "find", "GET:disseminations" + uid,
                     HttpStatus.NOT_FOUND, e.getMessage(), e).response();
