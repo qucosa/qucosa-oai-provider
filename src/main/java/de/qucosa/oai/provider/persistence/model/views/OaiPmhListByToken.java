@@ -29,7 +29,7 @@ import java.sql.Timestamp;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OaiPmhLists implements Serializable, HasIdentifier {
+public class OaiPmhListByToken implements Serializable, HasIdentifier {
     @JsonProperty("rstId")
     private String rstId;
 

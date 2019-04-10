@@ -20,20 +20,20 @@ package de.qucosa.oai.provider.services.views;
 
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
+import de.qucosa.oai.provider.persistence.model.views.OaiPmhListByToken;
 
 import java.util.Collection;
 
-public class OaiPmhListsService {
-    private Dao<OaiPmhLists> dao;
+public class OaiPmhListByTokenService {
+    private Dao<OaiPmhListByToken> dao;
 
-    public OaiPmhListsService(){}
+    public OaiPmhListByTokenService(){}
 
-    public void setDao(Dao<OaiPmhLists> dao) {
+    public void setDao(Dao<OaiPmhListByToken> dao) {
         this.dao = dao;
     }
 
-    public Collection<OaiPmhLists> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<OaiPmhListByToken> findRowsByMultipleValues(String clause, String... values) throws NotFound {
         return dao.findRowsByMultipleValues(clause, values);
     }
 }
