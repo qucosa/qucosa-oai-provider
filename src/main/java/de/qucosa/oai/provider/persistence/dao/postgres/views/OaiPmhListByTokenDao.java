@@ -23,7 +23,7 @@ import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
-import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
+import de.qucosa.oai.provider.persistence.model.views.OaiPmhListByToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -35,12 +35,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class OaiPmhListsDao<T extends OaiPmhLists> implements Dao<OaiPmhLists> {
+public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<OaiPmhListByToken> {
 
     private Connection connection;
 
+    private String tableName = "oai_pmh_list_by_token";
+
     @Autowired
-    public OaiPmhListsDao(Connection connection) {
+    public OaiPmhListByTokenDao(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -49,58 +51,58 @@ public class OaiPmhListsDao<T extends OaiPmhLists> implements Dao<OaiPmhLists> {
         this.connection = connection;
     }
 
-    public OaiPmhListsDao() { }
+    public OaiPmhListByTokenDao() { }
 
 
     @Override
-    public OaiPmhLists saveAndSetIdentifier(OaiPmhLists object) throws SaveFailed {
+    public OaiPmhListByToken saveAndSetIdentifier(OaiPmhListByToken object) throws SaveFailed {
         return null;
     }
 
     @Override
-    public Collection<OaiPmhLists> saveAndSetIdentifier(Collection<OaiPmhLists> objects) throws SaveFailed {
+    public Collection<OaiPmhListByToken> saveAndSetIdentifier(Collection<OaiPmhListByToken> objects) throws SaveFailed {
         return null;
     }
 
     @Override
-    public OaiPmhLists update(OaiPmhLists object) throws UpdateFailed {
+    public OaiPmhListByToken update(OaiPmhListByToken object) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public Collection<OaiPmhLists> update(Collection<OaiPmhLists> objects) throws UpdateFailed {
+    public Collection<OaiPmhListByToken> update(Collection<OaiPmhListByToken> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public Collection<OaiPmhLists> findAll() throws NotFound {
+    public Collection<OaiPmhListByToken> findAll() throws NotFound {
         return null;
     }
 
     @Override
-    public OaiPmhLists findById(String id) throws NotFound {
+    public OaiPmhListByToken findById(String id) throws NotFound {
         return null;
     }
 
     @Override
-    public Collection<OaiPmhLists> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<OaiPmhListByToken> findByPropertyAndValue(String property, String value) throws NotFound {
         return null;
     }
 
     @Override
-    public OaiPmhLists findByMultipleValues(String clause, String... values) throws NotFound {
+    public OaiPmhListByToken findByMultipleValues(String clause, String... values) throws NotFound {
         return null;
     }
 
     @Override
-    public Collection<OaiPmhLists> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<OaiPmhListByToken> findRowsByMultipleValues(String clause, String... values) throws NotFound {
         if (values[0] == null || values[0].isEmpty() || values[1] == null || values[1].isEmpty()) {
             throw new NotFound("Cannot find oai omh list entries becaue resumptionToken or format_id failed.");
         }
 
         clause = clause.replace("%s", "?");
-        String sql = "SELECT * FROM oai_pmh_lists WHERE " + clause;
-        Collection<OaiPmhLists> pmhLists = new ArrayList<>();
+        String sql = "SELECT * FROM " + tableName + " WHERE " + clause;
+        Collection<OaiPmhListByToken> pmhLists = new ArrayList<>();
 
         try {
             PreparedStatement pst = connection.prepareStatement(sql);
@@ -109,7 +111,7 @@ public class OaiPmhListsDao<T extends OaiPmhLists> implements Dao<OaiPmhLists> {
             ResultSet resultSet = pst.executeQuery();
 
             while (resultSet.next()) {
-                OaiPmhLists oaiPmhLists = new OaiPmhLists();
+                OaiPmhListByToken oaiPmhLists = new OaiPmhListByToken();
                 oaiPmhLists.setRstId(resultSet.getString("rst_id"));
                 oaiPmhLists.setUid(resultSet.getString("uid"));
                 oaiPmhLists.setRecordId(resultSet.getLong("record_id"));
@@ -137,7 +139,7 @@ public class OaiPmhListsDao<T extends OaiPmhLists> implements Dao<OaiPmhLists> {
     }
 
     @Override
-    public void delete(OaiPmhLists object) throws DeleteFailed {
+    public void delete(OaiPmhListByToken object) throws DeleteFailed {
 
     }
 }
