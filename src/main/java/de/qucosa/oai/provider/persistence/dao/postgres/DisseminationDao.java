@@ -164,7 +164,12 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, value);
+
+            if (property.equals("id_format")) {
+                statement.setLong(1, Long.valueOf(value));
+            } else {
+                statement.setString(1, value);
+            }
             ResultSet resultSet = statement.executeQuery();
 
             if (!resultSet.next()) {
