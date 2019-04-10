@@ -45,7 +45,7 @@ public class OaiPmhListByToken implements Serializable, HasIdentifier {
     @JsonProperty("recordStatus")
     private boolean recordStatus;
 
-    @JsonProperty("")
+    @JsonProperty("lastModDate")
     private Timestamp lastModDate;
 
     @JsonProperty("xmldata")
