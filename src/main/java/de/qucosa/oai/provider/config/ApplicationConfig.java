@@ -23,7 +23,8 @@ import de.qucosa.oai.provider.persistence.dao.postgres.ResumptionTokenDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.RstToIdentifiersDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.SetDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.SetsToRecordDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.views.OaiPmhListsDao;
+import de.qucosa.oai.provider.persistence.dao.postgres.views.OaiPmhListByTokenDao;
+import de.qucosa.oai.provider.persistence.dao.postgres.views.OaiPmhListDao;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
@@ -31,7 +32,8 @@ import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.SetsToRecord;
-import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
+import de.qucosa.oai.provider.persistence.model.views.OaiPmhList;
+import de.qucosa.oai.provider.persistence.model.views.OaiPmhListByToken;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
@@ -39,7 +41,8 @@ import de.qucosa.oai.provider.services.ResumptionTokenService;
 import de.qucosa.oai.provider.services.RstToIdentifiersService;
 import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
-import de.qucosa.oai.provider.services.views.OaiPmhListsService;
+import de.qucosa.oai.provider.services.views.OaiPmhListByTokenService;
+import de.qucosa.oai.provider.services.views.OaiPmhListService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,14 +170,26 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public Dao<OaiPmhLists> oaiPmhListsDao() throws SQLException {
-        return new OaiPmhListsDao<>(connection());
+    public Dao<OaiPmhListByToken> oaiPmhListByTokenDao() throws SQLException {
+        return new OaiPmhListByTokenDao<>(connection());
     }
 
     @Bean
-    public OaiPmhListsService oaiPmhListsService() throws SQLException {
-        OaiPmhListsService oaiPmhListsService = new OaiPmhListsService();
-        oaiPmhListsService.setDao(oaiPmhListsDao());
+    public OaiPmhListByTokenService oaiPmhListsService() throws SQLException {
+        OaiPmhListByTokenService oaiPmhListsService = new OaiPmhListByTokenService();
+        oaiPmhListsService.setDao(oaiPmhListByTokenDao());
         return oaiPmhListsService;
+    }
+
+    @Bean
+    public Dao<OaiPmhList> oaiPmhListDao() throws SQLException {
+        return new OaiPmhListDao<>(connection());
+    }
+
+    @Bean
+    public OaiPmhListService oaiPmhListService() throws SQLException {
+        OaiPmhListService oaiPmhListService = new OaiPmhListService();
+        oaiPmhListService.setDao(oaiPmhListDao());
+        return oaiPmhListService;
     }
 }
