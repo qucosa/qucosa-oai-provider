@@ -48,7 +48,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -69,6 +71,17 @@ public class OaiPmhControllerWithoutResumptionTokenTest {
     public void setUp() throws IOException {
         XmlNamespacesConfig namespacesConfig = new XmlNamespacesConfig(getClass().getResourceAsStream("/config/namespaces.json"));
         xPath = DocumentXmlUtils.xpath(namespacesConfig.getNamespaces());
+    }
+
+    @Test
+    @DisplayName("If verb parameter not exists in properties verbs config then retirns error details object.")
+    public void notExistsVerb() throws Exception {
+        mvc.perform(
+                get("/oai/ListIdentifers/oai_dc")
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.statuscode", is("400")))
+                .andExpect(jsonPath("$.errorMsg", is("The verb (ListIdentifers) is does not exists in OAI protocol.")));
     }
 
     @Test
