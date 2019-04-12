@@ -165,17 +165,18 @@ ALTER TABLE public.oai_pmh_list
 CREATE OR REPLACE VIEW public.oai_pmh_list_by_token AS
  SELECT rti.rst_id,
     rt.expiration_date,
-    rt.format_id AS format,
     rc.uid,
     rc.id AS record_id,
     rc.deleted AS record_status,
     diss.lastmoddate,
     diss.xmldata,
-    diss.deleted AS dissemination_status
+    diss.deleted AS dissemination_status,
+    fm.id AS format
    FROM rst_to_identifiers rti
      LEFT JOIN resumption_tokens rt ON rti.rst_id::text = rt.token_id::text
      LEFT JOIN records rc ON rti.record_id = rc.id
-     LEFT JOIN disseminations diss ON rc.uid::text = diss.id_record::text;
+     LEFT JOIN disseminations diss ON rc.uid::text = diss.id_record::text
+     LEFT JOIN formats fm ON fm.id = diss.id_format;
 
-ALTER TABLE public.oai_pmh_lists
+ALTER TABLE public.oai_pmh_list_by_token
   OWNER TO postgres;
