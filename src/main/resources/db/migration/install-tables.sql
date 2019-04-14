@@ -171,7 +171,11 @@ CREATE OR REPLACE VIEW public.oai_pmh_list_by_token AS
     diss.lastmoddate,
     diss.xmldata,
     diss.deleted AS dissemination_status,
-    fm.id AS format
+    fm.id AS format,
+    ( SELECT json_agg(json_build_object('setspec', st.setspec, 'setname', st.setname)) AS json_agg
+           FROM sets st
+             LEFT JOIN sets_to_records str ON str.id_set = st.id
+          WHERE str.id_record = rc.id) AS set
    FROM rst_to_identifiers rti
      LEFT JOIN resumption_tokens rt ON rti.rst_id::text = rt.token_id::text
      LEFT JOIN records rc ON rti.record_id = rc.id
