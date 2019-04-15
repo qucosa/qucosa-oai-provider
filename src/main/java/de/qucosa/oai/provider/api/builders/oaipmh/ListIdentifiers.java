@@ -63,10 +63,6 @@ public class ListIdentifiers extends OaiPmhDataBuilderAbstract implements OaiPmh
         this.format = format;
     }
 
-    public Collection<OaiPmhListByToken> getOaiPmhListByToken() {
-        return oaiPmhListByToken;
-    }
-
     public void setOaiPmhListByToken(Collection<OaiPmhListByToken> oaiPmhListByToken) {
         this.oaiPmhListByToken = oaiPmhListByToken;
     }
