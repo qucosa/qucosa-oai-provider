@@ -151,7 +151,11 @@ CREATE OR REPLACE VIEW public.oai_pmh_list AS
     f.mdprefix,
     diss.lastmoddate,
     diss.xmldata,
-    diss.deleted AS diss_status
+    diss.deleted AS diss_status,
+    ( SELECT json_agg(json_build_object('setspec', st.setspec, 'setname', st.setname)) AS json_agg
+           FROM sets st
+             LEFT JOIN sets_to_records str ON str.id_set = st.id
+          WHERE str.id_record = rc.id) AS set
    FROM records rc
      LEFT JOIN disseminations diss ON rc.uid::text = diss.id_record::text
      LEFT JOIN formats f ON diss.id_format = f.id;
