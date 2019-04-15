@@ -80,21 +80,19 @@ public class ListIdentifiers extends OaiPmhDataBuilderAbstract implements OaiPmh
     }
 
     private void buildListWithResumptionToken(Node verbNode) {
-
-        for (OaiPmhListByToken obj : oaiPmhListByToken) {
-            Node importedHeader = oaiPmhTpl.importNode(addHeaderTpl(obj.getUid(),
-                    DateTimeConverter.sqlTimestampToString(obj.getLastModDate()), obj.getSets()).getDocumentElement(), true);
-            verbNode.appendChild(importedHeader);
-        }
-
+        buildDataList(verbNode);
         new ResumptionToken(oaiPmhTpl).add(verb, dataSize, resumptionToken, recordsProPage);
     }
 
     private void buildList(Node verbNode) {
+        buildDataList(verbNode);
+    }
 
-        for (OaiPmhList obj : oaiPmhList) {
+    private void buildDataList(Node verbNode) {
+
+        for (OaiPmhListByToken obj : oaiPmhListByToken) {
             Node importedHeader = oaiPmhTpl.importNode(addHeaderTpl(obj.getUid(),
-                    DateTimeConverter.sqlTimestampToString(obj.getLastModDate()), obj.getSets()).getDocumentElement(), true);
+                    DateTimeConverter.sqlTimestampToString(obj.getLastModDate()), obj.isRecordStatus(), obj.getSets()).getDocumentElement(), true);
             verbNode.appendChild(importedHeader);
         }
     }
