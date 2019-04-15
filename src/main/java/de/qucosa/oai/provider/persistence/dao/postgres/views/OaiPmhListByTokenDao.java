@@ -18,15 +18,20 @@
 
 package de.qucosa.oai.provider.persistence.dao.postgres.views;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhListByToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,6 +46,8 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
 
     private String tableName = "oai_pmh_list_by_token";
 
+    private ObjectMapper om;
+
     @Autowired
     public OaiPmhListByTokenDao(Connection connection) {
 
@@ -49,6 +56,7 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
         }
 
         this.connection = connection;
+        om = new ObjectMapper();
     }
 
     public OaiPmhListByTokenDao() { }
@@ -97,7 +105,7 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
     @Override
     public Collection<OaiPmhListByToken> findRowsByMultipleValues(String clause, String... values) throws NotFound {
         if (values[0] == null || values[0].isEmpty() || values[1] == null || values[1].isEmpty()) {
-            throw new NotFound("Cannot find oai omh list entries becaue resumptionToken or format_id failed.");
+            throw new NotFound("Cannot find oai omh list entries because resumptionToken or format_id failed.");
         }
 
         clause = clause.replace("%s", "?");
@@ -120,11 +128,26 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
                 oaiPmhLists.setXmldata(resultSet.getString("xmldata"));
                 oaiPmhLists.setRecordStatus(resultSet.getBoolean("record_status"));
                 oaiPmhLists.setDisseminationStatus(resultSet.getBoolean("dissemination_status"));
+
+                if (resultSet.getString("set") != null) {
+                    oaiPmhLists.setSets(
+                            om.readValue(
+                                    resultSet.getString("set"),
+                                    om.getTypeFactory().constructCollectionType(Collection.class, Set.class)));
+                }
+
                 pmhLists.add(oaiPmhLists);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+            if (pmhLists.isEmpty()) {
+                throw new NotFound("Cannot found data from view.");
+            }
+        } catch (SQLException | JsonParseException | JsonMappingException e) {
+            throw new NotFound("SQL-ERROR: Cannot found data from view.", e);
+        } catch (IOException ignored) {
+
         }
+
         return pmhLists;
     }
 
