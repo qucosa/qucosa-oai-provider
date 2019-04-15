@@ -23,9 +23,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.qucosa.oai.provider.persistence.model.HasIdentifier;
+import de.qucosa.oai.provider.persistence.model.Set;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Collection;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -56,6 +58,9 @@ public class OaiPmhListByToken implements Serializable, HasIdentifier {
 
     @JsonProperty("format")
     private Long format;
+
+    @JsonProperty("sets")
+    private Collection<Set> sets;
 
     public String getRstId() {
         return rstId;
@@ -127,6 +132,14 @@ public class OaiPmhListByToken implements Serializable, HasIdentifier {
 
     public void setFormat(Long format) {
         this.format = format;
+    }
+
+    public Collection<Set> getSets() {
+        return sets;
+    }
+
+    public void setSets(Collection<Set> sets) {
+        this.sets = sets;
     }
 
     @Override
