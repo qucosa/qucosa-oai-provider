@@ -19,7 +19,7 @@
 package de.qucosa.oai.provider.controller;
 
 import de.qucosa.oai.provider.ErrorDetails;
-import de.qucosa.oai.provider.api.builders.oaipmh.OaiPmhFactory;
+import de.qucosa.oai.provider.api.builders.oaipmh.OaiPmhDataBuilderFactory;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
@@ -27,31 +27,30 @@ import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
-import de.qucosa.oai.provider.persistence.model.views.OaiPmhLists;
-import de.qucosa.oai.provider.services.DisseminationService;
-import de.qucosa.oai.provider.services.FormatService;
-import de.qucosa.oai.provider.services.RecordService;
+import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.ResumptionTokenService;
 import de.qucosa.oai.provider.services.RstToIdentifiersService;
-import de.qucosa.oai.provider.services.SetService;
-import de.qucosa.oai.provider.services.SetsToRecordService;
-import de.qucosa.oai.provider.services.views.OaiPmhListsService;
+import de.qucosa.oai.provider.services.views.OaiPmhListByTokenService;
+import de.qucosa.oai.provider.services.views.OaiPmhListService;
 import org.apache.tomcat.util.buf.HexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.w3c.dom.Document;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -74,164 +73,198 @@ public class OaiPmhController {
     @Value("${expiries.hours}")
     private int expiriesHours;
 
+    @Value(("${app.url}"))
+    private String appUrl;
+
+    @Value("${server.port}")
+    private int serverPort;
+
+    @Value("#{'${oai.pmh.verbs}'.split(',')}")
+    private List<String> verbs;
+
     private int cursor = 0;
 
     private Format format;
-
-    private RecordService recordService;
-
-    private FormatService formatService;
-
-    private SetService setService;
-
-    private DisseminationService disseminationService;
-
-    private SetsToRecordService setsToRecordService;
 
     private ResumptionTokenService resumptionTokenService;
 
     private RstToIdentifiersService rstToIdentifiersService;
 
-    private OaiPmhListsService oaiPmhListsService;
+    private OaiPmhListByTokenService oaiPmhListByTokenService;
+
+    private OaiPmhListService oaiPmhListService;
+
+    private RestTemplate restTemplate;
 
     @Autowired
-    public OaiPmhController(RecordService recordService, FormatService formatService, SetService setService,
-                            DisseminationService disseminationService, SetsToRecordService setsToRecordService,
+    public OaiPmhController(RestTemplate restTemplate,
                             ResumptionTokenService resumptionTokenService,
                             RstToIdentifiersService rstToIdentifiersService,
-                            OaiPmhListsService oaiPmhListsService) {
-        this.recordService = recordService;
-        this.formatService = formatService;
-        this.setService = setService;
-        this.disseminationService = disseminationService;
-        this.setsToRecordService = setsToRecordService;
+                            OaiPmhListByTokenService oaiPmhListByTokenService,
+                            OaiPmhListService oaiPmhListService) {
+        this.restTemplate = restTemplate;
         this.resumptionTokenService = resumptionTokenService;
         this.rstToIdentifiersService = rstToIdentifiersService;
-        this.oaiPmhListsService = oaiPmhListsService;
+        this.oaiPmhListByTokenService = oaiPmhListByTokenService;
+        this.oaiPmhListService = oaiPmhListService;
     }
 
-    @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}", "{verb}/{resumptionToken}",
-            "{verb}/{metadataPrefix}/{from}", "{verb}/{metadataPrefix}/{from}/{until}",
-            "{verb}/{metadataPrefix}/{resumptionToken}", "{verb}/{metadataPrefix}/{from}/{resumptionToken}",
-            "{verb}/{metadataPrefix}/{from}/{until}/{resumptionToken}"},
+    @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}",
+            "{verb}/{metadataPrefix}/{identifier}",
+            "{verb}/{metadataPrefix}/{from}",
+            "{verb}/{metadataPrefix}/{from}/{until}"},
             produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     public ResponseEntity findAll(@PathVariable String verb,
                                   @PathVariable(value = "metadataPrefix", required = false) String metadataPrefix,
+                                  @PathVariable(value = "identifier", required = false) String identifier,
                                   @PathVariable(value = "from", required = false) String from,
                                   @PathVariable(value = "until", required = false) String until,
-                                  @PathParam(value = "resumptionToken") String resumptionToken) throws IOException {
+                                  @RequestParam(value = "resumptionToken", required = false) String resumptionToken) throws IOException {
 
-        Collection<Record> records;
-        Collection<OaiPmhLists> oaiPmhLists = null;
-        OaiPmhFactory oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
-        Document oaiPmhList;
+        if (!verbs.contains(verb)) {
+            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                    HttpStatus.BAD_REQUEST, "The verb (" + verb + ") is does not exists in OAI protocol.", null)
+                    .response();
+        }
+
         ResumptionToken resumptionTokenObj;
 
+        OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory = new OaiPmhDataBuilderFactory(
+                DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/oai_pmh.xml"), false)
+        ).setVerb(verb).setMdprefix(metadataPrefix).setRecordsProPage(recordsProPage);
+
+        if (identifier != null) {
+            oaiPmhDataBuilderFactory.setIdentifier(identifier);
+        }
+
+        if (verb.equals("ListIdentifiers") || verb.equals("ListRecords")) {
+            oaiPmhDataBuilderFactory.setRecords(restTemplate.exchange(appUrl + ":" + serverPort + "/records",
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<Collection<Record>>(){}).getBody());
+
+            oaiPmhDataBuilderFactory.setSets(
+                    restTemplate.exchange(appUrl + ":" + serverPort + "/sets",
+                            HttpMethod.GET,
+                            null,
+                            new ParameterizedTypeReference<Collection<Set>>(){}).getBody());
+
+            oaiPmhDataBuilderFactory.setFormats(
+                    restTemplate.exchange(appUrl + ":" + serverPort + "/formats",
+                            HttpMethod.GET,
+                            null,
+                            new ParameterizedTypeReference<Collection<Format>>() {}).getBody());
+
+            if (oaiPmhDataBuilderFactory.getRecords().size() > recordsProPage) {
+                try {
+                    if (resumptionToken == null || resumptionToken.isEmpty()) {
+                        format = restTemplate.getForObject(
+                                UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
+                                        .queryParam("mdprefix", metadataPrefix)
+                                        .toUriString(),
+                                Format.class);
+                    }
+
+                    resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
+                            ? saveResumptionTokenAndPidsPersistent(createResumptionToken(), oaiPmhDataBuilderFactory.getRecords())
+                            : resumptionTokenService.findById(resumptionToken);
+
+                    if (resumptionToken != null && !resumptionToken.isEmpty()) {
+                        format = restTemplate.getForObject(
+                                UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
+                                        .queryParam("formatId", resumptionTokenObj.getFormatId())
+                                        .toUriString(),
+                                Format.class);
+                    }
+
+                    oaiPmhDataBuilderFactory.setResumptionToken(resumptionTokenObj);
+                    oaiPmhDataBuilderFactory.setFormat(format);
+                } catch (SaveFailed saveFailed) {
+                    return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                            HttpStatus.NOT_ACCEPTABLE, saveFailed.getMessage(), saveFailed)
+                            .response();
+                } catch (NotFound | NoSuchAlgorithmException notFound) {
+                    return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                            HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
+                            .response();
+                }
+
+                try {
+                    oaiPmhDataBuilderFactory.setOaiPmhListByToken(
+                            oaiPmhListByTokenService.findRowsByMultipleValues(
+                                    "rst_id = %s AND format = %s", resumptionTokenObj.getTokenId(),
+                                    String.valueOf(resumptionTokenObj.getFormatId()))
+                    );
+                } catch (NotFound notFound) {
+                    return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                            HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
+                            .response();
+                }
+            } else {
+                try {
+                    format = restTemplate.getForObject(
+                            UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
+                                    .queryParam("mdprefix", metadataPrefix)
+                                    .toUriString(),
+                            Format.class);
+
+                    oaiPmhDataBuilderFactory.setFormat(format);
+                    oaiPmhDataBuilderFactory.setOaiPmhList(
+                            oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
+                    );
+                } catch (NotFound notFound) {
+                    return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                            HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
+                            .response();
+                }
+            }
+        }
+
         if (verb.equals("ListSets")) {
+            Collection<Set> sets = restTemplate.exchange(appUrl + ":" + serverPort + "/sets",
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<Collection<Set>>() {}).getBody();
+            oaiPmhDataBuilderFactory.setSets(sets);
+        }
+
+        if (verb.equals("ListMetadataFormats")) {
+            oaiPmhDataBuilderFactory.setFormats(
+                    restTemplate.exchange(appUrl + ":" + serverPort + "/formats",
+                            HttpMethod.GET,
+                            null,
+                            new ParameterizedTypeReference<Collection<Format>>() {}).getBody());
+        }
+
+        if (verb.equals("GetRecord")) {
             try {
-                oaiPmhList = oaiPmhFactory.createList(verb, setService);
-                return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhList), HttpStatus.OK);
+                format = restTemplate.getForObject(
+                        UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
+                                .queryParam("mdprefix", metadataPrefix)
+                                .toUriString(),
+                        Format.class);
+
+                oaiPmhDataBuilderFactory.setFormat(format);
+                oaiPmhDataBuilderFactory.setOaiPmhList(
+                        oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
+                );
             } catch (NotFound notFound) {
-                return new ErrorDetails(this.getClass().getName(), "find", "GET:find",
-                        HttpStatus.NOT_FOUND, "Cannot found sets.", notFound)
+                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                        HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
                         .response();
             }
         }
 
-        if (resumptionToken == null || resumptionToken.isEmpty()) {
-            format = findFormat(metadataPrefix);
-
-            if (format == null) {
-                return new ErrorDetails(this.getClass().getName(), "find", "GET:find",
-                        HttpStatus.NOT_FOUND, "Cannot found format " + metadataPrefix + ".", null)
-                        .response();
-            }
-        }
+        String output = null;
 
         try {
-            records = recordService.findAll();
-        } catch (NotFound notFound) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, "Cannot found records.", notFound).response();
+            output = DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData());
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
         }
 
-        if (records.size() > recordsProPage) {
-
-            try {
-                resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
-                        ? saveResumptionTokenAndPidsPersistent(createResumptionToken(), records)
-                        : resumptionTokenService.findById(resumptionToken);
-
-                if (resumptionToken != null) {
-                    format = formatService.findById(String.valueOf(resumptionTokenObj.getFormatId()));
-                }
-            } catch (NotFound notFound) {
-                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                        HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                        .response();
-            } catch (SaveFailed saveFailed) {
-                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                        HttpStatus.NOT_ACCEPTABLE, saveFailed.getMessage(), saveFailed)
-                        .response();
-            } catch (NoSuchAlgorithmException e) {
-                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                        HttpStatus.NOT_FOUND, e.getMessage(), e)
-                        .response();
-            }
-
-            try {
-
-                if (resumptionTokenObj != null) {
-                    oaiPmhLists = oaiPmhListsService.findRowsByMultipleValues(
-                            "rst_id = %s AND format = %s", resumptionTokenObj.getTokenId(),
-                            String.valueOf(resumptionTokenObj.getFormatId()));
-                }
-            } catch (NotFound notFound) {
-                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                        HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                        .response();
-            }
-
-            try {
-                oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService,
-                        setService, setsToRecordService, resumptionTokenObj, recordsProPage, oaiPmhLists);
-            } catch (NotFound notFound) {
-                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                        HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                        .response();
-            }
-        } else {
-            oaiPmhFactory = new OaiPmhFactory(getClass().getResourceAsStream("/templates/oai_pmh.xml"));
-
-            try {
-                oaiPmhList = oaiPmhFactory.createList(verb, format, records, disseminationService, setService,
-                        setsToRecordService);
-            } catch (IOException | NotFound e) {
-                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                        HttpStatus.NOT_FOUND, "Cannot found records.", e)
-                        .response();
-            }
-        }
-
-        return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhList), HttpStatus.OK);
-    }
-
-    private Format findFormat(String metadataPrefix) {
-        Collection<Format> formats;
-        Format format = null;
-
-        try {
-            formats = formatService.find("mdprefix", metadataPrefix);
-
-            if (!formats.isEmpty()) {
-                format = formats.iterator().next();
-            }
-        } catch (NotFound notFound) {
-            logger.error("Format " + metadataPrefix + " not found!");
-        }
-
-        return format;
+        return new ResponseEntity<>(output, HttpStatus.OK);
     }
 
     private String createResumptionToken() throws NoSuchAlgorithmException, UnsupportedEncodingException {
@@ -275,9 +308,8 @@ public class OaiPmhController {
                 for (int j = cursor; j < end; j++) {
 
                     if (j < recordList.size()) {
-                        Record record = recordList.get(j);
                         RstToIdentifiers rstToIdentifiers = new RstToIdentifiers();
-                        rstToIdentifiers.setRecordId(record.getRecordId());
+                        rstToIdentifiers.setRecordId(recordList.get(j).getRecordId());
                         rstToIdentifiers.setRstId(resumptionToken.getTokenId());
                         rstToIdentifiersCollection.add(rstToIdentifiers);
                     }
