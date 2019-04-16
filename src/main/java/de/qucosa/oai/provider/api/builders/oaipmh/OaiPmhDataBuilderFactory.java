@@ -26,6 +26,7 @@ import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhList;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhListByToken;
+import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -66,6 +67,8 @@ public class OaiPmhDataBuilderFactory {
     private ObjectMapper om = new ObjectMapper();
 
     private OaiPmhDataBuilder oaiPmhDataBuilder;
+
+    private Environment environment;
 
     public OaiPmhDataBuilderFactory(Document oaiPmhTemplate) {
         this.oaiPmhTemplate = oaiPmhTemplate;
@@ -150,6 +153,15 @@ public class OaiPmhDataBuilderFactory {
         listMetadataFormats.setVerb(verb);
         listMetadataFormats.setFormats(formats);
         return listMetadataFormats;
+    }
+
+    private OaiPmhDataBuilder getIdentify() {
+        Identify identify = new Identify();
+        identify.setOaiPmhTpl(oaiPmhTemplate);
+        identify.setVerb(verb);
+        identify.setEnvironment(environment);
+        identify.setDisseminations(disseminations);
+        return identify;
     }
 
     public OaiPmhDataBuilderFactory setVerb(String verb) {
@@ -237,5 +249,9 @@ public class OaiPmhDataBuilderFactory {
 
     public void setResumptionToken(ResumptionToken resumptionToken) {
         this.resumptionToken = resumptionToken;
+    }
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 }
