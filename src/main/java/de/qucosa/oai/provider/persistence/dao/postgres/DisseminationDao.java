@@ -63,8 +63,8 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
 
         try {
             selectDiss = this.findByMultipleValues(
-                    "id_format=? AND id_record=?",
-                    String.valueOf(object.getFormatId()), object.getRecordId());
+                    "id_record=? AND id_format=?",
+                    object.getRecordId(), String.valueOf(object.getFormatId()));
         } catch (NotFound ignore) { }
 
         if (selectDiss != null) {
@@ -200,16 +200,20 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     public Dissemination findByMultipleValues(String clause, String... values) throws NotFound {
         clause = clause.replace("%s", "?");
 
-        if (values[0] == null || Long.valueOf(values[0]) == 0 || values[1] == null || values[1].isEmpty()) {
-            throw new NotFound("Cannot find dissemination becaue record_id or format_id failed.");
+        if (values == null) {
+            throw new NotFound("Cannot find dissemination because parameters failed.");
         }
 
         String sql = "SELECT id, id_format, lastmoddate, xmldata, id_record, deleted FROM disseminations WHERE " + clause;
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setLong(1, Long.valueOf(values[0]));
-            ps.setString(2, values[1]);
+
+            if (clause.contains("id_record") && clause.contains("id_format")) {
+                ps.setString(1, values[0]);
+                ps.setLong(2, Long.valueOf(values[1]));
+            }
+
             ResultSet resultSet = ps.executeQuery();
             Dissemination dissemination = null;
 
