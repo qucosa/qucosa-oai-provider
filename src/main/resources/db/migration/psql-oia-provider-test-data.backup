@@ -1375,7 +1375,7 @@ ALTER TABLE ONLY sets
 --
 
 ALTER TABLE ONLY disseminations
-    ADD CONSTRAINT dissemination_format_fkey FOREIGN KEY (id_format) REFERENCES formats(id);
+    ADD CONSTRAINT dissemination_format_fkey FOREIGN KEY (id_format) REFERENCES formats(id) ON DELETE CASCADE;
 
 
 --
@@ -1393,7 +1393,7 @@ ALTER TABLE ONLY disseminations
 --
 
 ALTER TABLE ONLY resumption_tokens
-    ADD CONSTRAINT fk_id_format FOREIGN KEY (format_id) REFERENCES formats(id);
+    ADD CONSTRAINT fk_id_format FOREIGN KEY (format_id) REFERENCES formats(id) ON DELETE CASCADE;
 
 
 --
@@ -1402,7 +1402,7 @@ ALTER TABLE ONLY resumption_tokens
 --
 
 ALTER TABLE ONLY rst_to_identifiers
-    ADD CONSTRAINT fk_record_id FOREIGN KEY (record_id) REFERENCES records(id);
+    ADD CONSTRAINT fk_record_id FOREIGN KEY (record_id) REFERENCES records(id) ON DELETE CASCADE;
 
 
 --
