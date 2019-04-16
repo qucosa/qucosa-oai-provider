@@ -146,12 +146,12 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public ResumptionToken findLastRowsByProperty(String property, boolean limit) {
+    public ResumptionToken findLastRowsByProperty(String property, int limit) {
         return null;
     }
 
     @Override
-    public ResumptionToken findFirstRowsByProperty(String property, boolean limit) {
+    public ResumptionToken findFirstRowsByProperty(String property, int limit) {
         return null;
     }
 

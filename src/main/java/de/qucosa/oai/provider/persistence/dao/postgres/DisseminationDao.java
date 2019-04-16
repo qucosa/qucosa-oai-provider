@@ -239,12 +239,12 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Dissemination findLastRowsByProperty(String property, boolean limit) {
+    public Dissemination findLastRowsByProperty(String property, int limit) {
         return null;
     }
 
     @Override
-    public Dissemination findFirstRowsByProperty(String property, boolean limit) {
+    public Dissemination findFirstRowsByProperty(String property, int limit) {
         return null;
     }
 
