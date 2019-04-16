@@ -90,17 +90,33 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
     }
 
     private void buildListWithResumptionToken(Node verbNode) throws UnsupportedEncodingException {
-        buildDataList(verbNode);
+
+        for (OaiPmhListByToken obj : oaiPmhListByToken) {
+            Document recordTpl = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/record.xml"), true);
+            Node record = recordTpl.getElementsByTagName("record").item(0);
+            Node metadata = recordTpl.getElementsByTagName("metadata").item(0);
+
+            if (obj.isRecordStatus() == false) {
+                Document metadataXml = DocumentXmlUtils.document(
+                        new ByteArrayInputStream(obj.getXmldata().getBytes("UTF-8")), true);
+                Node metadataImport = recordTpl.importNode(metadataXml.getDocumentElement(), true);
+                metadata.appendChild(metadataImport);
+            }
+
+            Node importHeader = recordTpl.importNode(addHeaderTpl(obj.getUid(),
+                    DateTimeConverter.sqlTimestampToString(obj.getLastModDate()), obj.isRecordStatus(), obj.getSets()).getDocumentElement(), true);
+            record.insertBefore(importHeader, metadata);
+
+            Node importTpl = oaiPmhTpl.importNode(recordTpl.getDocumentElement(), true);
+            verbNode.appendChild(importTpl);
+        }
+
         new ResumptionToken(oaiPmhTpl).add(verb, dataSize, resumptionToken, recordsProPage);
     }
 
     private void buildList(Node verbNode) throws UnsupportedEncodingException {
-        buildDataList(verbNode);
-    }
 
-    private void buildDataList(Node verbNode) throws UnsupportedEncodingException {
-
-        for (OaiPmhListByToken obj : oaiPmhListByToken) {
+        for (OaiPmhList obj : oaiPmhList) {
             Document recordTpl = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/record.xml"), true);
             Node record = recordTpl.getElementsByTagName("record").item(0);
             Node metadata = recordTpl.getElementsByTagName("metadata").item(0);
