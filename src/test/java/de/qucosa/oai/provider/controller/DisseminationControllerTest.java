@@ -100,7 +100,7 @@ public class DisseminationControllerTest {
     @Order(1)
     public void findDisseminations() throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/disseminations/qucosa:32394")
+                get("/disseminations?uid=qucosa:32394")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
@@ -119,7 +119,7 @@ public class DisseminationControllerTest {
     @Order(2)
     public void findNotDisseminations() throws Exception {
         mvc.perform(
-                get("/disseminations/qucosa:00000")
+                get("/disseminations?uid=qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.statuscode", is("404")))
