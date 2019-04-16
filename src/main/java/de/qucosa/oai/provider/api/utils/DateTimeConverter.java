@@ -38,7 +38,7 @@ public class DateTimeConverter {
         return new Timestamp(date.getTime());
     }
 
-    public static Timestamp timestampWithOUTTimezone(String dateString) throws ParseException {
+    public static Timestamp timestampWithoutTimezone(String dateString) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
         Date date = dateFormat.parse(dateString);
         return new Timestamp(date.getTime());
