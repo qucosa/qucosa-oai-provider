@@ -29,11 +29,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -68,15 +70,15 @@ public class DisseminationController {
 
         try {
 
-            if (uid != null && formatId == null || formatId == 0) {
+            if (uid != null && formatId == null) {
                 disseminations = disseminationService.findByPropertyAndValue("id_record", uid);
             }
 
-            if (uid == null && formatId != null || formatId > 0) {
+            if (uid == null && formatId != null) {
                 disseminations = disseminationService.findByPropertyAndValue("id_format", String.valueOf(formatId));
             }
 
-            if (uid != null && formatId != null || formatId > 0) {
+            if (uid != null && formatId != null) {
                 // @todo get dissemination collection with other service query
             }
         } catch (NotFound e) {
@@ -87,7 +89,7 @@ public class DisseminationController {
         return new ResponseEntity<>(disseminations, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity save(@RequestBody String input) {
         ObjectMapper om = new ObjectMapper();
@@ -107,9 +109,10 @@ public class DisseminationController {
         return new ResponseEntity<>(dissemination, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "{uid}/{mdprefix}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "{uid}/{mdprefix}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity update(@RequestBody Dissemination input, @PathVariable String uid,
+    public ResponseEntity update(@RequestBody Dissemination input,
+                                 @PathVariable String uid,
                                  @PathVariable String mdprefix) {
         Dissemination dissemination;
 
@@ -123,7 +126,7 @@ public class DisseminationController {
         return new ResponseEntity<>(dissemination, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity delete(@RequestBody Dissemination input) {
 
