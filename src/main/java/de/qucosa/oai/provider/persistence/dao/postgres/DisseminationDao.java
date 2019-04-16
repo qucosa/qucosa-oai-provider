@@ -170,11 +170,9 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             } else {
                 statement.setString(1, value);
             }
+
             ResultSet resultSet = statement.executeQuery();
 
-            if (!resultSet.next()) {
-                throw new NotFound("Cannot found dissemination. UID " + value + " does not exists.");
-            }
 
             while (resultSet.next()) {
                 Dissemination dissemination = new Dissemination();
@@ -187,6 +185,10 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             }
 
             resultSet.close();
+
+            if (disseminations.size() == 0) {
+                throw new NotFound("Cannot found dissemination. UID " + value + " does not exists.");
+            }
         } catch (SQLException e) {
             throw new NotFound(e.getMessage(), e);
         }
