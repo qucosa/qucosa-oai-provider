@@ -103,9 +103,9 @@ public class FormatControllerTest {
     @Order(2)
     public void findFormat() throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/formats/oai_dc")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk()).andReturn();
+                get("/formats/format?mdprefix=oai_dc")
+                    .accept(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(status().isOk()).andReturn();
         String content = mvcResult.getResponse().getContentAsString();
 
         assertThat(content).isNotEmpty();
@@ -121,7 +121,7 @@ public class FormatControllerTest {
     @Order(3)
     public void formatNotFound() throws Exception {
         mvc.perform(
-                get("/formats/test")
+                get("/formats/format?mdprefix=test")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.statuscode", is("404")))
