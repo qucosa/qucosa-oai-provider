@@ -127,14 +127,34 @@ public class DisseminationControllerTest {
     }
 
     @Test
-    @DisplayName("Save new dissemination.")
+    @DisplayName("Find dissemination by uid and formatId.")
     @Order(3)
+    public void findByTwoParams() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/disseminations?uid=qucosa:32394&formatId=22")
+                    .accept(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Collection<Dissemination> disseminations = om.readValue(response,
+                om.getTypeFactory().constructCollectionType(List.class, Dissemination.class));
+
+        assertThat(disseminations).isNotNull();
+        assertThat(disseminations.size()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Save new dissemination.")
+    @Order(4)
     public void saveDissemination() throws Exception {
         Dissemination dissemination = disseminations.get(2);
         dissemination.setFormatId(format.getFormatId());
 
         MvcResult mvcResult = mvc.perform(
                 post("/disseminations")
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(dissemination)))
                 .andExpect(status().isOk()).andReturn();
@@ -150,7 +170,7 @@ public class DisseminationControllerTest {
 
     @Test
     @DisplayName("Save dissemination is not succussful because record failed.")
-    @Order(4)
+    @Order(5)
     public void saveDisseminationWithoutRecord() throws Exception {
         Dissemination dissemination = disseminations.get(2);
         dissemination.setFormatId(format.getFormatId());
@@ -167,7 +187,7 @@ public class DisseminationControllerTest {
 
     @Test
     @DisplayName("Save dissemination is not succussful because format failed.")
-    @Order(5)
+    @Order(6)
     public void saveDisseminationWithoutFormat() throws Exception {
         Dissemination dissemination = disseminations.get(2);
         dissemination.setFormatId(new Long(0));
@@ -187,7 +207,7 @@ public class DisseminationControllerTest {
      */
     @Test
     @DisplayName("Save dissemination is not succussful because exists in table.")
-    @Order(6)
+    @Order(7)
     public void saveDisseminationBecauseExists() throws Exception {
         Dissemination dissemination = disseminations.get(2);
         dissemination.setFormatId(format.getFormatId());
@@ -207,12 +227,12 @@ public class DisseminationControllerTest {
      */
     @Test
     @DisplayName("Update dissemination object with delete property for mark object as deleted.")
-    @Order(7)
+    @Order(8)
     public void updateDissemination() throws Exception {
         Dissemination dissemination = disseminationService.findByMultipleValues(
-                "id_format = %s AND id_record = %s",
-                String.valueOf(17),
-                "qucosa:32394");
+                "id_record = %s AND id_format = %s",
+                "qucosa:32394",
+                String.valueOf(17));
         dissemination.setDeleted(true);
 
         MvcResult mvcResult = mvc.perform(
@@ -235,12 +255,12 @@ public class DisseminationControllerTest {
      */
     @Test
     @DisplayName("Delete dissemination from table.")
-    @Order(8)
+    @Order(9)
     public void deleteDissemination() throws Exception {
         Dissemination dissemination = disseminationService.findByMultipleValues(
-                "id_format = %s AND id_record = %s",
-                String.valueOf(17),
-                "qucosa:32394");
+                "id_record = %s AND id_format = %s",
+                "qucosa:32394",
+                String.valueOf(17));
         MvcResult mvcResult = mvc.perform(
                 delete("/disseminations")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
