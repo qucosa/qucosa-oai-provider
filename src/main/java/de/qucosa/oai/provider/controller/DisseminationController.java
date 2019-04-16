@@ -94,6 +94,21 @@ public class DisseminationController {
         return new ResponseEntity<>(disseminations, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/earliest", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity findEarliest() {
+        Collection<Dissemination> disseminations = new ArrayList<>();
+
+        try {
+            disseminations = disseminationService.findFirstRowsByProperty("lastmoddate", 1);
+        } catch (NotFound notFound) {
+            return new ErrorDetails(this.getClass().getName(), "find", "GET:findEarliest/earliest",
+                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound).response();
+        }
+
+        return new ResponseEntity<>(disseminations, HttpStatus.OK);
+    }
+
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity save(@RequestBody String input) {
