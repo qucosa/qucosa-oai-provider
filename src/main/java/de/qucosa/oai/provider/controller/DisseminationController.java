@@ -43,7 +43,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 
 @RequestMapping("/disseminations")
 @RestController
@@ -81,7 +80,11 @@ public class DisseminationController {
             }
 
             if (uid != null && formatId != null) {
-                // @todo get dissemination collection with other service query
+                Dissemination dissemination = disseminationService.findByMultipleValues(
+                        "id_record = %s AND id_format = %s",
+                        uid,
+                        String.valueOf(formatId));
+                disseminations.add(dissemination);
             }
         } catch (NotFound e) {
             return new ErrorDetails(this.getClass().getName(), "find", "GET:disseminations" + uid,
