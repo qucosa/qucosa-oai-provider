@@ -51,6 +51,10 @@ public class DisseminationService {
         return dao.findByPropertyAndValue(property, value);
     }
 
+    public Collection<Dissemination> findFirstRowsByProperty(String property, int limit) throws NotFound {
+        return dao.findFirstRowsByProperty(property, limit);
+    }
+
     public void delete(Dissemination dissemination) throws DeleteFailed {
         dao.delete(dissemination);
     }
