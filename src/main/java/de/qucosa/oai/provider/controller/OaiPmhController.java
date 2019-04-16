@@ -23,6 +23,7 @@ import de.qucosa.oai.provider.api.builders.oaipmh.OaiPmhDataBuilderFactory;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
+import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -66,6 +68,9 @@ import java.util.UUID;
 @RestController
 public class OaiPmhController {
     private Logger logger = LoggerFactory.getLogger(OaiPmhController.class);
+
+    @Autowired
+    private Environment environment;
 
     @Value("${records.pro.page}")
     private int recordsProPage;
@@ -255,6 +260,14 @@ public class OaiPmhController {
                         HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
                         .response();
             }
+        }
+
+        if (verb.equals("Identify")) {
+            oaiPmhDataBuilderFactory.setEnvironment(environment);
+            oaiPmhDataBuilderFactory.setDisseminations(
+                    restTemplate.exchange(appUrl + ":" + serverPort + "/disseminations/earliest", HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<Collection<Dissemination>>() {}).getBody());
         }
 
         String output = null;
