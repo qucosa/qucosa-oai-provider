@@ -75,7 +75,7 @@ public class DisseminationController {
                 disseminations = disseminationService.findByPropertyAndValue("id_record", uid);
             }
 
-            if (uid == null && formatId != null) {
+            if (formatId != null && uid == null) {
                 disseminations = disseminationService.findByPropertyAndValue("id_format", String.valueOf(formatId));
             }
 

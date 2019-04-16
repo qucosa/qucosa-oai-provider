@@ -44,7 +44,7 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
 
     private Connection connection;
 
-    private String tableName = "oai_pmh_list_by_token";
+    private final static String TABLE_NAME = "oai_pmh_list_by_token";
 
     private ObjectMapper om;
 
@@ -109,7 +109,7 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
         }
 
         clause = clause.replace("%s", "?");
-        String sql = "SELECT * FROM " + tableName + " WHERE " + clause;
+        String sql = "SELECT * FROM " + TABLE_NAME + " WHERE " + clause;
         Collection<OaiPmhListByToken> pmhLists = new ArrayList<>();
 
         try {

@@ -66,7 +66,7 @@ public abstract class OaiPmhDataBuilderAbstract {
         Node datestamp = identifierTpl.getElementsByTagName("datestamp").item(0);
         Node header = identifierTpl.getElementsByTagName("header").item(0);
 
-        if (recordStautus == true) {
+        if (recordStautus) {
             ((Element) header).setAttribute("status", "deleted");
         }
 

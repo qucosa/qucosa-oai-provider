@@ -65,10 +65,8 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
         Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
 
         try {
-            buildRecord(verbNode, Objects.requireNonNull(record != null ? record : null));
-        } catch (UnsupportedEncodingException e) {
-
-        }
+            buildRecord(verbNode, Objects.requireNonNull(record));
+        } catch (UnsupportedEncodingException ignore) { }
 
         return oaiPmhTpl;
     }
@@ -94,7 +92,7 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
         Node recordNode = recordTpl.getElementsByTagName("record").item(0);
         Node metadata = recordTpl.getElementsByTagName("metadata").item(0);
 
-        if (record.isRecordStatus() == false) {
+        if (!record.isRecordStatus()) {
             Document metadataXml = DocumentXmlUtils.document(
                     new ByteArrayInputStream(record.getXmldata().getBytes("UTF-8")), true);
             Node metadataImport = recordTpl.importNode(metadataXml.getDocumentElement(), true);

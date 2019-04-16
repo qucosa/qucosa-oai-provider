@@ -49,17 +49,13 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         if (oaiPmhListByToken != null) {
             try {
                 buildListWithResumptionToken(verbNode);
-            } catch (UnsupportedEncodingException e) {
-
-            }
+            } catch (UnsupportedEncodingException ignore) { }
         }
 
         if (oaiPmhList != null) {
             try {
                 buildList(verbNode);
-            } catch (UnsupportedEncodingException e) {
-
-            }
+            } catch (UnsupportedEncodingException ignore) { }
         }
 
         return oaiPmhTpl;
@@ -96,7 +92,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
             Node record = recordTpl.getElementsByTagName("record").item(0);
             Node metadata = recordTpl.getElementsByTagName("metadata").item(0);
 
-            if (obj.isRecordStatus() == false) {
+            if (!obj.isRecordStatus()) {
                 Document metadataXml = DocumentXmlUtils.document(
                         new ByteArrayInputStream(obj.getXmldata().getBytes("UTF-8")), true);
                 Node metadataImport = recordTpl.importNode(metadataXml.getDocumentElement(), true);
@@ -121,7 +117,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
             Node record = recordTpl.getElementsByTagName("record").item(0);
             Node metadata = recordTpl.getElementsByTagName("metadata").item(0);
 
-            if (obj.isRecordStatus() == false) {
+            if (!obj.isRecordStatus()) {
                 Document metadataXml = DocumentXmlUtils.document(
                         new ByteArrayInputStream(obj.getXmldata().getBytes("UTF-8")), true);
                 Node metadataImport = recordTpl.importNode(metadataXml.getDocumentElement(), true);
