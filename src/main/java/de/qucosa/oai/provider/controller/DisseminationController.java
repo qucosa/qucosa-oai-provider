@@ -41,7 +41,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 @RequestMapping("/disseminations")
 @RestController
@@ -61,10 +63,10 @@ public class DisseminationController {
     @ResponseBody
     public ResponseEntity find(@RequestParam(value = "uid", required = false) String uid,
                                @RequestParam(value = "formatId", required = false) Long formatId) {
-        Collection<Dissemination> disseminations = null;
+        Collection<Dissemination> disseminations = new ArrayList<>();
 
         if (uid == null && formatId == null) {
-            return new ErrorDetails(this.getClass().getName(), "find", "GET:disseminations" + uid,
+            return new ErrorDetails(this.getClass().getName(), "find", "GET:disseminations",
                     HttpStatus.BAD_REQUEST, "Parameter uid or formatId failed.", null).response();
         }
 

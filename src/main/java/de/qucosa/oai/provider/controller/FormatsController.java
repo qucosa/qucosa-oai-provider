@@ -77,13 +77,17 @@ public class FormatsController {
                                @RequestParam(value = "formatId", required = false) Long formatId) {
 
         if (mdprefix == null && formatId == null) {
-            return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
-                    HttpStatus.BAD_REQUEST, "You must set mdprefix or formatId request paramter.", null).response();
+            return new ErrorDetails(this.getClass().getName(), "find",
+                    "GET:formats/format",
+                    HttpStatus.BAD_REQUEST, "You must set mdprefix or formatId request paramter.",
+                    null).response();
         }
 
         if (mdprefix != null && formatId != null) {
-            return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
-                    HttpStatus.BAD_REQUEST, "Setting from mdprefix and formatid is not allowed.", null).response();
+            return new ErrorDetails(this.getClass().getName(), "find",
+                    "GET:formats/format?formatId=" + formatId + "&mdprefix=" + mdprefix,
+                    HttpStatus.BAD_REQUEST, "Setting from mdprefix and formatid is not allowed.",
+                    null).response();
         }
 
         Collection<Format> formats;

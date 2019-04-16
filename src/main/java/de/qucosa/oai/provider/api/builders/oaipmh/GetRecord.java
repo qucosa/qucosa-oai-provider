@@ -29,6 +29,7 @@ import org.w3c.dom.Node;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+import java.util.Objects;
 
 public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBuilder {
     // qucosa:30859
@@ -64,7 +65,7 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
         Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
 
         try {
-            buildRecord(verbNode, record);
+            buildRecord(verbNode, Objects.requireNonNull(record != null ? record : null));
         } catch (UnsupportedEncodingException e) {
 
         }
