@@ -239,13 +239,44 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Dissemination findLastRowsByProperty(String property, int limit) {
+    public Collection<Dissemination> findLastRowsByProperty(String property, int limit) throws NotFound {
         return null;
     }
 
     @Override
-    public Dissemination findFirstRowsByProperty(String property, int limit) {
-        return null;
+    public Collection<Dissemination> findFirstRowsByProperty(String property, int limit) throws NotFound {
+        Collection<Dissemination> disseminations = new ArrayList<>();
+        String sql = "SELECT * FROM disseminations order by " + property + " ASC";
+
+        if (limit > 0) {
+            sql += " limit " + limit;
+        }
+
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                Dissemination dissemination = new Dissemination();
+                dissemination.setDissId(resultSet.getLong("id"));
+                dissemination.setFormatId(resultSet.getLong("id_format"));
+                dissemination.setRecordId(resultSet.getString("id_record"));
+                dissemination.setDeleted(resultSet.getBoolean("deleted"));
+                dissemination.setLastmoddate(resultSet.getTimestamp("lastmoddate"));
+                dissemination.setXmldata(resultSet.getString("xmldata"));
+                disseminations.add(dissemination);
+            }
+
+            resultSet.close();
+
+            if (disseminations.isEmpty()) {
+                throw new NotFound("Not fownd data rows.");
+            }
+        } catch (SQLException e) {
+            throw new NotFound("SQL-ERROR: Not fownd data rows.", e);
+        }
+
+        return disseminations;
     }
 
     @Override
