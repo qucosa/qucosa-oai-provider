@@ -153,6 +153,16 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     }
 
     @Override
+    public OaiPmhList findLastRowsByProperty(String property, boolean limit) {
+        return null;
+    }
+
+    @Override
+    public OaiPmhList findFirstRowsByProperty(String property, boolean limit) {
+        return null;
+    }
+
+    @Override
     public void delete() throws DeleteFailed {
 
     }

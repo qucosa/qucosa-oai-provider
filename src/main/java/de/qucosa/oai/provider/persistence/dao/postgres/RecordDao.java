@@ -197,6 +197,16 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
+    public Record findLastRowsByProperty(String property, boolean limit) {
+        return null;
+    }
+
+    @Override
+    public Record findFirstRowsByProperty(String property, boolean limit) {
+        return null;
+    }
+
+    @Override
     public void delete() {
 
     }

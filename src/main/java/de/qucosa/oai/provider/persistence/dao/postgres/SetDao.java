@@ -254,6 +254,16 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
+    public Set findLastRowsByProperty(String property, boolean limit) {
+        return null;
+    }
+
+    @Override
+    public Set findFirstRowsByProperty(String property, boolean limit) {
+        return null;
+    }
+
+    @Override
     public void delete() {
 
     }

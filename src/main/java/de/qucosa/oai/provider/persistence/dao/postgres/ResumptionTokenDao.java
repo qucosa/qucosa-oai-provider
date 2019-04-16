@@ -146,6 +146,16 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
+    public ResumptionToken findLastRowsByProperty(String property, boolean limit) {
+        return null;
+    }
+
+    @Override
+    public ResumptionToken findFirstRowsByProperty(String property, boolean limit) {
+        return null;
+    }
+
+    @Override
     public void delete() throws DeleteFailed {
         String sql = "DELETE FROM resumption_tokens where expiration_date < NOW() - INTERVAL '" + expiriesHours + " " + expiriesHoursUnit + "'";
 

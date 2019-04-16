@@ -155,6 +155,16 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
+    public SetsToRecord findLastRowsByProperty(String property, boolean limit) {
+        return null;
+    }
+
+    @Override
+    public SetsToRecord findFirstRowsByProperty(String property, boolean limit) {
+        return null;
+    }
+
+    @Override
     public void delete() {
 
     }
