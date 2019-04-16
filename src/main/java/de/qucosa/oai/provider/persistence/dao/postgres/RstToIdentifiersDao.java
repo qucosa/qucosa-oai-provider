@@ -123,12 +123,12 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
     }
 
     @Override
-    public RstToIdentifiers findLastRowsByProperty(String property, int limit) {
+    public Collection<RstToIdentifiers> findLastRowsByProperty(String property, int limit) {
         return null;
     }
 
     @Override
-    public RstToIdentifiers findFirstRowsByProperty(String property, int limit) {
+    public Collection<RstToIdentifiers> findFirstRowsByProperty(String property, int limit) {
         return null;
     }
 

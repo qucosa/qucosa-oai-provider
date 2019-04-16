@@ -43,9 +43,9 @@ public interface Dao<T extends HasIdentifier> {
 
     Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound;
 
-    T findLastRowsByProperty(String property, int limit);
+    Collection<T> findLastRowsByProperty(String property, int limit) throws NotFound;
 
-    T findFirstRowsByProperty(String property, int limit);
+    Collection<T> findFirstRowsByProperty(String property, int limit) throws NotFound;
 
     void delete() throws DeleteFailed;
 

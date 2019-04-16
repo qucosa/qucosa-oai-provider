@@ -254,12 +254,12 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public Set findLastRowsByProperty(String property, int limit) {
+    public Collection<Set> findLastRowsByProperty(String property, int limit) {
         return null;
     }
 
     @Override
-    public Set findFirstRowsByProperty(String property, int limit) {
+    public Collection<Set> findFirstRowsByProperty(String property, int limit) {
         return null;
     }
 

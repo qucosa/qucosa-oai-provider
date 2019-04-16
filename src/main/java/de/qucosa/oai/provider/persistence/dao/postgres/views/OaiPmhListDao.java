@@ -153,12 +153,12 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     }
 
     @Override
-    public OaiPmhList findLastRowsByProperty(String property, int limit) {
+    public Collection<OaiPmhList> findLastRowsByProperty(String property, int limit) {
         return null;
     }
 
     @Override
-    public OaiPmhList findFirstRowsByProperty(String property, int limit) {
+    public Collection<OaiPmhList> findFirstRowsByProperty(String property, int limit) {
         return null;
     }
 

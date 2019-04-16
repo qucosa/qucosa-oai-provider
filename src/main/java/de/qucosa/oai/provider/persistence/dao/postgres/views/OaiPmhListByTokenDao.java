@@ -152,12 +152,12 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
     }
 
     @Override
-    public OaiPmhListByToken findLastRowsByProperty(String property, int limit) {
+    public Collection<OaiPmhListByToken> findLastRowsByProperty(String property, int limit) {
         return null;
     }
 
     @Override
-    public OaiPmhListByToken findFirstRowsByProperty(String property, int limit) {
+    public Collection<OaiPmhListByToken> findFirstRowsByProperty(String property, int limit) {
         return null;
     }
 

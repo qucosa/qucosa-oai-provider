@@ -269,12 +269,12 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public Format findLastRowsByProperty(String property, int limit) {
+    public Collection<Format> findLastRowsByProperty(String property, int limit) {
         return null;
     }
 
     @Override
-    public Format findFirstRowsByProperty(String property, int limit) {
+    public Collection<Format> findFirstRowsByProperty(String property, int limit) {
         return null;
     }
 
