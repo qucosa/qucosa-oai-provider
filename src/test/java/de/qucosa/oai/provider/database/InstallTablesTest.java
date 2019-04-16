@@ -72,7 +72,7 @@ public class InstallTablesTest {
         resultSet.close();
 
         assertThat(tables).isNotEmpty();
-        assertThat(tables.size()).isEqualTo(9);
+        assertThat(tables.size()).isEqualTo(10);
 
         for (String tableName : tables) {
 
@@ -98,8 +98,11 @@ public class InstallTablesTest {
                 case "sets_to_records":
                     assertThat(tableName).isEqualTo("sets_to_records");
                     break;
-                case "oai_pmh_lists":
-                    assertThat(tableName).isEqualTo("oai_pmh_lists");
+                case "oai_pmh_list":
+                    assertThat(tableName).isEqualTo("oai_pmh_list");
+                    break;
+                case "oai_pmh_list_by_token":
+                    assertThat(tableName).isEqualTo("oai_pmh_list_by_token");
                     break;
             }
         }
@@ -169,10 +172,19 @@ public class InstallTablesTest {
     }
 
     @Test
-    @DisplayName("Returns view oai_pmh_lists selected data rows.")
+    @DisplayName("Returns view oai_pmh_list selected data rows.")
     @Order(9)
     public void hasOamiPmhListsDatarows() throws SQLException {
-        ResultSet resultSet = dataRows("oai_pmh_lists");
+        ResultSet resultSet = dataRows("oai_pmh_list");
+        assertThat(resultSet.next()).isTrue();
+        resultSet.close();
+    }
+
+    @Test
+    @DisplayName("Returns view oai_pmh_list_by_token selected data rows.")
+    @Order(10)
+    public void hasOamiPmhListByTokenDatarows() throws SQLException {
+        ResultSet resultSet = dataRows("oai_pmh_list_by_token");
         assertThat(resultSet.next()).isTrue();
         resultSet.close();
     }
