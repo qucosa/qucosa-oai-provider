@@ -204,7 +204,15 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
         String sql = "SELECT rc.id, rc.pid, rc.uid, rc.deleted, diss.lastmoddate FROM records rc" +
                 " LEFT JOIN disseminations diss ON diss.id_record = rc.uid" +
-                " WHERE diss.id_format = ? AND diss.lastmoddate " + clause + " ORDER BY lastmoddate asc";
+                " WHERE diss.id_format = ? AND lastmoddate";
+
+        if (clause.isEmpty()) {
+            sql += " BETWEEN ? AND (?::date + '24 hours'::interval)";
+        } else {
+            sql += " " + clause;
+        }
+
+        sql += " ORDER BY lastmoddate ASC";
 
         try {
             PreparedStatement pst = connection.prepareStatement(sql);
@@ -214,7 +222,6 @@ public class RecordDao<T extends Record> implements Dao<Record> {
                 pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
                 pst.setTimestamp(3, DateTimeConverter.timestampWithTimezone(values[2]));
             } else if (values.length == 2) {
-                sql += " between ? AND NOW()";
                 pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
             }
 
