@@ -15,6 +15,7 @@
  */
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
+import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
@@ -24,6 +25,7 @@ import de.qucosa.oai.provider.persistence.model.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -193,7 +195,52 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
     @Override
     public Collection<Record> findRowsByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+
+        if (values.length == 0 || values.length > 3) {
+            throw new NotFound("The values parameter may only has one to three values.");
+        }
+
+        Collection<Record> records = new ArrayList<>();
+
+        String sql = "SELECT rc.id, rc.pid, rc.uid, rc.deleted, diss.lastmoddate FROM records rc" +
+                " LEFT JOIN disseminations diss ON diss.id_record = rc.uid" +
+                " WHERE diss.id_format = ? AND diss.lastmoddate " + clause + " ORDER BY lastmoddate asc";
+
+        try {
+            PreparedStatement pst = connection.prepareStatement(sql);
+            pst.setLong(1, Long.valueOf(values[0]));
+
+            if (values.length == 3) {
+                pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
+                pst.setTimestamp(3, DateTimeConverter.timestampWithTimezone(values[2]));
+            } else if (values.length == 2) {
+                sql += " between ? AND NOW()";
+                pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
+            }
+
+            ResultSet resultSet = pst.executeQuery();
+
+            while (resultSet.next()) {
+                Record record = new Record();
+                record.setUid(resultSet.getString("uid"));
+                record.setPid(resultSet.getString("pid"));
+                record.setRecordId(resultSet.getLong("id"));
+                record.setDeleted(resultSet.getBoolean("deleted"));
+                records.add(record);
+            }
+
+            resultSet.close();
+
+            if (records.isEmpty()) {
+                throw new NotFound("SQL ERROR: Canot found records.");
+            }
+        } catch (SQLException e) {
+            throw new NotFound("SQL ERROR: Canot found records.", e);
+        } catch (DatatypeConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        return records;
     }
 
     @Override
