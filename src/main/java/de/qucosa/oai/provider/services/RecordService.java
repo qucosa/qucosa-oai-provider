@@ -62,6 +62,10 @@ public class RecordService {
         return dao.findAll();
     }
 
+    public Collection<Record> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        return dao.findRowsByMultipleValues(clause, values);
+    }
+
     public boolean checkIfOaiDcDisseminationExists(List<RecordTransport> input) {
         boolean exists = false;
 
