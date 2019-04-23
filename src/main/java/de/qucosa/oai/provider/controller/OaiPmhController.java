@@ -116,16 +116,15 @@ public class OaiPmhController {
 
     @SuppressWarnings("ConstantConditions")
     @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}",
-            "{verb}/{metadataPrefix}/{identifier}",
             "{verb}/{metadataPrefix}/{from}",
             "{verb}/{metadataPrefix}/{from}/{until}"},
             produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     public ResponseEntity findAll(@PathVariable String verb,
                                   @PathVariable(value = "metadataPrefix", required = false) String metadataPrefix,
-                                  @PathVariable(value = "identifier", required = false) String identifier,
                                   @PathVariable(value = "from", required = false) String from,
                                   @PathVariable(value = "until", required = false) String until,
+                                  @RequestParam(value = "identifier", required = false) String identifier,
                                   @RequestParam(value = "resumptionToken", required = false) String resumptionToken) throws IOException {
 
         if (!verbs.contains(verb)) {
@@ -134,21 +133,50 @@ public class OaiPmhController {
                     .response();
         }
 
+
         ResumptionToken resumptionTokenObj;
 
         OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory = new OaiPmhDataBuilderFactory(
                 DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/oai_pmh.xml"), false)
         ).setVerb(verb).setMdprefix(metadataPrefix).setRecordsProPage(recordsProPage);
 
-        if (identifier != null) {
-            oaiPmhDataBuilderFactory.setIdentifier(identifier);
-        }
-
         if (verb.equals("ListIdentifiers") || verb.equals("ListRecords")) {
-            oaiPmhDataBuilderFactory.setRecords(restTemplate.exchange(appUrl + ":" + serverPort + "/records",
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<Collection<Record>>(){}).getBody());
+
+            if (resumptionToken == null || resumptionToken.isEmpty()) {
+                format = restTemplate.getForObject(
+                        UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
+                                .queryParam("mdprefix", metadataPrefix)
+                                .toUriString(),
+                        Format.class);
+            }
+
+            if (metadataPrefix != null && from != null && until != null) {
+                oaiPmhDataBuilderFactory.setRecords(restTemplate.exchange(
+                        UriComponentsBuilder
+                                .fromUriString(appUrl + ":" + serverPort + "/records")
+                                .queryParam("metadataPrefix", format.getFormatId())
+                                .queryParam("from", from)
+                                .queryParam("until", until)
+                            .toUriString(),
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<Collection<Record>>(){}).getBody());
+            } else if (metadataPrefix != null && from != null && until == null) {
+                oaiPmhDataBuilderFactory.setRecords(restTemplate.exchange(
+                        UriComponentsBuilder
+                                .fromUriString(appUrl + ":" + serverPort + "/records")
+                                .queryParam("metadataPrefix", format.getFormatId())
+                                .queryParam("from", from)
+                                .toUriString(),
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<Collection<Record>>(){}).getBody());
+            } else {
+                oaiPmhDataBuilderFactory.setRecords(restTemplate.exchange(appUrl + ":" + serverPort + "/records",
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<Collection<Record>>(){}).getBody());
+            }
 
             oaiPmhDataBuilderFactory.setSets(
                     restTemplate.exchange(appUrl + ":" + serverPort + "/sets",
@@ -164,14 +192,6 @@ public class OaiPmhController {
 
             if (oaiPmhDataBuilderFactory.getRecords().size() > recordsProPage) {
                 try {
-                    if (resumptionToken == null || resumptionToken.isEmpty()) {
-                        format = restTemplate.getForObject(
-                                UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
-                                        .queryParam("mdprefix", metadataPrefix)
-                                        .toUriString(),
-                                Format.class);
-                    }
-
                     resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
                             ? saveResumptionTokenAndPidsPersistent(createResumptionToken(), oaiPmhDataBuilderFactory.getRecords())
                             : resumptionTokenService.findById(resumptionToken);
@@ -209,16 +229,30 @@ public class OaiPmhController {
                 }
             } else {
                 try {
-                    format = restTemplate.getForObject(
-                            UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
-                                    .queryParam("mdprefix", metadataPrefix)
-                                    .toUriString(),
-                            Format.class);
+
+                    if (format == null) {
+                        format = restTemplate.getForObject(
+                                UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
+                                        .queryParam("mdprefix", metadataPrefix)
+                                        .toUriString(),
+                                Format.class);
+                    }
 
                     oaiPmhDataBuilderFactory.setFormat(format);
-                    oaiPmhDataBuilderFactory.setOaiPmhList(
-                            oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
-                    );
+
+                    if (metadataPrefix != null && from != null && until != null) {
+                        oaiPmhDataBuilderFactory.setOaiPmhList(
+                                oaiPmhListService.findByMultipleValues("", String.valueOf(format.getFormatId()), from, until)
+                        );
+                    } else if (metadataPrefix != null && from != null && until == null) {
+                        oaiPmhDataBuilderFactory.setOaiPmhList(
+                                oaiPmhListService.findByMultipleValues("BETWEEN ? AND NOW()", String.valueOf(format.getFormatId()), from)
+                        );
+                    } else {
+                        oaiPmhDataBuilderFactory.setOaiPmhList(
+                                oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
+                        );
+                    }
                 } catch (NotFound notFound) {
                     return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
                             HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
@@ -244,6 +278,11 @@ public class OaiPmhController {
         }
 
         if (verb.equals("GetRecord")) {
+
+            if (identifier != null) {
+                oaiPmhDataBuilderFactory.setIdentifier(identifier);
+            }
+
             try {
                 format = restTemplate.getForObject(
                         UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
