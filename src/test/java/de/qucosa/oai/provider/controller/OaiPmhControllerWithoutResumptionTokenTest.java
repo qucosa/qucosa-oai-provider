@@ -56,7 +56,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {QucosaOaiProviderApplication.class, OaiPmhTestApplicationConfig.class}, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@TestPropertySource(locations = "classpath:application-test.properties", properties = {"records.pro.page=100"})
+@TestPropertySource(locations = "classpath:application-test.properties", properties = {"records.pro.page=10"})
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class OaiPmhControllerWithoutResumptionTokenTest {
@@ -102,6 +102,28 @@ public class OaiPmhControllerWithoutResumptionTokenTest {
         Node listIdentifiers = document.getElementsByTagName("ListIdentifiers").item(0);
 
         assertThat(listIdentifiers.getNodeName()).isEqualTo("ListIdentifiers");
+    }
+
+    @Test
+    @DisplayName("Load xml data with date from parameter.")
+    public void listFromToNow() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/oai/ListIdentifiers/oai_dc/2019-01-23")
+                        .accept(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String content = mvcResult.getResponse().getContentAsString();
+        assertThat(content).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("Load xml data with date from parameter.")
+    public void listFromToUntil() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/oai/ListIdentifiers/oai_dc/2019-01-23/2019-01-31")
+                        .accept(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String content = mvcResult.getResponse().getContentAsString();
+        assertThat(content).isNotEmpty();
     }
 
     @Test
