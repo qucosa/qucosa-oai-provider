@@ -36,4 +36,8 @@ public class OaiPmhListService {
     public Collection<OaiPmhList> findByPropertyAndValue(String property, String value) throws NotFound {
         return dao.findByPropertyAndValue(property, value);
     }
+
+    public Collection<OaiPmhList> findByMultipleValues(String clause, String... values) throws NotFound {
+        return dao.findRowsByMultipleValues(clause, values);
+    }
 }
