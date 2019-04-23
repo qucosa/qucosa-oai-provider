@@ -21,6 +21,7 @@ package de.qucosa.oai.provider.persistence.dao.postgres.views;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
@@ -31,6 +32,7 @@ import de.qucosa.oai.provider.persistence.model.views.OaiPmhList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -125,8 +127,9 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
                 if (resultSet.getString("set") != null) {
                     res.setSets(om.readValue(resultSet.getString("set"),
                             om.getTypeFactory().constructCollectionType(Collection.class, Set.class)));
-                    oaiPmhList.add(res);
                 }
+
+                oaiPmhList.add(res);
             }
 
             resultSet.close();
@@ -135,7 +138,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
                 throw new NotFound("Not found data in view oai_pmh_list.");
             }
         } catch (SQLException | JsonParseException | JsonMappingException e) {
-            throw new NotFound("SQL-ERROR: Not found data in view oai_pmh_list.", e);
+            throw new NotFound("DATA-TYPE-ERROR: Not found data in view oai_pmh_list.", e);
         } catch (IOException ignored) {
         }
 
@@ -149,7 +152,63 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
 
     @Override
     public Collection<OaiPmhList> findRowsByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+        Collection<OaiPmhList> oaiPmhList = new ArrayList<>();
+        String sql = "SELECT * FROM oai_pmh_list WHERE format_id = ?";
+
+        if (clause.isEmpty()) {
+            sql += " AND lastmoddate BETWEEN ? AND (?::date + '24 hours'::interval)";
+        } else {
+            sql += " AND " + clause;
+        }
+
+        sql += " ORDER BY lastmoddate ASC";
+
+        try {
+            PreparedStatement pst = connection.prepareStatement(sql);
+            pst.setLong(1, Long.valueOf(values[0]));
+
+            if (values.length == 3) {
+                pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
+                pst.setTimestamp(3, DateTimeConverter.timestampWithTimezone(values[2]));
+            } else if (values.length == 2) {
+                pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
+            }
+
+            ResultSet resultSet = pst.executeQuery();
+
+            while (resultSet.next()) {
+                OaiPmhList res = new OaiPmhList();
+                res.setRecordId(resultSet.getLong("record_id"));
+                res.setPid(resultSet.getString("pid"));
+                res.setUid(resultSet.getString("uid"));
+                res.setFormat(resultSet.getLong("format_id"));
+                res.setMdprefix(resultSet.getString("mdprefix"));
+                res.setLastModDate(resultSet.getTimestamp("lastmoddate"));
+                res.setXmldata(resultSet.getString("xmldata"));
+                res.setRecordStatus(resultSet.getBoolean("record_status"));
+                res.setDissStatus(resultSet.getBoolean("diss_status"));
+
+                if (resultSet.getString("set") != null) {
+                    res.setSets(om.readValue(resultSet.getString("set"),
+                            om.getTypeFactory().constructCollectionType(Collection.class, Set.class)));
+                }
+
+                oaiPmhList.add(res);
+            }
+
+            resultSet.close();
+
+            if (oaiPmhList.isEmpty()) {
+                throw new NotFound("Not found data in view oai_pmh_list.");
+            }
+        } catch (SQLException | IOException e) {
+            throw new NotFound("SQL-ERROR: Not found data in view oai_pmh_list.", e);
+        } catch (DatatypeConfigurationException e) {
+            throw new NotFound("DATA-TYPE-ERROR: Not found data in view oai_pmh_list.", e);
+        }
+
+
+        return oaiPmhList;
     }
 
     @Override
