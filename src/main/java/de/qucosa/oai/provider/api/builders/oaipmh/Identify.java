@@ -24,12 +24,13 @@ import de.qucosa.oai.provider.persistence.model.Dissemination;
 import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import java.util.Collection;
 
 public class Identify extends OaiPmhDataBuilderAbstract implements OaiPmhDataBuilder {
-    private final static String PREFIX = "oai.pmh.identify";
+    private final static String PREFIX_IDENTIFY = "oai.pmh.identify";
 
     private Environment environment;
 
@@ -40,6 +41,9 @@ public class Identify extends OaiPmhDataBuilderAbstract implements OaiPmhDataBui
         String request = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toString();
         String uri = request.substring(0, (request.indexOf(verb) - 1));
         Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
+        ((Element) verbNode).setAttribute("xmlns", environment.getProperty(PREFIX_IDENTIFY + ".xmlns"));
+        ((Element) verbNode).setAttribute("xmlns:xsi", environment.getProperty(PREFIX_IDENTIFY + ".xmlns.xsi"));
+
         buildIdentifyXml(verbNode, uri);
         return oaiPmhTpl;
     }
@@ -57,28 +61,44 @@ public class Identify extends OaiPmhDataBuilderAbstract implements OaiPmhDataBui
                 getClass().getResourceAsStream("/templates/identify.xml"), true);
 
         Node repositoryName = identifyTpl.getElementsByTagName("repositoryName").item(0);
-        repositoryName.setTextContent(environment.getProperty(PREFIX + ".repositoryName"));
+        repositoryName.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".repositoryName"));
 
         Node protocolVersion = identifyTpl.getElementsByTagName("protocolVersion").item(0);
-        protocolVersion.setTextContent(environment.getProperty(PREFIX + ".protocolVersion"));
+        protocolVersion.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".protocolVersion"));
 
         Node baseURL = identifyTpl.getElementsByTagName("baseURL").item(0);
         baseURL.setTextContent(uri);
 
         Node granularity = identifyTpl.getElementsByTagName("granularity").item(0);
-        granularity.setTextContent(environment.getProperty(PREFIX + ".granularity"));
+        granularity.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".granularity"));
 
         Node adminEmail = identifyTpl.getElementsByTagName("adminEmail").item(0);
-        adminEmail.setTextContent(environment.getProperty(PREFIX + ".adminEmail"));
+        adminEmail.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".adminEmail"));
 
         Node deletedRecord = identifyTpl.getElementsByTagName("deletedRecord").item(0);
-        deletedRecord.setTextContent(environment.getProperty(PREFIX + ".deletedRecord"));
+        deletedRecord.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".deletedRecord"));
 
         Node compression = identifyTpl.getElementsByTagName("compression").item(0);
-        compression.setTextContent(environment.getProperty(PREFIX + ".compression"));
+        compression.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".compression"));
 
         Node earliestDatestamp = identifyTpl.getElementsByTagName("earliestDatestamp").item(0);
         earliestDatestamp.setTextContent(DateTimeConverter.sqlTimestampToString(disseminations.iterator().next().getLastmoddate()));
+
+        Element oaiIdentifier = (Element) identifyTpl.getElementsByTagName("oai-identifier").item(0);
+        oaiIdentifier.setAttribute("xmlns", environment.getProperty(PREFIX_IDENTIFY + ".identifier.xmlns"));
+        oaiIdentifier.setAttribute("xsi:schemaLocation", environment.getProperty(PREFIX_IDENTIFY + ".identifier.xmlns.xsi"));
+
+        Node schemeNode = identifyTpl.getElementsByTagName("scheme").item(0);
+        schemeNode.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".identifier.scheme"));
+
+        Node repositoryIdentifier = identifyTpl.getElementsByTagName("repositoryIdentifier").item(0);
+        repositoryIdentifier.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".identifier.repositoryIdentifier"));
+
+        Node delimiter = identifyTpl.getElementsByTagName("delimiter").item(0);
+        delimiter.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".identifier.delimiter"));
+
+        Node sampleIdentifier = identifyTpl.getElementsByTagName("sampleIdentifier").item(0);
+        sampleIdentifier.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".identifier.sampleIdentifier"));
 
         Node importedTpl = oaiPmhTpl.importNode(identifyTpl.getDocumentElement(), true);
 
