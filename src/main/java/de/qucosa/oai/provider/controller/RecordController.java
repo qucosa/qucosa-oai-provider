@@ -203,7 +203,7 @@ public class RecordController {
             }
 
             if (metadataPrefix != null && from != null && until != null) {
-                records = recordService.findRowsByMultipleValues("between ? AND ?", metadataPrefix, from, until);
+                records = recordService.findRowsByMultipleValues("", metadataPrefix, from, until);
             }
 
             if (metadataPrefix != null && from != null && until == null) {
