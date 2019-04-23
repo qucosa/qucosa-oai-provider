@@ -40,6 +40,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import testdata.TestData;
 
+import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -90,8 +91,44 @@ public class RecordControllerTest {
     }
 
     @Test
-    @DisplayName("Find record by uid.")
+    @DisplayName("Find all records from to now lastmoddate.")
     @Order(2)
+    public void findAllFrom() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/records?metadataPrefix=17&from=2019-01-23")
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Collection<Record> records = om.readValue(response,
+                om.getTypeFactory().constructCollectionType(Collection.class, Record.class));
+
+        assertThat(records.size()).isGreaterThan(0);
+    }
+
+    @Test
+    @DisplayName("Find all records from to until lastmoddate.")
+    @Order(3)
+    public void findAllFromUntil() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/records?metadataPrefix=17&from=2019-01-23&until=2019-01-31")
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Collection<Record> records = om.readValue(response,
+                om.getTypeFactory().constructCollectionType(Collection.class, Record.class));
+
+        assertThat(records.size()).isGreaterThan(0);
+    }
+
+    @Test
+    @DisplayName("Find record by uid.")
+    @Order(4)
     public void find() throws Exception {
         MvcResult mvcResult = mvc.perform(
                 get("/records/qucosa:32394")
@@ -109,7 +146,7 @@ public class RecordControllerTest {
 
     @Test
     @DisplayName("Not record by uid found.")
-    @Order(3)
+    @Order(5)
     public void notFound() throws Exception {
         mvc.perform(
                 get("/records/qucosa:00000")
@@ -121,7 +158,7 @@ public class RecordControllerTest {
 
     @Test
     @DisplayName("Update record by deleted property for mark / undo mark as deleted.")
-    @Order(4)
+    @Order(6)
     public void update() throws Exception {
         Record record = recordService.findRecord("uid", "qucosa:32394").iterator().next();
         record.setDeleted(true);
@@ -142,7 +179,7 @@ public class RecordControllerTest {
 
     @Test
     @DisplayName("Update record is not successful because record does not exists.")
-    @Order(5)
+    @Order(7)
     public void updateFailed_1() throws Exception {
         Record record = new Record();
         record.setUid("qucosa:00000");
@@ -157,7 +194,7 @@ public class RecordControllerTest {
 
     @Test
     @DisplayName("Update record is not successful because uid parameter and object uid are unequal.")
-    @Order(6)
+    @Order(8)
     public void updateFailed_2() throws Exception {
         Record record = new Record();
         record.setUid("qucosa:00000");
@@ -172,7 +209,7 @@ public class RecordControllerTest {
 
     @Test
     @DisplayName("Delete record from table.")
-    @Order(7)
+    @Order(9)
     public void isDeleted() throws Exception {
         MvcResult mvcResult = mvc.perform(
                 delete("/records/qucosa:32394")
@@ -185,7 +222,7 @@ public class RecordControllerTest {
 
     @Test
     @DisplayName("Delete record is not successful because uid parameter is does not exists in racords table.")
-    @Order(8)
+    @Order(10)
     public void isNotDeleted() throws Exception {
         mvc.perform(
                 delete("/records/qucosa:00000")
@@ -198,7 +235,7 @@ public class RecordControllerTest {
 
     @Test
     @DisplayName("Save record trabsport input from camel service.")
-    @Order(9)
+    @Order(11)
     public void saveRecordInput() throws Exception {
         mvc.perform(
                 post("/records")
