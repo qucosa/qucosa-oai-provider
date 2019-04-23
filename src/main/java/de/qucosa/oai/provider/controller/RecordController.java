@@ -42,10 +42,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -187,14 +189,39 @@ public class RecordController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity findAll() {
-        Collection<Record> records;
+    public ResponseEntity findAll(@RequestParam(value = "metadataPrefix", required = false) String metadataPrefix,
+                                  @RequestParam(value = "from", required = false) String from,
+                                  @RequestParam(value = "until", required = false) String until) {
+        Collection<Record> records = new ArrayList<>();
 
         try {
-            records = recordService.findAll();
+
+            if (from != null && metadataPrefix == null) {
+                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll}",
+                        HttpStatus.NOT_FOUND, "The metadataPrefix parmater failed in from / until query.", null)
+                        .response();
+            }
+
+            if (metadataPrefix != null && from != null && until != null) {
+                records = recordService.findRowsByMultipleValues("between ? AND ?", metadataPrefix, from, until);
+            }
+
+            if (metadataPrefix != null && from != null && until == null) {
+                records = recordService.findRowsByMultipleValues("between ? AND NOW()", metadataPrefix, from);
+            }
+        } catch (NotFound notFound) {
+            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll}",
+                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound).response();
+        }
+
+        try {
+
+            if (records.isEmpty()) {
+                records = recordService.findAll();
+            }
         } catch (NotFound notFound) {
             return new ErrorDetails(this.getClass().getName(), "findAll", "GET:find}",
-                    HttpStatus.NOT_FOUND, null, notFound).response();
+                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound).response();
         }
 
         return new ResponseEntity<>(records, HttpStatus.OK);
@@ -202,7 +229,7 @@ public class RecordController {
 
     @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity find(@PathVariable String uid) {
+    public ResponseEntity find(@PathVariable(value = "uid", required = false) String uid) {
         Record record;
 
         try {
