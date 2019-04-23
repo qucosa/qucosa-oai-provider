@@ -97,7 +97,7 @@ public class DisseminationController {
     @GetMapping(value = "/earliest", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity findEarliest() {
-        Collection<Dissemination> disseminations = new ArrayList<>();
+        Collection<Dissemination> disseminations;
 
         try {
             disseminations = disseminationService.findFirstRowsByProperty("lastmoddate", 1);
