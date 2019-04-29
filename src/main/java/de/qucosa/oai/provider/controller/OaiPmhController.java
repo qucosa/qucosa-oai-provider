@@ -124,7 +124,7 @@ public class OaiPmhController {
                                   @PathVariable(value = "metadataPrefix", required = false) String metadataPrefix,
                                   @PathVariable(value = "from", required = false) String from,
                                   @PathVariable(value = "until", required = false) String until,
-                                  @RequestParam(value = "identifier", required = false) String identifier,
+                                  @RequestParam(value = "identyfier", required = false) String identyfier,
                                   @RequestParam(value = "resumptionToken", required = false) String resumptionToken) throws IOException {
 
         if (!verbs.contains(verb)) {
@@ -279,8 +279,8 @@ public class OaiPmhController {
 
         if (verb.equals("GetRecord")) {
 
-            if (identifier != null) {
-                oaiPmhDataBuilderFactory.setIdentifier(identifier);
+            if (identyfier != null) {
+                oaiPmhDataBuilderFactory.setIdentifier(identyfier);
             }
 
             try {
