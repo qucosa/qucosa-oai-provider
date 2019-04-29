@@ -26,7 +26,6 @@ import de.qucosa.oai.provider.controller.OaiPmhControllerListMetadataFormatsTest
 import de.qucosa.oai.provider.controller.OaiPmhControllerListRecordsTest;
 import de.qucosa.oai.provider.controller.OaiPmhControllerListSetsTest;
 import de.qucosa.oai.provider.controller.OaiPmhControllerWithResumptionTokenTest;
-import de.qucosa.oai.provider.controller.OaiPmhControllerWithoutResumptionTokenTest;
 import de.qucosa.oai.provider.controller.RecordControllerTest;
 import de.qucosa.oai.provider.controller.SetControllerTest;
 import de.qucosa.oai.provider.database.InstallTablesTest;
@@ -46,7 +45,6 @@ import org.junit.runner.RunWith;
         OaiPmhControllerListSetsTest.class,
         OaiPmhControllerListMetadataFormatsTest.class,
         OaiPmhControllerIdentifyTest.class,
-        OaiPmhControllerWithoutResumptionTokenTest.class,
         OaiPmhControllerWithResumptionTokenTest.class})
 public class TestSuite {
 
