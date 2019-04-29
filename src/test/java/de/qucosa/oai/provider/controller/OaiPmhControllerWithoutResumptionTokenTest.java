@@ -85,69 +85,6 @@ public class OaiPmhControllerWithoutResumptionTokenTest {
     }
 
     @Test
-    @DisplayName("Load xml by ListIdentifers verb.")
-    public void hasListIdentifiersNode() throws Exception {
-        MvcResult mvcResult = mvc.perform(
-                get("/oai/ListIdentifiers/oai_dc")
-                .accept(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE))
-                .andExpect(status().isOk()).andReturn();
-        String content = mvcResult.getResponse().getContentAsString();
-        assertThat(content).isNotEmpty();
-
-        Document document = DocumentXmlUtils.document(
-                new ByteArrayInputStream(content.getBytes("UTF-8")), true);
-
-        assertThat(document).isNotNull();
-
-        Node listIdentifiers = document.getElementsByTagName("ListIdentifiers").item(0);
-
-        assertThat(listIdentifiers.getNodeName()).isEqualTo("ListIdentifiers");
-    }
-
-    @Test
-    @DisplayName("Load xml data with date from parameter.")
-    public void listFromToNow() throws Exception {
-        MvcResult mvcResult = mvc.perform(
-                get("/oai/ListIdentifiers/oai_dc/2019-01-23")
-                        .accept(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE))
-                .andExpect(status().isOk()).andReturn();
-        String content = mvcResult.getResponse().getContentAsString();
-        assertThat(content).isNotEmpty();
-    }
-
-    @Test
-    @DisplayName("Load xml data with date from parameter.")
-    public void listFromToUntil() throws Exception {
-        MvcResult mvcResult = mvc.perform(
-                get("/oai/ListIdentifiers/oai_dc/2019-01-23/2019-01-31")
-                        .accept(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE))
-                .andExpect(status().isOk()).andReturn();
-        String content = mvcResult.getResponse().getContentAsString();
-        assertThat(content).isNotEmpty();
-    }
-
-    @Test
-    @DisplayName("Load xml by ListRecords verb.")
-    public void hasListRecordsNode() throws Exception {
-        MvcResult mvcResult = mvc.perform(
-                get("/oai/ListRecords/oai_dc")
-                        .contentType(MediaType.APPLICATION_XML_VALUE))
-                .andExpect(status().isOk()).andReturn();
-        String content = mvcResult.getResponse().getContentAsString();
-
-        assertThat(content).isNotEmpty();
-
-        Document document = DocumentXmlUtils.document(
-                new ByteArrayInputStream(content.getBytes("UTF-8")), true);
-
-        assertThat(document).isNotNull();
-
-        Node listIdentifiers = document.getElementsByTagName("ListRecords").item(0);
-
-        assertThat(listIdentifiers.getNodeName()).isEqualTo("ListRecords");
-    }
-
-    @Test
     @DisplayName("Has a record the status deleted then must metadata removed from xml.")
     public void isRecordDeletedInList() throws Exception {
         MvcResult mvcResult = mvc.perform(
