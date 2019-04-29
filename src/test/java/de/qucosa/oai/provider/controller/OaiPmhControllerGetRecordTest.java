@@ -74,7 +74,7 @@ public class OaiPmhControllerGetRecordTest {
     @DisplayName("OAI_DC: Is xml record not null.")
     @Order(1)
     public void oaiDcXmlNotNull() throws Exception {
-        Document xmlRecord = getXmlRecord("oai_dc");
+        Document xmlRecord = getXmlRecord("oai_dc", "qucosa:30859");
         assertThat(xmlRecord).isNotNull();
     }
 
@@ -82,7 +82,7 @@ public class OaiPmhControllerGetRecordTest {
     @DisplayName("OAI_DC: Has xml document the GetRecord node.")
     @Order(2)
     public void oaiDcRecordNode() throws Exception {
-        Document xmlRecord = getXmlRecord("oai_dc");
+        Document xmlRecord = getXmlRecord("oai_dc", "qucosa:30859");
         Node node = (Node) xPath.compile("//GetRecord").evaluate(xmlRecord, XPathConstants.NODE);
         assertThat(node).isNotNull();
     }
@@ -91,7 +91,7 @@ public class OaiPmhControllerGetRecordTest {
     @DisplayName("XMetadDissPlus: Is xml record not null.")
     @Order(3)
     public void xmetaDissPlusXmlNotNull() throws Exception {
-        Document xmlRecord = getXmlRecord("xmetadissplus");
+        Document xmlRecord = getXmlRecord("xmetadissplus", "qucosa:30859");
         assertThat(xmlRecord).isNotNull();
     }
 
@@ -99,16 +99,36 @@ public class OaiPmhControllerGetRecordTest {
     @DisplayName("XMetadDissPlus: Has xml document the GetRecord node.")
     @Order(4)
     public void xmetaDissPlusRecordNode() throws Exception {
-        Document xmlRecord = getXmlRecord("xmetadissplus");
+        Document xmlRecord = getXmlRecord("xmetadissplus", "qucosa:30859");
         Node node = (Node) xPath.compile("//GetRecord").evaluate(xmlRecord, XPathConstants.NODE);
         assertThat(node).isNotNull();
     }
 
-    private Document getXmlRecord(String mdPrefix) throws Exception {
+    @Test
+    @DisplayName("OAI_DC: Has record not metadata if the status is deleted.")
+    @Order(5)
+    public void oaiDcHasNotMetatdata() throws Exception {
+        Document xmlRecord = getXmlRecord("oai_dc", "qucosa:32394");
+        Node node = (Node) xPath.compile("//GetRecord/record/metadata").evaluate(xmlRecord, XPathConstants.NODE);
+
+        assertThat(node.hasChildNodes()).isFalse();
+    }
+
+    @Test
+    @DisplayName("XMetaDissPlus: Has record not metadata if the status is deleted.")
+    @Order(6)
+    public void xmetaDissPlusHasNotMetatdata() throws Exception {
+        Document xmlRecord = getXmlRecord("xmetadissplus", "qucosa:32394");
+        Node node = (Node) xPath.compile("//GetRecord/record/metadata").evaluate(xmlRecord, XPathConstants.NODE);
+
+        assertThat(node.hasChildNodes()).isFalse();
+    }
+
+    private Document getXmlRecord(String mdPrefix, String identyfier) throws Exception {
         Document record = null;
 
         MvcResult mvcResult = mvc.perform(
-                get("/oai/GetRecord/" + mdPrefix + "?identyfier=qucosa:30859")
+                get("/oai/GetRecord/" + mdPrefix + "?identyfier=" + identyfier)
                         .contentType(MediaType.APPLICATION_XML_VALUE)).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
