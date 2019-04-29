@@ -148,24 +148,6 @@ public class OaiPmhControllerWithoutResumptionTokenTest {
     }
 
     @Test
-    @DisplayName("Load xml for a single record object.")
-    public void getRecord() throws Exception {
-        MvcResult mvcResult = mvc.perform(
-                get("/oai/GetRecord/oai_dc/qucosa:30859")
-                        .contentType(MediaType.APPLICATION_XML_VALUE))
-                .andExpect(status().isOk()).andReturn();
-        String response = mvcResult.getResponse().getContentAsString();
-        assertThat(response).isNotEmpty();
-
-        Document document = DocumentXmlUtils.document(
-                new ByteArrayInputStream(response.getBytes("UTF-8")), true);
-        assertThat(document).isNotNull();
-
-        Node getRecord = document.getElementsByTagName("GetRecord").item(0);
-        assertThat(getRecord.getNodeName()).isEqualTo("GetRecord");
-    }
-
-    @Test
     @DisplayName("Returns list of sets.")
     public void getListSets() throws Exception {
         MvcResult mvcResult = mvc.perform(
