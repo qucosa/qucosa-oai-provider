@@ -148,24 +148,6 @@ public class OaiPmhControllerWithoutResumptionTokenTest {
     }
 
     @Test
-    @DisplayName("Returns list of sets.")
-    public void getListSets() throws Exception {
-        MvcResult mvcResult = mvc.perform(
-                get("/oai/ListSets")
-                        .contentType(MediaType.APPLICATION_XML_VALUE))
-                .andExpect(status().isOk()).andReturn();
-        String response = mvcResult.getResponse().getContentAsString();
-        assertThat(response).isNotEmpty();
-
-        Document document = DocumentXmlUtils.document(
-                new ByteArrayInputStream(response.getBytes("UTF-8")), true);
-        assertThat(document).isNotNull();
-
-        Node listSets = document.getElementsByTagName("ListSets").item(0);
-        assertThat(listSets.getNodeName()).isEqualTo("ListSets");
-    }
-
-    @Test
     @DisplayName("Returns list of formats.")
     public void getListMetadataFormats() throws Exception {
         MvcResult mvcResult = mvc.perform(
