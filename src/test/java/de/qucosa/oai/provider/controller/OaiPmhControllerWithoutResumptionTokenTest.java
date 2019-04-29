@@ -148,17 +148,6 @@ public class OaiPmhControllerWithoutResumptionTokenTest {
     }
 
     @Test
-    @DisplayName("Return identify configuration xml.")
-    public void getIdentify() throws Exception {
-        MvcResult mvcResult = mvc.perform(
-                get("/oai/Identify")
-                        .accept(MediaType.APPLICATION_XML_VALUE))
-                .andExpect(status().isOk()).andReturn();
-        String response = mvcResult.getResponse().getContentAsString();
-        assertThat(response).isNotEmpty();
-    }
-
-    @Test
     @DisplayName("Has a record the status deleted then must metadata removed from xml.")
     public void isRecordDeletedInList() throws Exception {
         MvcResult mvcResult = mvc.perform(
