@@ -19,6 +19,12 @@
 package de.qucosa.oai.provider;
 
 import de.qucosa.oai.provider.controller.FormatControllerTest;
+import de.qucosa.oai.provider.controller.OaiPmhControllerGetRecordTest;
+import de.qucosa.oai.provider.controller.OaiPmhControllerIdentifyTest;
+import de.qucosa.oai.provider.controller.OaiPmhControllerListIdentifiersTest;
+import de.qucosa.oai.provider.controller.OaiPmhControllerListMetadataFormatsTest;
+import de.qucosa.oai.provider.controller.OaiPmhControllerListRecordsTest;
+import de.qucosa.oai.provider.controller.OaiPmhControllerListSetsTest;
 import de.qucosa.oai.provider.controller.OaiPmhControllerWithResumptionTokenTest;
 import de.qucosa.oai.provider.controller.OaiPmhControllerWithoutResumptionTokenTest;
 import de.qucosa.oai.provider.controller.RecordControllerTest;
@@ -33,7 +39,14 @@ import org.junit.runner.RunWith;
 @RunWith(JUnitPlatform.class)
 @DisplayName("Embedded postgres and spring controller test suite.")
 @SelectClasses({InstallTablesTest.class, FormatControllerTest.class, SetControllerTest.class,
-        RecordControllerTest.class, OaiPmhControllerWithoutResumptionTokenTest.class,
+        RecordControllerTest.class,
+        OaiPmhControllerListIdentifiersTest.class,
+        OaiPmhControllerListRecordsTest.class,
+        OaiPmhControllerGetRecordTest.class,
+        OaiPmhControllerListSetsTest.class,
+        OaiPmhControllerListMetadataFormatsTest.class,
+        OaiPmhControllerIdentifyTest.class,
+        OaiPmhControllerWithoutResumptionTokenTest.class,
         OaiPmhControllerWithResumptionTokenTest.class})
 public class TestSuite {
 
