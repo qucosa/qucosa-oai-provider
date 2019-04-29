@@ -59,14 +59,14 @@ public abstract class OaiPmhDataBuilderAbstract {
         this.recordsProPage = recordsProPage;
     }
 
-    protected Document addHeaderTpl(String uid, String lastmoddate, boolean recordStautus, Collection<Set> sets) {
+    protected Document addHeaderTpl(String uid, String lastmoddate, boolean recordStatus, Collection<Set> sets) {
         Document identifierTpl = DocumentXmlUtils.document(
                 getClass().getResourceAsStream("/templates/identifier.xml"), true);
         Node identifier = identifierTpl.getElementsByTagName("identifier").item(0);
         Node datestamp = identifierTpl.getElementsByTagName("datestamp").item(0);
         Node header = identifierTpl.getElementsByTagName("header").item(0);
 
-        if (recordStautus) {
+        if (recordStatus) {
             ((Element) header).setAttribute("status", "deleted");
         }
 
