@@ -52,7 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class OaiPmhControllerListMetadataFormatsTest {
-    private Logger logger = LoggerFactory.getLogger(OaiPmhControllerListSetsTest.class);
+    private Logger logger = LoggerFactory.getLogger(OaiPmhControllerListMetadataFormatsTest.class);
 
     @Autowired
     private MockMvc mvc;
