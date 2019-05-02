@@ -62,7 +62,7 @@ public class OaiPmhControllerListSetsTest {
     public void getListSets() throws Exception {
         MvcResult mvcResult = mvc.perform(
                 get("/oai/ListSets")
-                        .contentType(MediaType.APPLICATION_XML_VALUE))
+                        .accept(MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
         assertThat(response).isNotEmpty();
