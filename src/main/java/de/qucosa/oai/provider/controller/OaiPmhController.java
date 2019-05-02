@@ -279,26 +279,9 @@ public class OaiPmhController {
 
         if (verb.equals("GetRecord")) {
 
-            if (identyfier != null) {
-                oaiPmhDataBuilderFactory.setIdentifier(identyfier);
-            }
-
             try {
-                format = restTemplate.getForObject(
-                        UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
-                                .queryParam("mdprefix", metadataPrefix)
-                                .toUriString(),
-                        Format.class);
-
-                oaiPmhDataBuilderFactory.setFormat(format);
-                oaiPmhDataBuilderFactory.setOaiPmhList(
-                        oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
-                );
-            } catch (NotFound notFound) {
-                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                        HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                        .response();
-            }
+                return getRecord(metadataPrefix, identyfier, oaiPmhDataBuilderFactory);
+            } catch (Exception ignored) { }
         }
 
         if (verb.equals("Identify")) {
@@ -318,6 +301,36 @@ public class OaiPmhController {
         }
 
         return new ResponseEntity<>(output, HttpStatus.OK);
+    }
+
+    private ResponseEntity getRecord(String metadataPrefix, String identyfier, OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
+
+        if (identyfier == null) {
+            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                    HttpStatus.NOT_FOUND, "Identyfier parameter failed.", null)
+                    .response();
+        }
+
+        oaiPmhDataBuilderFactory.setIdentifier(identyfier);
+
+        try {
+            format = restTemplate.getForObject(
+                    UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
+                            .queryParam("mdprefix", metadataPrefix)
+                            .toUriString(),
+                    Format.class);
+
+            oaiPmhDataBuilderFactory.setFormat(format);
+            oaiPmhDataBuilderFactory.setOaiPmhList(
+                    oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
+            );
+        } catch (NotFound notFound) {
+            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
+                    .response();
+        }
+
+        return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
     private String createResumptionToken() throws NoSuchAlgorithmException, UnsupportedEncodingException {
