@@ -228,34 +228,9 @@ public class OaiPmhController {
                 }
             } else {
                 try {
-
-                    if (format == null) {
-                        format = restTemplate.getForObject(
-                                UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
-                                        .queryParam("mdprefix", metadataPrefix)
-                                        .toUriString(),
-                                Format.class);
-                    }
-
-                    oaiPmhDataBuilderFactory.setFormat(format);
-
-                    if (metadataPrefix != null && from != null && until != null) {
-                        oaiPmhDataBuilderFactory.setOaiPmhList(
-                                oaiPmhListService.findByMultipleValues("", String.valueOf(format.getFormatId()), from, until)
-                        );
-                    } else if (metadataPrefix != null && from != null && until == null) {
-                        oaiPmhDataBuilderFactory.setOaiPmhList(
-                                oaiPmhListService.findByMultipleValues("BETWEEN ? AND NOW()", String.valueOf(format.getFormatId()), from)
-                        );
-                    } else {
-                        oaiPmhDataBuilderFactory.setOaiPmhList(
-                                oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
-                        );
-                    }
-                } catch (NotFound notFound) {
-                    return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                            HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                            .response();
+                    return getOaiPmhList(oaiPmhDataBuilderFactory, metadataPrefix, from, until);
+                } catch (Exception e) {
+                    return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
                 }
             }
         }
@@ -301,6 +276,42 @@ public class OaiPmhController {
         }
 
         return new ResponseEntity<>(output, HttpStatus.OK);
+    }
+
+    private ResponseEntity getOaiPmhList(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory, String metadataPrefix,
+                                         String from, String until) throws Exception {
+        try {
+
+            if (format == null) {
+                format = restTemplate.getForObject(
+                        UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
+                                .queryParam("mdprefix", metadataPrefix)
+                                .toUriString(),
+                        Format.class);
+            }
+
+            oaiPmhDataBuilderFactory.setFormat(format);
+
+            if (metadataPrefix != null && from != null && until != null) {
+                oaiPmhDataBuilderFactory.setOaiPmhList(
+                        oaiPmhListService.findByMultipleValues("", String.valueOf(format.getFormatId()), from, until)
+                );
+            } else if (metadataPrefix != null && from != null && until == null) {
+                oaiPmhDataBuilderFactory.setOaiPmhList(
+                        oaiPmhListService.findByMultipleValues("BETWEEN ? AND NOW()", String.valueOf(format.getFormatId()), from)
+                );
+            } else {
+                oaiPmhDataBuilderFactory.setOaiPmhList(
+                        oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
+                );
+            }
+        } catch (NotFound notFound) {
+            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
+                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
+                    .response();
+        }
+
+        return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
     private ResponseEntity errorDetails(Exception e, String method, String requestMethodAndApth, HttpStatus status) {
