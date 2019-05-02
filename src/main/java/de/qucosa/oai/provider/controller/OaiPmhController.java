@@ -133,7 +133,6 @@ public class OaiPmhController {
                     .response();
         }
 
-
         ResumptionToken resumptionTokenObj;
 
         OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory = new OaiPmhDataBuilderFactory(
@@ -264,25 +263,33 @@ public class OaiPmhController {
         if (verb.equals("ListSets")) {
             try {
                 return getListSets(oaiPmhDataBuilderFactory);
-            } catch (Exception ignored) { }
+            } catch (Exception e) {
+                return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
+            }
         }
 
         if (verb.equals("ListMetadataFormats")) {
             try {
                 return getListMetadataFormats(oaiPmhDataBuilderFactory);
-            } catch (Exception ignored) { }
+            } catch (Exception e) {
+                return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
+            }
         }
 
         if (verb.equals("GetRecord")) {
             try {
                 return getRecord(metadataPrefix, identyfier, oaiPmhDataBuilderFactory);
-            } catch (Exception ignored) { }
+            } catch (Exception e) {
+                return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
+            }
         }
 
         if (verb.equals("Identify")) {
             try {
                 return identify(oaiPmhDataBuilderFactory);
-            } catch (Exception ignored) { }
+            } catch (Exception e) {
+                return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
+            }
         }
 
         String output = null;
@@ -294,6 +301,11 @@ public class OaiPmhController {
         }
 
         return new ResponseEntity<>(output, HttpStatus.OK);
+    }
+
+    private ResponseEntity errorDetails(Exception e, String method, String requestMethodAndApth, HttpStatus status) {
+        return new ErrorDetails(this.getClass().getName(), method, requestMethodAndApth, status, e.getMessage(), e)
+                .response();
     }
 
     private ResponseEntity getListSets(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
