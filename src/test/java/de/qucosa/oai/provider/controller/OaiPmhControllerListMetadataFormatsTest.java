@@ -62,7 +62,7 @@ public class OaiPmhControllerListMetadataFormatsTest {
     public void getListMetadataFormats() throws Exception {
         MvcResult mvcResult = mvc.perform(
                 get("/oai/ListMetadataFormats")
-                        .contentType(MediaType.APPLICATION_XML_VALUE))
+                        .accept(MediaType.APPLICATION_XML_VALUE))
                 .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
         assertThat(response).isNotEmpty();
