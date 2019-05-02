@@ -278,18 +278,15 @@ public class OaiPmhController {
         }
 
         if (verb.equals("GetRecord")) {
-
             try {
                 return getRecord(metadataPrefix, identyfier, oaiPmhDataBuilderFactory);
             } catch (Exception ignored) { }
         }
 
         if (verb.equals("Identify")) {
-            oaiPmhDataBuilderFactory.setEnvironment(environment);
-            oaiPmhDataBuilderFactory.setDisseminations(
-                    restTemplate.exchange(appUrl + ":" + serverPort + "/disseminations/earliest", HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<Collection<Dissemination>>() {}).getBody());
+            try {
+                return identify(oaiPmhDataBuilderFactory);
+            } catch (Exception ignored) { }
         }
 
         String output = null;
@@ -301,6 +298,15 @@ public class OaiPmhController {
         }
 
         return new ResponseEntity<>(output, HttpStatus.OK);
+    }
+
+    private ResponseEntity identify(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
+        oaiPmhDataBuilderFactory.setEnvironment(environment);
+        oaiPmhDataBuilderFactory.setDisseminations(
+                restTemplate.exchange(appUrl + ":" + serverPort + "/disseminations/earliest", HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<Collection<Dissemination>>() {}).getBody());
+        return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
     private ResponseEntity getRecord(String metadataPrefix, String identyfier, OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
