@@ -262,11 +262,9 @@ public class OaiPmhController {
         }
 
         if (verb.equals("ListSets")) {
-            Collection<Set> sets = restTemplate.exchange(appUrl + ":" + serverPort + "/sets",
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<Collection<Set>>() {}).getBody();
-            oaiPmhDataBuilderFactory.setSets(sets);
+            try {
+                return getListSets(oaiPmhDataBuilderFactory);
+            } catch (Exception ignored) { }
         }
 
         if (verb.equals("ListMetadataFormats")) {
@@ -296,6 +294,16 @@ public class OaiPmhController {
         }
 
         return new ResponseEntity<>(output, HttpStatus.OK);
+    }
+
+    private ResponseEntity getListSets(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
+        Collection<Set> sets = restTemplate.exchange(appUrl + ":" + serverPort + "/sets",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<Collection<Set>>() {}).getBody();
+        oaiPmhDataBuilderFactory.setSets(sets);
+
+        return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
     private ResponseEntity getListMetadataFormats(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
