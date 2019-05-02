@@ -270,11 +270,9 @@ public class OaiPmhController {
         }
 
         if (verb.equals("ListMetadataFormats")) {
-            oaiPmhDataBuilderFactory.setFormats(
-                    restTemplate.exchange(appUrl + ":" + serverPort + "/formats",
-                            HttpMethod.GET,
-                            null,
-                            new ParameterizedTypeReference<Collection<Format>>() {}).getBody());
+            try {
+                return getListMetadataFormats(oaiPmhDataBuilderFactory);
+            } catch (Exception ignored) { }
         }
 
         if (verb.equals("GetRecord")) {
@@ -298,6 +296,15 @@ public class OaiPmhController {
         }
 
         return new ResponseEntity<>(output, HttpStatus.OK);
+    }
+
+    private ResponseEntity getListMetadataFormats(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
+        oaiPmhDataBuilderFactory.setFormats(
+                restTemplate.exchange(appUrl + ":" + serverPort + "/formats",
+                        HttpMethod.GET,
+                        null,
+                        new ParameterizedTypeReference<Collection<Format>>() {}).getBody());
+        return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
     private ResponseEntity identify(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
