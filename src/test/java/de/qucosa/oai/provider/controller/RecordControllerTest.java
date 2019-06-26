@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,52 +16,54 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.dao.DisseminationTestDao;
-import de.qucosa.oai.provider.dao.FormatTestDao;
-import de.qucosa.oai.provider.dao.RecordTestDao;
-import de.qucosa.oai.provider.dao.SetTestDao;
-import de.qucosa.oai.provider.dao.SetsToRecordTestDao;
-import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.model.Dissemination;
-import de.qucosa.oai.provider.persistence.model.Format;
+import de.qucosa.oai.provider.QucosaOaiProviderApplication;
+import de.qucosa.oai.provider.config.OaiPmhTestApplicationConfig;
 import de.qucosa.oai.provider.persistence.model.Record;
-import de.qucosa.oai.provider.persistence.model.RecordTransport;
-import de.qucosa.oai.provider.persistence.model.Set;
-import de.qucosa.oai.provider.services.DisseminationService;
-import de.qucosa.oai.provider.services.FormatService;
 import de.qucosa.oai.provider.services.RecordService;
-import de.qucosa.oai.provider.services.SetService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import testdata.TestData;
 
-import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = {QucosaOaiProviderApplication.class, OaiPmhTestApplicationConfig.class})
+@TestPropertySource("classpath:application-test.properties")
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class RecordControllerTest {
-    private List<RecordTransport> transportList = null;
+    private Logger logger = LoggerFactory.getLogger(RecordControllerTest.class);
 
-    private List<Record> records = null;
+    @Autowired
+    private RecordService recordService;
 
     @Autowired
     private ObjectMapper om;
@@ -69,129 +71,175 @@ public class RecordControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @Before
-    public void setUp() throws IOException {
-        transportList = om.readValue(TestData.RECORDS_INPUT, om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
-        records = om.readValue(TestData.RECORDS, om.getTypeFactory().constructCollectionType(List.class, Record.class));
-    }
+    @Test
+    @DisplayName("Find all exists records.")
+    @Order(1)
+    public void findAll() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/records")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
 
-    @TestPropertySource("classpath:application.properties")
-    @TestConfiguration
-    public static class SetControllerTestConfiguration {
-        @Bean
-        public Dao formatDao() {
-            return new FormatTestDao<Format>();
-        }
+        assertThat(response).isNotEmpty();
 
-        @Bean
-        public FormatService formatService() {
-            FormatService formatService = new FormatService();
-            formatService.setDao(formatDao());
-            return formatService;
-        }
+        List<Record> records = om.readValue(response,
+                om.getTypeFactory().constructCollectionType(List.class, Record.class));
 
-        @Bean
-        public Dao recordDao() {
-            return new RecordTestDao<Record>();
-        }
-
-        @Bean
-        public RecordService recordService() {
-            RecordService recordService = new RecordService();
-            recordService.setDao(recordDao());
-            return recordService;
-        }
-
-        @Bean
-        public Dao setDao() {
-            return new SetTestDao<Set>();
-        }
-
-        @Bean
-        public SetService setService() {
-            SetService setService = new SetService();
-            setService.setDao(setDao());
-            return setService;
-        }
-
-        @Bean
-        public Dao disseminationDao() {
-            return new DisseminationTestDao<Dissemination>();
-        }
-
-        @Bean
-        public DisseminationService disseminationService() {
-            DisseminationService disseminationService = new DisseminationService();
-            disseminationService.setDao(disseminationDao());
-            return disseminationService;
-        }
-
-        @Bean
-        public Dao setsToRecordDao() {
-            return new SetsToRecordTestDao();
-        }
+        assertThat(records).isNotNull();
+        assertThat(records.size()).isGreaterThan(0);
     }
 
     @Test
-    public void Save_not_if_oaidc_dissemination_failed() throws Exception {
+    @DisplayName("Find all records from to now lastmoddate.")
+    @Order(2)
+    public void findAllFrom() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/records?metadataPrefix=17&from=2019-01-23")
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
 
-        for (RecordTransport rt : transportList) {
+        assertThat(response).isNotEmpty();
 
-            if (rt.getFormat().getMdprefix().equals("oai_dc")) {
-                rt.getFormat().setMdprefix("oi_dc");
-            }
-        }
+        Collection<Record> records = om.readValue(response,
+                om.getTypeFactory().constructCollectionType(Collection.class, Record.class));
 
-        mvc.perform(post("/records")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(transportList)))
-                .andExpect(status().isBadRequest());
+        assertThat(records.size()).isGreaterThan(0);
     }
 
     @Test
-    public void Update_record_object() throws Exception {
-        mvc.perform(put("/records/oai:example:org:qucosa:55887")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(records.get(0))))
-                .andExpect(status().isOk());
+    @DisplayName("Find all records from to until lastmoddate.")
+    @Order(3)
+    public void findAllFromUntil() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/records?metadataPrefix=17&from=2019-01-23&until=2019-01-31")
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Collection<Record> records = om.readValue(response,
+                om.getTypeFactory().constructCollectionType(Collection.class, Record.class));
+
+        assertThat(records.size()).isGreaterThan(0);
     }
 
     @Test
-    public void Update_record_object_not_successful_if_uid_is_wrong() throws Exception {
-        mvc.perform(put("/records/oai:example:org:qucosa:5887")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(om.writeValueAsString(records.get(0))))
+    @DisplayName("Find record by uid.")
+    @Order(4)
+    public void find() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                get("/records/qucosa:32394")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Record record = om.readValue(response, Record.class);
+
+        assertThat(record).isNotNull();
+        assertThat(record.getUid()).isEqualTo("qucosa:32394");
+    }
+
+    @Test
+    @DisplayName("Not record by uid found.")
+    @Order(5)
+    public void notFound() throws Exception {
+        mvc.perform(
+                get("/records/qucosa:00000")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.statuscode", is("404")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot found record.")));
+    }
+
+    @Test
+    @DisplayName("Update record by deleted property for mark / undo mark as deleted.")
+    @Order(6)
+    public void update() throws Exception {
+        Record record = recordService.findRecord("uid", "qucosa:32394").iterator().next();
+        record.setDeleted(true);
+
+        MvcResult mvcResult = mvc.perform(
+                put("/records/qucosa:32394")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Record responseObj = om.readValue(response, Record.class);
+
+        assertThat(responseObj).isNotNull();
+        assertThat(responseObj.isDeleted()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Update record is not successful because record does not exists.")
+    @Order(7)
+    public void updateFailed_1() throws Exception {
+        Record record = new Record();
+        record.setUid("qucosa:00000");
+
+        mvc.perform(
+                put("/records/qucosa:00000")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
                 .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.statuscode", is("406")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot update record.")));
+    }
+
+    @Test
+    @DisplayName("Update record is not successful because uid parameter and object uid are unequal.")
+    @Order(8)
+    public void updateFailed_2() throws Exception {
+        Record record = new Record();
+        record.setUid("qucosa:00000");
+
+        mvc.perform(
+                put("/records/qucosa:00001")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.statuscode", is("406")))
                 .andExpect(jsonPath("$.errorMsg", is("Unequal uid parameter with record object uid.")));
     }
 
     @Test
-    public void Mark_record_as_deleted() throws Exception {
-        mvc.perform(delete("/records/oai:example:org:qucosa:55887")
-                .contentType(MediaType.APPLICATION_JSON))
+    @DisplayName("Delete record from table.")
+    @Order(9)
+    public void isDeleted() throws Exception {
+        MvcResult mvcResult = mvc.perform(
+                delete("/records/qucosa:32394")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+        assertThat(response).isNotEmpty();
+        assertThat(Boolean.parseBoolean(response)).isTrue();
+    }
+
+    @Test
+    @DisplayName("Delete record is not successful because uid parameter is does not exists in racords table.")
+    @Order(10)
+    public void isNotDeleted() throws Exception {
+        mvc.perform(
+                delete("/records/qucosa:00000")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(new Record())))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.statuscode", is("404")))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot found record.")));
+    }
+
+    @Test
+    @DisplayName("Save record trabsport input from camel service.")
+    @Order(11)
+    public void saveRecordInput() throws Exception {
+        mvc.perform(
+                post("/records")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE).content(TestData.RECORDS_INPUT))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    public void Mark_record_as_deleted_not_successful_if_uid_is_wrong() throws Exception {
-        mvc.perform(delete("/records/oai:example:org:qucosa:5588")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorMsg", is("Cannot delete record.")));
-    }
-
-    @Test
-    public void Undo_mark_record_as_deleted() throws Exception {
-        mvc.perform(delete("/records/oai:example:org:qucosa:55887/undo")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void Undo_mark_record_as_deleted_if_uid_is_wrong() throws Exception {
-        mvc.perform(delete("/records/oai:example:org:qucosa:5588/undo")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorMsg", is("Cannot undo delete record.")));
     }
 }

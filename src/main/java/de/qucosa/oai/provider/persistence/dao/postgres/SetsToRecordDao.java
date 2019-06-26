@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,8 +19,9 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
+import de.qucosa.oai.provider.persistence.model.HasIdentifier;
+import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.SetsToRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -29,10 +30,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Repository
-public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord> {
+public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord>, HasIdentifier {
 
     private Connection connection;
 
@@ -67,7 +70,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public Collection saveAndSetIdentifier(Collection objects) throws SaveFailed {
+    public Collection<SetsToRecord> saveAndSetIdentifier(Collection objects) throws SaveFailed {
         return null;
     }
 
@@ -77,12 +80,12 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public Collection update(Collection objects) throws UpdateFailed {
+    public Collection<SetsToRecord> update(Collection objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public Collection findAll() throws NotFound {
+    public Collection<SetsToRecord> findAll() throws NotFound {
         return null;
     }
 
@@ -91,13 +94,39 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Collection findByPropertyAndValue(String property, String value) throws NotFound {
-        return null;
+        String sql = "select rc.id, rc.pid, rc.uid, st.id, st.setspec, st.setname, st.setdescription " +
+                "from sets_to_records " +
+                "left join records rc on rc.id = id_record " +
+                "left join sets st on st.id = id_set " +
+                "where " + property + "  = ?";
+        List<Set> setList = new ArrayList<>();
+
+        try {
+            PreparedStatement pst = connection.prepareStatement(sql);
+            pst.setLong(1, Long.valueOf(value));
+            ResultSet resultSet = pst.executeQuery();
+
+            while (resultSet.next()) {
+                Set set = new Set();
+                set.setSetSpec(resultSet.getString("setspec"));
+                set.setSetName(resultSet.getString("setname"));
+                set.setSetDescription(resultSet.getString("setdescription"));
+                setList.add(set);
+            }
+
+            resultSet.close();
+        } catch (SQLException e) {
+            throw  new NotFound(e.getMessage());
+        }
+
+        return setList;
     }
 
     @Override
-    public T findByMultipleValues(String clause, String... values) throws NotFound {
+    public SetsToRecord findByMultipleValues(String clause, String... values) throws NotFound {
         clause = clause.replace("%s", "?");
         String sql = "SELECT * FROM sets_to_records WHERE " + clause;
 
@@ -113,10 +142,31 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
                 setsToRecord.setIdRecord(resultSet.getLong("id_record"));
             }
 
-            return (T) setsToRecord;
+            resultSet.close();
+            return setsToRecord;
         } catch (SQLException e) {
             throw new NotFound(e.getMessage());
         }
+    }
+
+    @Override
+    public Collection<SetsToRecord> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        return null;
+    }
+
+    @Override
+    public Collection<SetsToRecord> findLastRowsByProperty(String property, int limit) {
+        return null;
+    }
+
+    @Override
+    public Collection<SetsToRecord> findFirstRowsByProperty(String property, int limit) {
+        return null;
+    }
+
+    @Override
+    public void delete() {
+
     }
 
     @Override
@@ -125,16 +175,26 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public void undoDelete(String ident) throws UndoDeleteFailed {
-
-    }
-
-    @Override
     public void delete(SetsToRecord object) throws DeleteFailed {
+        String sql = "DELETE FROM sets_to_records WHERE id_set = ? AND id_record = ?";
+
+        try {
+            PreparedStatement pst = connection.prepareStatement(sql);
+            pst.setLong(1, object.getIdSet());
+            pst.setLong(2, object.getIdRecord());
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            throw new DeleteFailed(e.getMessage());
+        }
     }
 
     @Override
-    public void undoDelete(SetsToRecord object) throws UndoDeleteFailed {
+    public void setIdentifier(Object identifier) {
 
+    }
+
+    @Override
+    public Object getIdentifier() {
+        return null;
     }
 }

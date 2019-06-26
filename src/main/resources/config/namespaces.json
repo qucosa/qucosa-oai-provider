@@ -1,0 +1,90 @@
+[
+  {
+    "prefix": "mets",
+    "url": "http://www.loc.gov/METS/"
+  },
+  {
+    "prefix": "mext",
+    "url": "http://slub-dresden.de/mets"
+  },
+  {
+    "prefix": "mods",
+    "url": "http://www.loc.gov/mods/v3"
+  },
+  {
+    "prefix": "xlin",
+    "url": "http://www.w3.org/1999/xlink"
+  },
+  {
+    "prefix": "slub",
+    "url": "http://slub-dresden.de/"
+  },
+  {
+    "prefix": "xMetaDiss",
+    "url": "http://www.d-nb.de/standards/xmetadissplus/"
+  },
+  {
+    "prefix": "dc",
+    "url": "http://purl.org/dc/elements/1.1/"
+  },
+  {
+    "prefix": "dcterms",
+    "url": "http://purl.org/dc/terms/"
+  },
+  {
+    "prefix": "xsi",
+    "url": "http://www.w3.org/2001/XMLSchema-instance"
+  },
+  {
+    "prefix": "dini",
+    "url": "http://www.d-nb.de/standards/xmetadissplus/type/"
+  },
+  {
+    "prefix" : "subject",
+    "url" : "http://www.d.nb.de/standards/subject/"
+  },
+  {
+    "prefix" : "myfunc",
+    "url" : "urn:de:qucosa:xmetadissplus"
+  },
+  {
+    "prefix" : "cc",
+    "url" : "http://www.d-nb.de/standards/cc/"
+  },
+  {
+    "prefix" : "urn",
+    "url" : "http://www.d-nb.de/standards/urn/"
+  },
+  {
+    "prefix" : "slub",
+    "url" : "http://slub-dresden.de/"
+  },
+  {
+    "prefix" : "thesis",
+    "url" : "http://www.ndltd.org/standards/metadata/etdms/1.0/"
+  },
+  {
+    "prefix" : "xs",
+    "url" : "http://www.w3.org/2001/XMLSchema"
+  },
+  {
+    "prefix" : "pc",
+    "url" : "http://purl.org/dc/elements/1.1/"
+  },
+  {
+    "prefix" : "fmm",
+    "url" : "http://fedora.comm.nsdlib.org/service/methodmap"
+  },
+  {
+    "prefix" : "oai_dc",
+    "url" : "http://www.openarchives.org/OAI/2.0/oai_dc/"
+  },
+  {
+    "prefix" : "fedora-types",
+    "url" : "http://www.fedora.info/definitions/1/0/types/"
+  },
+  {
+    "prefix" : "OAI-PMH",
+    "url" : "http://www.openarchives.org/OAI/2.0/"
+  }
+]

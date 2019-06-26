@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,44 +19,43 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
+import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
 @Service
-public class DisseminationService<T> {
-    private Dao dao;
+public class DisseminationService {
+    private Dao<Dissemination> dao;
 
     public DisseminationService() {}
 
-    public void setDao(Dao dao) {
+    public void setDao(Dao<Dissemination> dao) {
         this.dao = dao;
     }
 
     public Dissemination saveDissemination(Dissemination dissemination) throws SaveFailed {
-        return (Dissemination) dao.saveAndSetIdentifier(dissemination);
+        return dao.saveAndSetIdentifier(dissemination);
     }
 
-    public Dissemination updateDissemination() {
-        return null;
-    }
-
-    public void deleteDissemination(Dissemination dissemination, String undo) throws DeleteFailed, UndoDeleteFailed {
-
-        if (undo == null || undo.isEmpty()) {
-            dao.delete(dissemination);
-        } else if (undo != null && undo.equals("undo")) {
-            dao.undoDelete(dissemination);
-        }
-    }
-
-    public Collection<Dissemination> findAllByUid(String property, String value) throws NotFound {
-        return dao.findByPropertyAndValue(property, value);
+    public Dissemination update(Dissemination dissemination) throws UpdateFailed {
+        return dao.update(dissemination);
     }
 
     public Dissemination findByMultipleValues(String clause, String... values) throws NotFound {
-        return (Dissemination) dao.findByMultipleValues(clause, values);
+        return dao.findByMultipleValues(clause, values);
+    }
+
+    public Collection<Dissemination> findByPropertyAndValue(String property, String value) throws NotFound {
+        return dao.findByPropertyAndValue(property, value);
+    }
+
+    public Collection<Dissemination> findFirstRowsByProperty(String property, int limit) throws NotFound {
+        return dao.findFirstRowsByProperty(property, limit);
+    }
+
+    public void delete(Dissemination dissemination) throws DeleteFailed {
+        dao.delete(dissemination);
     }
 }

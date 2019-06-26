@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +30,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class DisseminationDao<T extends Dissemination> implements Dao<T> {
+public class DisseminationDao<T extends Dissemination> implements Dao<Dissemination> {
 
     private Connection connection;
 
@@ -56,14 +56,19 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
     public Dissemination saveAndSetIdentifier(Dissemination object) throws SaveFailed {
         Dissemination selectDiss = null;
 
+        if (object.getRecordId() == null || object.getRecordId().isEmpty()
+                || object.getFormatId() == null || object.getFormatId() == 0) {
+            throw new SaveFailed("Cannot save dissemination because record or format failed.");
+        }
+
         try {
             selectDiss = this.findByMultipleValues(
-                    "id_format=? AND id_record=?",
-                    String.valueOf(object.getFormatId()), object.getRecordId());
+                    "id_record=? AND id_format=?",
+                    object.getRecordId(), String.valueOf(object.getFormatId()));
         } catch (NotFound ignore) { }
 
-        if (selectDiss != null && selectDiss.getDissId() != null) {
-            return null;
+        if (selectDiss != null) {
+            throw new SaveFailed("Cannot save dissemination because data row is exists.");
         }
 
         String sql = "INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, id_record) VALUES " +
@@ -95,55 +100,120 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
 
             ps.close();
             return object;
-        } catch (SQLException ignore) { }
-
-        throw new SaveFailed("Cannot save dissemination.");
+        } catch (SQLException e) {
+            throw new SaveFailed("SQL Error", e);
+        }
     }
 
     @Override
-    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
+    public Collection<Dissemination> saveAndSetIdentifier(Collection<Dissemination> objects) throws SaveFailed {
         return null;
     }
 
     @Override
-    public T update(T object) throws UpdateFailed {
+    public Dissemination update(Dissemination object) throws UpdateFailed {
+        String sql = "UPDATE disseminations" +
+                " SET id_format = ?, lastmoddate = ?, xmldata = ?, id_record = ?, deleted = ?" +
+                " WHERE id = ?";
+
+        try {
+            SQLXML sqlxml = connection.createSQLXML();
+            sqlxml.setString(object.getXmldata());
+
+            PreparedStatement statement = connection.prepareStatement(sql);
+            connection.setAutoCommit(false);
+            statement.setLong(1, object.getFormatId());
+            statement.setTimestamp(2, object.getLastmoddate());
+            statement.setSQLXML(3, sqlxml);
+            statement.setString(4, object.getRecordId());
+            statement.setBoolean(5, object.isDeleted());
+            statement.setLong(6, object.getDissId());
+            int updatedRows = statement.executeUpdate();
+            connection.commit();
+
+            if (updatedRows == 0) {
+                throw new UpdateFailed("Cannot update dissemination.");
+            }
+        } catch (SQLException e) {
+            throw new UpdateFailed("SQL-ERROR: Cannot update dissemination.", e);
+        }
+
+        return object;
+    }
+
+    @Override
+    public Collection<Dissemination> update(Collection<Dissemination> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
+    public Collection<Dissemination> findAll() throws NotFound {
         return null;
     }
 
     @Override
-    public Collection<T> findAll() throws NotFound {
+    public Dissemination findById(String id) throws NotFound {
         return null;
     }
 
     @Override
-    public T findById(String id) throws NotFound {
-        return null;
+    public Collection<Dissemination> findByPropertyAndValue(String property, String value) throws NotFound {
+        String sql = "SELECT id, id_format, lastmoddate, xmldata, id_record, deleted FROM disseminations" +
+                " WHERE " + property + " = ?";
+        Collection<Dissemination> disseminations = new ArrayList<>();
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+
+            if (property.equals("id_format")) {
+                statement.setLong(1, Long.valueOf(value));
+            } else {
+                statement.setString(1, value);
+            }
+
+            ResultSet resultSet = statement.executeQuery();
+
+
+            while (resultSet.next()) {
+                Dissemination dissemination = new Dissemination();
+                dissemination.setDissId(resultSet.getLong("id"));
+                dissemination.setFormatId(resultSet.getLong("id_format"));
+                dissemination.setRecordId(resultSet.getString("id_record"));
+                dissemination.setDeleted(resultSet.getBoolean("deleted"));
+                dissemination.setXmldata(resultSet.getString("xmldata"));
+                disseminations.add(dissemination);
+            }
+
+            resultSet.close();
+
+            if (disseminations.size() == 0) {
+                throw new NotFound("Cannot found dissemination. UID " + value + " does not exists.");
+            }
+        } catch (SQLException e) {
+            throw new NotFound(e.getMessage(), e);
+        }
+
+        return disseminations;
     }
 
     @Override
-    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
-        return null;
-    }
-
-    @Override
-    public T findByMultipleValues(String clause, String... values) throws NotFound {
+    public Dissemination findByMultipleValues(String clause, String... values) throws NotFound {
         clause = clause.replace("%s", "?");
 
-        if (values[0] == null || values[0].isEmpty() || values[1] == null || values[1].isEmpty()) {
-            throw new NotFound("Cannot find dissemination becaue record_id or format_id failed.");
+        if (values == null) {
+            throw new NotFound("Cannot find dissemination because parameters failed.");
         }
 
         String sql = "SELECT id, id_format, lastmoddate, xmldata, id_record, deleted FROM disseminations WHERE " + clause;
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setLong(1, Long.valueOf(values[0]));
-            ps.setString(2, values[1]);
+
+            if (clause.contains("id_record") && clause.contains("id_format")) {
+                ps.setString(1, values[0]);
+                ps.setLong(2, Long.valueOf(values[1]));
+            }
+
             ResultSet resultSet = ps.executeQuery();
             Dissemination dissemination = null;
 
@@ -157,51 +227,80 @@ public class DisseminationDao<T extends Dissemination> implements Dao<T> {
                 dissemination.setXmldata(resultSet.getString("xmldata"));
             }
 
-            return (T) dissemination;
+            return dissemination;
         } catch (SQLException e) {
             throw new NotFound("Connat find dissemination.", e);
         }
     }
 
     @Override
+    public Collection<Dissemination> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        return null;
+    }
+
+    @Override
+    public Collection<Dissemination> findLastRowsByProperty(String property, int limit) throws NotFound {
+        return null;
+    }
+
+    @Override
+    public Collection<Dissemination> findFirstRowsByProperty(String property, int limit) throws NotFound {
+        Collection<Dissemination> disseminations = new ArrayList<>();
+        String sql = "SELECT * FROM disseminations order by " + property + " ASC";
+
+        if (limit > 0) {
+            sql += " limit " + limit;
+        }
+
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                Dissemination dissemination = new Dissemination();
+                dissemination.setDissId(resultSet.getLong("id"));
+                dissemination.setFormatId(resultSet.getLong("id_format"));
+                dissemination.setRecordId(resultSet.getString("id_record"));
+                dissemination.setDeleted(resultSet.getBoolean("deleted"));
+                dissemination.setLastmoddate(resultSet.getTimestamp("lastmoddate"));
+                dissemination.setXmldata(resultSet.getString("xmldata"));
+                disseminations.add(dissemination);
+            }
+
+            resultSet.close();
+
+            if (disseminations.isEmpty()) {
+                throw new NotFound("Not fownd data rows.");
+            }
+        } catch (SQLException e) {
+            throw new NotFound("SQL-ERROR: Not fownd data rows.", e);
+        }
+
+        return disseminations;
+    }
+
+    @Override
+    public void delete() {
+
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed { }
 
     @Override
-    public void undoDelete(String ident) throws UndoDeleteFailed {
-
-    }
-
-    @Override
-    public void undoDelete(T object) throws UndoDeleteFailed {
-
-        if (deleteOrUndoDelete(object) == 0) {
-            throw new UndoDeleteFailed("Cannot undo delete dissemination.");
-        }
-    }
-
-    @Override
     public void delete(Dissemination object) throws DeleteFailed {
-
-        if (deleteOrUndoDelete(object) == 0) {
-            throw new DeleteFailed("Cannot delete dissemination.");
-        }
-    }
-
-    private int deleteOrUndoDelete(Dissemination object) {
-        String sql = "UPDATE disseminations SET deleted = ? WHERE id_record = ? AND id_format = ?";
+        String sql = "DELETE FROM disseminations WHERE id = ?";
 
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setBoolean(1, object.isDeleted());
-            ps.setString(2, object.getRecordId());
-            ps.setLong(3, object.getFormatId());
-            int deletedRows = ps.executeUpdate();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setLong(1, object.getDissId());
+            int deleteRows = statement.executeUpdate();
 
-            if (deletedRows > 0) {
-                return 1;
+            if (deleteRows == 0) {
+                throw new DeleteFailed("Cannot delete dissemination.");
             }
-        } catch (SQLException ignore) { }
-
-        return 0;
+        } catch (SQLException e) {
+            throw new DeleteFailed("SQL-ERROR: Cannot delete dissemination.", e);
+        }
     }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +35,9 @@ import java.util.Iterator;
 import java.util.List;
 
 @Repository
-public class SetDao<T extends Set> implements Dao<T> {
+public class SetDao<T extends Set> implements Dao<Set> {
 
-    final private Connection connection;
+    private Connection connection;
 
     @Autowired
     public SetDao(Connection connection) {
@@ -91,7 +90,7 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
+    public Collection<Set> saveAndSetIdentifier(Collection<Set> objects) throws SaveFailed {
         String sql = "INSERT INTO sets (id, setspec, setname, setdescription) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (setspec) ";
@@ -142,7 +141,7 @@ public class SetDao<T extends Set> implements Dao<T> {
             throw new SaveFailed(e.getMessage());
         }
 
-        return (Collection<T>) output;
+        return output;
     }
 
 
@@ -174,12 +173,12 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> update(Collection<T> objects) {
+    public Collection<Set> update(Collection<Set> objects) {
         return null;
     }
 
     @Override
-    public Collection<T> findAll() throws NotFound {
+    public Collection<Set> findAll() throws NotFound {
         String sql = "SELECT id, setspec, setname, setdescription, deleted FROM sets";
         Collection<Set> sets = new ArrayList<>();
 
@@ -199,12 +198,14 @@ public class SetDao<T extends Set> implements Dao<T> {
                     set.setDeleted(resultSet.getBoolean("deleted"));
                     sets.add(set);
                 } while(resultSet.next());
+            } else {
+                throw new NotFound("Cannot found sets.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new NotFound("SQL-ERROR: Cannot found sets.", e);
         }
 
-        return (Collection<T>) sets;
+        return sets;
     }
 
     @Override
@@ -213,7 +214,7 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Set> findByPropertyAndValue(String property, String value) throws NotFound {
         String sql = "SELECT id, setspec,setname, setdescription, deleted FROM sets where " + property + " = ?";
         Collection<Set> sets = new ArrayList<>();
 
@@ -239,7 +240,7 @@ public class SetDao<T extends Set> implements Dao<T> {
             throw new NotFound(e.getMessage());
         }
 
-        return (Collection<T>) sets;
+        return sets;
     }
 
     @Override
@@ -248,51 +249,44 @@ public class SetDao<T extends Set> implements Dao<T> {
     }
 
     @Override
+    public Collection<Set> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        return null;
+    }
+
+    @Override
+    public Collection<Set> findLastRowsByProperty(String property, int limit) {
+        return null;
+    }
+
+    @Override
+    public Collection<Set> findFirstRowsByProperty(String property, int limit) {
+        return null;
+    }
+
+    @Override
+    public void delete() {
+
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
 
-        if (!deleteOrUndoDelete(ident, true)) {
-            throw new DeleteFailed("Cannot delete set.");
-        }
     }
 
     @Override
-    public void undoDelete(String ident) throws UndoDeleteFailed {
-
-        if (!deleteOrUndoDelete(ident, false)) {
-            throw new UndoDeleteFailed("Cannot undo delete set.");
-        }
-    }
-
-    @Override
-    public void delete(T object) {
-
-    }
-
-    @Override
-    public void undoDelete(T object) {
-
-    }
-
-    private boolean deleteOrUndoDelete(String ident, boolean value) {
-        String sql = "UPDATE sets SET deleted = ? WHERE deleted = ?";
-        boolean del = false;
+    public void delete(Set object) throws DeleteFailed {
+        String sql = "DELETE FROM sets WHERE setspec = ?";
 
         try {
-            assert connection != null;
-            PreparedStatement ps = connection.prepareStatement(sql);
-            connection.setAutoCommit(false);
-            ps.setBoolean(1, value);
-            ps.setString(2, ident);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, object.getSetSpec());
+            int del = statement.executeUpdate();
 
-            if (ps.executeUpdate() > 0) {
-                del = true;
+            if (del == 0) {
+                throw new DeleteFailed("Cannot hard delete set.");
             }
-
-            connection.commit();
-
-            ps.close();
-        } catch (SQLException ignore) { }
-
-        return del;
+        } catch (SQLException e) {
+            throw new DeleteFailed("Cannot hard delete set.", e);
+        }
     }
 }

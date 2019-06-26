@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.persistence.model.RecordTransport;
@@ -29,17 +28,17 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
-public class RecordService<T> {
-    private Dao dao;
+public class RecordService {
+    private Dao<Record> dao;
 
     public RecordService() {}
 
-    public void setDao(Dao dao) {
+    public void setDao(Dao<Record> dao) {
         this.dao = dao;
     }
 
     public Record saveRecord(Record record) throws SaveFailed {
-        return (Record) dao.saveAndSetIdentifier(record);
+        return dao.saveAndSetIdentifier(record);
     }
 
     public Record updateRecord(Record record, String uid) throws UpdateFailed {
@@ -48,19 +47,23 @@ public class RecordService<T> {
             throw new UpdateFailed("Unequal uid parameter with record object uid.");
         }
 
-        return (Record) dao.update(record);
+        return dao.update(record);
     }
 
-    public void deleteRecord(String uid) throws DeleteFailed {
-        dao.delete(uid);
-    }
-
-    public void undoDeleteRecord(String uid) throws UndoDeleteFailed {
-        dao.undoDelete(uid);
+    public void delete(Record record) throws DeleteFailed {
+        dao.delete(record.getUid());
     }
 
     public Collection<Record> findRecord(String column, String uid) throws NotFound {
         return dao.findByPropertyAndValue(column, uid);
+    }
+
+    public Collection<Record> findAll() throws NotFound {
+        return dao.findAll();
+    }
+
+    public Collection<Record> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+        return dao.findRowsByMultipleValues(clause, values);
     }
 
     public boolean checkIfOaiDcDisseminationExists(List<RecordTransport> input) {

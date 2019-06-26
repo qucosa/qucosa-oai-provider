@@ -1,0 +1,18 @@
+<Identify>
+    <repositoryName></repositoryName>
+    <baseURL></baseURL>
+    <protocolVersion></protocolVersion>
+    <adminEmail></adminEmail>
+    <earliestDatestamp></earliestDatestamp>
+    <deletedRecord></deletedRecord>
+    <granularity></granularity>
+    <compression></compression>
+    <description>
+        <oai-identifier>
+            <scheme></scheme>
+            <repositoryIdentifier></repositoryIdentifier>
+            <delimiter></delimiter>
+            <sampleIdentifier></sampleIdentifier>
+        </oai-identifier>
+    </description>
+</Identify>

@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,16 +15,17 @@
  */
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
+import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class RecordDao<T extends Record> implements Dao<T> {
+public class RecordDao<T extends Record> implements Dao<Record> {
 
     private Connection connection;
 
@@ -87,7 +88,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed {
+    public Collection<Record> saveAndSetIdentifier(Collection<Record> objects) throws SaveFailed {
         return null;
     }
 
@@ -103,7 +104,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
             int updatedRows = ps.executeUpdate();
 
             if (updatedRows == 0) {
-                throw new UpdateFailed("Record update failed, no rwos affected.");
+                throw new UpdateFailed("Cannot update record.");
             }
 
             ps.close();
@@ -115,13 +116,38 @@ public class RecordDao<T extends Record> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> update(Collection<T> objects) throws UpdateFailed {
+    public Collection<Record> update(Collection<Record> objects) throws UpdateFailed {
         return null;
     }
 
     @Override
-    public Collection<T> findAll() throws NotFound {
-        return null;
+    public Collection<Record> findAll() throws NotFound {
+        Collection<Record> records = new ArrayList<>();
+        String sql = "SELECT * FROM records";
+
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet resultSet = stmt.executeQuery(sql);
+
+            if (resultSet.next()) {
+
+                do {
+                    Record record = new Record();
+                    record.setIdentifier(resultSet.getLong("id"));
+                    record.setPid(resultSet.getString("pid"));
+                    record.setUid(resultSet.getString("uid"));
+                    record.setDeleted(resultSet.getBoolean("deleted"));
+                    records.add(record);
+                } while (resultSet.next());
+            }
+
+            resultSet.close();
+            stmt.close();
+        } catch (SQLException e) {
+            throw new NotFound(e.getMessage());
+        }
+
+        return records;
     }
 
     @Override
@@ -130,7 +156,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
     }
 
     @Override
-    public Collection<T> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Record> findByPropertyAndValue(String property, String value) throws NotFound {
         Record record = new Record();
         Collection<Record> records = new ArrayList<>();
         String sql = "SELECT * FROM records WHERE " + property + " = ?";
@@ -140,6 +166,7 @@ public class RecordDao<T extends Record> implements Dao<T> {
             ps.setString(1, value);
             ResultSet resultSet = ps.executeQuery();
 
+
             while (resultSet.next()) {
                 record.setIdentifier(resultSet.getLong("id"));
                 record.setPid(resultSet.getString("pid"));
@@ -148,13 +175,17 @@ public class RecordDao<T extends Record> implements Dao<T> {
                 records.add(record);
             }
 
+            if (records.size() == 0) {
+                return null;
+            }
+
             resultSet.close();
             ps.close();
         } catch (SQLException e) {
-            throw new NotFound(e.getMessage());
+            throw new NotFound("SQL-ERROR: Cannot found record.", e);
         }
 
-        return (Collection<T>) records;
+        return records;
     }
 
     @Override
@@ -163,50 +194,95 @@ public class RecordDao<T extends Record> implements Dao<T> {
     }
 
     @Override
+    public Collection<Record> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+
+        if (values.length == 0 || values.length > 3) {
+            throw new NotFound("The values parameter may only has one to three values.");
+        }
+
+        Collection<Record> records = new ArrayList<>();
+
+        String sql = "SELECT rc.id, rc.pid, rc.uid, rc.deleted, diss.lastmoddate FROM records rc" +
+                " LEFT JOIN disseminations diss ON diss.id_record = rc.uid" +
+                " WHERE diss.id_format = ? AND lastmoddate";
+
+        if (clause.isEmpty()) {
+            sql += " BETWEEN ? AND (?::date + '24 hours'::interval)";
+        } else {
+            sql += " " + clause;
+        }
+
+        sql += " ORDER BY lastmoddate ASC";
+
+        try {
+            PreparedStatement pst = connection.prepareStatement(sql);
+            pst.setLong(1, Long.valueOf(values[0]));
+
+            if (values.length == 3) {
+                pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
+                pst.setTimestamp(3, DateTimeConverter.timestampWithTimezone(values[2]));
+            } else if (values.length == 2) {
+                pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
+            }
+
+            ResultSet resultSet = pst.executeQuery();
+
+            while (resultSet.next()) {
+                Record record = new Record();
+                record.setUid(resultSet.getString("uid"));
+                record.setPid(resultSet.getString("pid"));
+                record.setRecordId(resultSet.getLong("id"));
+                record.setDeleted(resultSet.getBoolean("deleted"));
+                records.add(record);
+            }
+
+            resultSet.close();
+
+            if (records.isEmpty()) {
+                throw new NotFound("SQL ERROR: Canot found records.");
+            }
+        } catch (SQLException e) {
+            throw new NotFound("SQL ERROR: Canot found records.", e);
+        } catch (DatatypeConfigurationException e) {
+            e.printStackTrace();
+        }
+
+        return records;
+    }
+
+    @Override
+    public Collection<Record> findLastRowsByProperty(String property, int limit) {
+        return null;
+    }
+
+    @Override
+    public Collection<Record> findFirstRowsByProperty(String property, int limit) {
+        return null;
+    }
+
+    @Override
+    public void delete() {
+
+    }
+
+    @Override
     public void delete(String ident) throws DeleteFailed {
+        String sql = "DELETE FROM records WHERE uid = ?";
 
-        if (!deleteOrUndoDelete(ident, true)) {
-            throw new DeleteFailed("Cannot delete set.");
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, ident);
+            int deletedRows = statement.executeUpdate();
+
+            if (deletedRows == 0) {
+                throw new DeleteFailed("Cannot delete record.");
+            }
+        } catch (SQLException e) {
+            throw new DeleteFailed("SQL-ERROR: Cannot delete record.", e);
         }
-    }
-
-    @Override
-    public void undoDelete(String ident) throws UndoDeleteFailed {
-
-        if (!deleteOrUndoDelete(ident, false)) {
-            throw new UndoDeleteFailed("Cannot undo delete set.");
-        }
-    }
-
-    @Override
-    public void undoDelete(T object) throws UndoDeleteFailed {
-
     }
 
     @Override
     public void delete(Record object) throws DeleteFailed {
-    }
-
-    private boolean deleteOrUndoDelete(String ident, boolean value) {
-        String sql = "UPDATE records SET deleted = ? WHERE uid = ?";
-        boolean del = false;
-
-        try {
-            assert connection != null;
-            PreparedStatement ps = connection.prepareStatement(sql);
-            connection.setAutoCommit(false);
-            ps.setBoolean(1, value);
-            ps.setString(2, ident);
-
-            if (ps.executeUpdate() > 0) {
-                del = true;
-            }
-
-            connection.commit();
-
-            ps.close();
-        } catch (SQLException ignore) { }
-
-        return del;
     }
 }

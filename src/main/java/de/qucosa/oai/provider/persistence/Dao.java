@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,6 @@ package de.qucosa.oai.provider.persistence;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.HasIdentifier;
 
@@ -42,13 +41,17 @@ public interface Dao<T extends HasIdentifier> {
 
     T findByMultipleValues(String clause, String... values) throws NotFound;
 
+    Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound;
+
+    Collection<T> findLastRowsByProperty(String property, int limit) throws NotFound;
+
+    Collection<T> findFirstRowsByProperty(String property, int limit) throws NotFound;
+
+    void delete() throws DeleteFailed;
+
     void delete(String ident) throws DeleteFailed;
 
-    void undoDelete(String ident) throws UndoDeleteFailed;
-
     void delete(T object) throws DeleteFailed;
-
-    void undoDelete(T object) throws UndoDeleteFailed;
 }
 
 

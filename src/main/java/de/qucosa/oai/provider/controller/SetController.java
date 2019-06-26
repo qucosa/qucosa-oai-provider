@@ -1,4 +1,4 @@
-/**
+/*
  ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,6 @@ import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UndoDeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.SetService;
@@ -44,7 +43,6 @@ import java.util.List;
 @RequestMapping("/sets")
 @RestController
 public class SetController {
-
     private Logger logger = LoggerFactory.getLogger(SetController.class);
 
     private SetService setService;
@@ -56,17 +54,17 @@ public class SetController {
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Collection<Set>> findAll() {
+    public ResponseEntity findAll() {
         Collection<Set> sets;
 
         try {
             sets = setService.findAll();
         } catch (NotFound e) {
             return new ErrorDetails(this.getClass().getName(), "findAll", "GET:sets",
-                    HttpStatus.NOT_FOUND, "", e).response();
+                    HttpStatus.NOT_FOUND, e.getMessage(), e).response();
         }
 
-        return new ResponseEntity<Collection<Set>>(sets, HttpStatus.OK);
+        return new ResponseEntity<>(sets, HttpStatus.OK);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -78,32 +76,29 @@ public class SetController {
         try {
             Collection<Set> sets = setService.find("setspec", setspec);
 
-            if (!sets.isEmpty()) {
-                set = sets.iterator().next();
+            if (sets.isEmpty()) {
+                return new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
+                        HttpStatus.NOT_FOUND, "Set with setspec " + setspec + " is does not exists.", null).response();
             }
 
-        } catch (NotFound e) {
-            return new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
-                    HttpStatus.NOT_FOUND, "", e).response();
-        }
+            set = sets.iterator().next();
+        } catch (NotFound ignored) { }
 
-        return new ResponseEntity(set, HttpStatus.OK);
+        return new ResponseEntity<>(set, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public <T> ResponseEntity<T> save(@RequestBody String input) {
-        T output = null;
+    public ResponseEntity save(@RequestBody String input) {
+        Object output = null;
         ObjectMapper om = new ObjectMapper();
 
         try {
-            Set set = setService.saveSet(om.readValue(input, Set.class));
-            output = (T) set;
+            output = setService.saveSet(om.readValue(input, Set.class));
         } catch (IOException e) {
 
             try {
-                List<Set> sets = setService.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
-                output = (T) sets;
+                output = setService.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
             } catch (SaveFailed e1) {
                 logger.error("Cannot save set collections.", e1);
             } catch (IOException e1) {
@@ -119,12 +114,12 @@ public class SetController {
                     HttpStatus.NOT_ACCEPTABLE, "Cannot save set objects.", null).response();
         }
 
-        return new ResponseEntity<T>(output, HttpStatus.OK);
+        return new ResponseEntity<>(output, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{setspec}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<Set> update(@RequestBody Set input, @PathVariable String setspec) {
+    public ResponseEntity update(@RequestBody Set input, @PathVariable String setspec) {
         Set set;
 
         try {
@@ -135,31 +130,20 @@ public class SetController {
         }
 
 
-        return new ResponseEntity<Set>(set, HttpStatus.OK);
+        return new ResponseEntity<>(set, HttpStatus.OK);
     }
 
-    @RequestMapping(value = {"{setspec}", "{setspec}/{undo}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity delete(@PathVariable String setspec, @PathVariable(value = "undo", required = false) String undo) {
+    public ResponseEntity delete(@RequestBody Set input) {
 
         try {
-
-            if (undo == null || undo.isEmpty()) {
-                setService.deleteSet(setspec);
-            } else if (undo.equals("undo")) {
-                setService.undoDeleteSet(setspec);
-            } else {
-                return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
-                        HttpStatus.BAD_REQUEST, "The undo param is set, but wrong.", null).response();
-            }
-        } catch (DeleteFailed e) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
-                    HttpStatus.NOT_ACCEPTABLE, null, e).response();
-        } catch (UndoDeleteFailed undoDeleteFailed) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/" + setspec + "/" + undo,
-                    HttpStatus.NOT_ACCEPTABLE, null, undoDeleteFailed).response();
+            setService.delete(input);
+        } catch (DeleteFailed deleteFailed) {
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/",
+                    HttpStatus.BAD_REQUEST, deleteFailed.getMessage(), deleteFailed).response();
         }
 
-        return new ResponseEntity(true, HttpStatus.OK);
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 }
