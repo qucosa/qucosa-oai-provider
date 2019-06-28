@@ -17,10 +17,10 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
-import de.qucosa.oai.provider.config.OaiPmhTestApplicationConfig;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.FormatService;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -40,9 +40,17 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 import testdata.TestData;
 
+import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -57,10 +65,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {QucosaOaiProviderApplication.class, OaiPmhTestApplicationConfig.class})
+@SpringBootTest(classes = {QucosaOaiProviderApplication.class})
 @TestPropertySource("classpath:application-test.properties")
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@Testcontainers
 public class FormatControllerTest {
     private Logger logger = LoggerFactory.getLogger(FormatControllerTest.class);
 
@@ -74,6 +83,24 @@ public class FormatControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @Container
+    private static PostgreSQLContainer sqlContainer = new PostgreSQLContainer("postgres:9.5")
+            .withDatabaseName("oaiprovider")
+            .withUsername("postgres")
+            .withPassword("postgres");
+
+    private Connection connection;
+
+    @BeforeAll
+    public void initDb() throws SQLException, IOException {
+        sqlContainer.start();
+        connection = sqlContainer.createConnection("");
+        String sql = FileUtils.readFileToString(new File(getClass().getResource(
+                "/db/psql-oia-provider-test-data.backup").getPath()), "UTF-8");
+        Statement statement = connection.createStatement();
+        statement.execute(sql);
+    }
 
     @BeforeAll
     public void setUp() throws IOException {
@@ -276,5 +303,10 @@ public class FormatControllerTest {
                 .andExpect(status().isNotAcceptable())
                 .andExpect(jsonPath("$.statuscode", is("406")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot delete format " + format.getMdprefix() + ".")));
+    }
+
+    @AfterAll
+    public void schutdwonTest() {
+        sqlContainer.stop();
     }
 }

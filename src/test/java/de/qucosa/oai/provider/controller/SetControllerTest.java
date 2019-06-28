@@ -17,7 +17,6 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
-import de.qucosa.oai.provider.config.OaiPmhTestApplicationConfig;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.SetService;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,6 +38,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import testdata.TestData;
 
 import java.io.IOException;
@@ -56,17 +56,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {QucosaOaiProviderApplication.class, OaiPmhTestApplicationConfig.class})
+@SpringBootTest(classes = {QucosaOaiProviderApplication.class})
 @TestPropertySource("classpath:application-test.properties")
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@Testcontainers
 public class SetControllerTest {
     private Logger logger = LoggerFactory.getLogger(SetControllerTest.class);
 
     private List<Set> sets = null;
-
-    @Autowired
-    private OaiPmhTestApplicationConfig config;
 
     @Autowired
     private SetService setService;
