@@ -37,9 +37,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -62,21 +60,18 @@ public class InstallTablesTest {
     private Logger logger = LoggerFactory.getLogger(InstallTablesTest.class);
 
     @Container
-    private static PostgreSQLContainer sqlContainer = new PostgreSQLContainer("postgres:9.5")
+    private static PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
             .withDatabaseName("oaiprovider")
             .withUsername("postgres")
-            .withPassword("postgres");
+            .withPassword("postgres")
+            .withInitScript("db/init-tables.sql");
 
     private Connection connection;
 
     @BeforeAll
-    public void initDb() throws SQLException, IOException {
+    public void initDb() throws SQLException, IOException, InterruptedException {
         sqlContainer.start();
         connection = sqlContainer.createConnection("");
-        String sql = FileUtils.readFileToString(new File(getClass().getResource(
-                "/db/psql-oia-provider-test-data.backup").getPath()), "UTF-8");
-        Statement statement = connection.createStatement();
-        statement.execute(sql);
     }
 
     @Test
@@ -95,7 +90,7 @@ public class InstallTablesTest {
         resultSet.close();
 
         assertThat(tables).isNotEmpty();
-        assertThat(tables.size()).isEqualTo(9);
+        assertThat(tables.size()).isEqualTo(10);
 
         for (String tableName : tables) {
 
