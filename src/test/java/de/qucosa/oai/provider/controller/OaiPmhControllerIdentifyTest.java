@@ -19,6 +19,7 @@
 package de.qucosa.oai.provider.controller;
 
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,7 +79,7 @@ public class OaiPmhControllerIdentifyTest {
             implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
         @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+        public void initialize(@NotNull ConfigurableApplicationContext configurableApplicationContext) {
             sqlContainer.start();
 
             TestPropertyValues.of(
