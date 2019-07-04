@@ -130,13 +130,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Maven plugin dependencies -->
-        <dependency>
-            <groupId>com.dkanejs.maven.plugins</groupId>
-            <artifactId>docker-compose-maven-plugin</artifactId>
-            <version>2.4.0</version>
-        </dependency>
-
         <!-- postgresql -->
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -206,35 +199,6 @@
                         <version>5.4.0</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>com.dkanejs.maven.plugins</groupId>
-                <artifactId>docker-compose-maven-plugin</artifactId>
-                <version>2.4.0</version>
-                <executions>
-                    <execution>
-                        <id>up</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>up</goal>
-                        </goals>
-                        <configuration>
-                            <composeFile>${project.basedir}/docker/docker-compose.yml</composeFile>
-                            <detachedMode>true</detachedMode>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>down</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>down</goal>
-                        </goals>
-                        <configuration>
-                            <composeFile>${project.basedir}/docker/docker-compose.yml</composeFile>
-                            <removeVolumes>true</removeVolumes>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
