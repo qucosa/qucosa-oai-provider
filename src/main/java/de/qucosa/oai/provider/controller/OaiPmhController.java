@@ -64,6 +64,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+@SuppressWarnings("ConstantConditions")
 @RequestMapping("/oai")
 @RestController
 public class OaiPmhController {

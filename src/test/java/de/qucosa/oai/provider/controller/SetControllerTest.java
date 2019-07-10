@@ -17,9 +17,10 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
-import de.qucosa.oai.provider.config.OaiPmhTestApplicationConfig;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.SetService;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -33,15 +34,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import testdata.TestData;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -56,17 +67,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {QucosaOaiProviderApplication.class, OaiPmhTestApplicationConfig.class})
-@TestPropertySource("classpath:application-test.properties")
+@SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
+        classes = {QucosaOaiProviderApplication.class, SetControllerTest.TestConfig.class},
+        webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@ContextConfiguration(initializers = {SetControllerTest.Initializer.class})
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@Testcontainers
 public class SetControllerTest {
     private Logger logger = LoggerFactory.getLogger(SetControllerTest.class);
 
     private List<Set> sets = null;
-
-    @Autowired
-    private OaiPmhTestApplicationConfig config;
 
     @Autowired
     private SetService setService;
@@ -77,8 +88,40 @@ public class SetControllerTest {
     @Autowired
     private MockMvc mvc;
 
+    @Container
+    private static PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
+            .withDatabaseName("oaiprovider")
+            .withUsername("postgres")
+            .withPassword("postgres")
+            .withInitScript("db/init-tables.sql")
+            .withStartupTimeoutSeconds(600);
+
+    public static class Initializer
+            implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+        @Override
+        public void initialize(@NotNull ConfigurableApplicationContext configurableApplicationContext) {
+            sqlContainer.start();
+
+            TestPropertyValues.of(
+                    "spring.datasource.url=" + sqlContainer.getJdbcUrl(),
+                    "spring.datasource.username=" + sqlContainer.getUsername(),
+                    "spring.datasource.password=" + sqlContainer.getPassword()
+            ).applyTo(configurableApplicationContext);
+        }
+    }
+
+    @TestConfiguration
+    public static class TestConfig {
+
+        @Bean
+        public Connection connection() throws SQLException {
+            return sqlContainer.createConnection("");
+        }
+    }
+
     @BeforeAll
-    public void setUp() throws IOException {
+    public void setUp() throws IOException, SQLException {
         sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
     }
 
@@ -128,7 +171,7 @@ public class SetControllerTest {
                 get("/sets/" + set.getSetSpec())
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("404")))
+                .andExpect(jsonPath("$.statuscode", is("404 NOT_FOUND")))
                 .andExpect(jsonPath("$.errorMsg", is("Set with setspec " + set.getSetSpec() + " is does not exists.")))
                 .andExpect(jsonPath("$.method", is("find")));
     }
@@ -143,7 +186,7 @@ public class SetControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(set)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406")))
+                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot save set objects.")))
                 .andExpect(jsonPath("$.method", is("save")));
     }
@@ -283,7 +326,12 @@ public class SetControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(set)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.statuscode", is("400")))
+                .andExpect(jsonPath("$.statuscode", is("400 BAD_REQUEST")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot hard delete set.")));
+    }
+
+    @AfterAll
+    public void schutdwonTest() {
+        sqlContainer.stop();
     }
 }

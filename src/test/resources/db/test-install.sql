@@ -1,4 +1,4 @@
-﻿-- Table: public.sets
+-- Table: public.sets
 -- DROP TABLE public.sets;
 CREATE TABLE public.sets
 (
@@ -15,7 +15,6 @@ WITH (
 );
 ALTER TABLE public.sets
   OWNER TO postgres;
-
 
 -- Table: public.formats
 -- DROP TABLE public.formats;
@@ -35,7 +34,6 @@ WITH (
 ALTER TABLE public.formats
   OWNER TO postgres;
 
-
 -- Table: public.records
 -- DROP TABLE public.records;
 CREATE TABLE public.records
@@ -53,7 +51,6 @@ WITH (
 );
 ALTER TABLE public.records
   OWNER TO postgres;
-
 
 -- Table: public.disseminations
 -- DROP TABLE public.disseminations;
@@ -79,7 +76,6 @@ WITH (
 ALTER TABLE public.disseminations
   OWNER TO postgres;
 
-
 -- Table: public.sets_to_records
 -- DROP TABLE public.sets_to_records;
 CREATE TABLE public.sets_to_records
@@ -98,7 +94,6 @@ WITH (
 );
 ALTER TABLE public.sets_to_records
 OWNER TO postgres;
-
 
 -- Table: public.resumption_tokens
 -- DROP TABLE public.resumption_tokens;
@@ -119,7 +114,6 @@ WITH (
 ALTER TABLE public.resumption_tokens
   OWNER TO postgres;
 
-
 -- Table: public.rst_to_identifiers
 -- DROP TABLE public.rst_to_identifiers;
 CREATE TABLE public.rst_to_identifiers
@@ -138,7 +132,6 @@ WITH (
 );
 ALTER TABLE public.rst_to_identifiers
   OWNER TO postgres;
-
 
 -- VIEW: public.oai_pmh_list
 -- DROP VIEW public.oai_pmh_list;
@@ -162,7 +155,6 @@ CREATE OR REPLACE VIEW public.oai_pmh_list AS
 
 ALTER TABLE public.oai_pmh_list
   OWNER TO postgres;
-
 
 -- VIEW: public.oai_pmh_list_by_token
 -- DROP VIEW public.oai_pmh_list_by_token;

@@ -19,13 +19,12 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.hateoas.ResourceSupport;
 
 import java.io.Serializable;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Record extends ResourceSupport implements Serializable, HasIdentifier {
+public class Record implements Serializable, HasIdentifier {
     @JsonProperty("recordId")
     private Long recordId;
 

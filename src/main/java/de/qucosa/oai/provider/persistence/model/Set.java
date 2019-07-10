@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.hateoas.ResourceSupport;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
@@ -27,7 +26,7 @@ import java.io.Serializable;
 @XmlRootElement(name = "set")
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Set extends ResourceSupport implements Serializable, HasIdentifier {
+public class Set implements Serializable, HasIdentifier {
     @JsonProperty("setid")
     private Long setId;
 

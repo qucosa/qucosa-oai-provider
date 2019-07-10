@@ -19,7 +19,8 @@
 package de.qucosa.oai.provider.database;
 
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
-import de.qucosa.oai.provider.config.OaiPmhTestApplicationConfig;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -29,12 +30,20 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -46,22 +55,57 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {QucosaOaiProviderApplication.class, OaiPmhTestApplicationConfig.class})
-@TestPropertySource("classpath:application-test.properties")
+@SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
+        classes = {QucosaOaiProviderApplication.class, InstallTablesTest.TestConfig.class},
+        webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@ContextConfiguration(initializers = {InstallTablesTest.Initializer.class})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@Testcontainers
 public class InstallTablesTest {
     private Logger logger = LoggerFactory.getLogger(InstallTablesTest.class);
 
-    @Autowired
-    private OaiPmhTestApplicationConfig config;
+    private static Connection connection;
+
+    @Container
+    private static PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
+            .withDatabaseName("oaiprovider")
+            .withUsername("postgres")
+            .withPassword("postgres")
+            .withInitScript("db/init-tables.sql")
+            .withStartupTimeoutSeconds(600);
+
+    public static class Initializer
+            implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+        @Override
+        public void initialize(@NotNull ConfigurableApplicationContext configurableApplicationContext) {
+            sqlContainer.start();
+
+            TestPropertyValues.of(
+                    "spring.datasource.url=" + sqlContainer.getJdbcUrl(),
+                    "spring.datasource.username=" + sqlContainer.getUsername(),
+                    "spring.datasource.password=" + sqlContainer.getPassword()
+            ).applyTo(configurableApplicationContext);
+        }
+    }
+
+    @TestConfiguration
+    public static class TestConfig {
+
+        @Bean
+        public Connection connection() throws SQLException {
+            connection = sqlContainer.createConnection("");
+            return connection;
+        }
+    }
 
     @Test
     @DisplayName(("Check if all tables after embedded postgresql exists."))
     @Order(1)
     public void checkIfInstallAllTablesFromSqlScript() throws SQLException {
         String sql = "SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_schema,table_name;";
-        Statement statement = config.connection.prepareStatement(sql);
+        Statement statement = connection.prepareStatement(sql);
         ResultSet resultSet = ((PreparedStatement) statement).executeQuery();
         List<String> tables = new ArrayList<>();
 
@@ -110,7 +154,7 @@ public class InstallTablesTest {
 
     @Test
     @DisplayName("Has table sets inserted data rows.")
-    @Order(3)
+    @Order(2)
     public void hasSetsTableDataRows() throws SQLException {
         ResultSet resultSet = dataRows("sets");
         assertThat(resultSet.next()).isTrue();
@@ -119,7 +163,7 @@ public class InstallTablesTest {
 
     @Test
     @DisplayName("Has table records inserted data rows.")
-    @Order(4)
+    @Order(3)
     public void hasRecordsTableDataRows() throws SQLException {
         ResultSet resultSet = dataRows("records");
         assertThat(resultSet.next()).isTrue();
@@ -128,7 +172,7 @@ public class InstallTablesTest {
 
     @Test
     @DisplayName("Has table formats inserted data rows.")
-    @Order(2)
+    @Order(4)
     public void hasFormatsTableDataRows() throws SQLException {
         ResultSet resultSet = dataRows("formats");
         assertThat(resultSet.next()).isTrue();
@@ -153,45 +197,14 @@ public class InstallTablesTest {
         resultSet.close();
     }
 
-    @Test
-    @DisplayName("Hast table resumption_tokens insterted data rows.")
-    @Order(7)
-    public void hasResumptionTokensTableDataRows() throws SQLException {
-        ResultSet resultSet = dataRows("resumption_tokens");
-        assertThat(resultSet.next()).isTrue();
-        resultSet.close();
-    }
-
-    @Test
-    @DisplayName("Hast n:m table rst_to_identifiers inserted data rows.")
-    @Order(8)
-    public void hasTableRstToIdentifiersDataRows() throws SQLException {
-        ResultSet resultSet = dataRows("rst_to_identifiers");
-        assertThat(resultSet.next()).isTrue();
-        resultSet.close();
-    }
-
-    @Test
-    @DisplayName("Returns view oai_pmh_list selected data rows.")
-    @Order(9)
-    public void hasOamiPmhListsDatarows() throws SQLException {
-        ResultSet resultSet = dataRows("oai_pmh_list");
-        assertThat(resultSet.next()).isTrue();
-        resultSet.close();
-    }
-
-    @Test
-    @DisplayName("Returns view oai_pmh_list_by_token selected data rows.")
-    @Order(10)
-    public void hasOamiPmhListByTokenDatarows() throws SQLException {
-        ResultSet resultSet = dataRows("oai_pmh_list_by_token");
-        assertThat(resultSet.next()).isTrue();
-        resultSet.close();
-    }
-
     private ResultSet dataRows(String tableName) throws SQLException {
         String sql = "SELECT * FROM " + tableName;
-        Statement statement = config.connection.createStatement();
+        Statement statement = connection.createStatement();
         return statement.executeQuery(sql);
+    }
+
+    @AfterAll
+    public void schutdwonTest() {
+        sqlContainer.stop();
     }
 }

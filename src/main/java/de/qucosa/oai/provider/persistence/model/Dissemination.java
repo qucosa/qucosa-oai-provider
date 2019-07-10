@@ -19,14 +19,13 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.hateoas.ResourceSupport;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Dissemination extends ResourceSupport implements Serializable, HasIdentifier {
+public class Dissemination implements Serializable, HasIdentifier {
     @JsonProperty("dissid")
     private Long dissId;
 
