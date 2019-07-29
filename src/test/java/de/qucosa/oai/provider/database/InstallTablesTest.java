@@ -105,8 +105,8 @@ public class InstallTablesTest {
     @Order(1)
     public void checkIfInstallAllTablesFromSqlScript() throws SQLException {
         String sql = "SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_schema,table_name;";
-        Statement statement = connection.prepareStatement(sql);
-        ResultSet resultSet = ((PreparedStatement) statement).executeQuery();
+        PreparedStatement statement = connection.prepareStatement(sql);
+        ResultSet resultSet = statement.executeQuery();
         List<String> tables = new ArrayList<>();
 
         while (resultSet.next()) {
