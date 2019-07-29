@@ -28,6 +28,7 @@ import org.w3c.dom.Node;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhDataBuilder {
@@ -94,7 +95,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
 
             if (!obj.isRecordStatus()) {
                 Document metadataXml = DocumentXmlUtils.document(
-                        new ByteArrayInputStream(obj.getXmldata().getBytes("UTF-8")), true);
+                        new ByteArrayInputStream(obj.getXmldata().getBytes(StandardCharsets.UTF_8)), true);
                 Node metadataImport = recordTpl.importNode(metadataXml.getDocumentElement(), true);
                 metadata.appendChild(metadataImport);
             }
@@ -119,7 +120,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
 
             if (!obj.isRecordStatus()) {
                 Document metadataXml = DocumentXmlUtils.document(
-                        new ByteArrayInputStream(obj.getXmldata().getBytes("UTF-8")), true);
+                        new ByteArrayInputStream(obj.getXmldata().getBytes(StandardCharsets.UTF_8)), true);
                 Node metadataImport = recordTpl.importNode(metadataXml.getDocumentElement(), true);
                 metadata.appendChild(metadataImport);
             }

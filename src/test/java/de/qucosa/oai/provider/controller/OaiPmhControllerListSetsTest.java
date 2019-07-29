@@ -49,6 +49,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -114,7 +115,7 @@ public class OaiPmhControllerListSetsTest {
         assertThat(response).isNotEmpty();
 
         Document document = DocumentXmlUtils.document(
-                new ByteArrayInputStream(response.getBytes("UTF-8")), true);
+                new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)), true);
         assertThat(document).isNotNull();
 
         Node listSets = document.getElementsByTagName("ListSets").item(0);

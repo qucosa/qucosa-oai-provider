@@ -55,6 +55,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
@@ -390,7 +391,7 @@ public class OaiPmhController {
 
     private String createResumptionToken() throws NoSuchAlgorithmException, UnsupportedEncodingException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        digest.update(UUID.randomUUID().toString().getBytes("UTF-8"));
+        digest.update(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
         return HexUtils.toHexString(digest.digest());
     }
 

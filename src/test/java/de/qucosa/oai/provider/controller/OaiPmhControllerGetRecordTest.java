@@ -54,6 +54,7 @@ import org.w3c.dom.Node;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -178,7 +179,7 @@ public class OaiPmhControllerGetRecordTest {
         String response = mvcResult.getResponse().getContentAsString();
 
         if (!response.isEmpty()) {
-            record = DocumentXmlUtils.document(new ByteArrayInputStream(response.getBytes("UTF-8")),
+            record = DocumentXmlUtils.document(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)),
                     true);
         }
 

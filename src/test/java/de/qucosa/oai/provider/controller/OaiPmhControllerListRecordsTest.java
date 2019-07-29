@@ -55,6 +55,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -209,7 +210,7 @@ public class OaiPmhControllerListRecordsTest {
                 .andExpect(status().isOk()).andReturn();
         String response =  mvcResult.getResponse().getContentAsString();
 
-        return DocumentXmlUtils.document(new ByteArrayInputStream(response.getBytes("UTF-8")),
+        return DocumentXmlUtils.document(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)),
                 true);
     }
 
