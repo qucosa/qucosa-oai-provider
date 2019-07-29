@@ -265,13 +265,9 @@ public class OaiPmhController {
             return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
                     HttpStatus.NOT_ACCEPTABLE, saveFailed.getMessage(), saveFailed)
                     .response();
-        } catch (NotFound | NoSuchAlgorithmException notFound) {
+        } catch (NotFound | NoSuchAlgorithmException | UnsupportedEncodingException notFound) {
             return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
                     HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                    .response();
-        } catch (UnsupportedEncodingException e) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, e.getMessage(), e)
                     .response();
         }
 
