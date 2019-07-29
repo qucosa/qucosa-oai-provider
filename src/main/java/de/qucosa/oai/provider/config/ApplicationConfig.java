@@ -55,6 +55,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Objects;
 
 @Configuration
 public class ApplicationConfig {
@@ -67,7 +68,7 @@ public class ApplicationConfig {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setUrl(environment.getProperty("psql.url"));
-        dataSource.setDriverClassName(environment.getProperty("psql.driver"));
+        dataSource.setDriverClassName(Objects.requireNonNull(environment.getProperty("psql.driver")));
         dataSource.setUsername(environment.getProperty("psql.user"));
         dataSource.setPassword(environment.getProperty("psql.passwd"));
         return dataSource;
