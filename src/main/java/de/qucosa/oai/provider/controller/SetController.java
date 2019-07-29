@@ -67,7 +67,6 @@ public class SetController {
         return new ResponseEntity<>(sets, HttpStatus.OK);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @RequestMapping(value = "{setspec}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity find(@PathVariable String setspec) {
