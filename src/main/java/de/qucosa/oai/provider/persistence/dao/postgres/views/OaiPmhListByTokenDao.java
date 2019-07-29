@@ -115,7 +115,7 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
         try {
             PreparedStatement pst = connection.prepareStatement(sql);
             pst.setString(1, values[0]);
-            pst.setLong(2, Long.valueOf(values[1]));
+            pst.setLong(2, Long.parseLong(values[1]));
             ResultSet resultSet = pst.executeQuery();
 
             while (resultSet.next()) {

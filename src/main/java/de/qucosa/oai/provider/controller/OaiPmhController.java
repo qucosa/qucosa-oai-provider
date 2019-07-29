@@ -415,7 +415,7 @@ public class OaiPmhController {
                     cursor = ((rcCnt * recordsProPage) - 1);
                 }
 
-                resumptionToken.setCursor(new Long(cursor));
+                resumptionToken.setCursor((long) cursor);
                 rcCnt++;
                 resumptionToken = resumptionTokenService.saveAndSetIdentifier(resumptionToken);
                 int end;

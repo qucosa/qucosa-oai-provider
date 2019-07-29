@@ -166,7 +166,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             PreparedStatement statement = connection.prepareStatement(sql);
 
             if (property.equals("id_format")) {
-                statement.setLong(1, Long.valueOf(value));
+                statement.setLong(1, Long.parseLong(value));
             } else {
                 statement.setString(1, value);
             }
@@ -211,7 +211,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
 
             if (clause.contains("id_record") && clause.contains("id_format")) {
                 ps.setString(1, values[0]);
-                ps.setLong(2, Long.valueOf(values[1]));
+                ps.setLong(2, Long.parseLong(values[1]));
             }
 
             ResultSet resultSet = ps.executeQuery();

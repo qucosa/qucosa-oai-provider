@@ -109,7 +109,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
 
         try {
             PreparedStatement pst = connection.prepareStatement(sql);
-            pst.setLong(1, Long.valueOf(value));
+            pst.setLong(1, Long.parseLong(value));
             ResultSet resultSet = pst.executeQuery();
 
             while (resultSet.next()) {
@@ -165,7 +165,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
 
         try {
             PreparedStatement pst = connection.prepareStatement(sql);
-            pst.setLong(1, Long.valueOf(values[0]));
+            pst.setLong(1, Long.parseLong(values[0]));
 
             if (values.length == 3) {
                 pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));

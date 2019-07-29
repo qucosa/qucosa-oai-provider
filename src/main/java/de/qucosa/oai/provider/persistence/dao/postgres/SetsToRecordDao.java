@@ -106,7 +106,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
 
         try {
             PreparedStatement pst = connection.prepareStatement(sql);
-            pst.setLong(1, Long.valueOf(value));
+            pst.setLong(1, Long.parseLong(value));
             ResultSet resultSet = pst.executeQuery();
 
             while (resultSet.next()) {
@@ -132,8 +132,8 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setLong(1, Long.valueOf(values[0]));
-            ps.setLong(2, Long.valueOf(values[1]));
+            ps.setLong(1, Long.parseLong(values[0]));
+            ps.setLong(2, Long.parseLong(values[1]));
             ResultSet resultSet = ps.executeQuery();
             SetsToRecord setsToRecord = new SetsToRecord();
 

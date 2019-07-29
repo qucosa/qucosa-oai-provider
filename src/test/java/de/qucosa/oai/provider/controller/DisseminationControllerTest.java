@@ -237,7 +237,7 @@ public class DisseminationControllerTest {
     @Order(6)
     public void saveDisseminationWithoutFormat() throws Exception {
         Dissemination dissemination = disseminations.get(2);
-        dissemination.setFormatId(new Long(0));
+        dissemination.setFormatId(0L);
 
         mvc.perform(
                 post("/disseminations")

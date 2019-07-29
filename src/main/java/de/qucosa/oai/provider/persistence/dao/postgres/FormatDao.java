@@ -210,7 +210,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setLong(1, Long.valueOf(id));
+            statement.setLong(1, Long.parseLong(id));
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
