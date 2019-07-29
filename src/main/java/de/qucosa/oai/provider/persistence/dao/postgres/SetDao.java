@@ -102,8 +102,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
             PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             connection.setAutoCommit(false);
 
-            for (Iterator iterator = objects.iterator(); iterator.hasNext();) {
-                Set set = (Set) iterator.next();
+            for (Set set : objects) {
                 ps.clearParameters();
                 ps.setString(1, set.getSetSpec());
                 ps.setString(2, set.getSetName());

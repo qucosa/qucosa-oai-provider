@@ -99,8 +99,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             connection.setAutoCommit(false);
 
-            for (Iterator iterator = objects.iterator(); iterator.hasNext();) {
-                Format format = (Format) iterator.next();
+            for (Format format : objects) {
                 ps.clearParameters();
                 ps.setString(1, format.getMdprefix());
                 ps.setString(2, format.getSchemaUrl());
