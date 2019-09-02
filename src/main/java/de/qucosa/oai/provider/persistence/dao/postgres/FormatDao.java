@@ -37,7 +37,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     private Connection connection;
 
     @Autowired
-    public FormatDao(Connection connection) throws SQLException {
+    public FormatDao(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -257,12 +257,12 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public Format findByMultipleValues(String clause, String... values) throws NotFound {
+    public Format findByMultipleValues(String clause, String... values) {
         return null;
     }
 
     @Override
-    public Collection<Format> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<Format> findRowsByMultipleValues(String clause, String... values) {
         return null;
     }
 
@@ -282,7 +282,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
 
     }
 

@@ -19,10 +19,7 @@
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -51,7 +48,7 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
     }
 
     @Override
-    public RstToIdentifiers saveAndSetIdentifier(RstToIdentifiers object) throws SaveFailed {
+    public RstToIdentifiers saveAndSetIdentifier(RstToIdentifiers object) {
         return null;
     }
 
@@ -88,37 +85,37 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
     }
 
     @Override
-    public RstToIdentifiers update(RstToIdentifiers object) throws UpdateFailed {
+    public RstToIdentifiers update(RstToIdentifiers object) {
         return null;
     }
 
     @Override
-    public Collection<RstToIdentifiers> update(Collection<RstToIdentifiers> objects) throws UpdateFailed {
+    public Collection<RstToIdentifiers> update(Collection<RstToIdentifiers> objects) {
         return null;
     }
 
     @Override
-    public Collection<RstToIdentifiers> findAll() throws NotFound {
+    public Collection<RstToIdentifiers> findAll() {
         return null;
     }
 
     @Override
-    public RstToIdentifiers findById(String id) throws NotFound {
+    public RstToIdentifiers findById(String id) {
         return null;
     }
 
     @Override
-    public Collection<RstToIdentifiers> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<RstToIdentifiers> findByPropertyAndValue(String property, String value) {
         return null;
     }
 
     @Override
-    public RstToIdentifiers findByMultipleValues(String clause, String... values) throws NotFound {
+    public RstToIdentifiers findByMultipleValues(String clause, String... values) {
         return null;
     }
 
     @Override
-    public Collection<RstToIdentifiers> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<RstToIdentifiers> findRowsByMultipleValues(String clause, String... values) {
         return null;
     }
 
@@ -138,12 +135,12 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
 
     }
 
     @Override
-    public void delete(RstToIdentifiers object) throws DeleteFailed {
+    public void delete(RstToIdentifiers object) {
 
     }
 }

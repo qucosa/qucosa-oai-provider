@@ -64,32 +64,32 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     public OaiPmhListDao() { }
 
     @Override
-    public OaiPmhList saveAndSetIdentifier(OaiPmhList object) throws SaveFailed {
+    public OaiPmhList saveAndSetIdentifier(OaiPmhList object) {
         return null;
     }
 
     @Override
-    public Collection<OaiPmhList> saveAndSetIdentifier(Collection<OaiPmhList> objects) throws SaveFailed {
+    public Collection<OaiPmhList> saveAndSetIdentifier(Collection<OaiPmhList> objects) {
         return null;
     }
 
     @Override
-    public OaiPmhList update(OaiPmhList object) throws UpdateFailed {
+    public OaiPmhList update(OaiPmhList object) {
         return null;
     }
 
     @Override
-    public Collection<OaiPmhList> update(Collection<OaiPmhList> objects) throws UpdateFailed {
+    public Collection<OaiPmhList> update(Collection<OaiPmhList> objects) {
         return null;
     }
 
     @Override
-    public Collection<OaiPmhList> findAll() throws NotFound {
+    public Collection<OaiPmhList> findAll() {
         return null;
     }
 
     @Override
-    public OaiPmhList findById(String id) throws NotFound {
+    public OaiPmhList findById(String id) {
         return null;
     }
 
@@ -146,7 +146,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     }
 
     @Override
-    public OaiPmhList findByMultipleValues(String clause, String... values) throws NotFound {
+    public OaiPmhList findByMultipleValues(String clause, String... values) {
         return null;
     }
 
@@ -227,12 +227,12 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
 
     }
 
     @Override
-    public void delete(OaiPmhList object) throws DeleteFailed {
+    public void delete(OaiPmhList object) {
 
     }
 }

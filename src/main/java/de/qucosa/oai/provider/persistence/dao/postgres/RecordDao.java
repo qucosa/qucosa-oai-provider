@@ -88,7 +88,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public Collection<Record> saveAndSetIdentifier(Collection<Record> objects) throws SaveFailed {
+    public Collection<Record> saveAndSetIdentifier(Collection<Record> objects) {
         return null;
     }
 
@@ -116,7 +116,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public Collection<Record> update(Collection<Record> objects) throws UpdateFailed {
+    public Collection<Record> update(Collection<Record> objects) {
         return null;
     }
 
@@ -151,7 +151,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public T findById(String id) throws NotFound {
+    public T findById(String id) {
         return null;
     }
 
@@ -189,7 +189,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public T findByMultipleValues(String clause, String... values) throws NotFound {
+    public T findByMultipleValues(String clause, String... values) {
         return null;
     }
 

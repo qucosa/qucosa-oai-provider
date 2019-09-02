@@ -63,22 +63,22 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
 
 
     @Override
-    public OaiPmhListByToken saveAndSetIdentifier(OaiPmhListByToken object) throws SaveFailed {
+    public OaiPmhListByToken saveAndSetIdentifier(OaiPmhListByToken object) {
         return null;
     }
 
     @Override
-    public Collection<OaiPmhListByToken> saveAndSetIdentifier(Collection<OaiPmhListByToken> objects) throws SaveFailed {
+    public Collection<OaiPmhListByToken> saveAndSetIdentifier(Collection<OaiPmhListByToken> objects) {
         return null;
     }
 
     @Override
-    public OaiPmhListByToken update(OaiPmhListByToken object) throws UpdateFailed {
+    public OaiPmhListByToken update(OaiPmhListByToken object) {
         return null;
     }
 
     @Override
-    public Collection<OaiPmhListByToken> update(Collection<OaiPmhListByToken> objects) throws UpdateFailed {
+    public Collection<OaiPmhListByToken> update(Collection<OaiPmhListByToken> objects) {
         return null;
     }
 
@@ -93,12 +93,12 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
     }
 
     @Override
-    public Collection<OaiPmhListByToken> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<OaiPmhListByToken> findByPropertyAndValue(String property, String value) {
         return null;
     }
 
     @Override
-    public OaiPmhListByToken findByMultipleValues(String clause, String... values) throws NotFound {
+    public OaiPmhListByToken findByMultipleValues(String clause, String... values) {
         return null;
     }
 
@@ -167,12 +167,12 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
 
     }
 
     @Override
-    public void delete(OaiPmhListByToken object) throws DeleteFailed {
+    public void delete(OaiPmhListByToken object) {
 
     }
 }

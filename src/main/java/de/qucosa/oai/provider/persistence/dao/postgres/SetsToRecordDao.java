@@ -70,27 +70,27 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public Collection<SetsToRecord> saveAndSetIdentifier(Collection objects) throws SaveFailed {
+    public Collection<SetsToRecord> saveAndSetIdentifier(Collection objects) {
         return null;
     }
 
     @Override
-    public SetsToRecord update(SetsToRecord object) throws UpdateFailed {
+    public SetsToRecord update(SetsToRecord object) {
         return null;
     }
 
     @Override
-    public Collection<SetsToRecord> update(Collection objects) throws UpdateFailed {
+    public Collection<SetsToRecord> update(Collection objects) {
         return null;
     }
 
     @Override
-    public Collection<SetsToRecord> findAll() throws NotFound {
+    public Collection<SetsToRecord> findAll() {
         return null;
     }
 
     @Override
-    public T findById(String id) throws NotFound {
+    public T findById(String id) {
         return null;
     }
 
@@ -150,7 +150,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public Collection<SetsToRecord> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<SetsToRecord> findRowsByMultipleValues(String clause, String... values) {
         return null;
     }
 
@@ -170,7 +170,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
 
     }
 

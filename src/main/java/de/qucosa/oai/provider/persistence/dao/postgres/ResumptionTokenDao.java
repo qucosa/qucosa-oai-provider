@@ -86,22 +86,22 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public Collection<ResumptionToken> saveAndSetIdentifier(Collection<ResumptionToken> objects) throws SaveFailed {
+    public Collection<ResumptionToken> saveAndSetIdentifier(Collection<ResumptionToken> objects) {
         return null;
     }
 
     @Override
-    public ResumptionToken update(ResumptionToken object) throws UpdateFailed {
+    public ResumptionToken update(ResumptionToken object) {
         return null;
     }
 
     @Override
-    public Collection<ResumptionToken> update(Collection<ResumptionToken> objects) throws UpdateFailed {
+    public Collection<ResumptionToken> update(Collection<ResumptionToken> objects) {
         return null;
     }
 
     @Override
-    public Collection<ResumptionToken> findAll() throws NotFound {
+    public Collection<ResumptionToken> findAll() {
         return null;
     }
 
@@ -131,17 +131,17 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public Collection<ResumptionToken> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<ResumptionToken> findByPropertyAndValue(String property, String value) {
         return null;
     }
 
     @Override
-    public ResumptionToken findByMultipleValues(String clause, String... values) throws NotFound {
+    public ResumptionToken findByMultipleValues(String clause, String... values) {
         return null;
     }
 
     @Override
-    public Collection<ResumptionToken> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<ResumptionToken> findRowsByMultipleValues(String clause, String... values) {
         return null;
     }
 
@@ -168,12 +168,12 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
 
     }
 
     @Override
-    public void delete(ResumptionToken object) throws DeleteFailed {
+    public void delete(ResumptionToken object) {
 
     }
 }

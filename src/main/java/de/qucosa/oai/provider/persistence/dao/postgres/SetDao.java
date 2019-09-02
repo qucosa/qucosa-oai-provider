@@ -242,12 +242,12 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public T findByMultipleValues(String clause, String... values) throws NotFound {
+    public T findByMultipleValues(String clause, String... values) {
         return null;
     }
 
     @Override
-    public Collection<Set> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<Set> findRowsByMultipleValues(String clause, String... values) {
         return null;
     }
 
@@ -267,7 +267,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
 
     }
 
