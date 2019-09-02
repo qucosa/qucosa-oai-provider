@@ -17,10 +17,11 @@
 package de.qucosa.oai.provider.api.utils;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -32,7 +33,6 @@ import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.Map;
 
@@ -74,13 +74,17 @@ public class DocumentXmlUtils {
         return xPath;
     }
 
-    public static String resultXml(Document document) throws IOException {
-        OutputFormat outputFormat = new OutputFormat(document);
-        outputFormat.setOmitXMLDeclaration(true);
-        StringWriter stringWriter = new StringWriter();
-        XMLSerializer serialize = new XMLSerializer(stringWriter, outputFormat);
-        serialize.serialize(document);
-        return stringWriter.toString();
+    public static String resultXml(Document document) throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+        DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+        DOMImplementationLS implementationLS = (DOMImplementationLS) registry.getDOMImplementation("LS");
+        LSSerializer serializer = implementationLS.createLSSerializer();
+        return serializer.writeToString(document);
+//        OutputFormat outputFormat = new OutputFormat(document);
+//        outputFormat.setOmitXMLDeclaration(true);
+//        StringWriter stringWriter = new StringWriter();
+//        XMLSerializer serialize = new XMLSerializer(stringWriter, outputFormat);
+//        serialize.serialize(document);
+//        return stringWriter.toString();
     }
 
     private static Element node(InputStream stream) throws ParserConfigurationException, IOException, SAXException {
