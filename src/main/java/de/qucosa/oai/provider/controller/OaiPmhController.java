@@ -53,8 +53,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -127,7 +125,7 @@ public class OaiPmhController {
                                   @PathVariable(value = "from", required = false) String from,
                                   @PathVariable(value = "until", required = false) String until,
                                   @RequestParam(value = "identyfier", required = false) String identyfier,
-                                  @RequestParam(value = "resumptionToken", required = false) String resumptionToken) throws IOException {
+                                  @RequestParam(value = "resumptionToken", required = false) String resumptionToken) {
 
         if (!verbs.contains(verb)) {
             return errorDetails(new Exception("The verb (" + verb + ") is does not exists in OAI protocol."),
@@ -262,7 +260,7 @@ public class OaiPmhController {
             oaiPmhDataBuilderFactory.setFormat(format);
         } catch (SaveFailed saveFailed) {
             return errorDetails(saveFailed, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_ACCEPTABLE);
-        } catch (NotFound | NoSuchAlgorithmException | UnsupportedEncodingException notFound) {
+        } catch (NotFound | NoSuchAlgorithmException notFound) {
             return errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
@@ -374,7 +372,7 @@ public class OaiPmhController {
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
-    private String createResumptionToken() throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    private String createResumptionToken() throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         digest.update(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
         return HexUtils.toHexString(digest.digest());

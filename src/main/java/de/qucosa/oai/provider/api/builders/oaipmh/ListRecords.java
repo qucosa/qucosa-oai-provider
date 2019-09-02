@@ -27,7 +27,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
@@ -48,15 +47,11 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
 
         if (oaiPmhListByToken != null) {
-            try {
-                buildListWithResumptionToken(verbNode);
-            } catch (UnsupportedEncodingException ignore) { }
+            buildListWithResumptionToken(verbNode);
         }
 
         if (oaiPmhList != null) {
-            try {
-                buildList(verbNode);
-            } catch (UnsupportedEncodingException ignore) { }
+            buildList(verbNode);
         }
 
         return oaiPmhTpl;
@@ -86,7 +81,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         this.oaiPmhList = oaiPmhList;
     }
 
-    private void buildListWithResumptionToken(Node verbNode) throws UnsupportedEncodingException {
+    private void buildListWithResumptionToken(Node verbNode) {
 
         for (OaiPmhListByToken obj : oaiPmhListByToken) {
             Document recordTpl = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/record.xml"), true);
@@ -111,7 +106,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         new ResumptionToken(oaiPmhTpl).add(verb, dataSize, resumptionToken, recordsProPage);
     }
 
-    private void buildList(Node verbNode) throws UnsupportedEncodingException {
+    private void buildList(Node verbNode) {
 
         for (OaiPmhList obj : oaiPmhList) {
             Document recordTpl = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/record.xml"), true);

@@ -74,7 +74,7 @@ public class DocumentXmlUtils {
         return xPath;
     }
 
-    public static String resultXml(Document document) throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public static String resultXml(Document document) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
         DOMImplementationLS implementationLS = (DOMImplementationLS) registry.getDOMImplementation("LS");
         LSSerializer serializer = implementationLS.createLSSerializer();

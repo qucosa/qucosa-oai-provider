@@ -283,6 +283,6 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public void delete(Record object) throws DeleteFailed {
+    public void delete(Record object) {
     }
 }

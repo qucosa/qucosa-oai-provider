@@ -121,7 +121,7 @@ public class SetControllerTest {
     }
 
     @BeforeAll
-    public void setUp() throws IOException, SQLException {
+    public void setUp() throws IOException {
         sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
     }
 

@@ -80,12 +80,12 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
     }
 
     @Override
-    public Collection<OaiPmhListByToken> findAll() throws NotFound {
+    public Collection<OaiPmhListByToken> findAll() {
         return null;
     }
 
     @Override
-    public OaiPmhListByToken findById(String id) throws NotFound {
+    public OaiPmhListByToken findById(String id) {
         return null;
     }
 

@@ -27,7 +27,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Objects;
@@ -64,10 +63,7 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
         }
 
         Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
-
-        try {
-            buildRecord(verbNode, Objects.requireNonNull(record));
-        } catch (UnsupportedEncodingException ignore) { }
+        buildRecord(verbNode, Objects.requireNonNull(record));
 
         return oaiPmhTpl;
     }
@@ -88,7 +84,7 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
         this.identifier = identifier;
     }
 
-    private void buildRecord(Node verbNode, OaiPmhList record) throws UnsupportedEncodingException {
+    private void buildRecord(Node verbNode, OaiPmhList record) {
         Document recordTpl = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/record.xml"), true);
         Node recordNode = recordTpl.getElementsByTagName("record").item(0);
         Node metadata = recordTpl.getElementsByTagName("metadata").item(0);

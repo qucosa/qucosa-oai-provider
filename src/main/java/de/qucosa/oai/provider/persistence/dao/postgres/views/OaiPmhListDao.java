@@ -220,7 +220,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     }
 
     @Override
-    public void delete() throws DeleteFailed {
+    public void delete() {
 
     }
 

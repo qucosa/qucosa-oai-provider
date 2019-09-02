@@ -131,7 +131,7 @@ class DisseminationControllerTest {
     }
 
     @BeforeAll
-    public void setUp() throws IOException, SaveFailed, SQLException {
+    public void setUp() throws IOException, SaveFailed {
         disseminations = om.readValue(TestData.DISSEMINATIONS,
                 om.getTypeFactory().constructCollectionType(List.class, Dissemination.class));
         List<Format> formats = om.readValue(TestData.FORMATS,

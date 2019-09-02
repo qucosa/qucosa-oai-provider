@@ -74,7 +74,7 @@ public class OaiPmhDataBuilderFactory {
         this.oaiPmhTemplate = oaiPmhTemplate;
     }
 
-    public Document oaiPmhData() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public Document oaiPmhData() throws IllegalAccessException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
         Node responseDate = oaiPmhTemplate.getElementsByTagName("responseDate").item(0);
         responseDate.setTextContent(sdf.format(new Date()));
