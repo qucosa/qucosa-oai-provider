@@ -148,7 +148,7 @@ public class OaiPmhController {
             try {
 
                 if (oaiPmhDataBuilderFactory.getRecords().size() > recordsProPage) {
-                    output = getOaiPmhListByToken(oaiPmhDataBuilderFactory, resumptionTokenObj, resumptionToken);
+                    output = getOaiPmhListByToken(oaiPmhDataBuilderFactory, resumptionToken);
                 } else {
                     output = getOaiPmhList(oaiPmhDataBuilderFactory, metadataPrefix, from, until);
                 }
@@ -244,8 +244,8 @@ public class OaiPmhController {
     }
 
     private ResponseEntity getOaiPmhListByToken(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory,
-                                                ResumptionToken resumptionTokenObj,
                                                 String resumptionToken) throws Exception {
+        ResumptionToken resumptionTokenObj;
         try {
             resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
                     ? saveResumptionTokenAndPidsPersistent(createResumptionToken(), oaiPmhDataBuilderFactory.getRecords())
