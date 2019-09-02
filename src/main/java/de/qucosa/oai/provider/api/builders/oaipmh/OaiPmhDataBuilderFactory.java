@@ -18,7 +18,6 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
