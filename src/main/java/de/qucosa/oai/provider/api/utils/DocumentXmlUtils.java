@@ -19,20 +19,23 @@ package de.qucosa.oai.provider.api.utils;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.Map;
 
@@ -74,17 +77,11 @@ public class DocumentXmlUtils {
         return xPath;
     }
 
-    public static String resultXml(Document document) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
-        DOMImplementationLS implementationLS = (DOMImplementationLS) registry.getDOMImplementation("LS");
-        LSSerializer serializer = implementationLS.createLSSerializer();
-        return serializer.writeToString(document);
-//        OutputFormat outputFormat = new OutputFormat(document);
-//        outputFormat.setOmitXMLDeclaration(true);
-//        StringWriter stringWriter = new StringWriter();
-//        XMLSerializer serialize = new XMLSerializer(stringWriter, outputFormat);
-//        serialize.serialize(document);
-//        return stringWriter.toString();
+    public static String resultXml(Document document) throws TransformerException {
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        StringWriter stringWriter = new StringWriter();
+        transformer.transform(new DOMSource(document), new StreamResult(stringWriter));
+        return stringWriter.toString();
     }
 
     private static Element node(InputStream stream) throws ParserConfigurationException, IOException, SAXException {
