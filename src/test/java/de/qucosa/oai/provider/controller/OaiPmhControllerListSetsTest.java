@@ -67,8 +67,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
 public class OaiPmhControllerListSetsTest {
-    private Logger logger = LoggerFactory.getLogger(OaiPmhControllerListSetsTest.class);
-
     @Autowired
     private MockMvc mvc;
 

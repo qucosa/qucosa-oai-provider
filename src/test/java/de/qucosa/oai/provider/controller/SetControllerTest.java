@@ -75,8 +75,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
 public class SetControllerTest {
-    private Logger logger = LoggerFactory.getLogger(SetControllerTest.class);
-
     private List<Set> sets = null;
 
     @Autowired

@@ -73,8 +73,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
 public class RecordControllerTest {
-    private Logger logger = LoggerFactory.getLogger(RecordControllerTest.class);
-
     @Autowired
     private RecordService recordService;
 

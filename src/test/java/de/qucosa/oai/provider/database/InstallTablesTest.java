@@ -63,8 +63,6 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
 public class InstallTablesTest {
-    private Logger logger = LoggerFactory.getLogger(InstallTablesTest.class);
-
     private static Connection connection;
 
     @Container

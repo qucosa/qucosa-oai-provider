@@ -24,10 +24,6 @@ public class TestData {
             "{\"mdprefix\" : \"xmetadiss\", \"schemaurl\" : \"http://www.d-nb.de/standards/xmetadissplus/\", \"namespace\" : \"xmetadiss\", \"deleted\" : \"false\"}," +
             "{\"mdprefix\" : \"epicur\", \"schemaurl\" : \"http://www.persistent-identifier.de/xepicur/version1.0/xepicur.xsd\", \"namespace\" : \"epicur\", \"deleted\" : \"false\"}]";
 
-    public static String RECORDS = "[{\"pid\" : \"qucosa:55887\", \"uid\" : \"oai:example:org:qucosa:55887\"}, " +
-            "{\"pid\" : \"qucosa:57777\", \"uid\" : \"oai:example:org:qucosa:57777\"}," +
-            "{\"pid\" : \"qucosa:55666\", \"uid\" : \"oai:example:org:qucosa:55666\"}]";
-
     public static final String RECORDS_INPUT = "[\n" +
             "  {\n" +
             "    \"record\" : {\n" +

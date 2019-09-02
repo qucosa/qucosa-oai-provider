@@ -43,8 +43,6 @@ import de.qucosa.oai.provider.services.SetService;
 import de.qucosa.oai.provider.services.SetsToRecordService;
 import de.qucosa.oai.provider.services.views.OaiPmhListByTokenService;
 import de.qucosa.oai.provider.services.views.OaiPmhListService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -59,8 +57,6 @@ import java.util.Objects;
 
 @Configuration
 public class ApplicationConfig {
-    private Logger logger = LoggerFactory.getLogger(ApplicationConfig.class);
-
     @Autowired
     private Environment environment;
 

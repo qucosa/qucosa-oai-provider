@@ -34,9 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 public class XmlNamespacesConfig {
-
-    private Logger logger = LoggerFactory.getLogger(XmlNamespacesConfig.class);
-
     private List<NamespaceMapper> mapper;
 
     public XmlNamespacesConfig(String path) throws IOException {

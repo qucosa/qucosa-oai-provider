@@ -67,8 +67,6 @@ import java.util.UUID;
 @RequestMapping("/oai")
 @RestController
 public class OaiPmhController {
-    private Logger logger = LoggerFactory.getLogger(OaiPmhController.class);
-
     @Autowired
     private Environment environment;
 
@@ -86,8 +84,6 @@ public class OaiPmhController {
 
     @Value("#{'${oai.pmh.verbs}'.split(',')}")
     private List<String> verbs;
-
-    private int cursor = 0;
 
     private Format format;
 

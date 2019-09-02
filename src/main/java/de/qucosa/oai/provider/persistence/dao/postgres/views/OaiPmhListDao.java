@@ -44,8 +44,6 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
 
     private Connection connection;
 
-    private String tableName = "oai_pmh_list";
-
     private ObjectMapper om;
 
     @Autowired

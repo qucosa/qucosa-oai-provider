@@ -64,8 +64,6 @@ public class OaiPmhDataBuilderFactory {
 
     private ResumptionToken resumptionToken;
 
-    private ObjectMapper om = new ObjectMapper();
-
     private OaiPmhDataBuilder oaiPmhDataBuilder;
 
     private Environment environment;

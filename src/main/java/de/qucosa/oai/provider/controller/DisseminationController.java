@@ -23,8 +23,6 @@ import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.services.DisseminationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,9 +45,6 @@ import java.util.Collection;
 @RequestMapping("/disseminations")
 @RestController
 public class DisseminationController {
-
-    private Logger logger = LoggerFactory.getLogger(FormatsController.class);
-
     private final DisseminationService disseminationService;
 
 

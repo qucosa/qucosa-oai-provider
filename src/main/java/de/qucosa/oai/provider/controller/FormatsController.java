@@ -23,8 +23,6 @@ import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.FormatService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -46,9 +44,6 @@ import java.util.List;
 @RequestMapping("/formats")
 @RestController
 public class FormatsController {
-
-    private Logger logger = LoggerFactory.getLogger(FormatsController.class);
-
     private final FormatService formatService;
 
     @Autowired

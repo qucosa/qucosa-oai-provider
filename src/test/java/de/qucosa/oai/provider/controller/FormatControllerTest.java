@@ -76,8 +76,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
 public class FormatControllerTest {
-    private Logger logger = LoggerFactory.getLogger(FormatControllerTest.class);
-
     private List<Format> formats = null;
 
     @Autowired

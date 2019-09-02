@@ -80,8 +80,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
 class DisseminationControllerTest {
-    private Logger logger = LoggerFactory.getLogger(DisseminationControllerTest.class);
-
     private List<Dissemination> disseminations = null;
 
     private Format format;
