@@ -93,15 +93,15 @@ public class OaiPmhController {
 
     private Format format;
 
-    private ResumptionTokenService resumptionTokenService;
+    private final ResumptionTokenService resumptionTokenService;
 
-    private RstToIdentifiersService rstToIdentifiersService;
+    private final RstToIdentifiersService rstToIdentifiersService;
 
-    private OaiPmhListByTokenService oaiPmhListByTokenService;
+    private final OaiPmhListByTokenService oaiPmhListByTokenService;
 
-    private OaiPmhListService oaiPmhListService;
+    private final OaiPmhListService oaiPmhListService;
 
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     @Autowired
     public OaiPmhController(RestTemplate restTemplate,
@@ -130,9 +130,8 @@ public class OaiPmhController {
                                   @RequestParam(value = "resumptionToken", required = false) String resumptionToken) throws IOException {
 
         if (!verbs.contains(verb)) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.BAD_REQUEST, "The verb (" + verb + ") is does not exists in OAI protocol.", null)
-                    .response();
+            return errorDetails(new Exception("The verb (" + verb + ") is does not exists in OAI protocol."),
+                    "findAll", "GET:/oai/findAll/" + verb, HttpStatus.BAD_REQUEST);
         }
 
         ResponseEntity output = null;
@@ -262,13 +261,9 @@ public class OaiPmhController {
             oaiPmhDataBuilderFactory.setResumptionToken(resumptionTokenObj);
             oaiPmhDataBuilderFactory.setFormat(format);
         } catch (SaveFailed saveFailed) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_ACCEPTABLE, saveFailed.getMessage(), saveFailed)
-                    .response();
+            return errorDetails(saveFailed, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_ACCEPTABLE);
         } catch (NotFound | NoSuchAlgorithmException | UnsupportedEncodingException notFound) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                    .response();
+            return errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
         try {
@@ -278,9 +273,7 @@ public class OaiPmhController {
                             String.valueOf(resumptionTokenObj.getFormatId()))
             );
         } catch (NotFound notFound) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                    .response();
+            return errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
@@ -314,9 +307,8 @@ public class OaiPmhController {
                 );
             }
         } catch (NotFound notFound) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                    .response();
+            return errorDetails(notFound,  "findAll", "GET:findAll",
+                    HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
@@ -358,9 +350,8 @@ public class OaiPmhController {
     private ResponseEntity getRecord(String metadataPrefix, String identyfier, OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
 
         if (identyfier == null) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, "Identyfier parameter failed.", null)
-                    .response();
+            return errorDetails(new Exception("Identyfier parameter failed."), "getRecord",
+                    "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
         oaiPmhDataBuilderFactory.setIdentifier(identyfier);
@@ -377,9 +368,7 @@ public class OaiPmhController {
                     oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
             );
         } catch (NotFound notFound) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                    .response();
+            return errorDetails(notFound, "getRecord", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
