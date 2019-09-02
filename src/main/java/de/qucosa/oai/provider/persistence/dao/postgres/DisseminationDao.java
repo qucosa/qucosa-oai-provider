@@ -107,7 +107,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
 
     @Override
     public Collection<Dissemination> saveAndSetIdentifier(Collection<Dissemination> objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -153,7 +153,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
 
     @Override
     public Dissemination findById(String id) {
-        return null;
+        return new Dissemination();
     }
 
     @Override
@@ -235,12 +235,12 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
 
     @Override
     public Collection<Dissemination> findRowsByMultipleValues(String clause, String... values) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<Dissemination> findLastRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override

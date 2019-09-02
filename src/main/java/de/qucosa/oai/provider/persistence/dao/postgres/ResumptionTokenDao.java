@@ -32,6 +32,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
@@ -86,22 +87,22 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
 
     @Override
     public Collection<ResumptionToken> saveAndSetIdentifier(Collection<ResumptionToken> objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public ResumptionToken update(ResumptionToken object) {
-        return null;
+        return new ResumptionToken();
     }
 
     @Override
     public Collection<ResumptionToken> update(Collection<ResumptionToken> objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<ResumptionToken> findAll() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -131,27 +132,27 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
 
     @Override
     public Collection<ResumptionToken> findByPropertyAndValue(String property, String value) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public ResumptionToken findByMultipleValues(String clause, String... values) {
-        return null;
+        return new ResumptionToken();
     }
 
     @Override
     public Collection<ResumptionToken> findRowsByMultipleValues(String clause, String... values) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<ResumptionToken> findLastRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<ResumptionToken> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override

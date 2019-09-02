@@ -61,27 +61,27 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
 
     @Override
     public OaiPmhListByToken saveAndSetIdentifier(OaiPmhListByToken object) {
-        return null;
+        return new OaiPmhListByToken();
     }
 
     @Override
     public Collection<OaiPmhListByToken> saveAndSetIdentifier(Collection<OaiPmhListByToken> objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public OaiPmhListByToken update(OaiPmhListByToken object) {
-        return null;
+        return new OaiPmhListByToken();
     }
 
     @Override
     public Collection<OaiPmhListByToken> update(Collection<OaiPmhListByToken> objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<OaiPmhListByToken> findAll() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -91,12 +91,12 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
 
     @Override
     public Collection<OaiPmhListByToken> findByPropertyAndValue(String property, String value) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public OaiPmhListByToken findByMultipleValues(String clause, String... values) {
-        return null;
+        return new OaiPmhListByToken();
     }
 
     @Override
@@ -150,12 +150,12 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
 
     @Override
     public Collection<OaiPmhListByToken> findLastRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<OaiPmhListByToken> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override

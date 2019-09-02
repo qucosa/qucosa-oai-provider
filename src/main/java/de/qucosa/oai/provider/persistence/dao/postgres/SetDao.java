@@ -141,8 +141,6 @@ public class SetDao<T extends Set> implements Dao<Set> {
         return output;
     }
 
-
-
     @Override
     public Set update(Set object) throws UpdateFailed {
         String sql = "UPDATE sets SET setname = ?, setdescription = ? where setspec = ? AND deleted = FALSE";
@@ -171,7 +169,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
 
     @Override
     public Collection<Set> update(Collection<Set> objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -206,8 +204,8 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public T findById(String id) {
-        return null;
+    public Set findById(String id) {
+        return new Set();
     }
 
     @Override
@@ -241,23 +239,23 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public T findByMultipleValues(String clause, String... values) {
-        return null;
+    public Set findByMultipleValues(String clause, String... values) {
+        return new Set();
     }
 
     @Override
     public Collection<Set> findRowsByMultipleValues(String clause, String... values) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<Set> findLastRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<Set> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override

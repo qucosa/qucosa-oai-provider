@@ -89,7 +89,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
     @Override
     public Collection<Record> saveAndSetIdentifier(Collection<Record> objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -117,7 +117,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
     @Override
     public Collection<Record> update(Collection<Record> objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -151,8 +151,8 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public T findById(String id) {
-        return null;
+    public Record findById(String id) {
+        return new Record();
     }
 
     @Override
@@ -189,8 +189,8 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public T findByMultipleValues(String clause, String... values) {
-        return null;
+    public Record findByMultipleValues(String clause, String... values) {
+        return new Record();
     }
 
     @Override
@@ -252,12 +252,12 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
     @Override
     public Collection<Record> findLastRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<Record> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override

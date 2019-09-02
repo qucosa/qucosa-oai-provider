@@ -27,6 +27,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
@@ -49,7 +50,7 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
 
     @Override
     public RstToIdentifiers saveAndSetIdentifier(RstToIdentifiers object) {
-        return null;
+        return new RstToIdentifiers();
     }
 
     @Override
@@ -86,47 +87,47 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
 
     @Override
     public RstToIdentifiers update(RstToIdentifiers object) {
-        return null;
+        return new RstToIdentifiers();
     }
 
     @Override
     public Collection<RstToIdentifiers> update(Collection<RstToIdentifiers> objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<RstToIdentifiers> findAll() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public RstToIdentifiers findById(String id) {
-        return null;
+        return new RstToIdentifiers();
     }
 
     @Override
     public Collection<RstToIdentifiers> findByPropertyAndValue(String property, String value) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public RstToIdentifiers findByMultipleValues(String clause, String... values) {
-        return null;
+        return new RstToIdentifiers();
     }
 
     @Override
     public Collection<RstToIdentifiers> findRowsByMultipleValues(String clause, String... values) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<RstToIdentifiers> findLastRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<RstToIdentifiers> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override

@@ -60,32 +60,32 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
 
     @Override
     public OaiPmhList saveAndSetIdentifier(OaiPmhList object) {
-        return null;
+        return new OaiPmhList();
     }
 
     @Override
     public Collection<OaiPmhList> saveAndSetIdentifier(Collection<OaiPmhList> objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public OaiPmhList update(OaiPmhList object) {
-        return null;
+        return new OaiPmhList();
     }
 
     @Override
     public Collection<OaiPmhList> update(Collection<OaiPmhList> objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<OaiPmhList> findAll() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public OaiPmhList findById(String id) {
-        return null;
+        return new OaiPmhList();
     }
 
     @Override
@@ -142,7 +142,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
 
     @Override
     public OaiPmhList findByMultipleValues(String clause, String... values) {
-        return null;
+        return new OaiPmhList();
     }
 
     @Override
@@ -208,12 +208,12 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
 
     @Override
     public Collection<OaiPmhList> findLastRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<OaiPmhList> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override

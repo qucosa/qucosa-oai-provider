@@ -70,27 +70,27 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
 
     @Override
     public Collection<SetsToRecord> saveAndSetIdentifier(Collection objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public SetsToRecord update(SetsToRecord object) {
-        return null;
+        return new SetsToRecord();
     }
 
     @Override
     public Collection<SetsToRecord> update(Collection objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<SetsToRecord> findAll() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
-    public T findById(String id) {
-        return null;
+    public SetsToRecord findById(String id) {
+        return new SetsToRecord();
     }
 
     @SuppressWarnings("unchecked")
@@ -150,17 +150,17 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
 
     @Override
     public Collection<SetsToRecord> findRowsByMultipleValues(String clause, String... values) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<SetsToRecord> findLastRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<SetsToRecord> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override

@@ -167,7 +167,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
 
     @Override
     public Collection<Format> update(Collection<Format> objects) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -258,22 +258,22 @@ public class FormatDao<T extends Format> implements Dao<Format> {
 
     @Override
     public Format findByMultipleValues(String clause, String... values) {
-        return null;
+        return new Format();
     }
 
     @Override
     public Collection<Format> findRowsByMultipleValues(String clause, String... values) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<Format> findLastRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<Format> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
