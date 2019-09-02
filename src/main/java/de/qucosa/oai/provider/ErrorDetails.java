@@ -53,42 +53,6 @@ public class ErrorDetails {
         return new ResponseEntity<>(this, this.statuscode);
     }
 
-    public String getClassname() {
-        return classname;
-    }
-
-    public String getStatuscode() {
-        return statuscode.toString();
-    }
-
-    public String getErrorMsg() {
-        return errorMsg;
-    }
-
-    public String getRequestPath() {
-        return requestPath;
-    }
-
-    public Exception getException() {
-        return exception;
-    }
-
-    public StackTraceElement[] getStacktrace() {
-        return stacktrace;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public String getRequestMethod() {
-        return requestMethod;
-    }
-
     private void setRequestPath(String requestMethodAndPath) {
         String[] req = requestMethodAndPath.split(":");
         this.requestPath = req[1];
