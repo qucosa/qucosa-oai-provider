@@ -59,7 +59,6 @@ public class SetDao<T extends Set> implements Dao<Set> {
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (setspec) ";
         sql+="DO NOTHING";
-        String finalSql = sql;
 
         PreparedStatement ps;
 
@@ -69,7 +68,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
             ps.setString(1, object.getSetSpec());
             ps.setString(2, object.getSetName());
             ps.setString(3, object.getSetDescription());
-            int affectedRows = ps.executeUpdate();
+            ps.executeUpdate();
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
 
