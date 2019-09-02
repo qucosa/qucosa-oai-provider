@@ -106,7 +106,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Collection<Dissemination> saveAndSetIdentifier(Collection<Dissemination> objects) throws SaveFailed {
+    public Collection<Dissemination> saveAndSetIdentifier(Collection<Dissemination> objects) {
         return null;
     }
 
@@ -142,17 +142,17 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Collection<Dissemination> update(Collection<Dissemination> objects) throws UpdateFailed {
+    public Collection<Dissemination> update(Collection<Dissemination> objects) {
         return null;
     }
 
     @Override
-    public Collection<Dissemination> findAll() throws NotFound {
+    public Collection<Dissemination> findAll() {
         return null;
     }
 
     @Override
-    public Dissemination findById(String id) throws NotFound {
+    public Dissemination findById(String id) {
         return null;
     }
 
@@ -234,12 +234,12 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Collection<Dissemination> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<Dissemination> findRowsByMultipleValues(String clause, String... values) {
         return null;
     }
 
     @Override
-    public Collection<Dissemination> findLastRowsByProperty(String property, int limit) throws NotFound {
+    public Collection<Dissemination> findLastRowsByProperty(String property, int limit) {
         return null;
     }
 
@@ -285,7 +285,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed { }
+    public void delete(String ident) { }
 
     @Override
     public void delete(Dissemination object) throws DeleteFailed {
