@@ -68,7 +68,7 @@ public class OaiPmhControllerIdentifyTest {
     private MockMvc mvc;
 
     @Container
-    private static PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
+    private static final PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
             .withDatabaseName("oaiprovider")
             .withUsername("postgres")
             .withPassword("postgres")

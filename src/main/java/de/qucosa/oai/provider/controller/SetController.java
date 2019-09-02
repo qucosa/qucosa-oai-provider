@@ -43,9 +43,9 @@ import java.util.List;
 @RequestMapping("/sets")
 @RestController
 public class SetController {
-    private Logger logger = LoggerFactory.getLogger(SetController.class);
+    private final Logger logger = LoggerFactory.getLogger(SetController.class);
 
-    private SetService setService;
+    private final SetService setService;
 
     @Autowired
     public SetController(SetService setService) {

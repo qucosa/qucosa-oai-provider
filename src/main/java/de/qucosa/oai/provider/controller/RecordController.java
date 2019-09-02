@@ -55,17 +55,17 @@ import java.util.List;
 @RestController
 public class RecordController {
 
-    private Logger logger = LoggerFactory.getLogger(RecordController.class);
+    private final Logger logger = LoggerFactory.getLogger(RecordController.class);
 
-    private RecordService recordService;
+    private final RecordService recordService;
 
-    private FormatService formatService;
+    private final FormatService formatService;
 
-    private SetService setService;
+    private final SetService setService;
 
-    private DisseminationService disseminationService;
+    private final DisseminationService disseminationService;
 
-    private SetsToRecordService setsToRecordService;
+    private final SetsToRecordService setsToRecordService;
 
     @Autowired
     public RecordController(RecordService recordService, FormatService formatService, SetService setService,

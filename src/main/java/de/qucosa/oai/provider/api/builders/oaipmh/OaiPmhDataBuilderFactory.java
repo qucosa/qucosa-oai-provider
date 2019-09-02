@@ -38,7 +38,7 @@ import java.util.Collection;
 import java.util.Date;
 
 public class OaiPmhDataBuilderFactory {
-    private Document oaiPmhTemplate;
+    private final Document oaiPmhTemplate;
 
     private String verb;
 

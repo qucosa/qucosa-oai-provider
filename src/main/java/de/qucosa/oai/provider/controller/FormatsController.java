@@ -49,7 +49,7 @@ public class FormatsController {
 
     private Logger logger = LoggerFactory.getLogger(FormatsController.class);
 
-    private FormatService formatService;
+    private final FormatService formatService;
 
     @Autowired
     public FormatsController(FormatService formatService) {

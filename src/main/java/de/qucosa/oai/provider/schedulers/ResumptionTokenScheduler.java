@@ -28,9 +28,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ResumptionTokenScheduler {
-    private Logger logger = LoggerFactory.getLogger(ResumptionTokenScheduler.class);
+    private final Logger logger = LoggerFactory.getLogger(ResumptionTokenScheduler.class);
 
-    private ResumptionTokenService tokenService;
+    private final ResumptionTokenService tokenService;
 
     @Autowired
     public ResumptionTokenScheduler(ResumptionTokenService tokenService) {

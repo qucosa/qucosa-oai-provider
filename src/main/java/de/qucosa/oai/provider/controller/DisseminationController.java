@@ -50,7 +50,7 @@ public class DisseminationController {
 
     private Logger logger = LoggerFactory.getLogger(FormatsController.class);
 
-    private DisseminationService disseminationService;
+    private final DisseminationService disseminationService;
 
 
     @Autowired

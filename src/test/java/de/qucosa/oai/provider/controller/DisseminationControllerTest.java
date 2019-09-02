@@ -79,7 +79,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-public class DisseminationControllerTest {
+class DisseminationControllerTest {
     private Logger logger = LoggerFactory.getLogger(DisseminationControllerTest.class);
 
     private List<Dissemination> disseminations = null;
@@ -99,7 +99,7 @@ public class DisseminationControllerTest {
     private MockMvc mvc;
 
     @Container
-    private static PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
+    private static final PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
             .withDatabaseName("oaiprovider")
             .withUsername("postgres")
             .withPassword("postgres")

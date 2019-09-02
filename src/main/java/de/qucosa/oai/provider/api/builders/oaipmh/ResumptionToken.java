@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class ResumptionToken {
-    private Document oaiPmhTpl;
+    private final Document oaiPmhTpl;
 
     public ResumptionToken(Document oaiPmhTpl) {
         this.oaiPmhTpl = oaiPmhTpl;
