@@ -35,8 +35,8 @@ public class ListSets extends OaiPmhDataBuilderAbstract implements OaiPmhDataBui
             throw new RuntimeException("Not exists sets objects.");
         }
 
-        Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
-        buildSets(verbNode);
+//        Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
+        buildSets();
 
         return oaiPmhTpl;
     }
@@ -45,7 +45,7 @@ public class ListSets extends OaiPmhDataBuilderAbstract implements OaiPmhDataBui
         this.sets = sets;
     }
 
-    private void buildSets(Node verbNode) {
+    private void buildSets() {
 
         for (Set set : sets) {
             Document setTpl = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/set.xml"), true);
