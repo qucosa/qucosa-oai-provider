@@ -120,13 +120,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
                 }
 
                 do {
-                    Format format = new Format();
-                    format.setFormatId(result.getLong("id"));
-                    format.setMdprefix(result.getString("mdprefix"));
-                    format.setSchemaUrl(result.getString("schemaurl"));
-                    format.setNamespace(result.getString("namespace"));
-                    format.setDeleted(result.getBoolean("deleted"));
-                    output.add(format);
+                    output.add(formatData(result));
                 } while(result.next());
             }
 
@@ -182,13 +176,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             if (resultSet.next()) {
 
                 do {
-                    Format format = new Format();
-                    format.setFormatId(resultSet.getLong("id"));
-                    format.setMdprefix(resultSet.getString("mdprefix"));
-                    format.setSchemaUrl(resultSet.getString("schemaurl"));
-                    format.setNamespace(resultSet.getString("namespace"));
-                    format.setDeleted(resultSet.getBoolean("deleted"));
-                    formats.add(format);
+                    formats.add(formatData(resultSet));
                 } while (resultSet.next());
             }
 
@@ -213,11 +201,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                format.setFormatId(resultSet.getLong("id"));
-                format.setNamespace(resultSet.getString("namespace"));
-                format.setMdprefix(resultSet.getString("mdprefix"));
-                format.setSchemaUrl(resultSet.getString("schemaurl"));
-                format.setDeleted(resultSet.getBoolean("deleted"));
+                format = formatData(resultSet);
             }
         } catch (SQLException e) {
             throw new NotFound("Format with id (" + id + ") not found.", e);
@@ -235,15 +219,9 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, value);
             ResultSet resultSet = ps.executeQuery();
-            Format format = new Format();
 
             while (resultSet.next()) {
-                format.setFormatId(resultSet.getLong("id"));
-                format.setMdprefix(resultSet.getString("mdprefix"));
-                format.setSchemaUrl(resultSet.getString("schemaurl"));
-                format.setNamespace(resultSet.getString("namespace"));
-                format.setDeleted(resultSet.getBoolean("deleted"));
-                formats.add(format);
+                formats.add(formatData(resultSet));
             }
 
             resultSet.close();
@@ -301,5 +279,15 @@ public class FormatDao<T extends Format> implements Dao<Format> {
         } catch (SQLException e) {
             throw new DeleteFailed(e.getMessage(), e);
         }
+    }
+
+    private Format formatData(ResultSet resultSet) throws SQLException {
+        Format format = new Format();
+        format.setFormatId(resultSet.getLong("id"));
+        format.setMdprefix(resultSet.getString("mdprefix"));
+        format.setSchemaUrl(resultSet.getString("schemaurl"));
+        format.setNamespace(resultSet.getString("namespace"));
+        format.setDeleted(resultSet.getBoolean("deleted"));
+        return  format;
     }
 }

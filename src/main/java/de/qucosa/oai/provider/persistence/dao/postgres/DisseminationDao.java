@@ -175,13 +175,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
 
 
             while (resultSet.next()) {
-                Dissemination dissemination = new Dissemination();
-                dissemination.setDissId(resultSet.getLong("id"));
-                dissemination.setFormatId(resultSet.getLong("id_format"));
-                dissemination.setRecordId(resultSet.getString("id_record"));
-                dissemination.setDeleted(resultSet.getBoolean("deleted"));
-                dissemination.setXmldata(resultSet.getString("xmldata"));
-                disseminations.add(dissemination);
+                disseminations.add(disseminationData(resultSet));
             }
 
             resultSet.close();
@@ -218,13 +212,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             Dissemination dissemination = null;
 
             while (resultSet.next()) {
-                dissemination = new Dissemination();
-                dissemination.setDissId(resultSet.getLong("id"));
-                dissemination.setFormatId(resultSet.getLong("id_format"));
-                dissemination.setRecordId(resultSet.getString("id_record"));
-                dissemination.setDeleted(resultSet.getBoolean("deleted"));
-                dissemination.setLastmoddate(resultSet.getTimestamp("lastmoddate"));
-                dissemination.setXmldata(resultSet.getString("xmldata"));
+                dissemination = disseminationData(resultSet);
             }
 
             return dissemination;
@@ -257,14 +245,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             ResultSet resultSet = statement.executeQuery(sql);
 
             while (resultSet.next()) {
-                Dissemination dissemination = new Dissemination();
-                dissemination.setDissId(resultSet.getLong("id"));
-                dissemination.setFormatId(resultSet.getLong("id_format"));
-                dissemination.setRecordId(resultSet.getString("id_record"));
-                dissemination.setDeleted(resultSet.getBoolean("deleted"));
-                dissemination.setLastmoddate(resultSet.getTimestamp("lastmoddate"));
-                dissemination.setXmldata(resultSet.getString("xmldata"));
-                disseminations.add(dissemination);
+                disseminations.add(disseminationData(resultSet));
             }
 
             resultSet.close();
@@ -302,5 +283,16 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
         } catch (SQLException e) {
             throw new DeleteFailed("SQL-ERROR: Cannot delete dissemination.", e);
         }
+    }
+
+    private Dissemination disseminationData(ResultSet resultSet) throws SQLException {
+        Dissemination dissemination = new Dissemination();
+        dissemination.setDissId(resultSet.getLong("id"));
+        dissemination.setFormatId(resultSet.getLong("id_format"));
+        dissemination.setRecordId(resultSet.getString("id_record"));
+        dissemination.setDeleted(resultSet.getBoolean("deleted"));
+        dissemination.setLastmoddate(resultSet.getTimestamp("lastmoddate"));
+        dissemination.setXmldata(resultSet.getString("xmldata"));
+        return dissemination;
     }
 }
