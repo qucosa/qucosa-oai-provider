@@ -166,7 +166,7 @@ public class FormatControllerTest {
                 get("/formats/format?mdprefix=test")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("404 NOT_FOUND")))
+                .andExpect(jsonPath("$.statuscode", is("NOT_FOUND")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot found format.")));
     }
 
@@ -201,7 +201,7 @@ public class FormatControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(format)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.statuscode", is("NOT_ACCEPTABLE")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot save format.")));
     }
 
@@ -240,7 +240,7 @@ public class FormatControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(format)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.statuscode", is("NOT_ACCEPTABLE")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot update format.")));
     }
 
@@ -316,7 +316,7 @@ public class FormatControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(format)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.statuscode", is("NOT_ACCEPTABLE")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot delete format " + format.getMdprefix() + ".")));
     }
 
