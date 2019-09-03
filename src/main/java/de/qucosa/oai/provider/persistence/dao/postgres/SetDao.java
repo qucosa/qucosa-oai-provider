@@ -122,13 +122,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
                 }
 
                 do {
-                    Set set = new Set();
-                    set.setIdentifier(result.getLong(1));
-                    set.setSetSpec(result.getString("setspec"));
-                    set.setSetName(result.getString("setname"));
-                    set.setSetDescription(result.getString("setdescription"));
-                    set.setDeleted(result.getBoolean("deleted"));
-                    output.add(set);
+                    output.add(setData(result));
                 } while(result.next());
             }
 
@@ -185,13 +179,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
             if (resultSet.next()) {
 
                 do {
-                    Set set = new Set();
-                    set.setIdentifier(resultSet.getLong(1));
-                    set.setSetSpec(resultSet.getString("setspec"));
-                    set.setSetName(resultSet.getString("setname"));
-                    set.setSetDescription(resultSet.getString("setdescription"));
-                    set.setDeleted(resultSet.getBoolean("deleted"));
-                    sets.add(set);
+                    sets.add(setData(resultSet));
                 } while(resultSet.next());
             } else {
                 throw new NotFound("Cannot found sets.");
@@ -220,13 +208,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
             ResultSet resultSet = ps.executeQuery();
 
             while (resultSet.next()) {
-                Set set = new Set();
-                set.setIdentifier(resultSet.getLong("id"));
-                set.setSetSpec(resultSet.getString("setspec"));
-                set.setSetName(resultSet.getString("setname"));
-                set.setSetDescription(resultSet.getString("setdescription"));
-                set.setDeleted(resultSet.getBoolean("deleted"));
-                sets.add(set);
+                sets.add(setData(resultSet));
             }
 
             resultSet.close();
@@ -283,5 +265,15 @@ public class SetDao<T extends Set> implements Dao<Set> {
         } catch (SQLException e) {
             throw new DeleteFailed("Cannot hard delete set.", e);
         }
+    }
+
+    private Set setData(ResultSet resultSet) throws SQLException {
+        Set set = new Set();
+        set.setIdentifier(resultSet.getLong("id"));
+        set.setSetSpec(resultSet.getString("setspec"));
+        set.setSetName(resultSet.getString("setname"));
+        set.setSetDescription(resultSet.getString("setdescription"));
+        set.setDeleted(resultSet.getBoolean("deleted"));
+        return set;
     }
 }
