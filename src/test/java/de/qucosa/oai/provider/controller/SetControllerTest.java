@@ -167,7 +167,7 @@ public class SetControllerTest {
                 get("/sets/" + set.getSetSpec())
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("404 NOT_FOUND")))
+                .andExpect(jsonPath("$.statuscode", is("NOT_FOUND")))
                 .andExpect(jsonPath("$.errorMsg", is("Set with setspec " + set.getSetSpec() + " is does not exists.")))
                 .andExpect(jsonPath("$.method", is("find")));
     }
@@ -182,7 +182,7 @@ public class SetControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(set)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.statuscode", is("NOT_ACCEPTABLE")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot save set objects.")))
                 .andExpect(jsonPath("$.method", is("save")));
     }
@@ -322,7 +322,7 @@ public class SetControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(set)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.statuscode", is("400 BAD_REQUEST")))
+                .andExpect(jsonPath("$.statuscode", is("BAD_REQUEST")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot hard delete set.")));
     }
 

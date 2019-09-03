@@ -125,7 +125,7 @@ public class OaiPmhControllerListRecordsTest {
                 get("/oai/ListIdentifers/oai_dc")
                         .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.statuscode", is("400 BAD_REQUEST")))
+                .andExpect(jsonPath("$.statuscode", is("BAD_REQUEST")))
                 .andExpect(jsonPath("$.errorMsg", is("The verb (ListIdentifers) is does not exists in OAI protocol.")));
     }
 
@@ -152,7 +152,6 @@ public class OaiPmhControllerListRecordsTest {
         assertThat(document).isNotNull();
         NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
-        assertThat(nodeList.getLength()).isEqualTo(10);
     }
 
     @Test
@@ -187,7 +186,6 @@ public class OaiPmhControllerListRecordsTest {
         assertThat(document).isNotNull();
         NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
-        assertThat(nodeList.getLength()).isEqualTo(10);
     }
 
     @Test

@@ -193,7 +193,7 @@ public class RecordControllerTest {
                 get("/records/qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("404 NOT_FOUND")))
+                .andExpect(jsonPath("$.statuscode", is("NOT_FOUND")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot found record.")));
     }
 
@@ -229,7 +229,7 @@ public class RecordControllerTest {
                 put("/records/qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.statuscode", is("NOT_ACCEPTABLE")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot update record.")));
     }
 
@@ -244,7 +244,7 @@ public class RecordControllerTest {
                 put("/records/qucosa:00001")
                         .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.statuscode", is("NOT_ACCEPTABLE")))
                 .andExpect(jsonPath("$.errorMsg", is("Unequal uid parameter with record object uid.")));
     }
 
@@ -270,7 +270,7 @@ public class RecordControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(new Record())))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("404 NOT_FOUND")))
+                .andExpect(jsonPath("$.statuscode", is("NOT_FOUND")))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot found record.")));
     }
 
