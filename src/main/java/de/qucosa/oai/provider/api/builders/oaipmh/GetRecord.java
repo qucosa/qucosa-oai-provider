@@ -48,6 +48,7 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
             throw new RuntimeException("Not exists list objects.");
         }
 
+        recordTpl(getClass());
         OaiPmhList record = null;
 
         if (!oaiPmhList.isEmpty()) {
@@ -85,7 +86,6 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
     }
 
     private void buildRecord(Node verbNode, OaiPmhList record) {
-        Document recordTpl = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/record.xml"), true);
         Node recordNode = recordTpl.getElementsByTagName("record").item(0);
         Node metadata = recordTpl.getElementsByTagName("metadata").item(0);
 

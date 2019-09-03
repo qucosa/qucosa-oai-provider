@@ -44,6 +44,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
             throw new RuntimeException("Not exists list objects.");
         }
 
+        recordTpl(getClass());
         Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
 
         if (oaiPmhListByToken != null) {
@@ -84,7 +85,6 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
     private void buildListWithResumptionToken(Node verbNode) {
 
         for (OaiPmhListByToken obj : oaiPmhListByToken) {
-            Document recordTpl = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/record.xml"), true);
             Node record = recordTpl.getElementsByTagName("record").item(0);
             Node metadata = recordTpl.getElementsByTagName("metadata").item(0);
 
@@ -109,7 +109,6 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
     private void buildList(Node verbNode) {
 
         for (OaiPmhList obj : oaiPmhList) {
-            Document recordTpl = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/record.xml"), true);
             Node record = recordTpl.getElementsByTagName("record").item(0);
             Node metadata = recordTpl.getElementsByTagName("metadata").item(0);
 

@@ -108,23 +108,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
             ResultSet resultSet = pst.executeQuery();
 
             while (resultSet.next()) {
-                OaiPmhList res = new OaiPmhList();
-                res.setRecordId(resultSet.getLong("record_id"));
-                res.setPid(resultSet.getString("pid"));
-                res.setUid(resultSet.getString("uid"));
-                res.setFormat(resultSet.getLong("format_id"));
-                res.setMdprefix(resultSet.getString("mdprefix"));
-                res.setLastModDate(resultSet.getTimestamp("lastmoddate"));
-                res.setXmldata(resultSet.getString("xmldata"));
-                res.setRecordStatus(resultSet.getBoolean("record_status"));
-                res.setDissStatus(resultSet.getBoolean("diss_status"));
-
-                if (resultSet.getString("set") != null) {
-                    res.setSets(om.readValue(resultSet.getString("set"),
-                            om.getTypeFactory().constructCollectionType(Collection.class, Set.class)));
-                }
-
-                oaiPmhList.add(res);
+                oaiPmhList.add(listData(resultSet));
             }
 
             resultSet.close();
@@ -172,23 +156,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
             ResultSet resultSet = pst.executeQuery();
 
             while (resultSet.next()) {
-                OaiPmhList res = new OaiPmhList();
-                res.setRecordId(resultSet.getLong("record_id"));
-                res.setPid(resultSet.getString("pid"));
-                res.setUid(resultSet.getString("uid"));
-                res.setFormat(resultSet.getLong("format_id"));
-                res.setMdprefix(resultSet.getString("mdprefix"));
-                res.setLastModDate(resultSet.getTimestamp("lastmoddate"));
-                res.setXmldata(resultSet.getString("xmldata"));
-                res.setRecordStatus(resultSet.getBoolean("record_status"));
-                res.setDissStatus(resultSet.getBoolean("diss_status"));
-
-                if (resultSet.getString("set") != null) {
-                    res.setSets(om.readValue(resultSet.getString("set"),
-                            om.getTypeFactory().constructCollectionType(Collection.class, Set.class)));
-                }
-
-                oaiPmhList.add(res);
+                oaiPmhList.add(listData(resultSet));
             }
 
             resultSet.close();
@@ -229,5 +197,25 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     @Override
     public void delete(OaiPmhList object) {
 
+    }
+
+    private OaiPmhList listData(ResultSet resultSet) throws SQLException, IOException {
+        OaiPmhList res = new OaiPmhList();
+        res.setRecordId(resultSet.getLong("record_id"));
+        res.setPid(resultSet.getString("pid"));
+        res.setUid(resultSet.getString("uid"));
+        res.setFormat(resultSet.getLong("format_id"));
+        res.setMdprefix(resultSet.getString("mdprefix"));
+        res.setLastModDate(resultSet.getTimestamp("lastmoddate"));
+        res.setXmldata(resultSet.getString("xmldata"));
+        res.setRecordStatus(resultSet.getBoolean("record_status"));
+        res.setDissStatus(resultSet.getBoolean("diss_status"));
+
+        if (resultSet.getString("set") != null) {
+            res.setSets(om.readValue(resultSet.getString("set"),
+                    om.getTypeFactory().constructCollectionType(Collection.class, Set.class)));
+        }
+
+        return res;
     }
 }

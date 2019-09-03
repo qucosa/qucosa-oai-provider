@@ -39,6 +39,8 @@ public abstract class OaiPmhDataBuilderAbstract {
 
     protected int recordsProPage;
 
+    protected Document recordTpl;
+
     public void setOaiPmhTpl(Document oaiPmhTpl) {
         this.oaiPmhTpl = oaiPmhTpl;
     }
@@ -88,5 +90,9 @@ public abstract class OaiPmhDataBuilderAbstract {
                 header.appendChild(identifierTpl.importNode(node, true));
             }
         }
+    }
+
+    protected void recordTpl(Class clazz) {
+        recordTpl = DocumentXmlUtils.document(clazz.getResourceAsStream("/templates/record.xml"), true);
     }
 }
