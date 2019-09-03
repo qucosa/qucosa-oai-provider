@@ -20,7 +20,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
-@SuppressWarnings("FieldCanBeLocal")
+@SuppressWarnings("unused")
 public class ErrorDetails {
     private final String classname;
 
@@ -48,6 +48,42 @@ public class ErrorDetails {
         this.errorMsg = (exception != null) ? exception.getMessage() : errorMsg;
         setException(exception);
         setRequestPath(requestMethodAndPath);
+    }
+
+    public String getClassname() {
+        return classname;
+    }
+
+    public HttpStatus getStatuscode() {
+        return statuscode;
+    }
+
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    public String getRequestPath() {
+        return requestPath;
+    }
+
+    public String getRequestMethod() {
+        return requestMethod;
+    }
+
+    public Exception getException() {
+        return exception;
+    }
+
+    public StackTraceElement[] getStacktrace() {
+        return stacktrace;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public String getMethod() {
+        return method;
     }
 
     public ResponseEntity response() {
