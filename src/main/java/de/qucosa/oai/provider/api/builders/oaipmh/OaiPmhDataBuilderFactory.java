@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
+@SuppressWarnings("unused")
 public class OaiPmhDataBuilderFactory {
     private final Document oaiPmhTemplate;
 
