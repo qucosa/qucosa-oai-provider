@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class ErrorDetails {
     private final String classname;
 
