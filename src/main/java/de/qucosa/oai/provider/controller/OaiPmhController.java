@@ -108,7 +108,6 @@ public class OaiPmhController {
         this.oaiPmhListService = oaiPmhListService;
     }
 
-    @SuppressWarnings("ConstantConditions")
     @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}",
             "{verb}/{metadataPrefix}/{from}",
             "{verb}/{metadataPrefix}/{from}/{until}"},
