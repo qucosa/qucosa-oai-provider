@@ -22,7 +22,6 @@ import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhList;
-import de.qucosa.oai.provider.persistence.model.views.OaiPmhListByToken;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
