@@ -60,24 +60,12 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         return oaiPmhTpl;
     }
 
-    public Format getFormat() {
-        return format;
-    }
-
     public void setFormat(Format format) {
         this.format = format;
     }
 
-    public Collection<OaiPmhListByToken> getOaiPmhListByToken() {
-        return oaiPmhListByToken;
-    }
-
     public void setOaiPmhListByToken(Collection<OaiPmhListByToken> oaiPmhListByToken) {
         this.oaiPmhListByToken = oaiPmhListByToken;
-    }
-
-    public Collection<OaiPmhList> getOaiPmhList() {
-        return oaiPmhList;
     }
 
     public void setOaiPmhList(Collection<OaiPmhList> oaiPmhList) {
