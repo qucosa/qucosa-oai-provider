@@ -35,8 +35,7 @@ public class ListMetadataFormats extends OaiPmhDataBuilderAbstract implements Oa
             throw new RuntimeException("Not exists formats objects.");
         }
 
-        Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
-        buildFormatsList(verbNode);
+        buildFormatsList();
 
         return oaiPmhTpl;
     }
@@ -45,7 +44,7 @@ public class ListMetadataFormats extends OaiPmhDataBuilderAbstract implements Oa
         this.formats = formats;
     }
 
-    private void buildFormatsList(Node verbNode) {
+    private void buildFormatsList() {
 
         for (Format format : formats) {
             Document formatTpl = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/format.xml"), true);
