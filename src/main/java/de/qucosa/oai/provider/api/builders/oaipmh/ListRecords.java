@@ -86,17 +86,19 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
 
     private void buildListWithResumptionToken(Node verbNode, Node record, Node metadata) {
 
-        for (OaiPmhListByToken obj : oaiPmhListByToken) {
+        for (OaiPmhListByToken oaiPmhListByToken : oaiPmhListByToken) {
 
-            if (!obj.isRecordStatus()) {
+            if (!oaiPmhListByToken.isRecordStatus()) {
                 Document metadataXml = DocumentXmlUtils.document(
-                        new ByteArrayInputStream(obj.getXmldata().getBytes(StandardCharsets.UTF_8)), true);
+                        new ByteArrayInputStream(oaiPmhListByToken.getXmldata().getBytes(StandardCharsets.UTF_8)), true);
                 Node metadataImport = recordTpl.importNode(metadataXml.getDocumentElement(), true);
                 metadata.appendChild(metadataImport);
             }
 
-            Node importHeader = recordTpl.importNode(addHeaderTpl(obj.getUid(),
-                    DateTimeConverter.sqlTimestampToString(obj.getLastModDate()), obj.isRecordStatus(), obj.getSets()).getDocumentElement(), true);
+            Node importHeader = recordTpl.importNode(addHeaderTpl(oaiPmhListByToken.getUid(),
+                    DateTimeConverter.sqlTimestampToString(oaiPmhListByToken.getLastModDate()),
+                    oaiPmhListByToken.isRecordStatus(),
+                    oaiPmhListByToken.getSets()).getDocumentElement(), true);
             record.insertBefore(importHeader, metadata);
 
             Node importTpl = oaiPmhTpl.importNode(recordTpl.getDocumentElement(), true);
@@ -108,17 +110,18 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
 
     private void buildList(Node verbNode, Node record, Node metadata) {
 
-        for (OaiPmhList obj : oaiPmhList) {
+        for (OaiPmhList oaiPmhList : oaiPmhList) {
 
-            if (!obj.isRecordStatus()) {
+            if (!oaiPmhList.isRecordStatus()) {
                 Document metadataXml = DocumentXmlUtils.document(
-                        new ByteArrayInputStream(obj.getXmldata().getBytes(StandardCharsets.UTF_8)), true);
+                        new ByteArrayInputStream(oaiPmhList.getXmldata().getBytes(StandardCharsets.UTF_8)), true);
                 Node metadataImport = recordTpl.importNode(metadataXml.getDocumentElement(), true);
                 metadata.appendChild(metadataImport);
             }
 
-            Node importHeader = recordTpl.importNode(addHeaderTpl(obj.getUid(),
-                    DateTimeConverter.sqlTimestampToString(obj.getLastModDate()), obj.isRecordStatus(), obj.getSets()).getDocumentElement(), true);
+            Node importHeader = recordTpl.importNode(addHeaderTpl(oaiPmhList.getUid(),
+                    DateTimeConverter.sqlTimestampToString(oaiPmhList.getLastModDate()), oaiPmhList.isRecordStatus(),
+                    oaiPmhList.getSets()).getDocumentElement(), true);
             record.insertBefore(importHeader, metadata);
 
             Node importTpl = oaiPmhTpl.importNode(recordTpl.getDocumentElement(), true);
