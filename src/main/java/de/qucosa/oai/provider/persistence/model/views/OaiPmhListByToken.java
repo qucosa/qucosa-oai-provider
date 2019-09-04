@@ -29,6 +29,8 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Collection;
 
+// this is an json data mapper
+@SuppressWarnings("unused")
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OaiPmhListByToken implements Serializable, HasIdentifier {
