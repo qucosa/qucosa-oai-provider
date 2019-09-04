@@ -107,7 +107,6 @@ public class OaiPmhDataBuilderFactory {
     private OaiPmhDataBuilder getListIdentifiers() {
         ListIdentifiers listIdentifiers = new ListIdentifiers();
         listIdentifiers.setOaiPmhTpl(oaiPmhTemplate);
-        listIdentifiers.setFormat(getFormat());
         listIdentifiers.setOaiPmhListByToken(oaiPmhListByToken);
         listIdentifiers.setOaiPmhList(oaiPmhList);
         listIdentifiers.setDataSize(getRecords().size());
@@ -119,7 +118,6 @@ public class OaiPmhDataBuilderFactory {
     private OaiPmhDataBuilder getListRecords() {
         ListRecords listRecords = new ListRecords();
         listRecords.setOaiPmhTpl(oaiPmhTemplate);
-        listRecords.setFormat(getFormat());
         listRecords.setOaiPmhListByToken(oaiPmhListByToken);
         listRecords.setOaiPmhList(oaiPmhList);
         listRecords.setDataSize(getRecords().size());
@@ -131,7 +129,6 @@ public class OaiPmhDataBuilderFactory {
     private OaiPmhDataBuilder getGetRecord() {
         GetRecord getRecord = new GetRecord();
         getRecord.setOaiPmhTpl(oaiPmhTemplate);
-        getRecord.setFormat(getFormat());
         getRecord.setOaiPmhList(oaiPmhList);
         getRecord.setIdentifier(identifier);
         return getRecord;

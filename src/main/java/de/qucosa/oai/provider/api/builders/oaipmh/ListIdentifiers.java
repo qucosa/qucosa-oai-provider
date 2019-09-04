@@ -19,7 +19,6 @@
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
-import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhList;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhListByToken;
 import org.w3c.dom.Document;
@@ -28,8 +27,6 @@ import org.w3c.dom.Node;
 import java.util.Collection;
 
 public class ListIdentifiers extends OaiPmhDataBuilderAbstract implements OaiPmhDataBuilder {
-
-    private Format format;
 
     private Collection<OaiPmhListByToken> oaiPmhListByToken;
 
@@ -53,10 +50,6 @@ public class ListIdentifiers extends OaiPmhDataBuilderAbstract implements OaiPmh
         }
 
         return oaiPmhTpl;
-    }
-
-    public void setFormat(Format format) {
-        this.format = format;
     }
 
     public void setOaiPmhListByToken(Collection<OaiPmhListByToken> oaiPmhListByToken) {

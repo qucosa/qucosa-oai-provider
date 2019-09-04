@@ -20,7 +20,6 @@ package de.qucosa.oai.provider.api.builders.oaipmh;
 
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
-import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -31,9 +30,6 @@ import java.util.Collection;
 import java.util.Objects;
 
 public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBuilder {
-    // qucosa:30859
-    private Format format;
-
     private Collection<OaiPmhList> oaiPmhList;
 
     private String identifier;
@@ -64,14 +60,6 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
         buildRecord(verbNode, Objects.requireNonNull(record));
 
         return oaiPmhTpl;
-    }
-
-    public Format getFormat() {
-        return format;
-    }
-
-    public void setFormat(Format format) {
-        this.format = format;
     }
 
     public void setOaiPmhList(Collection<OaiPmhList> oaiPmhList) {
