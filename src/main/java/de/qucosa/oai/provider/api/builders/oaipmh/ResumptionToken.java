@@ -31,6 +31,7 @@ public class ResumptionToken {
         this.oaiPmhTpl = oaiPmhTpl;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public ResumptionToken add(String verb, int dataSize, de.qucosa.oai.provider.persistence.model.ResumptionToken resumptionToken, int recordsProPage) {
         Node nodeByVerb = oaiPmhTpl.getElementsByTagName(verb).item(0);
         Document resumptionTokenDoc = DocumentXmlUtils.document(
