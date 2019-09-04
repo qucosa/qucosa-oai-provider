@@ -126,7 +126,6 @@ public class OaiPmhController {
         }
 
         ResponseEntity output = null;
-        ResumptionToken resumptionTokenObj = null;
 
         OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory = new OaiPmhDataBuilderFactory(
                 DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/oai_pmh.xml"), false)

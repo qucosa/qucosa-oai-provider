@@ -35,8 +35,6 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
     // qucosa:30859
     private Format format;
 
-    private Collection<OaiPmhListByToken> oaiPmhListByToken;
-
     private Collection<OaiPmhList> oaiPmhList;
 
     private String identifier;
