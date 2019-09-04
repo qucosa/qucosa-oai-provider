@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.List;
 
+@SuppressWarnings("unused")
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RecordTransport implements Serializable {
