@@ -32,7 +32,6 @@ public class DateTimeConverter {
 
     public static Timestamp timestampWithTimezone(String dateString) throws DatatypeConfigurationException {
         XMLGregorianCalendar xmlGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(dateString);
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
         GregorianCalendar gc = xmlGregorianCalendar.toGregorianCalendar();
         Date date = gc.getTime();
         return new Timestamp(date.getTime());
