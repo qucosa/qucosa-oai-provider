@@ -21,6 +21,8 @@ package de.qucosa.oai.provider.api.builders.oaipmh;
 import org.w3c.dom.Document;
 
 public interface OaiPmhDataBuilder {
+    // use in the abstract class @OaiPmhDataBuilderAbstract
+    @SuppressWarnings("unused")
     void setOaiPmhTpl(Document oaiPmhTpl);
 
     void setVerb(String verb);
