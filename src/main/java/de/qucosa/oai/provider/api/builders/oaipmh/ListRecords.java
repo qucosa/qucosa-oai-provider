@@ -48,11 +48,13 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
 
         if (oaiPmhListByToken != null) {
-            buildListWithResumptionToken(verbNode);
+            buildListWithResumptionToken(verbNode, recordTpl.getElementsByTagName("record").item(0),
+                    recordTpl.getElementsByTagName("metadata").item(0));
         }
 
         if (oaiPmhList != null) {
-            buildList(verbNode);
+            buildList(verbNode, recordTpl.getElementsByTagName("record").item(0),
+                    recordTpl.getElementsByTagName("metadata").item(0));
         }
 
         return oaiPmhTpl;
@@ -82,11 +84,9 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         this.oaiPmhList = oaiPmhList;
     }
 
-    private void buildListWithResumptionToken(Node verbNode) {
+    private void buildListWithResumptionToken(Node verbNode, Node record, Node metadata) {
 
         for (OaiPmhListByToken obj : oaiPmhListByToken) {
-            Node record = recordTpl.getElementsByTagName("record").item(0);
-            Node metadata = recordTpl.getElementsByTagName("metadata").item(0);
 
             if (!obj.isRecordStatus()) {
                 Document metadataXml = DocumentXmlUtils.document(
@@ -106,11 +106,9 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         new ResumptionToken(oaiPmhTpl).add(verb, dataSize, resumptionToken, recordsProPage);
     }
 
-    private void buildList(Node verbNode) {
+    private void buildList(Node verbNode, Node record, Node metadata) {
 
         for (OaiPmhList obj : oaiPmhList) {
-            Node record = recordTpl.getElementsByTagName("record").item(0);
-            Node metadata = recordTpl.getElementsByTagName("metadata").item(0);
 
             if (!obj.isRecordStatus()) {
                 Document metadataXml = DocumentXmlUtils.document(
