@@ -23,6 +23,7 @@ import de.qucosa.oai.provider.persistence.model.HasIdentifier;
 
 import java.util.Collection;
 
+@SuppressWarnings("RedundantThrows")
 public interface Dao<T extends HasIdentifier> {
 
     T saveAndSetIdentifier(T object) throws SaveFailed;
