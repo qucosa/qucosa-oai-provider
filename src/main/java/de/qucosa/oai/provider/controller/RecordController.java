@@ -305,6 +305,7 @@ public class RecordController {
         return null;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     private ResponseEntity saveSets(RecordTransport rt, Record record) {
 
         for (Set set : rt.getSets()) {
@@ -361,6 +362,6 @@ public class RecordController {
             }
         }
 
-        return null;
+        return new ResponseEntity<>("Save sets is successful", HttpStatus.OK);
     }
 }
