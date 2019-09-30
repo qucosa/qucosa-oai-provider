@@ -57,8 +57,11 @@ import java.util.Objects;
 
 @Configuration
 public class ApplicationConfig {
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
+
+    public ApplicationConfig(Environment environment) {
+        this.environment = environment;
+    }
 
     @Bean
     public DataSource dataSource() {
