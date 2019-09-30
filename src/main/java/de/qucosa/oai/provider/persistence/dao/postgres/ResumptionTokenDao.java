@@ -94,7 +94,7 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public Collection<ResumptionToken> update(Collection<ResumptionToken> objects) {
+    public Collection<ResumptionToken> update() {
         return new ArrayList<>();
     }
 
@@ -144,7 +144,7 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public Collection<ResumptionToken> findLastRowsByProperty(String property, int limit) {
+    public Collection<ResumptionToken> findLastRowsByProperty() {
         return new ArrayList<>();
     }
 

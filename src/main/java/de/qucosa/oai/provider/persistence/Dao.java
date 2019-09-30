@@ -32,7 +32,7 @@ public interface Dao<T extends HasIdentifier> {
 
     T update(T object) throws UpdateFailed;
 
-    Collection<T> update(Collection<T> objects) throws UpdateFailed;
+    Collection<T> update() throws UpdateFailed;
 
     Collection<T> findAll() throws NotFound;
 
@@ -44,7 +44,7 @@ public interface Dao<T extends HasIdentifier> {
 
     Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound;
 
-    Collection<T> findLastRowsByProperty(String property, int limit) throws NotFound;
+    Collection<T> findLastRowsByProperty() throws NotFound;
 
     Collection<T> findFirstRowsByProperty(String property, int limit) throws NotFound;
 

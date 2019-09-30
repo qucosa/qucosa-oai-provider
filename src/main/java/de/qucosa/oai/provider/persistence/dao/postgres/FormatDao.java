@@ -160,7 +160,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public Collection<Format> update(Collection<Format> objects) {
+    public Collection<Format> update() {
         return new ArrayList<>();
     }
 
@@ -245,7 +245,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public Collection<Format> findLastRowsByProperty(String property, int limit) {
+    public Collection<Format> findLastRowsByProperty() {
         return new ArrayList<>();
     }
 

@@ -126,9 +126,7 @@ public class DisseminationController {
 
     @PutMapping(value = "{uid}/{mdprefix}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity update(@RequestBody Dissemination input,
-                                 @PathVariable String uid,
-                                 @PathVariable String mdprefix) {
+    public ResponseEntity update(@RequestBody Dissemination input) {
         Dissemination dissemination;
 
         try {

@@ -116,7 +116,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public Collection<Record> update(Collection<Record> objects) {
+    public Collection<Record> update() {
         return new ArrayList<>();
     }
 
@@ -251,7 +251,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public Collection<Record> findLastRowsByProperty(String property, int limit) {
+    public Collection<Record> findLastRowsByProperty() {
         return new ArrayList<>();
     }
 

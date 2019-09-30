@@ -63,8 +63,7 @@ import java.util.UUID;
 @RequestMapping("/oai")
 @RestController
 public class OaiPmhController {
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
 
     @Value("${records.pro.page}")
     private int recordsProPage;
@@ -98,12 +97,13 @@ public class OaiPmhController {
                             ResumptionTokenService resumptionTokenService,
                             RstToIdentifiersService rstToIdentifiersService,
                             OaiPmhListByTokenService oaiPmhListByTokenService,
-                            OaiPmhListService oaiPmhListService) {
+                            OaiPmhListService oaiPmhListService, Environment environment) {
         this.restTemplate = restTemplate;
         this.resumptionTokenService = resumptionTokenService;
         this.rstToIdentifiersService = rstToIdentifiersService;
         this.oaiPmhListByTokenService = oaiPmhListByTokenService;
         this.oaiPmhListService = oaiPmhListService;
+        this.environment = environment;
     }
 
     @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}",

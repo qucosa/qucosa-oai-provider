@@ -142,7 +142,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Collection<Dissemination> update(Collection<Dissemination> objects) {
+    public Collection<Dissemination> update() {
         return null;
     }
 
@@ -227,7 +227,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Collection<Dissemination> findLastRowsByProperty(String property, int limit) {
+    public Collection<Dissemination> findLastRowsByProperty() {
         return new ArrayList<>();
     }
 

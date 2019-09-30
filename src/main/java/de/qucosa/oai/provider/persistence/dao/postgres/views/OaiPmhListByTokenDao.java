@@ -73,7 +73,7 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
     }
 
     @Override
-    public Collection<OaiPmhListByToken> update(Collection<OaiPmhListByToken> objects) {
+    public Collection<OaiPmhListByToken> update() {
         return new ArrayList<>();
     }
 
@@ -147,7 +147,7 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
     }
 
     @Override
-    public Collection<OaiPmhListByToken> findLastRowsByProperty(String property, int limit) {
+    public Collection<OaiPmhListByToken> findLastRowsByProperty() {
         return new ArrayList<>();
     }
 

@@ -72,7 +72,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     }
 
     @Override
-    public Collection<OaiPmhList> update(Collection<OaiPmhList> objects) {
+    public Collection<OaiPmhList> update() {
         return new ArrayList<>();
     }
 
@@ -173,7 +173,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     }
 
     @Override
-    public Collection<OaiPmhList> findLastRowsByProperty(String property, int limit) {
+    public Collection<OaiPmhList> findLastRowsByProperty() {
         return new ArrayList<>();
     }
 

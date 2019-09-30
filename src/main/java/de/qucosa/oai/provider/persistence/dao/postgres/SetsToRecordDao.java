@@ -79,7 +79,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public Collection<SetsToRecord> update(Collection objects) {
+    public Collection<SetsToRecord> update() {
         return new ArrayList<>();
     }
 
@@ -154,7 +154,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public Collection<SetsToRecord> findLastRowsByProperty(String property, int limit) {
+    public Collection<SetsToRecord> findLastRowsByProperty() {
         return new ArrayList<>();
     }
 

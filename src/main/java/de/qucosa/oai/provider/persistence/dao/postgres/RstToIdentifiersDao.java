@@ -89,7 +89,7 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
     }
 
     @Override
-    public Collection<RstToIdentifiers> update(Collection<RstToIdentifiers> objects) {
+    public Collection<RstToIdentifiers> update() {
         return new ArrayList<>();
     }
 
@@ -119,7 +119,7 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
     }
 
     @Override
-    public Collection<RstToIdentifiers> findLastRowsByProperty(String property, int limit) {
+    public Collection<RstToIdentifiers> findLastRowsByProperty() {
         return new ArrayList<>();
     }
 
