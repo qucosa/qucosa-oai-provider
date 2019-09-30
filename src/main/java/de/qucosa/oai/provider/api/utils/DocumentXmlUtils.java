@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Saxon State and University Library Dresden (SLUB)
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
 package de.qucosa.oai.provider.api.utils;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -27,6 +25,11 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
@@ -74,12 +77,10 @@ public class DocumentXmlUtils {
         return xPath;
     }
 
-    public static String resultXml(Document document) throws IOException {
-        OutputFormat outputFormat = new OutputFormat(document);
-        outputFormat.setOmitXMLDeclaration(true);
+    public static String resultXml(Document document) throws TransformerException {
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
         StringWriter stringWriter = new StringWriter();
-        XMLSerializer serialize = new XMLSerializer(stringWriter, outputFormat);
-        serialize.serialize(document);
+        transformer.transform(new DOMSource(document), new StreamResult(stringWriter));
         return stringWriter.toString();
     }
 

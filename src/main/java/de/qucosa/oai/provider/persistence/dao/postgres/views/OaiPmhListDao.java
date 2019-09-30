@@ -1,19 +1,17 @@
 /*
- * *
- *     ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
- *     ~
- *     ~ Licensed under the Apache License, Version 2.0 (the "License");
- *     ~ you may not use this file except in compliance with the License.
- *     ~ You may obtain a copy of the License at
- *     ~
- *     ~     http://www.apache.org/licenses/LICENSE-2.0
- *     ~
- *     ~ Unless required by applicable law or agreed to in writing, software
- *     ~ distributed under the License is distributed on an "AS IS" BASIS,
- *     ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     ~ See the License for the specific language governing permissions and
- *     ~ limitations under the License.
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
  *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package de.qucosa.oai.provider.persistence.dao.postgres.views;
@@ -23,10 +21,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +41,6 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
 
     private Connection connection;
 
-    private String tableName = "oai_pmh_list";
-
     private ObjectMapper om;
 
     @Autowired
@@ -64,33 +57,33 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     public OaiPmhListDao() { }
 
     @Override
-    public OaiPmhList saveAndSetIdentifier(OaiPmhList object) throws SaveFailed {
-        return null;
+    public OaiPmhList saveAndSetIdentifier(OaiPmhList object) {
+        return new OaiPmhList();
     }
 
     @Override
-    public Collection<OaiPmhList> saveAndSetIdentifier(Collection<OaiPmhList> objects) throws SaveFailed {
-        return null;
+    public Collection<OaiPmhList> saveAndSetIdentifier(Collection<OaiPmhList> objects) {
+        return new ArrayList<>();
     }
 
     @Override
-    public OaiPmhList update(OaiPmhList object) throws UpdateFailed {
-        return null;
+    public OaiPmhList update(OaiPmhList object) {
+        return new OaiPmhList();
     }
 
     @Override
-    public Collection<OaiPmhList> update(Collection<OaiPmhList> objects) throws UpdateFailed {
-        return null;
+    public Collection<OaiPmhList> update() {
+        return new ArrayList<>();
     }
 
     @Override
-    public Collection<OaiPmhList> findAll() throws NotFound {
-        return null;
+    public Collection<OaiPmhList> findAll() {
+        return new ArrayList<>();
     }
 
     @Override
-    public OaiPmhList findById(String id) throws NotFound {
-        return null;
+    public OaiPmhList findById(String id) {
+        return new OaiPmhList();
     }
 
     @Override
@@ -113,23 +106,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
             ResultSet resultSet = pst.executeQuery();
 
             while (resultSet.next()) {
-                OaiPmhList res = new OaiPmhList();
-                res.setRecordId(resultSet.getLong("record_id"));
-                res.setPid(resultSet.getString("pid"));
-                res.setUid(resultSet.getString("uid"));
-                res.setFormat(resultSet.getLong("format_id"));
-                res.setMdprefix(resultSet.getString("mdprefix"));
-                res.setLastModDate(resultSet.getTimestamp("lastmoddate"));
-                res.setXmldata(resultSet.getString("xmldata"));
-                res.setRecordStatus(resultSet.getBoolean("record_status"));
-                res.setDissStatus(resultSet.getBoolean("diss_status"));
-
-                if (resultSet.getString("set") != null) {
-                    res.setSets(om.readValue(resultSet.getString("set"),
-                            om.getTypeFactory().constructCollectionType(Collection.class, Set.class)));
-                }
-
-                oaiPmhList.add(res);
+                oaiPmhList.add(listData(resultSet));
             }
 
             resultSet.close();
@@ -146,8 +123,8 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     }
 
     @Override
-    public OaiPmhList findByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+    public OaiPmhList findByMultipleValues(String clause, String... values) {
+        return new OaiPmhList();
     }
 
     @Override
@@ -177,23 +154,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
             ResultSet resultSet = pst.executeQuery();
 
             while (resultSet.next()) {
-                OaiPmhList res = new OaiPmhList();
-                res.setRecordId(resultSet.getLong("record_id"));
-                res.setPid(resultSet.getString("pid"));
-                res.setUid(resultSet.getString("uid"));
-                res.setFormat(resultSet.getLong("format_id"));
-                res.setMdprefix(resultSet.getString("mdprefix"));
-                res.setLastModDate(resultSet.getTimestamp("lastmoddate"));
-                res.setXmldata(resultSet.getString("xmldata"));
-                res.setRecordStatus(resultSet.getBoolean("record_status"));
-                res.setDissStatus(resultSet.getBoolean("diss_status"));
-
-                if (resultSet.getString("set") != null) {
-                    res.setSets(om.readValue(resultSet.getString("set"),
-                            om.getTypeFactory().constructCollectionType(Collection.class, Set.class)));
-                }
-
-                oaiPmhList.add(res);
+                oaiPmhList.add(listData(resultSet));
             }
 
             resultSet.close();
@@ -212,27 +173,47 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     }
 
     @Override
-    public Collection<OaiPmhList> findLastRowsByProperty(String property, int limit) {
-        return null;
+    public Collection<OaiPmhList> findLastRowsByProperty() {
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<OaiPmhList> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
-    public void delete() throws DeleteFailed {
-
-    }
-
-    @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete() {
 
     }
 
     @Override
-    public void delete(OaiPmhList object) throws DeleteFailed {
+    public void delete(String ident) {
 
+    }
+
+    @Override
+    public void delete(OaiPmhList object) {
+
+    }
+
+    private OaiPmhList listData(ResultSet resultSet) throws SQLException, IOException {
+        OaiPmhList res = new OaiPmhList();
+        res.setRecordId(resultSet.getLong("record_id"));
+        res.setPid(resultSet.getString("pid"));
+        res.setUid(resultSet.getString("uid"));
+        res.setFormat(resultSet.getLong("format_id"));
+        res.setMdprefix(resultSet.getString("mdprefix"));
+        res.setLastModDate(resultSet.getTimestamp("lastmoddate"));
+        res.setXmldata(resultSet.getString("xmldata"));
+        res.setRecordStatus(resultSet.getBoolean("record_status"));
+        res.setDissStatus(resultSet.getBoolean("diss_status"));
+
+        if (resultSet.getString("set") != null) {
+            res.setSets(om.readValue(resultSet.getString("set"),
+                    om.getTypeFactory().constructCollectionType(Collection.class, Set.class)));
+        }
+
+        return res;
     }
 }

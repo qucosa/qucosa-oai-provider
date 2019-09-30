@@ -1,17 +1,17 @@
 /*
- ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
- ~
- ~ Licensed under the Apache License, Version 2.0 (the "License");
- ~ you may not use this file except in compliance with the License.
- ~ You may obtain a copy of the License at
- ~
- ~     http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing, software
- ~ distributed under the License is distributed on an "AS IS" BASIS,
- ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ~ See the License for the specific language governing permissions and
- ~ limitations under the License.
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
@@ -37,7 +37,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     private Connection connection;
 
     @Autowired
-    public FormatDao(Connection connection) throws SQLException {
+    public FormatDao(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -120,13 +120,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
                 }
 
                 do {
-                    Format format = new Format();
-                    format.setFormatId(result.getLong("id"));
-                    format.setMdprefix(result.getString("mdprefix"));
-                    format.setSchemaUrl(result.getString("schemaurl"));
-                    format.setNamespace(result.getString("namespace"));
-                    format.setDeleted(result.getBoolean("deleted"));
-                    output.add(format);
+                    output.add(formatData(result));
                 } while(result.next());
             }
 
@@ -166,8 +160,8 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public Collection<Format> update(Collection<Format> objects) {
-        return null;
+    public Collection<Format> update() {
+        return new ArrayList<>();
     }
 
     @Override
@@ -182,13 +176,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             if (resultSet.next()) {
 
                 do {
-                    Format format = new Format();
-                    format.setFormatId(resultSet.getLong("id"));
-                    format.setMdprefix(resultSet.getString("mdprefix"));
-                    format.setSchemaUrl(resultSet.getString("schemaurl"));
-                    format.setNamespace(resultSet.getString("namespace"));
-                    format.setDeleted(resultSet.getBoolean("deleted"));
-                    formats.add(format);
+                    formats.add(formatData(resultSet));
                 } while (resultSet.next());
             }
 
@@ -213,11 +201,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                format.setFormatId(resultSet.getLong("id"));
-                format.setNamespace(resultSet.getString("namespace"));
-                format.setMdprefix(resultSet.getString("mdprefix"));
-                format.setSchemaUrl(resultSet.getString("schemaurl"));
-                format.setDeleted(resultSet.getBoolean("deleted"));
+                format = formatData(resultSet);
             }
         } catch (SQLException e) {
             throw new NotFound("Format with id (" + id + ") not found.", e);
@@ -235,15 +219,9 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, value);
             ResultSet resultSet = ps.executeQuery();
-            Format format = new Format();
 
             while (resultSet.next()) {
-                format.setFormatId(resultSet.getLong("id"));
-                format.setMdprefix(resultSet.getString("mdprefix"));
-                format.setSchemaUrl(resultSet.getString("schemaurl"));
-                format.setNamespace(resultSet.getString("namespace"));
-                format.setDeleted(resultSet.getBoolean("deleted"));
-                formats.add(format);
+                formats.add(formatData(resultSet));
             }
 
             resultSet.close();
@@ -257,23 +235,23 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public Format findByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+    public Format findByMultipleValues(String clause, String... values) {
+        return new Format();
     }
 
     @Override
-    public Collection<Format> findRowsByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+    public Collection<Format> findRowsByMultipleValues(String clause, String... values) {
+        return new ArrayList<>();
     }
 
     @Override
-    public Collection<Format> findLastRowsByProperty(String property, int limit) {
-        return null;
+    public Collection<Format> findLastRowsByProperty() {
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<Format> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -282,7 +260,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
 
     }
 
@@ -301,5 +279,15 @@ public class FormatDao<T extends Format> implements Dao<Format> {
         } catch (SQLException e) {
             throw new DeleteFailed(e.getMessage(), e);
         }
+    }
+
+    private Format formatData(ResultSet resultSet) throws SQLException {
+        Format format = new Format();
+        format.setFormatId(resultSet.getLong("id"));
+        format.setMdprefix(resultSet.getString("mdprefix"));
+        format.setSchemaUrl(resultSet.getString("schemaurl"));
+        format.setNamespace(resultSet.getString("namespace"));
+        format.setDeleted(resultSet.getBoolean("deleted"));
+        return  format;
     }
 }

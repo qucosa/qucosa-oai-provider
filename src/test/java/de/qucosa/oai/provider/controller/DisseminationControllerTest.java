@@ -1,17 +1,17 @@
 /*
- ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
- ~
- ~ Licensed under the Apache License, Version 2.0 (the "License");
- ~ you may not use this file except in compliance with the License.
- ~ You may obtain a copy of the License at
- ~
- ~     http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing, software
- ~ distributed under the License is distributed on an "AS IS" BASIS,
- ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ~ See the License for the specific language governing permissions and
- ~ limitations under the License.
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package de.qucosa.oai.provider.controller;
 
@@ -32,8 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,6 +40,7 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -60,6 +59,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -79,9 +79,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-public class DisseminationControllerTest {
-    private Logger logger = LoggerFactory.getLogger(DisseminationControllerTest.class);
-
+class DisseminationControllerTest {
     private List<Dissemination> disseminations = null;
 
     private Format format;
@@ -99,7 +97,7 @@ public class DisseminationControllerTest {
     private MockMvc mvc;
 
     @Container
-    private static PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
+    private static final PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
             .withDatabaseName("oaiprovider")
             .withUsername("postgres")
             .withPassword("postgres")
@@ -131,7 +129,7 @@ public class DisseminationControllerTest {
     }
 
     @BeforeAll
-    public void setUp() throws IOException, SaveFailed, SQLException {
+    public void setUp() throws IOException, SaveFailed {
         disseminations = om.readValue(TestData.DISSEMINATIONS,
                 om.getTypeFactory().constructCollectionType(List.class, Dissemination.class));
         List<Format> formats = om.readValue(TestData.FORMATS,
@@ -140,7 +138,7 @@ public class DisseminationControllerTest {
     }
 
     /**
-     * Value qucosa:32394 is referenced in psql-oia-provider-test-data.backup file.
+     * Value qucosa:32394 is referenced in psql-oai-provider-test-data.backup file.
      */
     @Test
     @DisplayName("Find all disseminations by record uid.")
@@ -169,7 +167,7 @@ public class DisseminationControllerTest {
                 get("/disseminations?uid=qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("404 NOT_FOUND")))
+                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_FOUND.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot found dissemination. UID qucosa:00000 does not exists.")));
     }
 
@@ -216,7 +214,7 @@ public class DisseminationControllerTest {
     }
 
     @Test
-    @DisplayName("Save dissemination is not succussful because record failed.")
+    @DisplayName("Save dissemination is not successful because record failed.")
     @Order(5)
     public void saveDisseminationWithoutRecord() throws Exception {
         Dissemination dissemination = disseminations.get(2);
@@ -228,12 +226,12 @@ public class DisseminationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(dissemination)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_ACCEPTABLE.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because record or format failed.")));
     }
 
     @Test
-    @DisplayName("Save dissemination is not succussful because format failed.")
+    @DisplayName("Save dissemination is not successful because format failed.")
     @Order(6)
     public void saveDisseminationWithoutFormat() throws Exception {
         Dissemination dissemination = disseminations.get(2);
@@ -244,16 +242,16 @@ public class DisseminationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(dissemination)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_ACCEPTABLE.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because record or format failed.")));
     }
 
     /**
      * This test has a dependency to the saveDissemination with order number 2 and is not running as stand alone test.
-     * Value qucosa:32394 is referenced in psql-oia-provider-test-data.backup file.
+     * Value qucosa:32394 is referenced in psql-oai-provider-test-data.backup file.
      */
     @Test
-    @DisplayName("Save dissemination is not succussful because exists in table.")
+    @DisplayName("Save dissemination is not successful because exists in table.")
     @Order(7)
     public void saveDisseminationBecauseExists() throws Exception {
         Dissemination dissemination = disseminations.get(2);
@@ -265,12 +263,12 @@ public class DisseminationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(dissemination)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_ACCEPTABLE.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because data row is exists.")));
     }
 
     /**
-     * Value 17 and qucosa:32394 are referenced in psql-oia-provider-test-data.backup file.
+     * Value 17 and qucosa:32394 are referenced in psql-oai-provider-test-data.backup file.
      */
     @Test
     @DisplayName("Update dissemination object with delete property for mark object as deleted.")
@@ -298,7 +296,7 @@ public class DisseminationControllerTest {
     }
 
     /**
-     * Value 17 and qucosa:32394 are referenced in psql-oia-provider-test-data.backup file.
+     * Value 17 and qucosa:32394 are referenced in psql-oai-provider-test-data.backup file.
      */
     @Test
     @DisplayName("Delete dissemination from table.")
@@ -319,7 +317,7 @@ public class DisseminationControllerTest {
     }
 
     @AfterAll
-    public void schutdwonTest() {
+    public void shutdownTest() {
         sqlContainer.stop();
     }
 }

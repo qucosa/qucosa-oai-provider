@@ -1,17 +1,17 @@
 /*
- ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
- ~
- ~ Licensed under the Apache License, Version 2.0 (the "License");
- ~ you may not use this file except in compliance with the License.
- ~ You may obtain a copy of the License at
- ~
- ~     http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing, software
- ~ distributed under the License is distributed on an "AS IS" BASIS,
- ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ~ See the License for the specific language governing permissions and
- ~ limitations under the License.
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package de.qucosa.oai.provider;
 
@@ -20,12 +20,13 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
+@SuppressWarnings("unused")
 public class ErrorDetails {
-    private String classname;
+    private final String classname;
 
-    private HttpStatus statuscode;
+    private final HttpStatus httpStatus;
 
-    private String errorMsg;
+    private final String errorMsg;
 
     private String requestPath;
 
@@ -35,30 +36,31 @@ public class ErrorDetails {
 
     private StackTraceElement[] stacktrace;
 
-    private LocalDateTime date;
+    private final LocalDateTime date;
 
-    private String method;
+    private final String method;
 
-    public ErrorDetails(String classname, String method, String requestMethodAndPath, HttpStatus statuscode, String errorMsg, Exception exception) {
+    public ErrorDetails(String classname,
+                        String method,
+                        String requestMethodAndPath,
+                        HttpStatus httpStatus,
+                        String errorMsg,
+                        Exception exception) {
         this.date = LocalDateTime.now();
         this.classname = classname;
         this.method = method;
-        this.statuscode = statuscode;
+        this.httpStatus = httpStatus;
         this.errorMsg = (exception != null) ? exception.getMessage() : errorMsg;
         setException(exception);
         setRequestPath(requestMethodAndPath);
-    }
-
-    public ResponseEntity response() {
-        return new ResponseEntity<>(this, this.statuscode);
     }
 
     public String getClassname() {
         return classname;
     }
 
-    public String getStatuscode() {
-        return statuscode.toString();
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
     }
 
     public String getErrorMsg() {
@@ -67,6 +69,10 @@ public class ErrorDetails {
 
     public String getRequestPath() {
         return requestPath;
+    }
+
+    public String getRequestMethod() {
+        return requestMethod;
     }
 
     public Exception getException() {
@@ -85,8 +91,8 @@ public class ErrorDetails {
         return method;
     }
 
-    public String getRequestMethod() {
-        return requestMethod;
+    public ResponseEntity response() {
+        return new ResponseEntity<>(this, this.httpStatus);
     }
 
     private void setRequestPath(String requestMethodAndPath) {

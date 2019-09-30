@@ -1,17 +1,17 @@
 /*
- ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
- ~
- ~ Licensed under the Apache License, Version 2.0 (the "License");
- ~ you may not use this file except in compliance with the License.
- ~ You may obtain a copy of the License at
- ~
- ~     http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing, software
- ~ distributed under the License is distributed on an "AS IS" BASIS,
- ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ~ See the License for the specific language governing permissions and
- ~ limitations under the License.
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
@@ -106,8 +106,8 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Collection<Dissemination> saveAndSetIdentifier(Collection<Dissemination> objects) throws SaveFailed {
-        return null;
+    public Collection<Dissemination> saveAndSetIdentifier(Collection<Dissemination> objects) {
+        return new ArrayList<>();
     }
 
     @Override
@@ -142,18 +142,18 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Collection<Dissemination> update(Collection<Dissemination> objects) throws UpdateFailed {
+    public Collection<Dissemination> update() {
         return null;
     }
 
     @Override
-    public Collection<Dissemination> findAll() throws NotFound {
+    public Collection<Dissemination> findAll() {
         return null;
     }
 
     @Override
-    public Dissemination findById(String id) throws NotFound {
-        return null;
+    public Dissemination findById(String id) {
+        return new Dissemination();
     }
 
     @Override
@@ -175,13 +175,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
 
 
             while (resultSet.next()) {
-                Dissemination dissemination = new Dissemination();
-                dissemination.setDissId(resultSet.getLong("id"));
-                dissemination.setFormatId(resultSet.getLong("id_format"));
-                dissemination.setRecordId(resultSet.getString("id_record"));
-                dissemination.setDeleted(resultSet.getBoolean("deleted"));
-                dissemination.setXmldata(resultSet.getString("xmldata"));
-                disseminations.add(dissemination);
+                disseminations.add(disseminationData(resultSet));
             }
 
             resultSet.close();
@@ -218,13 +212,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             Dissemination dissemination = null;
 
             while (resultSet.next()) {
-                dissemination = new Dissemination();
-                dissemination.setDissId(resultSet.getLong("id"));
-                dissemination.setFormatId(resultSet.getLong("id_format"));
-                dissemination.setRecordId(resultSet.getString("id_record"));
-                dissemination.setDeleted(resultSet.getBoolean("deleted"));
-                dissemination.setLastmoddate(resultSet.getTimestamp("lastmoddate"));
-                dissemination.setXmldata(resultSet.getString("xmldata"));
+                dissemination = disseminationData(resultSet);
             }
 
             return dissemination;
@@ -234,13 +222,13 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Collection<Dissemination> findRowsByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+    public Collection<Dissemination> findRowsByMultipleValues(String clause, String... values) {
+        return new ArrayList<>();
     }
 
     @Override
-    public Collection<Dissemination> findLastRowsByProperty(String property, int limit) throws NotFound {
-        return null;
+    public Collection<Dissemination> findLastRowsByProperty() {
+        return new ArrayList<>();
     }
 
     @Override
@@ -257,14 +245,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             ResultSet resultSet = statement.executeQuery(sql);
 
             while (resultSet.next()) {
-                Dissemination dissemination = new Dissemination();
-                dissemination.setDissId(resultSet.getLong("id"));
-                dissemination.setFormatId(resultSet.getLong("id_format"));
-                dissemination.setRecordId(resultSet.getString("id_record"));
-                dissemination.setDeleted(resultSet.getBoolean("deleted"));
-                dissemination.setLastmoddate(resultSet.getTimestamp("lastmoddate"));
-                dissemination.setXmldata(resultSet.getString("xmldata"));
-                disseminations.add(dissemination);
+                disseminations.add(disseminationData(resultSet));
             }
 
             resultSet.close();
@@ -285,7 +266,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed { }
+    public void delete(String ident) { }
 
     @Override
     public void delete(Dissemination object) throws DeleteFailed {
@@ -302,5 +283,16 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
         } catch (SQLException e) {
             throw new DeleteFailed("SQL-ERROR: Cannot delete dissemination.", e);
         }
+    }
+
+    private Dissemination disseminationData(ResultSet resultSet) throws SQLException {
+        Dissemination dissemination = new Dissemination();
+        dissemination.setDissId(resultSet.getLong("id"));
+        dissemination.setFormatId(resultSet.getLong("id_format"));
+        dissemination.setRecordId(resultSet.getString("id_record"));
+        dissemination.setDeleted(resultSet.getBoolean("deleted"));
+        dissemination.setLastmoddate(resultSet.getTimestamp("lastmoddate"));
+        dissemination.setXmldata(resultSet.getString("xmldata"));
+        return dissemination;
     }
 }

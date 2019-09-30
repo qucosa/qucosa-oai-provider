@@ -1,17 +1,17 @@
 /*
- ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
- ~
- ~ Licensed under the Apache License, Version 2.0 (the "License");
- ~ you may not use this file except in compliance with the License.
- ~ You may obtain a copy of the License at
- ~
- ~     http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing, software
- ~ distributed under the License is distributed on an "AS IS" BASIS,
- ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ~ See the License for the specific language governing permissions and
- ~ limitations under the License.
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
@@ -59,7 +59,6 @@ public class SetDao<T extends Set> implements Dao<Set> {
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (setspec) ";
         sql+="DO NOTHING";
-        String finalSql = sql;
 
         PreparedStatement ps;
 
@@ -69,7 +68,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
             ps.setString(1, object.getSetSpec());
             ps.setString(2, object.getSetName());
             ps.setString(3, object.getSetDescription());
-            int affectedRows = ps.executeUpdate();
+            ps.executeUpdate();
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
 
@@ -123,13 +122,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
                 }
 
                 do {
-                    Set set = new Set();
-                    set.setIdentifier(result.getLong(1));
-                    set.setSetSpec(result.getString("setspec"));
-                    set.setSetName(result.getString("setname"));
-                    set.setSetDescription(result.getString("setdescription"));
-                    set.setDeleted(result.getBoolean("deleted"));
-                    output.add(set);
+                    output.add(setData(result));
                 } while(result.next());
             }
 
@@ -141,8 +134,6 @@ public class SetDao<T extends Set> implements Dao<Set> {
 
         return output;
     }
-
-
 
     @Override
     public Set update(Set object) throws UpdateFailed {
@@ -171,8 +162,8 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public Collection<Set> update(Collection<Set> objects) {
-        return null;
+    public Collection<Set> update() {
+        return new ArrayList<>();
     }
 
     @Override
@@ -188,13 +179,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
             if (resultSet.next()) {
 
                 do {
-                    Set set = new Set();
-                    set.setIdentifier(resultSet.getLong(1));
-                    set.setSetSpec(resultSet.getString("setspec"));
-                    set.setSetName(resultSet.getString("setname"));
-                    set.setSetDescription(resultSet.getString("setdescription"));
-                    set.setDeleted(resultSet.getBoolean("deleted"));
-                    sets.add(set);
+                    sets.add(setData(resultSet));
                 } while(resultSet.next());
             } else {
                 throw new NotFound("Cannot found sets.");
@@ -207,8 +192,8 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public T findById(String id) {
-        return null;
+    public Set findById(String id) {
+        return new Set();
     }
 
     @Override
@@ -223,13 +208,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
             ResultSet resultSet = ps.executeQuery();
 
             while (resultSet.next()) {
-                Set set = new Set();
-                set.setIdentifier(resultSet.getLong("id"));
-                set.setSetSpec(resultSet.getString("setspec"));
-                set.setSetName(resultSet.getString("setname"));
-                set.setSetDescription(resultSet.getString("setdescription"));
-                set.setDeleted(resultSet.getBoolean("deleted"));
-                sets.add(set);
+                sets.add(setData(resultSet));
             }
 
             resultSet.close();
@@ -242,23 +221,23 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public T findByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+    public Set findByMultipleValues(String clause, String... values) {
+        return new Set();
     }
 
     @Override
-    public Collection<Set> findRowsByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+    public Collection<Set> findRowsByMultipleValues(String clause, String... values) {
+        return new ArrayList<>();
     }
 
     @Override
-    public Collection<Set> findLastRowsByProperty(String property, int limit) {
-        return null;
+    public Collection<Set> findLastRowsByProperty() {
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<Set> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -267,7 +246,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
 
     }
 
@@ -286,5 +265,15 @@ public class SetDao<T extends Set> implements Dao<Set> {
         } catch (SQLException e) {
             throw new DeleteFailed("Cannot hard delete set.", e);
         }
+    }
+
+    private Set setData(ResultSet resultSet) throws SQLException {
+        Set set = new Set();
+        set.setIdentifier(resultSet.getLong("id"));
+        set.setSetSpec(resultSet.getString("setspec"));
+        set.setSetName(resultSet.getString("setname"));
+        set.setSetDescription(resultSet.getString("setdescription"));
+        set.setDeleted(resultSet.getBoolean("deleted"));
+        return set;
     }
 }

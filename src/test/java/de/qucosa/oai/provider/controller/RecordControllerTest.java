@@ -1,17 +1,17 @@
 /*
- ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
- ~
- ~ Licensed under the Apache License, Version 2.0 (the "License");
- ~ you may not use this file except in compliance with the License.
- ~ You may obtain a copy of the License at
- ~
- ~     http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing, software
- ~ distributed under the License is distributed on an "AS IS" BASIS,
- ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ~ See the License for the specific language governing permissions and
- ~ limitations under the License.
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package de.qucosa.oai.provider.controller;
 
@@ -27,8 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,6 +35,7 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -73,8 +72,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
 public class RecordControllerTest {
-    private Logger logger = LoggerFactory.getLogger(RecordControllerTest.class);
-
     @Autowired
     private RecordService recordService;
 
@@ -85,7 +82,7 @@ public class RecordControllerTest {
     private MockMvc mvc;
 
     @Container
-    private static PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
+    private static final PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
             .withDatabaseName("oaiprovider")
             .withUsername("postgres")
             .withPassword("postgres")
@@ -197,7 +194,7 @@ public class RecordControllerTest {
                 get("/records/qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("404 NOT_FOUND")))
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_FOUND.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot found record.")));
     }
 
@@ -233,7 +230,7 @@ public class RecordControllerTest {
                 put("/records/qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot update record.")));
     }
 
@@ -248,7 +245,7 @@ public class RecordControllerTest {
                 put("/records/qucosa:00001")
                         .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Unequal uid parameter with record object uid.")));
     }
 
@@ -274,7 +271,7 @@ public class RecordControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(new Record())))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("404 NOT_FOUND")))
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_FOUND.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot found record.")));
     }
 

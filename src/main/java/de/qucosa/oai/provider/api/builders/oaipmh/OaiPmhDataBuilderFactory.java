@@ -1,24 +1,21 @@
 /*
- * *
- *     ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
- *     ~
- *     ~ Licensed under the Apache License, Version 2.0 (the "License");
- *     ~ you may not use this file except in compliance with the License.
- *     ~ You may obtain a copy of the License at
- *     ~
- *     ~     http://www.apache.org/licenses/LICENSE-2.0
- *     ~
- *     ~ Unless required by applicable law or agreed to in writing, software
- *     ~ distributed under the License is distributed on an "AS IS" BASIS,
- *     ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     ~ See the License for the specific language governing permissions and
- *     ~ limitations under the License.
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
  *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
@@ -37,8 +34,9 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
+@SuppressWarnings("unused")
 public class OaiPmhDataBuilderFactory {
-    private Document oaiPmhTemplate;
+    private final Document oaiPmhTemplate;
 
     private String verb;
 
@@ -64,8 +62,6 @@ public class OaiPmhDataBuilderFactory {
 
     private ResumptionToken resumptionToken;
 
-    private ObjectMapper om = new ObjectMapper();
-
     private OaiPmhDataBuilder oaiPmhDataBuilder;
 
     private Environment environment;
@@ -74,7 +70,7 @@ public class OaiPmhDataBuilderFactory {
         this.oaiPmhTemplate = oaiPmhTemplate;
     }
 
-    public Document oaiPmhData() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public Document oaiPmhData() throws IllegalAccessException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
         Node responseDate = oaiPmhTemplate.getElementsByTagName("responseDate").item(0);
         responseDate.setTextContent(sdf.format(new Date()));
@@ -109,7 +105,6 @@ public class OaiPmhDataBuilderFactory {
     private OaiPmhDataBuilder getListIdentifiers() {
         ListIdentifiers listIdentifiers = new ListIdentifiers();
         listIdentifiers.setOaiPmhTpl(oaiPmhTemplate);
-        listIdentifiers.setFormat(getFormat());
         listIdentifiers.setOaiPmhListByToken(oaiPmhListByToken);
         listIdentifiers.setOaiPmhList(oaiPmhList);
         listIdentifiers.setDataSize(getRecords().size());
@@ -121,7 +116,6 @@ public class OaiPmhDataBuilderFactory {
     private OaiPmhDataBuilder getListRecords() {
         ListRecords listRecords = new ListRecords();
         listRecords.setOaiPmhTpl(oaiPmhTemplate);
-        listRecords.setFormat(getFormat());
         listRecords.setOaiPmhListByToken(oaiPmhListByToken);
         listRecords.setOaiPmhList(oaiPmhList);
         listRecords.setDataSize(getRecords().size());
@@ -133,7 +127,6 @@ public class OaiPmhDataBuilderFactory {
     private OaiPmhDataBuilder getGetRecord() {
         GetRecord getRecord = new GetRecord();
         getRecord.setOaiPmhTpl(oaiPmhTemplate);
-        getRecord.setFormat(getFormat());
         getRecord.setOaiPmhList(oaiPmhList);
         getRecord.setIdentifier(identifier);
         return getRecord;

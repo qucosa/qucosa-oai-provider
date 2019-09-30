@@ -1,19 +1,17 @@
 /*
- * *
- *     ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
- *     ~
- *     ~ Licensed under the Apache License, Version 2.0 (the "License");
- *     ~ you may not use this file except in compliance with the License.
- *     ~ You may obtain a copy of the License at
- *     ~
- *     ~     http://www.apache.org/licenses/LICENSE-2.0
- *     ~
- *     ~ Unless required by applicable law or agreed to in writing, software
- *     ~ distributed under the License is distributed on an "AS IS" BASIS,
- *     ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     ~ See the License for the specific language governing permissions and
- *     ~ limitations under the License.
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
  *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package de.qucosa.oai.provider.controller;
@@ -34,8 +32,6 @@ import de.qucosa.oai.provider.services.RstToIdentifiersService;
 import de.qucosa.oai.provider.services.views.OaiPmhListByTokenService;
 import de.qucosa.oai.provider.services.views.OaiPmhListService;
 import org.apache.tomcat.util.buf.HexUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -53,8 +49,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -69,10 +63,7 @@ import java.util.UUID;
 @RequestMapping("/oai")
 @RestController
 public class OaiPmhController {
-    private Logger logger = LoggerFactory.getLogger(OaiPmhController.class);
-
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
 
     @Value("${records.pro.page}")
     private int recordsProPage;
@@ -89,34 +80,32 @@ public class OaiPmhController {
     @Value("#{'${oai.pmh.verbs}'.split(',')}")
     private List<String> verbs;
 
-    private int cursor = 0;
-
     private Format format;
 
-    private ResumptionTokenService resumptionTokenService;
+    private final ResumptionTokenService resumptionTokenService;
 
-    private RstToIdentifiersService rstToIdentifiersService;
+    private final RstToIdentifiersService rstToIdentifiersService;
 
-    private OaiPmhListByTokenService oaiPmhListByTokenService;
+    private final OaiPmhListByTokenService oaiPmhListByTokenService;
 
-    private OaiPmhListService oaiPmhListService;
+    private final OaiPmhListService oaiPmhListService;
 
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     @Autowired
     public OaiPmhController(RestTemplate restTemplate,
                             ResumptionTokenService resumptionTokenService,
                             RstToIdentifiersService rstToIdentifiersService,
                             OaiPmhListByTokenService oaiPmhListByTokenService,
-                            OaiPmhListService oaiPmhListService) {
+                            OaiPmhListService oaiPmhListService, Environment environment) {
         this.restTemplate = restTemplate;
         this.resumptionTokenService = resumptionTokenService;
         this.rstToIdentifiersService = rstToIdentifiersService;
         this.oaiPmhListByTokenService = oaiPmhListByTokenService;
         this.oaiPmhListService = oaiPmhListService;
+        this.environment = environment;
     }
 
-    @SuppressWarnings("ConstantConditions")
     @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}",
             "{verb}/{metadataPrefix}/{from}",
             "{verb}/{metadataPrefix}/{from}/{until}"},
@@ -127,16 +116,14 @@ public class OaiPmhController {
                                   @PathVariable(value = "from", required = false) String from,
                                   @PathVariable(value = "until", required = false) String until,
                                   @RequestParam(value = "identyfier", required = false) String identyfier,
-                                  @RequestParam(value = "resumptionToken", required = false) String resumptionToken) throws IOException {
+                                  @RequestParam(value = "resumptionToken", required = false) String resumptionToken) {
 
         if (!verbs.contains(verb)) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.BAD_REQUEST, "The verb (" + verb + ") is does not exists in OAI protocol.", null)
-                    .response();
+            return errorDetails(new Exception("The verb (" + verb + ") is does not exists in OAI protocol."),
+                    "findAll", "GET:/oai/findAll/" + verb, HttpStatus.BAD_REQUEST);
         }
 
         ResponseEntity output = null;
-        ResumptionToken resumptionTokenObj = null;
 
         OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory = new OaiPmhDataBuilderFactory(
                 DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/oai_pmh.xml"), false)
@@ -148,7 +135,7 @@ public class OaiPmhController {
             try {
 
                 if (oaiPmhDataBuilderFactory.getRecords().size() > recordsProPage) {
-                    output = getOaiPmhListByToken(oaiPmhDataBuilderFactory, resumptionTokenObj, resumptionToken);
+                    output = getOaiPmhListByToken(oaiPmhDataBuilderFactory, resumptionToken);
                 } else {
                     output = getOaiPmhList(oaiPmhDataBuilderFactory, metadataPrefix, from, until);
                 }
@@ -244,8 +231,8 @@ public class OaiPmhController {
     }
 
     private ResponseEntity getOaiPmhListByToken(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory,
-                                                ResumptionToken resumptionTokenObj,
                                                 String resumptionToken) throws Exception {
+        ResumptionToken resumptionTokenObj;
         try {
             resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
                     ? saveResumptionTokenAndPidsPersistent(createResumptionToken(), oaiPmhDataBuilderFactory.getRecords())
@@ -262,13 +249,9 @@ public class OaiPmhController {
             oaiPmhDataBuilderFactory.setResumptionToken(resumptionTokenObj);
             oaiPmhDataBuilderFactory.setFormat(format);
         } catch (SaveFailed saveFailed) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_ACCEPTABLE, saveFailed.getMessage(), saveFailed)
-                    .response();
-        } catch (NotFound | NoSuchAlgorithmException | UnsupportedEncodingException notFound) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                    .response();
+            return errorDetails(saveFailed, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_ACCEPTABLE);
+        } catch (NotFound | NoSuchAlgorithmException notFound) {
+            return errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
         try {
@@ -278,9 +261,7 @@ public class OaiPmhController {
                             String.valueOf(resumptionTokenObj.getFormatId()))
             );
         } catch (NotFound notFound) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                    .response();
+            return errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
@@ -314,9 +295,8 @@ public class OaiPmhController {
                 );
             }
         } catch (NotFound notFound) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                    .response();
+            return errorDetails(notFound,  "findAll", "GET:findAll",
+                    HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
@@ -358,9 +338,8 @@ public class OaiPmhController {
     private ResponseEntity getRecord(String metadataPrefix, String identyfier, OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
 
         if (identyfier == null) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, "Identyfier parameter failed.", null)
-                    .response();
+            return errorDetails(new Exception("Identyfier parameter failed."), "getRecord",
+                    "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
         oaiPmhDataBuilderFactory.setIdentifier(identyfier);
@@ -377,15 +356,13 @@ public class OaiPmhController {
                     oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
             );
         } catch (NotFound notFound) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound)
-                    .response();
+            return errorDetails(notFound, "getRecord", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
-    private String createResumptionToken() throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    private String createResumptionToken() throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         digest.update(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
         return HexUtils.toHexString(digest.digest());

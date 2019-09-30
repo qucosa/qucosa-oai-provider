@@ -1,17 +1,17 @@
 /*
- ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
- ~
- ~ Licensed under the Apache License, Version 2.0 (the "License");
- ~ you may not use this file except in compliance with the License.
- ~ You may obtain a copy of the License at
- ~
- ~     http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing, software
- ~ distributed under the License is distributed on an "AS IS" BASIS,
- ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ~ See the License for the specific language governing permissions and
- ~ limitations under the License.
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
@@ -19,7 +19,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.HasIdentifier;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.SetsToRecord;
@@ -70,28 +69,28 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public Collection<SetsToRecord> saveAndSetIdentifier(Collection objects) throws SaveFailed {
-        return null;
+    public Collection<SetsToRecord> saveAndSetIdentifier(Collection objects) {
+        return new ArrayList<>();
     }
 
     @Override
-    public SetsToRecord update(SetsToRecord object) throws UpdateFailed {
-        return null;
+    public SetsToRecord update(SetsToRecord object) {
+        return new SetsToRecord();
     }
 
     @Override
-    public Collection<SetsToRecord> update(Collection objects) throws UpdateFailed {
-        return null;
+    public Collection<SetsToRecord> update() {
+        return new ArrayList<>();
     }
 
     @Override
-    public Collection<SetsToRecord> findAll() throws NotFound {
-        return null;
+    public Collection<SetsToRecord> findAll() {
+        return new ArrayList<>();
     }
 
     @Override
-    public T findById(String id) throws NotFound {
-        return null;
+    public SetsToRecord findById(String id) {
+        return new SetsToRecord();
     }
 
     @SuppressWarnings("unchecked")
@@ -150,18 +149,18 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public Collection<SetsToRecord> findRowsByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+    public Collection<SetsToRecord> findRowsByMultipleValues(String clause, String... values) {
+        return new ArrayList<>();
     }
 
     @Override
-    public Collection<SetsToRecord> findLastRowsByProperty(String property, int limit) {
-        return null;
+    public Collection<SetsToRecord> findLastRowsByProperty() {
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<SetsToRecord> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -170,7 +169,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
 
     }
 

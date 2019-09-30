@@ -1,19 +1,17 @@
 /*
- * *
- *     ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
- *     ~
- *     ~ Licensed under the Apache License, Version 2.0 (the "License");
- *     ~ you may not use this file except in compliance with the License.
- *     ~ You may obtain a copy of the License at
- *     ~
- *     ~     http://www.apache.org/licenses/LICENSE-2.0
- *     ~
- *     ~ Unless required by applicable law or agreed to in writing, software
- *     ~ distributed under the License is distributed on an "AS IS" BASIS,
- *     ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     ~ See the License for the specific language governing permissions and
- *     ~ limitations under the License.
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
  *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package de.qucosa.oai.provider.persistence.dao.postgres;
@@ -22,7 +20,6 @@ import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +30,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
@@ -86,23 +84,23 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public Collection<ResumptionToken> saveAndSetIdentifier(Collection<ResumptionToken> objects) throws SaveFailed {
-        return null;
+    public Collection<ResumptionToken> saveAndSetIdentifier(Collection<ResumptionToken> objects) {
+        return new ArrayList<>();
     }
 
     @Override
-    public ResumptionToken update(ResumptionToken object) throws UpdateFailed {
-        return null;
+    public ResumptionToken update(ResumptionToken object) {
+        return new ResumptionToken();
     }
 
     @Override
-    public Collection<ResumptionToken> update(Collection<ResumptionToken> objects) throws UpdateFailed {
-        return null;
+    public Collection<ResumptionToken> update() {
+        return new ArrayList<>();
     }
 
     @Override
-    public Collection<ResumptionToken> findAll() throws NotFound {
-        return null;
+    public Collection<ResumptionToken> findAll() {
+        return new ArrayList<>();
     }
 
     @Override
@@ -131,28 +129,28 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public Collection<ResumptionToken> findByPropertyAndValue(String property, String value) throws NotFound {
-        return null;
+    public Collection<ResumptionToken> findByPropertyAndValue(String property, String value) {
+        return new ArrayList<>();
     }
 
     @Override
-    public ResumptionToken findByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+    public ResumptionToken findByMultipleValues(String clause, String... values) {
+        return new ResumptionToken();
     }
 
     @Override
-    public Collection<ResumptionToken> findRowsByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+    public Collection<ResumptionToken> findRowsByMultipleValues(String clause, String... values) {
+        return new ArrayList<>();
     }
 
     @Override
-    public Collection<ResumptionToken> findLastRowsByProperty(String property, int limit) {
-        return null;
+    public Collection<ResumptionToken> findLastRowsByProperty() {
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<ResumptionToken> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -168,12 +166,12 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
 
     }
 
     @Override
-    public void delete(ResumptionToken object) throws DeleteFailed {
+    public void delete(ResumptionToken object) {
 
     }
 }

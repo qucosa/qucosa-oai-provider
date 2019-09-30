@@ -1,28 +1,23 @@
 /*
- * *
- *     ~ Copyright 2018 Saxon State and University Library Dresden (SLUB)
- *     ~
- *     ~ Licensed under the Apache License, Version 2.0 (the "License");
- *     ~ you may not use this file except in compliance with the License.
- *     ~ You may obtain a copy of the License at
- *     ~
- *     ~     http://www.apache.org/licenses/LICENSE-2.0
- *     ~
- *     ~ Unless required by applicable law or agreed to in writing, software
- *     ~ distributed under the License is distributed on an "AS IS" BASIS,
- *     ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     ~ See the License for the specific language governing permissions and
- *     ~ limitations under the License.
+ * Copyright 2019 Saxon State and University Library Dresden (SLUB)
  *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -30,6 +25,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
@@ -51,8 +47,8 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
     }
 
     @Override
-    public RstToIdentifiers saveAndSetIdentifier(RstToIdentifiers object) throws SaveFailed {
-        return null;
+    public RstToIdentifiers saveAndSetIdentifier(RstToIdentifiers object) {
+        return new RstToIdentifiers();
     }
 
     @Override
@@ -88,48 +84,48 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
     }
 
     @Override
-    public RstToIdentifiers update(RstToIdentifiers object) throws UpdateFailed {
-        return null;
+    public RstToIdentifiers update(RstToIdentifiers object) {
+        return new RstToIdentifiers();
     }
 
     @Override
-    public Collection<RstToIdentifiers> update(Collection<RstToIdentifiers> objects) throws UpdateFailed {
-        return null;
+    public Collection<RstToIdentifiers> update() {
+        return new ArrayList<>();
     }
 
     @Override
-    public Collection<RstToIdentifiers> findAll() throws NotFound {
-        return null;
+    public Collection<RstToIdentifiers> findAll() {
+        return new ArrayList<>();
     }
 
     @Override
-    public RstToIdentifiers findById(String id) throws NotFound {
-        return null;
+    public RstToIdentifiers findById(String id) {
+        return new RstToIdentifiers();
     }
 
     @Override
-    public Collection<RstToIdentifiers> findByPropertyAndValue(String property, String value) throws NotFound {
-        return null;
+    public Collection<RstToIdentifiers> findByPropertyAndValue(String property, String value) {
+        return new ArrayList<>();
     }
 
     @Override
-    public RstToIdentifiers findByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+    public RstToIdentifiers findByMultipleValues(String clause, String... values) {
+        return new RstToIdentifiers();
     }
 
     @Override
-    public Collection<RstToIdentifiers> findRowsByMultipleValues(String clause, String... values) throws NotFound {
-        return null;
+    public Collection<RstToIdentifiers> findRowsByMultipleValues(String clause, String... values) {
+        return new ArrayList<>();
     }
 
     @Override
-    public Collection<RstToIdentifiers> findLastRowsByProperty(String property, int limit) {
-        return null;
+    public Collection<RstToIdentifiers> findLastRowsByProperty() {
+        return new ArrayList<>();
     }
 
     @Override
     public Collection<RstToIdentifiers> findFirstRowsByProperty(String property, int limit) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
@@ -138,12 +134,12 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
 
     }
 
     @Override
-    public void delete(RstToIdentifiers object) throws DeleteFailed {
+    public void delete(RstToIdentifiers object) {
 
     }
 }
