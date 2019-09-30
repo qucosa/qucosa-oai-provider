@@ -138,7 +138,7 @@ class DisseminationControllerTest {
     }
 
     /**
-     * Value qucosa:32394 is referenced in psql-oia-provider-test-data.backup file.
+     * Value qucosa:32394 is referenced in psql-oai-provider-test-data.backup file.
      */
     @Test
     @DisplayName("Find all disseminations by record uid.")
@@ -214,7 +214,7 @@ class DisseminationControllerTest {
     }
 
     @Test
-    @DisplayName("Save dissemination is not succussful because record failed.")
+    @DisplayName("Save dissemination is not successful because record failed.")
     @Order(5)
     public void saveDisseminationWithoutRecord() throws Exception {
         Dissemination dissemination = disseminations.get(2);
@@ -231,7 +231,7 @@ class DisseminationControllerTest {
     }
 
     @Test
-    @DisplayName("Save dissemination is not succussful because format failed.")
+    @DisplayName("Save dissemination is not successful because format failed.")
     @Order(6)
     public void saveDisseminationWithoutFormat() throws Exception {
         Dissemination dissemination = disseminations.get(2);
@@ -248,10 +248,10 @@ class DisseminationControllerTest {
 
     /**
      * This test has a dependency to the saveDissemination with order number 2 and is not running as stand alone test.
-     * Value qucosa:32394 is referenced in psql-oia-provider-test-data.backup file.
+     * Value qucosa:32394 is referenced in psql-oai-provider-test-data.backup file.
      */
     @Test
-    @DisplayName("Save dissemination is not succussful because exists in table.")
+    @DisplayName("Save dissemination is not successful because exists in table.")
     @Order(7)
     public void saveDisseminationBecauseExists() throws Exception {
         Dissemination dissemination = disseminations.get(2);
@@ -268,7 +268,7 @@ class DisseminationControllerTest {
     }
 
     /**
-     * Value 17 and qucosa:32394 are referenced in psql-oia-provider-test-data.backup file.
+     * Value 17 and qucosa:32394 are referenced in psql-oai-provider-test-data.backup file.
      */
     @Test
     @DisplayName("Update dissemination object with delete property for mark object as deleted.")
@@ -296,7 +296,7 @@ class DisseminationControllerTest {
     }
 
     /**
-     * Value 17 and qucosa:32394 are referenced in psql-oia-provider-test-data.backup file.
+     * Value 17 and qucosa:32394 are referenced in psql-oai-provider-test-data.backup file.
      */
     @Test
     @DisplayName("Delete dissemination from table.")
@@ -317,7 +317,7 @@ class DisseminationControllerTest {
     }
 
     @AfterAll
-    public void schutdwonTest() {
+    public void shutdownTest() {
         sqlContainer.stop();
     }
 }
