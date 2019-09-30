@@ -40,6 +40,7 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -58,6 +59,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -165,7 +167,7 @@ class DisseminationControllerTest {
                 get("/disseminations?uid=qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("404 NOT_FOUND")))
+                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_FOUND.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot found dissemination. UID qucosa:00000 does not exists.")));
     }
 
@@ -224,7 +226,7 @@ class DisseminationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(dissemination)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_ACCEPTABLE.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because record or format failed.")));
     }
 
@@ -240,7 +242,7 @@ class DisseminationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(dissemination)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_ACCEPTABLE.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because record or format failed.")));
     }
 
@@ -261,7 +263,7 @@ class DisseminationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(dissemination)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("406 NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_ACCEPTABLE.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because data row is exists.")));
     }
 

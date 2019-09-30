@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 public class ErrorDetails {
     private final String classname;
 
-    private final HttpStatus statuscode;
+    private final HttpStatus httpStatus;
 
     private final String errorMsg;
 
@@ -40,11 +40,16 @@ public class ErrorDetails {
 
     private final String method;
 
-    public ErrorDetails(String classname, String method, String requestMethodAndPath, HttpStatus statuscode, String errorMsg, Exception exception) {
+    public ErrorDetails(String classname,
+                        String method,
+                        String requestMethodAndPath,
+                        HttpStatus httpStatus,
+                        String errorMsg,
+                        Exception exception) {
         this.date = LocalDateTime.now();
         this.classname = classname;
         this.method = method;
-        this.statuscode = statuscode;
+        this.httpStatus = httpStatus;
         this.errorMsg = (exception != null) ? exception.getMessage() : errorMsg;
         setException(exception);
         setRequestPath(requestMethodAndPath);
@@ -54,8 +59,8 @@ public class ErrorDetails {
         return classname;
     }
 
-    public HttpStatus getStatuscode() {
-        return statuscode;
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
     }
 
     public String getErrorMsg() {
@@ -87,7 +92,7 @@ public class ErrorDetails {
     }
 
     public ResponseEntity response() {
-        return new ResponseEntity<>(this, this.statuscode);
+        return new ResponseEntity<>(this, this.httpStatus);
     }
 
     private void setRequestPath(String requestMethodAndPath) {
