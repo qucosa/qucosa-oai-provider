@@ -35,6 +35,7 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -193,7 +194,7 @@ public class RecordControllerTest {
                 get("/records/qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("NOT_FOUND")))
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_FOUND.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot found record.")));
     }
 
@@ -229,7 +230,7 @@ public class RecordControllerTest {
                 put("/records/qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot update record.")));
     }
 
@@ -244,7 +245,7 @@ public class RecordControllerTest {
                 put("/records/qucosa:00001")
                         .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Unequal uid parameter with record object uid.")));
     }
 
@@ -270,7 +271,7 @@ public class RecordControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(new Record())))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("NOT_FOUND")))
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_FOUND.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot found record.")));
     }
 

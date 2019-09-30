@@ -37,6 +37,7 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -167,7 +168,7 @@ public class SetControllerTest {
                 get("/sets/" + set.getSetSpec())
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.statuscode", is("NOT_FOUND")))
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_FOUND.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Set with setspec " + set.getSetSpec() + " is does not exists.")))
                 .andExpect(jsonPath("$.method", is("find")));
     }
@@ -182,7 +183,7 @@ public class SetControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(set)))
                 .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.statuscode", is("NOT_ACCEPTABLE")))
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot save set objects.")))
                 .andExpect(jsonPath("$.method", is("save")));
     }
@@ -322,12 +323,12 @@ public class SetControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(set)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.statuscode", is("BAD_REQUEST")))
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.BAD_REQUEST.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot hard delete set.")));
     }
 
     @AfterAll
-    public void schutdwonTest() {
+    public void shutdownTestContainers() {
         sqlContainer.stop();
     }
 }
