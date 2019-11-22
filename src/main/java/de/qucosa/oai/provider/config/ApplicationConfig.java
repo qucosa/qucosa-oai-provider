@@ -17,14 +17,10 @@ package de.qucosa.oai.provider.config;
 
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.dao.postgres.DisseminationDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.FormatDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.RecordDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.ResumptionTokenDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.RstToIdentifiersDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.SetDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.SetsToRecordDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.views.OaiPmhListByTokenDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.views.OaiPmhListDao;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
