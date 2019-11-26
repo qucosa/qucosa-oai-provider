@@ -3,13 +3,14 @@ version: '2.0'
 services:
   oai-provider-db:
     container_name: oai-db
+    hostname: oai-db
     build:
       context: .
       dockerfile: ./Dockerfile.postgres
     ports:
-      - "4811:5432"
+      - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: oaiprov
       POSTGRES_USER: postgres
       POSTGRES_DB: oaiprovider
 
@@ -22,9 +23,7 @@ services:
       - "4812:8080"
     networks:
       - default
-    links:
-      - oai-provider-db:db
     depends_on:
       - oai-provider-db
     environment:
-      WAIT_HOSTS: db:5432
+      WAIT_HOSTS: oai-db:5432
