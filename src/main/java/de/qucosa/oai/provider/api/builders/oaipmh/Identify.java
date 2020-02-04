@@ -37,12 +37,11 @@ public class Identify extends OaiPmhDataBuilderAbstract implements OaiPmhDataBui
     @Override
     public Document oaiXmlData() {
         String request = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toString();
-        String uri = request.substring(0, (request.indexOf(verb) - 1));
         Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
         ((Element) verbNode).setAttribute("xmlns", environment.getProperty(PREFIX_IDENTIFY + ".xmlns"));
         ((Element) verbNode).setAttribute("xmlns:xsi", environment.getProperty(PREFIX_IDENTIFY + ".xmlns.xsi"));
 
-        buildIdentifyXml(verbNode, uri);
+        buildIdentifyXml(verbNode, request);
         return oaiPmhTpl;
     }
 
