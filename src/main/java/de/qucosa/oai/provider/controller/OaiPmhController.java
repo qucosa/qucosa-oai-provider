@@ -106,21 +106,18 @@ public class OaiPmhController {
         this.environment = environment;
     }
 
-    @GetMapping(value = {"{verb}", "{verb}/{metadataPrefix}",
-            "{verb}/{metadataPrefix}/{from}",
-            "{verb}/{metadataPrefix}/{from}/{until}"},
-            produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @GetMapping(produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    public ResponseEntity findAll(@PathVariable String verb,
-                                  @PathVariable(value = "metadataPrefix", required = false) String metadataPrefix,
-                                  @PathVariable(value = "from", required = false) String from,
-                                  @PathVariable(value = "until", required = false) String until,
+    public ResponseEntity findAll(@RequestParam String verb,
+                                  @RequestParam(value = "metadataPrefix", required = false) String metadataPrefix,
+                                  @RequestParam(value = "from", required = false) String from,
+                                  @RequestParam(value = "until", required = false) String until,
                                   @RequestParam(value = "identyfier", required = false) String identyfier,
                                   @RequestParam(value = "resumptionToken", required = false) String resumptionToken) {
 
         if (!verbs.contains(verb)) {
             return errorDetails(new Exception("The verb (" + verb + ") is does not exists in OAI protocol."),
-                    "findAll", "GET:/oai/findAll/" + verb, HttpStatus.BAD_REQUEST);
+                    "findAll", "GET:/oai", HttpStatus.BAD_REQUEST);
         }
 
         ResponseEntity output = null;
