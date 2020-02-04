@@ -76,10 +76,9 @@ public class OaiPmhDataBuilderFactory {
         responseDate.setTextContent(sdf.format(new Date()));
 
         String request = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toString();
-        String uri = request.substring(0, (request.indexOf(verb) - 1));
 
         Node requestNode = oaiPmhTemplate.getElementsByTagName("request").item(0);
-        requestNode.setTextContent(uri);
+        requestNode.setTextContent(request);
         requestNode.getAttributes().getNamedItem("verb").setTextContent(verb);
 
         if (getFormat() != null) {
