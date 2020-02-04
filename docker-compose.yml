@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.postgres
     ports:
-      - "5432:5432"
+      - "4811:5432"
     environment:
       POSTGRES_PASSWORD: oaiprov
       POSTGRES_USER: postgres
