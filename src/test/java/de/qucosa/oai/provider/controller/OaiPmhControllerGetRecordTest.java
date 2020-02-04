@@ -168,7 +168,7 @@ public class OaiPmhControllerGetRecordTest {
         Document record = null;
 
         MvcResult mvcResult = mvc.perform(
-                get("/oai/GetRecord/" + mdPrefix + "?identyfier=" + identyfier)
+                get("/oai?verb=GetRecord&metadataPrefix=" + mdPrefix + "&identyfier=" + identyfier)
                         .contentType(MediaType.APPLICATION_XML_VALUE)).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
