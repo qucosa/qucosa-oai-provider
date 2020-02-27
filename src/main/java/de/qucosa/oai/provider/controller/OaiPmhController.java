@@ -112,7 +112,7 @@ public class OaiPmhController {
                                   @RequestParam(value = "metadataPrefix", required = false) String metadataPrefix,
                                   @RequestParam(value = "from", required = false) String from,
                                   @RequestParam(value = "until", required = false) String until,
-                                  @RequestParam(value = "identyfier", required = false) String identyfier,
+                                  @RequestParam(value = "identifier", required = false) String identifier,
                                   @RequestParam(value = "resumptionToken", required = false) String resumptionToken) {
 
         if (!verbs.contains(verb)) {
@@ -159,7 +159,7 @@ public class OaiPmhController {
 
         if (verb.equals("GetRecord")) {
             try {
-                output = getRecord(metadataPrefix, identyfier, oaiPmhDataBuilderFactory);
+                output = getRecord(metadataPrefix, identifier, oaiPmhDataBuilderFactory);
             } catch (Exception e) {
                 return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
             }
