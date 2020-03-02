@@ -20,10 +20,13 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class DateTimeConverter {
 
@@ -51,5 +54,21 @@ public class DateTimeConverter {
         date.setTime(timestamp.getTime());
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
         return dateFormat.format(date);
+    }
+
+    /**
+     * get timestamp (lastmod) for url/urlset
+     * @return date in w3c datetime format as string
+     */
+    public static String getCurrentW3cDatetime() {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return format.format(new Date())+"+00:00";
+    }
+
+    public static String getOaiXmlDate() {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return format.format(new Date());
     }
 }
