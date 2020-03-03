@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -55,13 +56,13 @@ public class SetController {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity findAll() {
-        Collection<Set> sets;
+        Collection<Set> sets = new ArrayList<>();
 
         try {
             sets = setService.findAll();
         } catch (NotFound e) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:sets",
-                    HttpStatus.NOT_FOUND, e.getMessage(), e).response();
+            /*return new ErrorDetails(this.getClass().getName(), "findAll", "GET:sets",
+                    HttpStatus.NOT_FOUND, e.getMessage(), e).response();*/
         }
 
         return new ResponseEntity<>(sets, HttpStatus.OK);
