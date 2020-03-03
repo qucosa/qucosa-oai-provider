@@ -17,6 +17,7 @@
 package de.qucosa.oai.provider.controller;
 
 import de.qucosa.oai.provider.ErrorDetails;
+import de.qucosa.oai.provider.api.OaiError;
 import de.qucosa.oai.provider.api.builders.oaipmh.OaiPmhDataBuilderFactory;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
@@ -41,7 +42,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -49,6 +49,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.transform.TransformerException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -106,18 +108,20 @@ public class OaiPmhController {
         this.environment = environment;
     }
 
+
+
     @GetMapping(produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    public ResponseEntity findAll(@RequestParam String verb,
+    public ResponseEntity findAll(@RequestParam(value = "verb", required = false) String verb,
                                   @RequestParam(value = "metadataPrefix", required = false) String metadataPrefix,
                                   @RequestParam(value = "from", required = false) String from,
                                   @RequestParam(value = "until", required = false) String until,
                                   @RequestParam(value = "identifier", required = false) String identifier,
-                                  @RequestParam(value = "resumptionToken", required = false) String resumptionToken) {
+                                  @RequestParam(value = "resumptionToken", required = false) String resumptionToken,
+                                  HttpServletRequest request) throws TransformerException {
 
-        if (!verbs.contains(verb)) {
-            return errorDetails(new Exception("The verb (" + verb + ") is does not exists in OAI protocol."),
-                    "findAll", "GET:/oai", HttpStatus.BAD_REQUEST);
+        if (verb == null || verb.isEmpty() || !verbs.contains(verb)) {
+            return oaiError(request, "badVerb");
         }
 
         ResponseEntity output = null;
@@ -132,12 +136,12 @@ public class OaiPmhController {
             try {
 
                 if (oaiPmhDataBuilderFactory.getRecords().size() > recordsProPage) {
-                    output = getOaiPmhListByToken(oaiPmhDataBuilderFactory, resumptionToken);
+                    output = getOaiPmhListByToken(oaiPmhDataBuilderFactory, resumptionToken, request);
                 } else {
-                    output = getOaiPmhList(oaiPmhDataBuilderFactory, metadataPrefix, from, until);
+                    output = getOaiPmhList(oaiPmhDataBuilderFactory, metadataPrefix, from, until, request);
                 }
             } catch (Exception e) {
-                return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
+                return oaiError(request, "noRecordsMatch");
             }
         }
 
@@ -145,7 +149,8 @@ public class OaiPmhController {
             try {
                 output = getListSets(oaiPmhDataBuilderFactory);
             } catch (Exception e) {
-                return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
+                return oaiError(request, "noSetHierarchy");
+                //return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
             }
         }
 
@@ -228,7 +233,7 @@ public class OaiPmhController {
     }
 
     private ResponseEntity getOaiPmhListByToken(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory,
-                                                String resumptionToken) throws Exception {
+                                                String resumptionToken, HttpServletRequest request) throws Exception {
         ResumptionToken resumptionTokenObj;
         try {
             resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
@@ -258,14 +263,15 @@ public class OaiPmhController {
                             String.valueOf(resumptionTokenObj.getFormatId()))
             );
         } catch (NotFound notFound) {
-            return errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND);
+            return oaiError(request, "noRecordsMatch");
+            //return errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
     private ResponseEntity getOaiPmhList(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory, String metadataPrefix,
-                                         String from, String until) throws Exception {
+                                         String from, String until, HttpServletRequest request) throws Exception {
         try {
 
             if (format == null) {
@@ -292,11 +298,19 @@ public class OaiPmhController {
                 );
             }
         } catch (NotFound notFound) {
-            return errorDetails(notFound,  "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND);
+            return oaiError(request, "noRecordsMatch");
+            //@TOTO  return oaierror xml
+            /*return errorDetails(notFound,  "findAll", "GET:findAll",
+                    HttpStatus.NOT_FOUND);*/
         }
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
+    }
+
+    private ResponseEntity oaiError(HttpServletRequest request, String errorCode) throws TransformerException {
+        OaiError error = new OaiError(errorCode);
+        error.setRequestUrl(request.getRequestURL().toString());
+        return new ResponseEntity<>(DocumentXmlUtils.resultXml(error.getOaiErrorXml()), HttpStatus.BAD_REQUEST);
     }
 
     private ResponseEntity errorDetails(Exception e, String method, String requestMethodAndApth, HttpStatus status) {
