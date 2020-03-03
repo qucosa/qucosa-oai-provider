@@ -19,7 +19,6 @@
 package de.qucosa.oai.error;
 
 import de.qucosa.oai.provider.api.OaiError;
-import de.qucosa.oai.provider.api.exceptions.OaiErrorCodeException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -33,34 +32,34 @@ public class ErrorSpecTest {
     private OaiError error;
 
     @BeforeAll
-    public void init() throws OaiErrorCodeException {
+    public void init() {
         error = new OaiError("badArgument");
     }
 
     @Test
     @DisplayName("Test if error code is illegal.")
     public void errorCodeNotExists() {
-        Assertions.assertThrows(OaiErrorCodeException.class, () -> {
+        Assertions.assertThrows(RuntimeException.class, () -> {
            new OaiError("bdArgument");
         });
     }
 
     @Test
     @DisplayName("Test if all informations in oai error object.")
-    public void getOaiErrorObj() throws OaiErrorCodeException {
+    public void getOaiErrorObj() {
         Assertions.assertEquals("badArgument", error.getErrorCode());
         Assertions.assertNotNull(error.getErrorMsg());
     }
 
     @Test
     @DisplayName("Test if document after error instance not null.")
-    public void isDocumentNotNull() throws OaiErrorCodeException {
+    public void isDocumentNotNull() {
         Assertions.assertNotNull(error.getOaiErrorXml());
     }
 
     @Test
     @DisplayName("Has error xml object all nodes for oai error spec.")
-    public void hasErrorAllNodes() throws Exception {
+    public void hasErrorAllNodes() {
         Document errorXml = error.getOaiErrorXml();
 
         String errCode = errorXml.getElementsByTagName("error").item(0)
