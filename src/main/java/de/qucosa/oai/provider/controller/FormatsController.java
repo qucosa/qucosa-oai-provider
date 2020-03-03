@@ -86,7 +86,7 @@ public class FormatsController {
         }
 
         Collection<Format> formats;
-        Format format = null;
+        Format format = new Format();
 
         try {
 
@@ -94,8 +94,9 @@ public class FormatsController {
                 formats = formatService.find("mdprefix", mdprefix);
 
                 if (formats.isEmpty()) {
-                    return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
-                            HttpStatus.NOT_FOUND, "Cannot found format.", null).response();
+                    return new ResponseEntity<>(format, HttpStatus.OK);
+//                    return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
+//                            HttpStatus.NOT_FOUND, "Cannot found format.", null).response();
                 }
 
                 format = formats.iterator().next();
