@@ -71,17 +71,17 @@ public class SetController {
     @RequestMapping(value = "{setspec}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity find(@PathVariable String setspec) {
-        Set set = null;
+        Set set = new Set();
 
         try {
             Collection<Set> sets = setService.find("setspec", setspec);
 
-            if (sets.isEmpty()) {
-                return new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
-                        HttpStatus.NOT_FOUND, "Set with setspec " + setspec + " is does not exists.", null).response();
+            if (!sets.isEmpty()) {
+                set = sets.iterator().next();
+                /*return new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
+                        HttpStatus.NOT_FOUND, "Set with setspec " + setspec + " is does not exists.", null).response();*/
             }
 
-            set = sets.iterator().next();
         } catch (NotFound ignored) { }
 
         return new ResponseEntity<>(set, HttpStatus.OK);
