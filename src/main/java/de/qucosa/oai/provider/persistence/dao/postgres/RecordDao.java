@@ -239,7 +239,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
             resultSet.close();
 
             if (records.isEmpty()) {
-                throw new NotFound("SQL ERROR: Canot found records.");
+                return records;
             }
         } catch (SQLException e) {
             throw new NotFound("SQL ERROR: Canot found records.", e);
