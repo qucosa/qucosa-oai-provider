@@ -197,9 +197,10 @@ public class RecordController {
         try {
 
             if (from != null && metadataPrefix == null) {
-                return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll}",
+                return new ResponseEntity<>(records, HttpStatus.OK);
+                /*return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll}",
                         HttpStatus.NOT_FOUND, "The metadataPrefix parmater failed in from / until query.", null)
-                        .response();
+                        .response();*/
             }
 
             if (metadataPrefix != null && from != null && until != null) {
@@ -209,19 +210,13 @@ public class RecordController {
             if (metadataPrefix != null && from != null && until == null) {
                 records = recordService.findRowsByMultipleValues("between ? AND NOW()", metadataPrefix, from);
             }
-        } catch (NotFound notFound) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll}",
-                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound).response();
-        }
 
-        try {
-
-            if (records.isEmpty()) {
+            if (metadataPrefix != null && from == null && until == null) {
                 records = recordService.findAll();
             }
-        } catch (NotFound notFound) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:find}",
-                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound).response();
+        } catch (NotFound ignored) {
+            /*return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll}",
+                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound).response();*/
         }
 
         return new ResponseEntity<>(records, HttpStatus.OK);
