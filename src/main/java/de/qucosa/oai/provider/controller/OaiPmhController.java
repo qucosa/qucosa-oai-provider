@@ -48,6 +48,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.w3c.dom.Document;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.TransformerException;
@@ -163,9 +164,9 @@ public class OaiPmhController {
 
         if (verb.equals("GetRecord")) {
             try {
-                output = getRecord(metadataPrefix, identifier, oaiPmhDataBuilderFactory);
+                output = getRecord(metadataPrefix, identifier, oaiPmhDataBuilderFactory, request);
             } catch (Exception e) {
-                return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
+                //return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
             }
         }
 
@@ -354,14 +355,15 @@ public class OaiPmhController {
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
-    private ResponseEntity getRecord(String metadataPrefix, String identyfier, OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
+    private ResponseEntity getRecord(String metadataPrefix, String identifier, OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory, HttpServletRequest request) throws Exception {
 
-        if (identyfier == null) {
-            return errorDetails(new Exception("Identyfier parameter failed."), "getRecord",
-                    "GET:findAll", HttpStatus.NOT_FOUND);
+        if (identifier == null || identifier.isEmpty()) {
+            return oaiError(request, "badArgument");
+            /*return errorDetails(new Exception("Identyfier parameter failed."), "getRecord",
+                    "GET:findAll", HttpStatus.NOT_FOUND);*/
         }
 
-        oaiPmhDataBuilderFactory.setIdentifier(identyfier);
+        oaiPmhDataBuilderFactory.setIdentifier(identifier);
 
         try {
             format = restTemplate.getForObject(
@@ -370,15 +372,28 @@ public class OaiPmhController {
                             .toUriString(),
                     Format.class);
 
+            if (format.getFormatId() == null) {
+                return oaiError(request, "cannotDisseminateFormat");
+            }
+
             oaiPmhDataBuilderFactory.setFormat(format);
             oaiPmhDataBuilderFactory.setOaiPmhList(
                     oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
             );
         } catch (NotFound notFound) {
-            return errorDetails(notFound, "getRecord", "GET:findAll", HttpStatus.NOT_FOUND);
+            return oaiError(request, "idDoesNotExist");
+            //return errorDetails(notFound, "getRecord", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
+        Document result = null;
+
+        try {
+            result = oaiPmhDataBuilderFactory.oaiPmhData();
+        } catch (NullPointerException e) {
+            return oaiError(request, "idDoesNotExist");
+        }
+
+        return new ResponseEntity<>(DocumentXmlUtils.resultXml(result), HttpStatus.OK);
     }
 
     private String createResumptionToken() throws NoSuchAlgorithmException {
