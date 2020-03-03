@@ -18,7 +18,6 @@
 
 package de.qucosa.oai.provider.api;
 
-import de.qucosa.oai.provider.api.exceptions.OaiErrorCodeException;
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import org.w3c.dom.Document;
@@ -50,10 +49,10 @@ public class OaiError {
 
     private String requestUrl = "http://localhost:8080/oai";
 
-    public OaiError(String errorCode) throws OaiErrorCodeException {
+    public OaiError(String errorCode) {
 
         if (!oaiErrorConfig.containsKey(errorCode)) {
-            throw new OaiErrorCodeException("The " + errorCode + " is not a correct oai sepc error code.");
+            throw new RuntimeException("The " + errorCode + " is not a correct oai sepc error code.");
         }
 
         for(Map.Entry<String, String> entry : oaiErrorConfig.entrySet()) {
