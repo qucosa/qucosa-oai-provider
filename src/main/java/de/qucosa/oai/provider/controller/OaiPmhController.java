@@ -155,9 +155,9 @@ public class OaiPmhController {
 
         if (verb.equals("ListMetadataFormats")) {
             try {
-                output = getListMetadataFormats(oaiPmhDataBuilderFactory);
+                output = getListMetadataFormats(oaiPmhDataBuilderFactory, request);
             } catch (Exception e) {
-                return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
+                //return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
             }
         }
 
@@ -331,12 +331,17 @@ public class OaiPmhController {
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
-    private ResponseEntity getListMetadataFormats(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
+    private ResponseEntity getListMetadataFormats(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory, HttpServletRequest request) throws Exception {
         oaiPmhDataBuilderFactory.setFormats(
                 restTemplate.exchange(appUrl + ":" + serverPort + "/formats",
                         HttpMethod.GET,
                         null,
                         new ParameterizedTypeReference<Collection<Format>>() {}).getBody());
+
+        if (oaiPmhDataBuilderFactory.getFormats().size() == 0) {
+            return oaiError(request, "noMetadataFormats");
+        }
+
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
