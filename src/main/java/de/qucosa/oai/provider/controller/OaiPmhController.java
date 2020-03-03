@@ -147,9 +147,8 @@ public class OaiPmhController {
 
         if (verb.equals("ListSets")) {
             try {
-                output = getListSets(oaiPmhDataBuilderFactory);
+                output = getListSets(oaiPmhDataBuilderFactory, request);
             } catch (Exception e) {
-                return oaiError(request, "noSetHierarchy");
                 //return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
             }
         }
@@ -318,12 +317,16 @@ public class OaiPmhController {
                 .response();
     }
 
-    private ResponseEntity getListSets(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory) throws Exception {
+    private ResponseEntity getListSets(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory, HttpServletRequest request) throws Exception {
         Collection<Set> sets = restTemplate.exchange(appUrl + ":" + serverPort + "/sets",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<Collection<Set>>() {}).getBody();
         oaiPmhDataBuilderFactory.setSets(sets);
+
+        if (sets.size() == 0) {
+            return oaiError(request, "noSetHierarchy");
+        }
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
