@@ -182,7 +182,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
                     sets.add(setData(resultSet));
                 } while(resultSet.next());
             } else {
-                throw new NotFound("Cannot found sets.");
+                return sets;
             }
         } catch (SQLException e) {
             throw new NotFound("SQL-ERROR: Cannot found sets.", e);
