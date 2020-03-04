@@ -319,7 +319,7 @@ public class OaiPmhController {
     private ResponseEntity oaiError(HttpServletRequest request, String errorCode) throws TransformerException {
         OaiError error = new OaiError(errorCode);
         error.setRequestUrl(request.getRequestURL().toString());
-        return new ResponseEntity<>(DocumentXmlUtils.resultXml(error.getOaiErrorXml()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(DocumentXmlUtils.resultXml(error.getOaiErrorXml()), HttpStatus.OK);
     }
 
     private ResponseEntity errorDetails(Exception e, String method, String requestMethodAndApth, HttpStatus status) {
