@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.SetService;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -164,13 +165,12 @@ public class SetControllerTest {
     public void setNotFound() throws Exception {
         Set set = sets.get(0);
 
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 get("/sets/" + set.getSetSpec())
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_FOUND.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Set with setspec " + set.getSetSpec() + " is does not exists.")))
-                .andExpect(jsonPath("$.method", is("find")));
+                .andExpect(status().isOk()).andReturn();
+        Set setRes = om.readValue(mvcResult.getResponse().getContentAsString(), Set.class);
+        Assertions.assertNull(setRes.getSetSpec());
     }
 
     @Test
