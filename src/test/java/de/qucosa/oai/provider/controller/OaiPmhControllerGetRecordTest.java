@@ -23,9 +23,11 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -58,6 +60,7 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
         classes = {QucosaOaiProviderApplication.class, OaiPmhControllerGetRecordTest.TestConfig.class},
@@ -164,11 +167,11 @@ public class OaiPmhControllerGetRecordTest {
         assertThat(node.hasChildNodes()).isFalse();
     }
 
-    private Document getXmlRecord(String mdPrefix, String identyfier) throws Exception {
+    private Document getXmlRecord(String mdPrefix, String identifier) throws Exception {
         Document record = null;
 
         MvcResult mvcResult = mvc.perform(
-                get("/oai?verb=GetRecord&metadataPrefix=" + mdPrefix + "&identyfier=" + identyfier)
+                get("/oai?verb=GetRecord&metadataPrefix=" + mdPrefix + "&identifier=" + identifier)
                         .contentType(MediaType.APPLICATION_XML_VALUE)).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
