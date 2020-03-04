@@ -212,6 +212,10 @@ public class RecordController {
             }
 
             if (metadataPrefix != null && from == null && until == null) {
+                records = recordService.findRowsByMultipleValues("", metadataPrefix);
+            }
+
+            if (metadataPrefix == null && from == null && until == null) {
                 records = recordService.findAll();
             }
         } catch (NotFound ignored) {
