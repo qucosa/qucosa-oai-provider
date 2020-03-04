@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -118,14 +119,19 @@ public class OaiPmhControllerListIdentifiersTest {
     }
 
     @Test
-    @DisplayName("If verb parameter not exists in properties verbs config then retirns error details object.")
+    @DisplayName("If verb parameter not exists in properties verbs config then returns error details object.")
     public void notExistsVerb() throws Exception {
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 get("/oai?verb=ListIdntifers&metadataPrefix=oai_dc")
                         .accept(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.BAD_REQUEST.name())))
-                .andExpect(jsonPath("$.errorMsg", is("The verb (ListIdntifers) is does not exists in OAI protocol.")));
+                .andExpect(status().isOk()).andReturn();
+        Document response = DocumentXmlUtils.document(
+                new ByteArrayInputStream(mvcResult.getResponse().getContentAsString().getBytes(StandardCharsets.UTF_8)), true);
+        Node errorNode = response.getElementsByTagName("error").item(0);
+        String errorCode = errorNode.getAttributes().getNamedItem("code").getTextContent();
+        //String errorCode = (String) xPath.compile("//error/@code").evaluate(response, XPathConstants.STRING);
+
+        Assertions.assertEquals("badVerb", errorCode);
     }
 
     @Test
