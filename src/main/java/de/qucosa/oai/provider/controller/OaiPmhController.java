@@ -236,6 +236,15 @@ public class OaiPmhController {
                                                 String resumptionToken, HttpServletRequest request) throws Exception {
         ResumptionToken resumptionTokenObj;
         try {
+
+            if (resumptionToken != null) {
+                resumptionTokenObj = resumptionTokenService.findById(resumptionToken);
+
+                if (resumptionTokenObj.getTokenId() == null) {
+                    return oaiError(request, "badResumptionToken");
+                }
+            }
+
             resumptionTokenObj = (resumptionToken == null || resumptionToken.isEmpty())
                     ? saveResumptionTokenAndPidsPersistent(createResumptionToken(), oaiPmhDataBuilderFactory.getRecords())
                     : resumptionTokenService.findById(resumptionToken);
