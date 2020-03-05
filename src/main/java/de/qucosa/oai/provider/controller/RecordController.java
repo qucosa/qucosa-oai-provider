@@ -215,6 +215,7 @@ public class RecordController {
                 records = recordService.findRowsByMultipleValues("", metadataPrefix);
             }
 
+            //noinspection ConstantConditions
             if (metadataPrefix == null && from == null && until == null) {
                 records = recordService.findAll();
             }
