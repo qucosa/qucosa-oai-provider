@@ -32,7 +32,7 @@ public class OaiError {
 
     private String errorMsg;
 
-    private String requestDate = DateTimeConverter.getOaiXmlDate();
+    private final String requestDate = DateTimeConverter.getOaiXmlDate();
 
     private String requestUrl = "http://localhost:8080/oai";
 
