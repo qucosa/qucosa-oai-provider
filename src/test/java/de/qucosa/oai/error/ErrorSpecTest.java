@@ -39,9 +39,7 @@ public class ErrorSpecTest {
     @Test
     @DisplayName("Test if error code is illegal.")
     public void errorCodeNotExists() {
-        Assertions.assertThrows(RuntimeException.class, () -> {
-           new OaiError("bdArgument");
-        });
+        Assertions.assertThrows(RuntimeException.class, () -> new OaiError("bdArgument"));
     }
 
     @Test
