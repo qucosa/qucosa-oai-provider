@@ -28,19 +28,6 @@ import java.util.Map;
 
 public class OaiError {
 
-    private Map<String, String> oaiErrorConfig = new HashMap<String, String>() {
-        {
-            put("badArgument", "The request includes illegal arguments, is missing required arguments, includes a repeated argument, or values for arguments have an illegal syntax.");
-            put("badResumptionToken", "The value of the resumptionToken argument is invalid or expired.");
-            put("badVerb", "Value of the verb argument is not a legal OAI-PMH verb, the verb argument is missing, or the verb argument is repeated. ");
-            put("cannotDisseminateFormat", "The metadata format identified by the value given for the metadataPrefix argument is not supported by the item or by the repository.");
-            put("idDoesNotExist", "The value of the identifier argument is unknown or illegal in this repository.");
-            put("noRecordsMatch", "The combination of the values of the from, until, set and metadataPrefix arguments results in an empty list.");
-            put("noMetadataFormats", "There are no metadata formats available for the specified item.");
-            put("noSetHierarchy", "The repository does not support sets.");
-        }
-    };
-
     private String errorCode;
 
     private String errorMsg;
@@ -51,6 +38,18 @@ public class OaiError {
 
     public OaiError(String errorCode) {
 
+        Map<String, String> oaiErrorConfig = new HashMap<String, String>() {
+            {
+                put("badArgument", "The request includes illegal arguments, is missing required arguments, includes a repeated argument, or values for arguments have an illegal syntax.");
+                put("badResumptionToken", "The value of the resumptionToken argument is invalid or expired.");
+                put("badVerb", "Value of the verb argument is not a legal OAI-PMH verb, the verb argument is missing, or the verb argument is repeated. ");
+                put("cannotDisseminateFormat", "The metadata format identified by the value given for the metadataPrefix argument is not supported by the item or by the repository.");
+                put("idDoesNotExist", "The value of the identifier argument is unknown or illegal in this repository.");
+                put("noRecordsMatch", "The combination of the values of the from, until, set and metadataPrefix arguments results in an empty list.");
+                put("noMetadataFormats", "There are no metadata formats available for the specified item.");
+                put("noSetHierarchy", "The repository does not support sets.");
+            }
+        };
         if (!oaiErrorConfig.containsKey(errorCode)) {
             throw new RuntimeException("The " + errorCode + " is not a correct oai sepc error code.");
         }
