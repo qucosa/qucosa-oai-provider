@@ -16,7 +16,6 @@
 
 package de.qucosa.oai.provider.controller;
 
-import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.api.OaiError;
 import de.qucosa.oai.provider.api.builders.oaipmh.OaiPmhDataBuilderFactory;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
@@ -174,7 +173,7 @@ public class OaiPmhController {
             try {
                 output = identify(oaiPmhDataBuilderFactory);
             } catch (Exception e) {
-                return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
+//                return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
             }
         }
 
@@ -234,7 +233,8 @@ public class OaiPmhController {
 
     private ResponseEntity getOaiPmhListByToken(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory,
                                                 String resumptionToken, HttpServletRequest request) throws Exception {
-        ResumptionToken resumptionTokenObj;
+        ResumptionToken resumptionTokenObj = null;
+
         try {
 
             if (resumptionToken != null) {
@@ -260,9 +260,9 @@ public class OaiPmhController {
             oaiPmhDataBuilderFactory.setResumptionToken(resumptionTokenObj);
             oaiPmhDataBuilderFactory.setFormat(format);
         } catch (SaveFailed saveFailed) {
-            return errorDetails(saveFailed, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_ACCEPTABLE);
+            //return errorDetails(saveFailed, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_ACCEPTABLE);
         } catch (NotFound | NoSuchAlgorithmException notFound) {
-            return errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND);
+            //return errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
         try {
@@ -317,15 +317,14 @@ public class OaiPmhController {
     }
 
     private ResponseEntity oaiError(HttpServletRequest request, String errorCode) throws TransformerException {
-        OaiError error = new OaiError(errorCode);
-        error.setRequestUrl(request.getRequestURL().toString());
+        OaiError error = new OaiError(errorCode).setRequestUrl(request.getRequestURL().toString());
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(error.getOaiErrorXml()), HttpStatus.OK);
     }
 
-    private ResponseEntity errorDetails(Exception e, String method, String requestMethodAndApth, HttpStatus status) {
-        return new ErrorDetails(this.getClass().getName(), method, requestMethodAndApth, status, e.getMessage(), e)
-                .response();
-    }
+//    private ResponseEntity errorDetails(Exception e, String method, String requestMethodAndApth, HttpStatus status) {
+//        return new ErrorDetails(this.getClass().getName(), method, requestMethodAndApth, status, e.getMessage(), e)
+//                .response();
+//    }
 
     private ResponseEntity getListSets(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory, HttpServletRequest request) throws Exception {
         Collection<Set> sets = restTemplate.exchange(appUrl + ":" + serverPort + "/sets",
@@ -394,7 +393,7 @@ public class OaiPmhController {
             //return errorDetails(notFound, "getRecord", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
-        Document result = null;
+        Document result;
 
         try {
             result = oaiPmhDataBuilderFactory.oaiPmhData();
