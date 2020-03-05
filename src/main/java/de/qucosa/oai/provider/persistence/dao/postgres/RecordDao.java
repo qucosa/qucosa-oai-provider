@@ -223,7 +223,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
                 if (values.length == 3) {
                     pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
                     pst.setTimestamp(3, DateTimeConverter.timestampWithTimezone(values[2]));
-                } else if (values.length == 2) {
+                } else {
                     pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
                 }
             }
