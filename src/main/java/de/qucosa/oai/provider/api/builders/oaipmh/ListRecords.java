@@ -22,7 +22,6 @@ import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhList;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhListByToken;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import java.io.ByteArrayInputStream;
