@@ -39,7 +39,6 @@ public class ResumptionTokenScheduler {
     public void reportCronAct() {
 
         if (tokenService != null) {
-            logger.info("Token Service is da.");
 
             try {
                 tokenService.delete();
