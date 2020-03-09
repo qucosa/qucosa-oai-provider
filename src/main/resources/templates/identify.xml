@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Identify>
-    <repositoryName></repositoryName>
-    <baseURL></baseURL>
-    <protocolVersion></protocolVersion>
-    <adminEmail></adminEmail>
-    <earliestDatestamp></earliestDatestamp>
-    <deletedRecord></deletedRecord>
-    <granularity></granularity>
-    <compression></compression>
+    <repositoryName />
+    <baseURL />
+    <protocolVersion />
+    <adminEmail />
+    <earliestDatestamp />
+    <deletedRecord />
+    <granularity />
+    <compression />
     <description>
         <oai-identifier>
-            <scheme></scheme>
-            <repositoryIdentifier></repositoryIdentifier>
-            <delimiter></delimiter>
-            <sampleIdentifier></sampleIdentifier>
+            <scheme />
+            <repositoryIdentifier />
+            <delimiter />
+            <sampleIdentifier />
             <removeResumtionTokenHours />
         </oai-identifier>
     </description>
