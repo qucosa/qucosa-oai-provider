@@ -15,7 +15,6 @@
             <repositoryIdentifier />
             <delimiter />
             <sampleIdentifier />
-            <removeResumtionTokenHours />
         </oai-identifier>
     </description>
 </Identify>

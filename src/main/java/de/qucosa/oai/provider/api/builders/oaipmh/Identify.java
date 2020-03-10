@@ -97,9 +97,6 @@ public class Identify extends OaiPmhDataBuilderAbstract implements OaiPmhDataBui
         Node sampleIdentifier = identifyTpl.getElementsByTagName("sampleIdentifier").item(0);
         sampleIdentifier.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".identifier.sampleIdentifier"));
 
-        Node removeResumtionTokenHours = identifyTpl.getElementsByTagName("removeResumtionTokenHours").item(0);
-        removeResumtionTokenHours.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".identifier.remove.resumptionToken.hours"));
-
         Node importedTpl = oaiPmhTpl.importNode(identifyTpl.getDocumentElement(), true);
 
         oaiPmhTpl.getDocumentElement().removeChild(verbNode);
