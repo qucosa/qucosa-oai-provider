@@ -37,10 +37,10 @@ import java.util.Collection;
 public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<ResumptionToken> {
     private Connection connection;
 
-    @Value("${resumptiontoken.expiration.hours}")
+    @Value("${resumptiontoken.expiration.time}")
     private Integer expiriesHours;
 
-    @Value("${expiries.hours.unit}")
+    @Value("${resumptiontoken.expiration.time.unit}")
     private String expiriesHoursUnit;
 
     @Autowired

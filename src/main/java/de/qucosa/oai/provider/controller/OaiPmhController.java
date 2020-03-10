@@ -70,7 +70,7 @@ public class OaiPmhController {
     @Value("${records.pro.page}")
     private int recordsProPage;
 
-    @Value("${resumptiontoken.expiration.hours}")
+    @Value("${resumptiontoken.expiration.time}")
     private int expiriesHours;
 
     @Value(("${app.url}"))
