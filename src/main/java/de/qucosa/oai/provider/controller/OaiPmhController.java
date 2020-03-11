@@ -127,7 +127,7 @@ public class OaiPmhController {
         ResponseEntity output = null;
 
         OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory = new OaiPmhDataBuilderFactory(
-                DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/oai_pmh.xml"), false)
+                DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/oai_pmh.xml"), true)
         ).setVerb(verb).setMdprefix(metadataPrefix).setRecordsProPage(recordsProPage);
 
         if (verb.equals("ListIdentifiers") || verb.equals("ListRecords")) {
