@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -54,13 +55,13 @@ public class FormatsController {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity findAll() {
-        Collection<Format> formats;
+        Collection<Format> formats = new ArrayList<>();
 
         try {
             formats = formatService.findAll();
         } catch (NotFound e) {
-            return new ErrorDetails(this.getClass().getName(), "findAll", "GET:formats",
-                    HttpStatus.NOT_FOUND, "", e).response();
+            /*return new ErrorDetails(this.getClass().getName(), "findAll", "GET:formats",
+                    HttpStatus.NOT_FOUND, "", e).response();*/
         }
 
         return new ResponseEntity<>(formats, HttpStatus.OK);
@@ -86,7 +87,7 @@ public class FormatsController {
         }
 
         Collection<Format> formats;
-        Format format = null;
+        Format format = new Format();
 
         try {
 
@@ -94,8 +95,9 @@ public class FormatsController {
                 formats = formatService.find("mdprefix", mdprefix);
 
                 if (formats.isEmpty()) {
-                    return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
-                            HttpStatus.NOT_FOUND, "Cannot found format.", null).response();
+                    return new ResponseEntity<>(format, HttpStatus.OK);
+//                    return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
+//                            HttpStatus.NOT_FOUND, "Cannot found format.", null).response();
                 }
 
                 format = formats.iterator().next();

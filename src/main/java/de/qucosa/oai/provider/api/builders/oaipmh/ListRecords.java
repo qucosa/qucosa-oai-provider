@@ -18,6 +18,7 @@ package de.qucosa.oai.provider.api.builders.oaipmh;
 
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
+import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhList;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhListByToken;
 import org.w3c.dom.Document;
@@ -25,6 +26,7 @@ import org.w3c.dom.Node;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.Collection;
 
 public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhDataBuilder {
@@ -68,20 +70,12 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         for (OaiPmhListByToken oaiPmhListByToken : oaiPmhListByToken) {
 
             if (!oaiPmhListByToken.isRecordStatus()) {
-                Document metadataXml = DocumentXmlUtils.document(
-                        new ByteArrayInputStream(oaiPmhListByToken.getXmldata().getBytes(StandardCharsets.UTF_8)), true);
-                Node metadataImport = recordTpl.importNode(metadataXml.getDocumentElement(), true);
-                metadata.appendChild(metadataImport);
+                metadataInsert(new ByteArrayInputStream(oaiPmhListByToken.getXmldata().getBytes(StandardCharsets.UTF_8)), metadata);
             }
 
-            Node importHeader = recordTpl.importNode(addHeaderTpl(oaiPmhListByToken.getUid(),
-                    DateTimeConverter.sqlTimestampToString(oaiPmhListByToken.getLastModDate()),
-                    oaiPmhListByToken.isRecordStatus(),
-                    oaiPmhListByToken.getSets()).getDocumentElement(), true);
-            record.insertBefore(importHeader, metadata);
-
-            Node importTpl = oaiPmhTpl.importNode(recordTpl.getDocumentElement(), true);
-            verbNode.appendChild(importTpl);
+            buildHeader(oaiPmhListByToken.getUid(), oaiPmhListByToken.getLastModDate(),
+                    oaiPmhListByToken.isRecordStatus(), oaiPmhListByToken.getSets(), record, metadata);
+            importRecordTpl(verbNode);
         }
 
         new ResumptionToken(oaiPmhTpl).add(verb, dataSize, resumptionToken, recordsProPage);
@@ -92,19 +86,30 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         for (OaiPmhList oaiPmhList : oaiPmhList) {
 
             if (!oaiPmhList.isRecordStatus()) {
-                Document metadataXml = DocumentXmlUtils.document(
-                        new ByteArrayInputStream(oaiPmhList.getXmldata().getBytes(StandardCharsets.UTF_8)), true);
-                Node metadataImport = recordTpl.importNode(metadataXml.getDocumentElement(), true);
-                metadata.appendChild(metadataImport);
+                metadataInsert(new ByteArrayInputStream(oaiPmhList.getXmldata().getBytes(StandardCharsets.UTF_8)), metadata);
             }
 
-            Node importHeader = recordTpl.importNode(addHeaderTpl(oaiPmhList.getUid(),
-                    DateTimeConverter.sqlTimestampToString(oaiPmhList.getLastModDate()), oaiPmhList.isRecordStatus(),
-                    oaiPmhList.getSets()).getDocumentElement(), true);
-            record.insertBefore(importHeader, metadata);
-
-            Node importTpl = oaiPmhTpl.importNode(recordTpl.getDocumentElement(), true);
-            verbNode.appendChild(importTpl);
+            buildHeader(oaiPmhList.getUid(), oaiPmhList.getLastModDate(), oaiPmhList.isRecordStatus(),
+                    oaiPmhList.getSets(), record, metadata);
+            importRecordTpl(verbNode);
         }
+    }
+
+    private void buildHeader(String uid, Timestamp lastModdate, boolean status, Collection<Set> sets, Node record, Node metadata) {
+        Node importHeader = recordTpl.importNode(addHeaderTpl(uid,
+                DateTimeConverter.sqlTimestampToString(lastModdate),
+                status,
+                sets).getDocumentElement(), true);
+        record.insertBefore(importHeader, metadata);
+    }
+
+    private void metadataInsert(ByteArrayInputStream stream, Node metadata) {
+        Document metadataXml = DocumentXmlUtils.document(stream, true);
+        Node metadataImport = recordTpl.importNode(metadataXml.getDocumentElement(), true);
+        metadata.appendChild(metadataImport);
+    }
+
+    private void importRecordTpl(Node verbNode) {
+        verbNode.appendChild(oaiPmhTpl.importNode(recordTpl.getDocumentElement(), true));
     }
 }

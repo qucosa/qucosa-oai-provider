@@ -35,11 +35,10 @@ public class ResumptionTokenScheduler {
         this.tokenService = tokenService;
     }
 
-    @Scheduled(fixedRateString = "${timing.scheduled.tokens}", initialDelayString = "${timing.scheduled.tokens.initial}")
+    @Scheduled(fixedRateString = "${scheduled.tokens.fixedRateString}", initialDelayString = "${scheduled.tokens.initialDelayString}")
     public void reportCronAct() {
 
         if (tokenService != null) {
-            logger.info("Token Service is da.");
 
             try {
                 tokenService.delete();

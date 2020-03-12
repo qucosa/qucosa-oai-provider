@@ -102,7 +102,7 @@ public class OaiPmhControllerListSetsTest {
     @DisplayName("Returns list of sets.")
     public void getListSets() throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/oai/ListSets")
+                get("/oai?verb=ListSets")
                         .accept(MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();

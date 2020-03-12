@@ -22,6 +22,7 @@ import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.FormatService;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -163,12 +164,12 @@ public class FormatControllerTest {
     @DisplayName("Format not found because the mdprefix is wrong.")
     @Order(3)
     public void formatNotFound() throws Exception {
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 get("/formats/format?mdprefix=test")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_FOUND.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot found format.")));
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk()).andReturn();
+        Format responseFormat = om.readValue(mvcResult.getResponse().getContentAsString(), Format.class);
+        Assertions.assertNull(responseFormat.getFormatId());
     }
 
     @Test

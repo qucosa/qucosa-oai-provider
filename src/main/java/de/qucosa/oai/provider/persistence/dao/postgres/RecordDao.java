@@ -218,11 +218,14 @@ public class RecordDao<T extends Record> implements Dao<Record> {
             PreparedStatement pst = connection.prepareStatement(sql);
             pst.setLong(1, Long.parseLong(values[0]));
 
-            if (values.length == 3) {
-                pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
-                pst.setTimestamp(3, DateTimeConverter.timestampWithTimezone(values[2]));
-            } else if (values.length == 2) {
-                pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
+            if (values.length > 1) {
+
+                if (values.length == 3) {
+                    pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
+                    pst.setTimestamp(3, DateTimeConverter.timestampWithTimezone(values[2]));
+                } else {
+                    pst.setTimestamp(2, DateTimeConverter.timestampWithTimezone(values[1]));
+                }
             }
 
             ResultSet resultSet = pst.executeQuery();
@@ -239,7 +242,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
             resultSet.close();
 
             if (records.isEmpty()) {
-                throw new NotFound("SQL ERROR: Canot found records.");
+                return records;
             }
         } catch (SQLException e) {
             throw new NotFound("SQL ERROR: Canot found records.", e);

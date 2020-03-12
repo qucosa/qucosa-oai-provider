@@ -21,6 +21,7 @@ import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,6 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -57,9 +57,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -120,18 +118,23 @@ public class OaiPmhControllerListRecordsTest {
     @Test
     @DisplayName("If verb parameter not exists in properties verbs config then retirns error details object.")
     public void notExistsVerb() throws Exception {
-        mvc.perform(
-                get("/oai/ListIdentifers/oai_dc")
+        MvcResult mvcResult = mvc.perform(
+                get("/oai?verb=ListRecods&metadataPrefix=oai_dc")
                         .accept(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.BAD_REQUEST.name())))
-                .andExpect(jsonPath("$.errorMsg", is("The verb (ListIdentifers) is does not exists in OAI protocol.")));
+                .andExpect(status().isOk()).andReturn();
+        Document response = DocumentXmlUtils.document(
+                new ByteArrayInputStream(mvcResult.getResponse().getContentAsString().getBytes(StandardCharsets.UTF_8)), true);
+        Node errorNode = response.getElementsByTagName("error").item(0);
+        String errorCode = errorNode.getAttributes().getNamedItem("code").getTextContent();
+        //String errorCode = (String) xPath.compile("//error/@code").evaluate(response, XPathConstants.STRING);
+
+        Assertions.assertEquals("badVerb", errorCode);
     }
 
     @Test
     @DisplayName("OAI_DC: Has xml document the verb node.")
     public void oaiDcHasVerbNod() throws Exception {
-        Document document = xmlResponse("/oai_dc");
+        Document document = xmlResponse("&metadataPrefix=oai_dc");
         Node node = (Node) xPath.compile("//" + VERB).evaluate(document, XPathConstants.NODE);
         assertThat(node).isNotNull();
     }
@@ -139,7 +142,7 @@ public class OaiPmhControllerListRecordsTest {
     @Test
     @DisplayName("OAI_DC: Has xml the resumtion token node.")
     public void oaiDcHasResumptionTokenNode() throws Exception {
-        Document document = xmlResponse("/oai_dc");
+        Document document = xmlResponse("&metadataPrefix=oai_dc");
         Node node = (Node) xPath.compile("//resumptionToken").evaluate(document, XPathConstants.NODE);
         assertThat(node).isNotNull();
     }
@@ -147,7 +150,7 @@ public class OaiPmhControllerListRecordsTest {
     @Test
     @DisplayName("OAI_DC: Return xml from a specific date.")
     public void oaiDcXmlFrom() throws Exception {
-        Document document = xmlResponse("/oai_dc/2019-01-23");
+        Document document = xmlResponse("&metadataPrefix=oai_dc&from=2019-01-23");
         assertThat(document).isNotNull();
         NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
@@ -156,7 +159,7 @@ public class OaiPmhControllerListRecordsTest {
     @Test
     @DisplayName("OAI_DC: Return xml from / until a specific date.")
     public void oaiDcXmlFromUntil() throws Exception {
-        Document document = xmlResponse("/oai_dc/2019-01-23/2019-01-31");
+        Document document = xmlResponse("&metadataPrefix=oai_dc&from=2019-01-23&until=2019-01-31");
         assertThat(document).isNotNull();
         NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
@@ -165,7 +168,7 @@ public class OaiPmhControllerListRecordsTest {
     @Test
     @DisplayName("XMetaDissPlus: Has xml document the verb node.")
     public void xMetaDissPlusHasVerbNod() throws Exception {
-        Document document = xmlResponse("/xmetadissplus");
+        Document document = xmlResponse("&metadataPrefix=xmetadissplus");
         Node node = (Node) xPath.compile("//" + VERB).evaluate(document, XPathConstants.NODE);
         assertThat(node).isNotNull();
     }
@@ -173,7 +176,7 @@ public class OaiPmhControllerListRecordsTest {
     @Test
     @DisplayName("XMetaDissPlus: Has xml the resumtion token node.")
     public void xMetaDissPlusHasResumptionTokenNode() throws Exception {
-        Document document = xmlResponse("/xmetadissplus");
+        Document document = xmlResponse("&metadataPrefix=xmetadissplus");
         Node node = (Node) xPath.compile("//resumptionToken").evaluate(document, XPathConstants.NODE);
         assertThat(node).isNotNull();
     }
@@ -181,7 +184,7 @@ public class OaiPmhControllerListRecordsTest {
     @Test
     @DisplayName("XMetaDissPlus: Return xml from a specific date.")
     public void xMetaDissPlusXmlFrom() throws Exception {
-        Document document = xmlResponse("/xmetadissplus/2019-01-23");
+        Document document = xmlResponse("&metadataPrefix=xmetadissplus&from=2019-01-23");
         assertThat(document).isNotNull();
         NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
@@ -190,7 +193,7 @@ public class OaiPmhControllerListRecordsTest {
     @Test
     @DisplayName("XMetaDissPlus: Return xml from / until a specific date.")
     public void xMetaDissPlusXmlFromUntil() throws Exception {
-        Document document = xmlResponse("/xmetadissplus/2019-01-23/2019-01-31");
+        Document document = xmlResponse("&metadataPrefix=xmetadissplus&from=2019-01-23&until=2019-01-31");
         assertThat(document).isNotNull();
         NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
@@ -198,7 +201,7 @@ public class OaiPmhControllerListRecordsTest {
 
     private Document xmlResponse(String params) throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/oai/" + VERB + "/" + params)
+                get("/oai?verb=" + VERB + params)
                         .contentType(MediaType.APPLICATION_XML_VALUE))
                 .andExpect(status().isOk()).andReturn();
         String response =  mvcResult.getResponse().getContentAsString();

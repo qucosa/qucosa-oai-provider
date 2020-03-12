@@ -37,12 +37,9 @@ public class Identify extends OaiPmhDataBuilderAbstract implements OaiPmhDataBui
     @Override
     public Document oaiXmlData() {
         String request = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toString();
-        String uri = request.substring(0, (request.indexOf(verb) - 1));
         Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
-        ((Element) verbNode).setAttribute("xmlns", environment.getProperty(PREFIX_IDENTIFY + ".xmlns"));
-        ((Element) verbNode).setAttribute("xmlns:xsi", environment.getProperty(PREFIX_IDENTIFY + ".xmlns.xsi"));
 
-        buildIdentifyXml(verbNode, uri);
+        buildIdentifyXml(verbNode, request);
         return oaiPmhTpl;
     }
 
@@ -81,10 +78,6 @@ public class Identify extends OaiPmhDataBuilderAbstract implements OaiPmhDataBui
 
         Node earliestDatestamp = identifyTpl.getElementsByTagName("earliestDatestamp").item(0);
         earliestDatestamp.setTextContent(DateTimeConverter.sqlTimestampToString(disseminations.iterator().next().getLastmoddate()));
-
-        Element oaiIdentifier = (Element) identifyTpl.getElementsByTagName("oai-identifier").item(0);
-        oaiIdentifier.setAttribute("xmlns", environment.getProperty(PREFIX_IDENTIFY + ".identifier.xmlns"));
-        oaiIdentifier.setAttribute("xsi:schemaLocation", environment.getProperty(PREFIX_IDENTIFY + ".identifier.xmlns.xsi"));
 
         Node schemeNode = identifyTpl.getElementsByTagName("scheme").item(0);
         schemeNode.setTextContent(environment.getProperty(PREFIX_IDENTIFY + ".identifier.scheme"));

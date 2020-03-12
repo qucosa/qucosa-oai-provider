@@ -1,7 +1,7 @@
 version: '2.0'
 
 services:
-  oai-provider-db:
+  db:
     container_name: oai-db
     hostname: oai-db
     build:
@@ -14,7 +14,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: oaiprovider
 
-  qucosa-oai-provider:
+  app:
     container_name: oai-provider
     build:
       context: .
@@ -24,6 +24,6 @@ services:
     networks:
       - default
     depends_on:
-      - oai-provider-db
+      - db
     environment:
       WAIT_HOSTS: oai-db:5432
