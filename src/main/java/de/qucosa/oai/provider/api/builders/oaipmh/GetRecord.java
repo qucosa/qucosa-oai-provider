@@ -16,6 +16,7 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhList;
@@ -33,7 +34,7 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
     private String identifier;
 
     @Override
-    public Document oaiXmlData() {
+    public Document oaiXmlData() throws XmlDomParserException {
 
         if (oaiPmhList == null) {
             throw new RuntimeException("Not exists list objects.");
@@ -68,7 +69,7 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
         this.identifier = identifier;
     }
 
-    private void buildRecord(Node verbNode, OaiPmhList record) {
+    private void buildRecord(Node verbNode, OaiPmhList record) throws XmlDomParserException {
         Node recordNode = recordTpl.getElementsByTagName("record").item(0);
         Node metadata = recordTpl.getElementsByTagName("metadata").item(0);
 

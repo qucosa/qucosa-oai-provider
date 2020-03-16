@@ -19,6 +19,7 @@
 package de.qucosa.oai.error;
 
 import de.qucosa.oai.provider.api.OaiError;
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -51,13 +52,13 @@ public class ErrorSpecTest {
 
     @Test
     @DisplayName("Test if document after error instance not null.")
-    public void isDocumentNotNull() {
+    public void isDocumentNotNull() throws XmlDomParserException {
         Assertions.assertNotNull(error.getOaiErrorXml());
     }
 
     @Test
     @DisplayName("Has error xml object all nodes for oai error spec.")
-    public void hasErrorAllNodes() {
+    public void hasErrorAllNodes() throws XmlDomParserException {
         Document errorXml = error.getOaiErrorXml();
 
         String errCode = errorXml.getElementsByTagName("error").item(0)

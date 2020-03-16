@@ -16,6 +16,7 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import de.qucosa.oai.provider.persistence.model.Set;
@@ -59,7 +60,7 @@ public abstract class OaiPmhDataBuilderAbstract {
         this.recordsProPage = recordsProPage;
     }
 
-    protected Document addHeaderTpl(String uid, String lastmoddate, boolean recordStatus, Collection<Set> sets) {
+    protected Document addHeaderTpl(String uid, String lastmoddate, boolean recordStatus, Collection<Set> sets) throws XmlDomParserException {
         Document identifierTpl = DocumentXmlUtils.document(
                 getClass().getResourceAsStream("/templates/identifier.xml"), true);
         Node identifier = identifierTpl.getElementsByTagName("identifier").item(0);
@@ -90,7 +91,7 @@ public abstract class OaiPmhDataBuilderAbstract {
         }
     }
 
-    protected void recordTpl(Class clazz) {
+    protected void recordTpl(Class clazz) throws XmlDomParserException {
         recordTpl = DocumentXmlUtils.document(clazz.getResourceAsStream("/templates/record.xml"), true);
     }
 }

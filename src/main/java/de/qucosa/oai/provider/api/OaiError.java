@@ -18,6 +18,7 @@
 
 package de.qucosa.oai.provider.api;
 
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import org.w3c.dom.Document;
@@ -92,7 +93,7 @@ public class OaiError {
         return this;
     }
 
-    public Document getOaiErrorXml() {
+    public Document getOaiErrorXml() throws XmlDomParserException {
         Document error = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/oai_error.xml"), true);
         Node responseDateNode = error.getElementsByTagName("responseDate").item(0);
         responseDateNode.setTextContent(getRequestDate());

@@ -16,6 +16,7 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
@@ -35,7 +36,7 @@ public class Identify extends OaiPmhDataBuilderAbstract implements OaiPmhDataBui
     private Collection<Dissemination> disseminations;
 
     @Override
-    public Document oaiXmlData() {
+    public Document oaiXmlData() throws XmlDomParserException {
         String request = ServletUriComponentsBuilder.fromCurrentRequestUri().build().toString();
         Node verbNode = oaiPmhTpl.getElementsByTagName(verb).item(0);
 
@@ -51,7 +52,7 @@ public class Identify extends OaiPmhDataBuilderAbstract implements OaiPmhDataBui
         this.disseminations = disseminations;
     }
 
-    private void buildIdentifyXml(Node verbNode, String uri) {
+    private void buildIdentifyXml(Node verbNode, String uri) throws XmlDomParserException {
         Document identifyTpl = DocumentXmlUtils.document(
                 getClass().getResourceAsStream("/templates/identify.xml"), true);
 

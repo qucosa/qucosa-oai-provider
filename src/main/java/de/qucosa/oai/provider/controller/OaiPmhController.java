@@ -18,6 +18,7 @@ package de.qucosa.oai.provider.controller;
 
 import de.qucosa.oai.provider.api.OaiError;
 import de.qucosa.oai.provider.api.builders.oaipmh.OaiPmhDataBuilderFactory;
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
@@ -118,7 +119,7 @@ public class OaiPmhController {
                                   @RequestParam(value = "until", required = false) String until,
                                   @RequestParam(value = "identifier", required = false) String identifier,
                                   @RequestParam(value = "resumptionToken", required = false) String resumptionToken,
-                                  HttpServletRequest request) throws TransformerException {
+                                  HttpServletRequest request) throws TransformerException, XmlDomParserException {
 
         if (verb == null || verb.isEmpty() || !verbs.contains(verb)) {
             return oaiError(request, "badVerb");
@@ -316,7 +317,7 @@ public class OaiPmhController {
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
-    private ResponseEntity oaiError(HttpServletRequest request, String errorCode) throws TransformerException {
+    private ResponseEntity oaiError(HttpServletRequest request, String errorCode) throws TransformerException, XmlDomParserException {
         OaiError error = new OaiError(errorCode).setRequestUrl(request.getRequestURL().toString());
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(error.getOaiErrorXml()), HttpStatus.OK);
     }

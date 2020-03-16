@@ -16,6 +16,7 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.model.Set;
@@ -35,7 +36,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
     private Collection<OaiPmhList> oaiPmhList;
 
     @Override
-    public Document oaiXmlData() {
+    public Document oaiXmlData() throws XmlDomParserException {
 
         if (oaiPmhList == null && oaiPmhListByToken == null) {
             throw new RuntimeException("Not exists list objects.");
@@ -65,7 +66,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         this.oaiPmhList = oaiPmhList;
     }
 
-    private void buildListWithResumptionToken(Node verbNode, Node record, Node metadata) {
+    private void buildListWithResumptionToken(Node verbNode, Node record, Node metadata) throws XmlDomParserException {
 
         for (OaiPmhListByToken oaiPmhListByToken : oaiPmhListByToken) {
 
@@ -81,7 +82,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         new ResumptionToken(oaiPmhTpl).add(verb, dataSize, resumptionToken, recordsProPage);
     }
 
-    private void buildList(Node verbNode, Node record, Node metadata) {
+    private void buildList(Node verbNode, Node record, Node metadata) throws XmlDomParserException {
 
         for (OaiPmhList oaiPmhList : oaiPmhList) {
 
@@ -95,7 +96,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         }
     }
 
-    private void buildHeader(String uid, Timestamp lastModdate, boolean status, Collection<Set> sets, Node record, Node metadata) {
+    private void buildHeader(String uid, Timestamp lastModdate, boolean status, Collection<Set> sets, Node record, Node metadata) throws XmlDomParserException {
         Node importHeader = recordTpl.importNode(addHeaderTpl(uid,
                 DateTimeConverter.sqlTimestampToString(lastModdate),
                 status,
@@ -103,7 +104,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
         record.insertBefore(importHeader, metadata);
     }
 
-    private void metadataInsert(ByteArrayInputStream stream, Node metadata) {
+    private void metadataInsert(ByteArrayInputStream stream, Node metadata) throws XmlDomParserException {
         Document metadataXml = DocumentXmlUtils.document(stream, true);
         Node metadataImport = recordTpl.importNode(metadataXml.getDocumentElement(), true);
         metadata.appendChild(metadataImport);
