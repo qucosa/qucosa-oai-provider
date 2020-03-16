@@ -25,7 +25,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RecordTransport implements Serializable {
+public class OaiRecord implements Serializable {
     @JsonProperty("record")
     private Record record;
 

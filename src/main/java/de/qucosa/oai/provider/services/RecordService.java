@@ -21,7 +21,7 @@ import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Record;
-import de.qucosa.oai.provider.persistence.model.RecordTransport;
+import de.qucosa.oai.provider.persistence.model.OaiRecord;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -66,10 +66,10 @@ public class RecordService {
         return dao.findRowsByMultipleValues(clause, values);
     }
 
-    public boolean checkIfOaiDcDisseminationExists(List<RecordTransport> input) {
+    public boolean checkIfOaiDcDisseminationExists(List<OaiRecord> input) {
         boolean exists = false;
 
-        for (RecordTransport rt : input) {
+        for (OaiRecord rt : input) {
 
             if (!rt.getFormat().getMdprefix().equals("oai_dc")) {
                 continue;

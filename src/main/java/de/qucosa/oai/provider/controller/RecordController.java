@@ -23,7 +23,7 @@ import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
-import de.qucosa.oai.provider.persistence.model.RecordTransport;
+import de.qucosa.oai.provider.persistence.model.OaiRecord;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.SetsToRecord;
 import de.qucosa.oai.provider.services.DisseminationService;
@@ -83,7 +83,7 @@ public class RecordController {
         ObjectMapper om = new ObjectMapper();
 
         try {
-            List<RecordTransport> inputData = om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
+            List<OaiRecord> inputData = om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, OaiRecord.class));
 
             if (inputData == null || inputData.size() == 0) {
                 return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
@@ -95,7 +95,7 @@ public class RecordController {
                         HttpStatus.BAD_REQUEST, "OAI_DC dissemination failed.", null).response();
             }
 
-            for (RecordTransport rt : inputData) {
+            for (OaiRecord rt : inputData) {
                 Format format = format(rt);
 
                 if (format == null) {
@@ -249,7 +249,7 @@ public class RecordController {
         return new ResponseEntity<>(record, HttpStatus.OK);
     }
 
-    private Format format(RecordTransport rt) {
+    private Format format(OaiRecord rt) {
         Collection<Format> formats;
 
         try {
@@ -277,7 +277,7 @@ public class RecordController {
         return null;
     }
 
-    private Record record(RecordTransport rt) {
+    private Record record(OaiRecord rt) {
         Collection<Record> records;
         Record record = null;
 
@@ -306,7 +306,7 @@ public class RecordController {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    private ResponseEntity saveSets(RecordTransport rt, Record record) {
+    private ResponseEntity saveSets(OaiRecord rt, Record record) {
 
         for (Set set : rt.getSets()) {
             Set readSet = null;
