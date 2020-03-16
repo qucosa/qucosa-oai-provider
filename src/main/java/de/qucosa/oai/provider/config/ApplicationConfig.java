@@ -15,6 +15,7 @@
  */
 package de.qucosa.oai.provider.config;
 
+import de.qucosa.oai.provider.api.validators.xml.XmlValidator;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.dao.postgres.DisseminationDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.FormatDao;
@@ -188,5 +189,10 @@ public class ApplicationConfig {
         OaiPmhListService oaiPmhListService = new OaiPmhListService();
         oaiPmhListService.setDao(oaiPmhListDao());
         return oaiPmhListService;
+    }
+
+    @Bean
+    public XmlValidator xmlValidator() {
+        return new XmlValidator();
     }
 }
