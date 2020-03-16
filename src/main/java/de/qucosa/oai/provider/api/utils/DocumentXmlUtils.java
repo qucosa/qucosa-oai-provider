@@ -16,6 +16,7 @@
 
 package de.qucosa.oai.provider.api.utils;
 
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,7 +42,7 @@ import java.util.Map;
 
 public class DocumentXmlUtils {
 
-    public static <T> Document document(T source, boolean namespaceAware) {
+    public static <T> Document document(T source, boolean namespaceAware) throws XmlDomParserException {
         Document document = null;
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         builderFactory.setNamespaceAware(namespaceAware);
@@ -61,7 +62,7 @@ public class DocumentXmlUtils {
                 document = documentBuilder.parse((File) source);
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
+            throw new XmlDomParserException("XML document has an parser error.", e);
         }
 
         return document;
