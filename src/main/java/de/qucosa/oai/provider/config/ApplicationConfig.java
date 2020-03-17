@@ -15,6 +15,7 @@
  */
 package de.qucosa.oai.provider.config;
 
+import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.dao.postgres.DisseminationDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.FormatDao;
@@ -50,6 +51,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
@@ -188,5 +190,11 @@ public class ApplicationConfig {
         OaiPmhListService oaiPmhListService = new OaiPmhListService();
         oaiPmhListService.setDao(oaiPmhListDao());
         return oaiPmhListService;
+    }
+
+    @Bean
+    public XmlNamespacesConfig xmlNamespacesConfig() throws IOException {
+        XmlNamespacesConfig namespacesConfig = new XmlNamespacesConfig(getClass().getResourceAsStream("/config/namespaces.json"));
+        return namespacesConfig;
     }
 }
