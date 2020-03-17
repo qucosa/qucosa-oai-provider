@@ -1,0 +1,34 @@
+<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:mets="http://www.loc.gov/METS/"
+           xmlns:mods="http://www.loc.gov/mods/v3" xmlns:myfunc="urn:de:qucosa:dc"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:slub="http://slub-dresden.de/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd
+    					http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd
+                        http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods.xsd
+                        http://purl.org/dc/elements/1.1/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dc.xsd">
+    <dc:title>Advanced symptoms are associated with myocardial damage in patients with severe aortic stenosis</dc:title>
+    <dc:identifier>urn:nbn:de:bsz:15-qucosa2-323948</dc:identifier>
+    <dc:language>eng</dc:language>
+    <dc:relation>10.1016/j.jjcc.2016.10.006</dc:relation>
+    <dc:description>Background: Once aortic stenosis (AS) is severe, patients develop symptoms at different stages. Indeed, symptom status may correlate poorly with the grade of valve narrowing. Multiple pathophysiological mechanisms, other than valvular load, may explain the link between AS and symptom severity. We aimed to describe the relationship between the severity of symptoms and the characteristics of a cohort of patients with severe AS already referred for aortic valve replacement (AVR).
+        Methods: We analyzed 118 consecutive patients (70 ± 9 years, 55% men) with severe AS referred for AVR. We identified 84 patients with New York Heart Association (NYHA) I–II, and 34 with NYHA III–IV symptoms. Clinical and echocardiographic parameters were compared between these two groups. Left ventricular ejection fraction (LVEF), global longitudinal peak systolic strain (GLPS), NT-pro-B-type natriuretic peptide (BNP), and high-sensitive troponin T (hs-TNT) were determined at the time of admission.
+        Results: AS severity was similar between groups. Compared with the NYHA I–II group, patients in NYHA III–IV group were older and more likely to have comorbidities, worse intracardiac hemodynamics and more LV damage. Variables independently associated with NYHA III–IV symptomatology were the absence of sinus rhythm, higher E/e0 ratio, and increased hs-TNT. GLPS showed a good correlation not only with hs-TNT as a marker of myocardial damage, but also with markers of increased afterload imposed on LV, being not directly related with advanced symptoms.
+        Conclusions: Advanced symptoms in patients with severe AS referred for AVR are associated with worse intracardiac hemodynamics, absence of sinus rhythm, and more myocardial damage. It supports the concept of transition from adaptive LV remodeling to myocyte death as an important determinant of symptoms of heart failure.
+        :Einführung................................................................................................3 Publikationsmanuskript...........................................................................12 Zusammenfassung..................................................................................19 Literaturverzeichnis..................................................................................24
+        Erklärung über die eigenständige Abfassung der Arbeit.........................28
+        Darstellung des eigenen Beitrags............................................................29
+        Curriculum vitae.......................................................................................30 Danksagung.............................................................................................36
+    </dc:description>
+    <dc:subject>Aortic stenosis, myocardial damage, troponin</dc:subject>
+    <dc:subject>info:eu-repo/classification/ddc/610</dc:subject>
+    <dc:creator>Spampinato Torcivia,Ricardo</dc:creator>
+    <dc:contributor>Universität Leipzig</dc:contributor>
+    <dc:date>2018-03-08</dc:date>
+    <dc:date>2018-11-08</dc:date>
+    <dc:type>info:eu-repo/semantics/publishedVersion</dc:type>
+    <dc:date>2018-12-11</dc:date>
+    <dc:rights>info:eu-repo/semantics/openAccess</dc:rights>
+    <dc:type>
+        doctoralThesis
+    </dc:type>
+</oai_dc:dc>
