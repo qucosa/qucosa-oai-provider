@@ -17,6 +17,9 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.ErrorDetails;
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
+import de.qucosa.oai.provider.api.validators.xml.XmlSchemaValidator;
+import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
@@ -67,14 +70,18 @@ public class RecordController {
 
     private final SetsToRecordService setsToRecordService;
 
+    private final XmlNamespacesConfig xmlNamespacesConfig;
+
     @Autowired
     public RecordController(RecordService recordService, FormatService formatService, SetService setService,
-                            DisseminationService disseminationService, SetsToRecordService setsToRecordService) {
+                            DisseminationService disseminationService, SetsToRecordService setsToRecordService,
+                            XmlNamespacesConfig xmlNamespacesConfig) {
         this.recordService = recordService;
         this.formatService = formatService;
         this.setService = setService;
         this.disseminationService = disseminationService;
         this.setsToRecordService = setsToRecordService;
+        this.xmlNamespacesConfig = xmlNamespacesConfig;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -96,6 +103,25 @@ public class RecordController {
             }
 
             for (OaiRecord rt : inputData) {
+
+                if (rt.isValidateXmlSchema()) {
+
+                    if (rt.getDissemination().getXmldata() != null && !rt.getDissemination().getXmldata().isEmpty()) {
+                        XmlSchemaValidator schemaValidator = new XmlSchemaValidator(xmlNamespacesConfig);
+                        try {
+                            schemaValidator.setXmlDoc(rt.getDissemination().getXmldata());
+
+                            if (!schemaValidator.isValid()) {
+                                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                        HttpStatus.NOT_ACCEPTABLE, "This xml has not valid schema.", null).response();
+                            }
+                        } catch (XmlDomParserException e) {
+                            return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
+                        }
+                    }
+                }
+
                 Format format = format(rt);
 
                 if (format == null) {
