@@ -22,21 +22,31 @@ import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
+import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class XmlSchemaValidator {
     private Document xmlDoc;
 
-    private boolean isValid;
+    private boolean isValid = true;
 
     private XPath xPath;
+
+    private Node xmlNode;
 
     public XmlSchemaValidator(XmlNamespacesConfig xmlNamespacesConfig) {
         xPath = DocumentXmlUtils.xpath(xmlNamespacesConfig.getNamespaces());
@@ -50,27 +60,51 @@ public class XmlSchemaValidator {
 
     public void setXmlDoc(Document xmlDoc) {
         this.xmlDoc = xmlDoc;
+        setXmlNode(this.xmlDoc.getDocumentElement());
     }
 
-    public boolean isValid() {
+    public void setXmlNode(Node xmlNode) {
+        this.xmlNode = xmlNode;
+    }
+
+    public boolean isValid() throws XPathExpressionException {
         checkSchema();
         return isValid;
     }
 
-    private void checkSchema() {
-        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+    public Node getXmlNode() {
+        return xmlNode;
+    }
+
+    private void checkSchema() throws XPathExpressionException {
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         List<String> schemas = xsdSchemas();
 
         if (schemas != null && schemas.size() > 0) {
 
             for (String schema : schemas) {
-
+                try {
+                    Schema schema1 = schemaFactory.newSchema(new URL(schema));
+                } catch (SAXException | MalformedURLException e) {
+                    throw new RuntimeException("URL or XML error.", e);
+                }
             }
         }
     }
 
-    private List<String> xsdSchemas() {
+    private List<String> xsdSchemas() throws XPathExpressionException {
         List<String> schmemas = new ArrayList<>();
+        String schemaLocationAttr = (String) xPath.compile("@xsi:schemaLocation")
+                .evaluate(xmlNode, XPathConstants.STRING);
+        List<String> schemaValues = new ArrayList<>(Arrays.asList(schemaLocationAttr.split(" ")));
+        schemaValues.removeIf(item -> item == null || "".equals(item));
+
+        for (String val : schemaValues) {
+
+            if (val.contains(".xsd")) {
+                schmemas.add(val);
+            }
+        }
 
         return schmemas;
     }
