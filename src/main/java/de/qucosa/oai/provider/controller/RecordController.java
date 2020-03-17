@@ -49,6 +49,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -111,9 +112,15 @@ public class RecordController {
                         try {
                             schemaValidator.setXmlDoc(rt.getDissemination().getXmldata());
 
-                            if (!schemaValidator.isValid()) {
+                            try {
+
+                                if (!schemaValidator.isValid()) {
+                                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                            HttpStatus.NOT_ACCEPTABLE, "This xml has not valid schema.", null).response();
+                                }
+                            } catch (XPathExpressionException e) {
                                 return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                                        HttpStatus.NOT_ACCEPTABLE, "This xml has not valid schema.", null).response();
+                                        HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
                             }
                         } catch (XmlDomParserException e) {
                             return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
