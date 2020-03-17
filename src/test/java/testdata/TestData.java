@@ -26,6 +26,7 @@ public class TestData {
 
     public static final String RECORDS_INPUT = "[\n" +
             "  {\n" +
+            "    \"validateXmlSchema\": true, \n" +
             "    \"record\" : {\n" +
             "      \"pid\" : \"qucosa:55887\",\n" +
             "      \"uid\" : \"oai:example:org:qucosa:55887\"\n" +
@@ -53,6 +54,7 @@ public class TestData {
             "    ]\n" +
             "  },\n" +
             "  {\n" +
+            "    \"validateXmlSchema\": false,\n" +
             "    \"record\" : {\n" +
             "      \"pid\" : \"qucosa:55887\",\n" +
             "      \"uid\" : \"oai:example:org:qucosa:55887\"\n" +
