@@ -59,7 +59,7 @@ public class XmlValidatorTest {
     }
 
     @Test
-    public void isValidOaiDc() throws XmlDomParserException, XPathExpressionException {
+    public void isValidOaiDc() throws XmlDomParserException, XPathExpressionException, IOException {
         Document doc = DocumentXmlUtils.document(
                 getClass().getResourceAsStream("/xml/oai-dc-test.xml"), true);
         schemaValidator.setXmlDoc(doc);
@@ -69,7 +69,7 @@ public class XmlValidatorTest {
     }
 
     @Test
-    public void isValidXMDP() throws XmlDomParserException, XPathExpressionException {
+    public void isValidXMDP() throws XmlDomParserException, XPathExpressionException, IOException {
         Document doc = DocumentXmlUtils.document(
                 getClass().getResourceAsStream("/xml/xmetadissplus-test.xml"), true);
         schemaValidator.setXmlDoc(doc);
