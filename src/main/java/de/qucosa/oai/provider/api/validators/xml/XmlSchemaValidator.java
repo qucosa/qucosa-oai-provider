@@ -84,7 +84,10 @@ public class XmlSchemaValidator {
 
             for (String schema : schemas) {
                 try {
-                    Schema schema1 = schemaFactory.newSchema(new URL(schema));
+
+                    if (ValidateXsdSchemas.validateSchemas.get(schema)) {
+                        Schema schema1 = schemaFactory.newSchema(new URL(schema));
+                    }
                 } catch (SAXException | MalformedURLException e) {
                     throw new RuntimeException("URL or XML error.", e);
                 }
