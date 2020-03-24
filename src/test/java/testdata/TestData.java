@@ -54,7 +54,7 @@ public class TestData {
             "    ]\n" +
             "  },\n" +
             "  {\n" +
-            "    \"validateXmlSchema\": false,\n" +
+            "    \"validateXmlSchema\": true,\n" +
             "    \"record\" : {\n" +
             "      \"pid\" : \"qucosa:55887\",\n" +
             "      \"uid\" : \"oai:example:org:qucosa:55887\"\n" +
