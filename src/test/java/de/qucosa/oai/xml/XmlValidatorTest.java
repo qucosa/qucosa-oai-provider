@@ -67,4 +67,14 @@ public class XmlValidatorTest {
         Assertions.assertNotNull(schemaValidator.getXmlNode());
         Assertions.assertTrue(schemaValidator.isValid());
     }
+
+    @Test
+    public void isValidXMDP() throws XmlDomParserException, XPathExpressionException {
+        Document doc = DocumentXmlUtils.document(
+                getClass().getResourceAsStream("/xml/xmetadissplus-test.xml"), true);
+        schemaValidator.setXmlDoc(doc);
+
+        Assertions.assertNotNull(schemaValidator.getXmlNode());
+        Assertions.assertTrue(schemaValidator.isValid());
+    }
 }
