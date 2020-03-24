@@ -26,12 +26,16 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -67,7 +71,7 @@ public class XmlSchemaValidator {
         this.xmlNode = xmlNode;
     }
 
-    public boolean isValid() throws XPathExpressionException {
+    public boolean isValid() throws XPathExpressionException, IOException {
         checkSchema();
         return isValid;
     }
@@ -76,17 +80,20 @@ public class XmlSchemaValidator {
         return xmlNode;
     }
 
-    private void checkSchema() throws XPathExpressionException {
+    private void checkSchema() throws XPathExpressionException, IOException {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         List<String> schemas = xsdSchemas();
 
         if (schemas != null && schemas.size() > 0) {
 
-            for (String schema : schemas) {
+            for (String schemaUrl : schemas) {
                 try {
 
-                    if (ValidateXsdSchemas.validateSchemas.get(schema)) {
-                        Schema schema1 = schemaFactory.newSchema(new URL(schema));
+                    if (ValidateXsdSchemas.validateSchemas.get(schemaUrl)) {
+                        Schema schema = schemaFactory.newSchema(new URL(schemaUrl));
+                        Validator validator = schema.newValidator();
+                        Source xmlSource = new DOMSource(xmlDoc);
+                        validator.validate(xmlSource);
                     }
                 } catch (SAXException | MalformedURLException e) {
                     throw new RuntimeException("URL or XML error.", e);
