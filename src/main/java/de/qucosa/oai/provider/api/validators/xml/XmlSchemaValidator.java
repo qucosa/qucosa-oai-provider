@@ -23,25 +23,29 @@ import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.validation.Schema;
+import javax.xml.transform.TransformerException;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.xmlunit.util.IterableNodeList.asList;
 
 public class XmlSchemaValidator {
     private Document xmlDoc;
@@ -89,13 +93,17 @@ public class XmlSchemaValidator {
             for (String schemaUrl : schemas) {
                 try {
 
-                    if (ValidateXsdSchemas.validateSchemas.get(schemaUrl)) {
+                    if (!ValidateXsdSchemas.validateSchemas.get(schemaUrl)) {
+                        loadFinalSchema(schemaUrl);
+                    }
+
+                    /*if (ValidateXsdSchemas.validateSchemas.get(schemaUrl)) {
                         Schema schema = schemaFactory.newSchema(new URL(schemaUrl));
                         Validator validator = schema.newValidator();
                         Source xmlSource = new DOMSource(xmlDoc);
                         validator.validate(xmlSource);
-                    }
-                } catch (SAXException | MalformedURLException e) {
+                    }*/
+                } catch (SAXException | MalformedURLException | URISyntaxException | TransformerException e) {
                     throw new RuntimeException("URL or XML error.", e);
                 }
             }
@@ -117,5 +125,49 @@ public class XmlSchemaValidator {
         }
 
         return schmemas;
+    }
+
+    private void loadFinalSchema(String schemaUrl) throws MalformedURLException, URISyntaxException, XmlDomParserException, TransformerException, XPathExpressionException {
+        Document document = DocumentXmlUtils.document(schemaUrl, true);
+        DocumentXmlUtils.resultXml(document);
+        NodeList imports = document.getElementsByTagName("import");
+        NodeList includes = document.getElementsByTagName("include");
+
+        iterateIncludes(imports);
+    }
+
+    private void iterateIncludes(NodeList nodeList) {
+
+        if (nodeList.getLength() > 0) {
+
+            for (Node n : asList(nodeList)) {
+                String[] locations = n.getAttributes().getNamedItem("schemaLocation").getTextContent().split(" ");
+
+                if (locations.length > 0) {
+
+                    for (String loc : Arrays.asList(locations)) {
+                        try {
+                            StringBuilder content = new StringBuilder();
+                            URL url = new URL(loc);
+                            URLConnection urlConnection = url.openConnection();
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                            String line;
+
+                            // read from the urlconnection via the bufferedreader
+                            while ((line = reader.readLine()) != null) {
+                                content.append(line + "\n");
+                            }
+
+                            reader.close();
+                            content.toString();
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
     }
 }
