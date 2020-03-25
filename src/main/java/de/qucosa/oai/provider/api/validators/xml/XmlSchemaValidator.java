@@ -147,19 +147,7 @@ public class XmlSchemaValidator {
 
                     for (String loc : Arrays.asList(locations)) {
                         try {
-                            StringBuilder content = new StringBuilder();
-                            URL url = new URL(loc);
-                            URLConnection urlConnection = url.openConnection();
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                            String line;
-
-                            // read from the urlconnection via the bufferedreader
-                            while ((line = reader.readLine()) != null) {
-                                content.append(line + "\n");
-                            }
-
-                            reader.close();
-                            content.toString();
+                            content(loc);
                         } catch (MalformedURLException e) {
                             e.printStackTrace();
                         } catch (IOException e) {
@@ -169,5 +157,21 @@ public class XmlSchemaValidator {
                 }
             }
         }
+    }
+
+    private String content(String loc) throws IOException {
+        StringBuilder content = new StringBuilder();
+        URL url = new URL(loc);
+        URLConnection urlConnection = url.openConnection();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+        String line;
+
+        // read from the urlconnection via the bufferedreader
+        while ((line = reader.readLine()) != null) {
+            content.append(line + "\n");
+        }
+
+        reader.close();
+        return content.toString();
     }
 }
