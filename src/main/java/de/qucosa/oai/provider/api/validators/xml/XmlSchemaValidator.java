@@ -133,7 +133,13 @@ public class XmlSchemaValidator {
         NodeList imports = document.getElementsByTagName("import");
         NodeList includes = document.getElementsByTagName("include");
 
-        iterateImports(imports);
+        if (imports.getLength() > 0) {
+            iterateImports(imports);
+        }
+
+        if (includes.getLength() > 0) {
+            iterateImports(includes);
+        }
     }
 
     private void iterateImports(NodeList nodeList) {
