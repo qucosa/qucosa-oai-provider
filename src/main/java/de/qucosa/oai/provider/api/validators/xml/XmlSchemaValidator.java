@@ -90,12 +90,13 @@ public class XmlSchemaValidator {
 
                 try {
                     Schema schema = schemaFactory.newSchema(new URL(schemaUrl));
+                    System.out.println("We have schema: ("+schemaUrl+") " + schema);
                     Validator validator = schema.newValidator();
                     Source xmlSource = new DOMSource(xmlDoc);
                     validator.validate(xmlSource);
                 } catch (SAXException e) {
                     isValid = false;
-                    System.out.println("Error-Schema: " + e.getMessage());
+                    System.out.println("Error-Schema ("+schemaUrl+"): " + e.getMessage());
                 }
             }
         }
