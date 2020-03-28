@@ -21,6 +21,12 @@ package de.qucosa.oai.provider.api.validators.xml;
 import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -28,6 +34,7 @@ import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
@@ -36,8 +43,9 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -89,16 +97,32 @@ public class XmlSchemaValidator {
             for (String schemaUrl : schemas) {
 
                 try {
-                    Schema schema = schemaFactory.newSchema(new URL(schemaUrl));
-                    System.out.println("We have schema: ("+schemaUrl+") " + schema);
-                    Validator validator = schema.newValidator();
-                    Source xmlSource = new DOMSource(xmlDoc);
-                    validator.validate(xmlSource);
+                    iterateSchemas(schemaUrl, schemaFactory);
                 } catch (SAXException e) {
                     isValid = false;
                     System.out.println("Error-Schema ("+schemaUrl+"): " + e.getMessage());
                 }
             }
+        }
+    }
+
+    private void iterateSchemas(String schemaUrl, SchemaFactory schemaFactory) throws MalformedURLException, SAXException {
+        Schema schema;
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet httpGet = new HttpGet(schemaUrl);
+
+            try (CloseableHttpResponse httpResponse = httpClient.execute(httpGet)) {
+                HttpEntity httpEntity = httpResponse.getEntity();
+                InputStream in = httpEntity.getContent();
+                schema = schemaFactory.newSchema(new StreamSource(in));
+                EntityUtils.consume(httpEntity);
+                Validator validator = schema.newValidator();
+                Source xmlSource = new DOMSource(xmlDoc);
+                validator.validate(xmlSource);
+            }
+        } catch (IOException e) {
+
         }
     }
 
