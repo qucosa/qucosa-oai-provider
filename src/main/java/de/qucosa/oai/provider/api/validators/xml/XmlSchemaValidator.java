@@ -45,7 +45,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,6 +57,8 @@ public class XmlSchemaValidator {
     private XPath xPath;
 
     private Node xmlNode;
+
+    private String format;
 
     public XmlSchemaValidator(XmlNamespacesConfig xmlNamespacesConfig) {
         xPath = DocumentXmlUtils.xpath(xmlNamespacesConfig.getNamespaces());
@@ -72,6 +73,10 @@ public class XmlSchemaValidator {
     public void setXmlDoc(Document xmlDoc) {
         this.xmlDoc = xmlDoc;
         setXmlNode(this.xmlDoc.getDocumentElement());
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
     }
 
     public void setXmlNode(Node xmlNode) {
@@ -90,24 +95,12 @@ public class XmlSchemaValidator {
     private void checkSchema() throws XPathExpressionException, IOException {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         schemaFactory.setResourceResolver(new RedirectResolver());
-        List<String> schemas = xsdSchemas();
-
-        if (schemas != null && schemas.size() > 0) {
-
-            for (String schemaUrl : schemas) {
-
-                try {
-                    iterateSchemas(schemaUrl, schemaFactory);
-                } catch (SAXException e) {
-                    isValid = false;
-                    System.out.println("Error-Schema ("+schemaUrl+"): " + e.getMessage());
-                }
-            }
-        }
-    }
-
-    private void iterateSchemas(String schemaUrl, SchemaFactory schemaFactory) throws MalformedURLException, SAXException {
+        String schemaUrl= xsdSchema();
         Schema schema;
+
+        if (schemaUrl.isEmpty()) {
+            throw new RuntimeException("Schema is empty.");
+        }
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(schemaUrl);
@@ -121,25 +114,24 @@ public class XmlSchemaValidator {
                 Source xmlSource = new DOMSource(xmlDoc);
                 validator.validate(xmlSource);
             }
-        } catch (IOException e) {
+        } catch (IOException | SAXException e) {
 
         }
     }
 
-    private List<String> xsdSchemas() throws XPathExpressionException {
+    private String xsdSchema() throws XPathExpressionException {
         List<String> schmemas = new ArrayList<>();
         String schemaLocationAttr = (String) xPath.compile("@xsi:schemaLocation")
                 .evaluate(xmlNode, XPathConstants.STRING);
-        List<String> schemaValues = new ArrayList<>(Arrays.asList(schemaLocationAttr.split(" ")));
-        schemaValues.removeIf(item -> item == null || "".equals(item));
+        String schema = "";
 
-        for (String val : schemaValues) {
+        for (String val : Arrays.asList(schemaLocationAttr.split(" "))) {
 
-            if (val.contains(".xsd")) {
-                schmemas.add(val);
+            if (val.contains(format + ".xsd")) {
+                schema = val;
             }
         }
 
-        return schmemas;
+        return schema;
     }
 }
