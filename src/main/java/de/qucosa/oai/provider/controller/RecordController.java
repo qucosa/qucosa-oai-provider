@@ -109,6 +109,7 @@ public class RecordController {
 
                     if (rt.getDissemination().getXmldata() != null && !rt.getDissemination().getXmldata().isEmpty()) {
                         XmlSchemaValidator schemaValidator = new XmlSchemaValidator(xmlNamespacesConfig);
+                        schemaValidator.setFormat(rt.getFormat().getMdprefix());
                         try {
                             schemaValidator.setXmlDoc(rt.getDissemination().getXmldata());
 
