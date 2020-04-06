@@ -28,7 +28,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.ByteArrayInputStream;
@@ -64,17 +63,6 @@ public class XmlValidatorTest {
                 getClass().getResourceAsStream("/xml/oai-dc-test.xml"), true);
         schemaValidator.setXmlDoc(doc);
         schemaValidator.setFormat("oai_dc");
-
-        Assertions.assertNotNull(schemaValidator.getXmlNode());
-        Assertions.assertTrue(schemaValidator.isValid());
-    }
-
-    @Test
-    public void isValidXMDP() throws XmlDomParserException, XPathExpressionException, IOException {
-        Document doc = DocumentXmlUtils.document(
-                getClass().getResourceAsStream("/xml/xmetadissplus-test.xml"), true);
-        schemaValidator.setXmlDoc(doc);
-        schemaValidator.setFormat("xmetadissplus");
 
         Assertions.assertNotNull(schemaValidator.getXmlNode());
         Assertions.assertTrue(schemaValidator.isValid());
