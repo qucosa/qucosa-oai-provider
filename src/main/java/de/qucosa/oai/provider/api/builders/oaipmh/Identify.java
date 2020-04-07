@@ -23,7 +23,6 @@ import de.qucosa.oai.provider.persistence.model.Dissemination;
 import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import java.util.Collection;

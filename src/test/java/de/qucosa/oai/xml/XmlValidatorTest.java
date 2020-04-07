@@ -32,29 +32,26 @@ import org.w3c.dom.Document;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class XmlValidatorTest {
     private String testXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
             "<test><hello></hello><welt /><msg></test>";
 
-    private XmlNamespacesConfig namespacesConfig;
-
     private XmlSchemaValidator schemaValidator;
 
     @BeforeAll
     public void init() throws IOException {
-        namespacesConfig = new XmlNamespacesConfig(getClass().getResourceAsStream("/config/namespaces.json"));
+        XmlNamespacesConfig namespacesConfig = new XmlNamespacesConfig(getClass().getResourceAsStream("/config/namespaces.json"));
         schemaValidator = new XmlSchemaValidator(namespacesConfig);
     }
 
     @Test
     @DisplayName("Test has xml formed errors.")
     public void foremedTest() {
-        Assertions.assertThrows(XmlDomParserException.class, () -> {
-            DocumentXmlUtils.document(new ByteArrayInputStream(testXml.getBytes("UTF-8")),
-                true);
-        });
+        Assertions.assertThrows(XmlDomParserException.class, () -> DocumentXmlUtils.document(new ByteArrayInputStream(testXml.getBytes(StandardCharsets.UTF_8)),
+            true));
     }
 
     @Test

@@ -194,7 +194,6 @@ public class ApplicationConfig {
 
     @Bean
     public XmlNamespacesConfig xmlNamespacesConfig() throws IOException {
-        XmlNamespacesConfig namespacesConfig = new XmlNamespacesConfig(getClass().getResourceAsStream("/config/namespaces.json"));
-        return namespacesConfig;
+        return new XmlNamespacesConfig(getClass().getResourceAsStream("/config/namespaces.json"));
     }
 }

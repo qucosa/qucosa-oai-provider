@@ -45,14 +45,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class XmlSchemaValidator {
     private Document xmlDoc;
-
-    private boolean isValid = true;
 
     private XPath xPath;
 
@@ -60,13 +58,15 @@ public class XmlSchemaValidator {
 
     private String format;
 
+    private boolean isValid = true;
+
     public XmlSchemaValidator(XmlNamespacesConfig xmlNamespacesConfig) {
         xPath = DocumentXmlUtils.xpath(xmlNamespacesConfig.getNamespaces());
     }
 
     public void setXmlDoc(String data) throws UnsupportedEncodingException, XmlDomParserException {
         Document document = DocumentXmlUtils.document(
-                new ByteArrayInputStream(data.getBytes("UTF-8")), true);
+                new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8)), true);
         setXmlDoc(document);
     }
 
@@ -115,7 +115,8 @@ public class XmlSchemaValidator {
                 validator.validate(xmlSource);
             }
         } catch (IOException | SAXException e) {
-
+            isValid = false;
+            throw new RuntimeException("XML Sax Http Client Error.", e);
         }
     }
 
@@ -125,7 +126,7 @@ public class XmlSchemaValidator {
                 .evaluate(xmlNode, XPathConstants.STRING);
         String schema = "";
 
-        for (String val : Arrays.asList(schemaLocationAttr.split(" "))) {
+        for (String val : schemaLocationAttr.split(" ")) {
 
             if (val.contains(format + ".xsd")) {
                 schema = val;
