@@ -207,7 +207,7 @@ public class OaiPmhControllerListRecordsTest {
         String response =  mvcResult.getResponse().getContentAsString();
 
         return DocumentXmlUtils.document(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)),
-                true);
+                false);
     }
 
     @AfterAll

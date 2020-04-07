@@ -162,7 +162,7 @@ public class OaiPmhControllerListIdentifiersTest {
     public void oaiDcXmlFromUntil() throws Exception {
         Document document = xmlResponse("&metadataPrefix=oai_dc&from=2019-01-23&until=2019-01-31");
         assertThat(document).isNotNull();
-        NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
+        NodeList nodeList = (NodeList) xPath.evaluate("//header", document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
     }
 
@@ -214,6 +214,6 @@ public class OaiPmhControllerListIdentifiersTest {
         String response =  mvcResult.getResponse().getContentAsString();
 
         return DocumentXmlUtils.document(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)),
-                true);
+                false);
     }
 }

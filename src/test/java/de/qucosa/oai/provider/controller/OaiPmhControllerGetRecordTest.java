@@ -127,8 +127,8 @@ public class OaiPmhControllerGetRecordTest {
     public void oaiDcRecordNode() throws Exception {
         Document xmlRecord = getXmlRecord("oai_dc", "qucosa:30859");
         DocumentXmlUtils.resultXml(xmlRecord);
-        //Node node = (Node) xPath.compile("//GetRecord").evaluate(xmlRecord, XPathConstants.NODE);
-        Node node = xmlRecord.getElementsByTagName("GetRecord").item(0);
+        Node node = (Node) xPath.compile("//GetRecord").evaluate(xmlRecord, XPathConstants.NODE);
+        //Node node = xmlRecord.getElementsByTagName("GetRecord").item(0);
         assertThat(node).isNotNull();
     }
 
@@ -145,8 +145,8 @@ public class OaiPmhControllerGetRecordTest {
     @Order(4)
     public void xmetaDissPlusRecordNode() throws Exception {
         Document xmlRecord = getXmlRecord("xmetadissplus", "qucosa:30859");
-        //Node node = (Node) xPath.compile("//GetRecord").evaluate(xmlRecord, XPathConstants.NODE);
-        Node node = xmlRecord.getElementsByTagName("GetRecord").item(0);
+        Node node = (Node) xPath.compile("//GetRecord").evaluate(xmlRecord, XPathConstants.NODE);
+        //Node node = xmlRecord.getElementsByTagName("GetRecord").item(0);
         assertThat(node).isNotNull();
     }
 
@@ -155,8 +155,8 @@ public class OaiPmhControllerGetRecordTest {
     @Order(5)
     public void oaiDcHasNotMetatdata() throws Exception {
         Document xmlRecord = getXmlRecord("oai_dc", "qucosa:32394");
-        //Node node = (Node) xPath.compile("//GetRecord/record/metadata").evaluate(xmlRecord, XPathConstants.NODE);
-        Node node = xmlRecord.getElementsByTagName("metadata").item(0);
+        Node node = (Node) xPath.compile("//GetRecord/record/metadata").evaluate(xmlRecord, XPathConstants.NODE);
+        //Node node = xmlRecord.getElementsByTagName("metadata").item(0);
 
         assertThat(node.hasChildNodes()).isFalse();
     }
@@ -166,8 +166,8 @@ public class OaiPmhControllerGetRecordTest {
     @Order(6)
     public void xmetaDissPlusHasNotMetatdata() throws Exception {
         Document xmlRecord = getXmlRecord("xmetadissplus", "qucosa:32394");
-        //Node node = (Node) xPath.compile("//GetRecord/record/metadata").evaluate(xmlRecord, XPathConstants.NODE);
-        Node node = xmlRecord.getElementsByTagName("metadata").item(0);
+        Node node = (Node) xPath.compile("//GetRecord/record/metadata").evaluate(xmlRecord, XPathConstants.NODE);
+        //Node node = xmlRecord.getElementsByTagName("metadata").item(0);
 
         assertThat(node.hasChildNodes()).isFalse();
     }
@@ -182,7 +182,7 @@ public class OaiPmhControllerGetRecordTest {
 
         if (!response.isEmpty()) {
             record = DocumentXmlUtils.document(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)),
-                    true);
+                    false);
         }
 
         return record;
