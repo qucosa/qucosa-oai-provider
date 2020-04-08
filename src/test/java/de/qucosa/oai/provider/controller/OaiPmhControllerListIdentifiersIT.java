@@ -135,7 +135,7 @@ public class OaiPmhControllerListIdentifiersIT {
     @DisplayName("OAI_DC: Has xml document the verb node.")
     public void oaiDcHasVerbNod() throws Exception {
         Document document = xmlResponse("&metadataPrefix=oai_dc");
-        Node node = (Node) xPath.compile("//" + VERB).evaluate(document, XPathConstants.NODE);
+        Node node = (Node) xPath.compile("//OAI-PMH:" + VERB).evaluate(document, XPathConstants.NODE);
         assertThat(node).isNotNull();
     }
 
@@ -143,7 +143,7 @@ public class OaiPmhControllerListIdentifiersIT {
     @DisplayName("OAI_DC: Has xml the resumtion token node.")
     public void oaiDcHasResumptionTokenNode() throws Exception {
         Document document = xmlResponse("&metadataPrefix=oai_dc");
-        Node node = (Node) xPath.compile("//resumptionToken").evaluate(document, XPathConstants.NODE);
+        Node node = (Node) xPath.compile("//OAI-PMH:resumptionToken").evaluate(document, XPathConstants.NODE);
         assertThat(node).isNotNull();
     }
 
@@ -152,7 +152,7 @@ public class OaiPmhControllerListIdentifiersIT {
     public void oaiDcXmlFrom() throws Exception {
         Document document = xmlResponse("&metadataPrefix=oai_dc&from=2019-01-23");
         assertThat(document).isNotNull();
-        NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
+        NodeList nodeList = (NodeList) xPath.compile("//OAI-PMH:header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
         assertThat(nodeList.getLength()).isEqualTo(10);
     }
@@ -162,7 +162,7 @@ public class OaiPmhControllerListIdentifiersIT {
     public void oaiDcXmlFromUntil() throws Exception {
         Document document = xmlResponse("&metadataPrefix=oai_dc&from=2019-01-23&until=2019-01-31");
         assertThat(document).isNotNull();
-        NodeList nodeList = (NodeList) xPath.evaluate("//header", document, XPathConstants.NODESET);
+        NodeList nodeList = (NodeList) xPath.evaluate("//OAI-PMH:header", document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
     }
 
@@ -170,7 +170,7 @@ public class OaiPmhControllerListIdentifiersIT {
     @DisplayName("XMetaDissPlus: Has xml document the verb node.")
     public void xMetaDissPlusHasVerbNod() throws Exception {
         Document document = xmlResponse("&metadataPrefix=xmetadissplus");
-        Node node = (Node) xPath.compile("//" + VERB).evaluate(document, XPathConstants.NODE);
+        Node node = (Node) xPath.compile("//OAI-PMH:" + VERB).evaluate(document, XPathConstants.NODE);
         assertThat(node).isNotNull();
     }
 
@@ -178,7 +178,7 @@ public class OaiPmhControllerListIdentifiersIT {
     @DisplayName("XMetaDissPlus: Has xml the resumtion token node.")
     public void xMetaDissPlusHasResumptionTokenNode() throws Exception {
         Document document = xmlResponse("&metadataPrefix=xmetadissplus");
-        Node node = (Node) xPath.compile("//resumptionToken").evaluate(document, XPathConstants.NODE);
+        Node node = (Node) xPath.compile("//OAI-PMH:resumptionToken").evaluate(document, XPathConstants.NODE);
         assertThat(node).isNotNull();
     }
 
@@ -187,7 +187,7 @@ public class OaiPmhControllerListIdentifiersIT {
     public void xMetaDissPlusXmlFrom() throws Exception {
         Document document = xmlResponse("&metadataPrefix=xmetadissplus&from=2019-01-23");
         assertThat(document).isNotNull();
-        NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
+        NodeList nodeList = (NodeList) xPath.compile("//OAI-PMH:header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
         assertThat(nodeList.getLength()).isEqualTo(10);
     }
@@ -197,7 +197,7 @@ public class OaiPmhControllerListIdentifiersIT {
     public void xMetaDissPlusXmlFromUntil() throws Exception {
         Document document = xmlResponse("&metadataPrefix=xmetadissplus&from=2019-01-23&until=2019-01-31");
         assertThat(document).isNotNull();
-        NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
+        NodeList nodeList = (NodeList) xPath.compile("//OAI-PMH:header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
     }
 
@@ -214,6 +214,6 @@ public class OaiPmhControllerListIdentifiersIT {
         String response =  mvcResult.getResponse().getContentAsString();
 
         return DocumentXmlUtils.document(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)),
-                false);
+                true);
     }
 }
