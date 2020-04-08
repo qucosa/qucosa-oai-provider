@@ -127,7 +127,7 @@ public class OaiPmhControllerGetRecordIT {
     public void oaiDcRecordNode() throws Exception {
         Document xmlRecord = getXmlRecord("oai_dc", "qucosa:30859");
         DocumentXmlUtils.resultXml(xmlRecord);
-        Node node = (Node) xPath.compile("//GetRecord").evaluate(xmlRecord, XPathConstants.NODE);
+        Node node = (Node) xPath.compile("//OAI-PMH:GetRecord").evaluate(xmlRecord, XPathConstants.NODE);
         assertThat(node).isNotNull();
     }
 
@@ -144,7 +144,7 @@ public class OaiPmhControllerGetRecordIT {
     @Order(4)
     public void xmetaDissPlusRecordNode() throws Exception {
         Document xmlRecord = getXmlRecord("xmetadissplus", "qucosa:30859");
-        Node node = (Node) xPath.compile("//GetRecord").evaluate(xmlRecord, XPathConstants.NODE);
+        Node node = (Node) xPath.compile("//OAI-PMH:GetRecord").evaluate(xmlRecord, XPathConstants.NODE);
         assertThat(node).isNotNull();
     }
 
@@ -153,7 +153,7 @@ public class OaiPmhControllerGetRecordIT {
     @Order(5)
     public void oaiDcHasNotMetatdata() throws Exception {
         Document xmlRecord = getXmlRecord("oai_dc", "qucosa:32394");
-        Node node = (Node) xPath.compile("//GetRecord/record/metadata").evaluate(xmlRecord, XPathConstants.NODE);
+        Node node = (Node) xPath.compile("//OAI-PMH:GetRecord/OAI-PMH:record/OAI-PMH:metadata").evaluate(xmlRecord, XPathConstants.NODE);
 
         assertThat(node.hasChildNodes()).isFalse();
     }
@@ -163,7 +163,7 @@ public class OaiPmhControllerGetRecordIT {
     @Order(6)
     public void xmetaDissPlusHasNotMetatdata() throws Exception {
         Document xmlRecord = getXmlRecord("xmetadissplus", "qucosa:32394");
-        Node node = (Node) xPath.compile("//GetRecord/record/metadata").evaluate(xmlRecord, XPathConstants.NODE);
+        Node node = (Node) xPath.compile("//OAI-PMH:GetRecord/OAI-PMH:record/OAI-PMH:metadata").evaluate(xmlRecord, XPathConstants.NODE);
 
         assertThat(node.hasChildNodes()).isFalse();
     }
@@ -178,7 +178,7 @@ public class OaiPmhControllerGetRecordIT {
 
         if (!response.isEmpty()) {
             record = DocumentXmlUtils.document(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)),
-                    false);
+                    true);
         }
 
         return record;
