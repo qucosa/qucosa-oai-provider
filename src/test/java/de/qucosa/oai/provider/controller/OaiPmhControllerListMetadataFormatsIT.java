@@ -18,16 +18,11 @@ package de.qucosa.oai.provider.controller;
 
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
-import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -49,8 +44,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -58,22 +51,20 @@ import java.sql.SQLException;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
-        classes = {QucosaOaiProviderApplication.class, OaiPmhControllerGetRecordTest.TestConfig.class},
+        classes = {QucosaOaiProviderApplication.class, OaiPmhControllerListMetadataFormatsIT.TestConfig.class},
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(initializers = {OaiPmhControllerGetRecordTest.Initializer.class})
+@ContextConfiguration(initializers = {OaiPmhControllerListMetadataFormatsIT.Initializer.class})
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-public class OaiPmhControllerGetRecordTest {
+public class OaiPmhControllerListMetadataFormatsIT {
     @Autowired
     private MockMvc mvc;
-
-    private XPath xPath;
 
     @Container
     private static final PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
@@ -107,81 +98,22 @@ public class OaiPmhControllerGetRecordTest {
         }
     }
 
-    @BeforeAll
-    public void setUp() throws Exception {
-        XmlNamespacesConfig namespacesConfig = new XmlNamespacesConfig(getClass().getResourceAsStream("/config/namespaces.json"));
-        xPath = DocumentXmlUtils.xpath(namespacesConfig.getNamespaces());
-    }
-
     @Test
-    @DisplayName("OAI_DC: Is xml record not null.")
-    @Order(1)
-    public void oaiDcXmlNotNull() throws Exception {
-        Document xmlRecord = getXmlRecord("oai_dc", "qucosa:30859");
-        assertThat(xmlRecord).isNotNull();
-    }
-
-    @Test
-    @DisplayName("OAI_DC: Has xml document the GetRecord node.")
-    @Order(2)
-    public void oaiDcRecordNode() throws Exception {
-        Document xmlRecord = getXmlRecord("oai_dc", "qucosa:30859");
-        DocumentXmlUtils.resultXml(xmlRecord);
-        Node node = (Node) xPath.compile("//GetRecord").evaluate(xmlRecord, XPathConstants.NODE);
-        assertThat(node).isNotNull();
-    }
-
-    @Test
-    @DisplayName("XMetadDissPlus: Is xml record not null.")
-    @Order(3)
-    public void xmetaDissPlusXmlNotNull() throws Exception {
-        Document xmlRecord = getXmlRecord("xmetadissplus", "qucosa:30859");
-        assertThat(xmlRecord).isNotNull();
-    }
-
-    @Test
-    @DisplayName("XMetadDissPlus: Has xml document the GetRecord node.")
-    @Order(4)
-    public void xmetaDissPlusRecordNode() throws Exception {
-        Document xmlRecord = getXmlRecord("xmetadissplus", "qucosa:30859");
-        Node node = (Node) xPath.compile("//GetRecord").evaluate(xmlRecord, XPathConstants.NODE);
-        assertThat(node).isNotNull();
-    }
-
-    @Test
-    @DisplayName("OAI_DC: Has record not metadata if the status is deleted.")
-    @Order(5)
-    public void oaiDcHasNotMetatdata() throws Exception {
-        Document xmlRecord = getXmlRecord("oai_dc", "qucosa:32394");
-        Node node = (Node) xPath.compile("//GetRecord/record/metadata").evaluate(xmlRecord, XPathConstants.NODE);
-
-        assertThat(node.hasChildNodes()).isFalse();
-    }
-
-    @Test
-    @DisplayName("XMetaDissPlus: Has record not metadata if the status is deleted.")
-    @Order(6)
-    public void xmetaDissPlusHasNotMetatdata() throws Exception {
-        Document xmlRecord = getXmlRecord("xmetadissplus", "qucosa:32394");
-        Node node = (Node) xPath.compile("//GetRecord/record/metadata").evaluate(xmlRecord, XPathConstants.NODE);
-
-        assertThat(node.hasChildNodes()).isFalse();
-    }
-
-    private Document getXmlRecord(String mdPrefix, String identifier) throws Exception {
-        Document record = null;
-
+    @DisplayName("Returns list of formats.")
+    public void getListMetadataFormats() throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/oai?verb=GetRecord&metadataPrefix=" + mdPrefix + "&identifier=" + identifier)
-                        .contentType(MediaType.APPLICATION_XML_VALUE)).andReturn();
+                get("/oai?verb=ListMetadataFormats")
+                        .accept(MediaType.APPLICATION_XML_VALUE))
+                .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
+        assertThat(response).isNotEmpty();
 
-        if (!response.isEmpty()) {
-            record = DocumentXmlUtils.document(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)),
-                    false);
-        }
+        Document document = DocumentXmlUtils.document(
+                new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)), true);
+        assertThat(document).isNotNull();
 
-        return record;
+        Node listMetadataFormats = document.getElementsByTagName("ListMetadataFormats").item(0);
+        assertThat(listMetadataFormats.getNodeName()).isEqualTo("ListMetadataFormats");
     }
 
     @AfterAll

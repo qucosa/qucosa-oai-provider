@@ -17,7 +17,6 @@
 package de.qucosa.oai.provider.controller;
 
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
-import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
@@ -41,11 +40,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -56,13 +51,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
-        classes = {QucosaOaiProviderApplication.class, OaiPmhControllerListSetsTest.TestConfig.class},
+        classes = {QucosaOaiProviderApplication.class, OaiPmhControllerIdentifyIT.TestConfig.class},
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(initializers = {OaiPmhControllerListSetsTest.Initializer.class})
+@ContextConfiguration(initializers = {OaiPmhControllerIdentifyIT.Initializer.class})
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-public class OaiPmhControllerListSetsTest {
+public class OaiPmhControllerIdentifyIT {
     @Autowired
     private MockMvc mvc;
 
@@ -99,21 +94,14 @@ public class OaiPmhControllerListSetsTest {
     }
 
     @Test
-    @DisplayName("Returns list of sets.")
-    public void getListSets() throws Exception {
+    @DisplayName("Return identify configuration xml.")
+    public void getIdentify() throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/oai?verb=ListSets")
-                        .accept(MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE))
+                get("/oai?verb=Identify")
+                        .accept(MediaType.APPLICATION_XML_VALUE))
                 .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
         assertThat(response).isNotEmpty();
-
-        Document document = DocumentXmlUtils.document(
-                new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)), true);
-        assertThat(document).isNotNull();
-
-        Node listSets = document.getElementsByTagName("ListSets").item(0);
-        assertThat(listSets.getNodeName()).isEqualTo("ListSets");
     }
 
     @AfterAll

@@ -72,14 +72,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
-        classes = {QucosaOaiProviderApplication.class, DisseminationControllerTest.TestConfig.class},
+        classes = {QucosaOaiProviderApplication.class, DisseminationControllerIT.TestConfig.class},
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 
-@ContextConfiguration(initializers = {DisseminationControllerTest.Initializer.class})
+@ContextConfiguration(initializers = {DisseminationControllerIT.Initializer.class})
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-class DisseminationControllerTest {
+class DisseminationControllerIT {
     private List<Dissemination> disseminations = null;
 
     private Format format;

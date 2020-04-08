@@ -65,13 +65,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
-        classes = {QucosaOaiProviderApplication.class, RecordControllerTest.TestConfig.class},
+        classes = {QucosaOaiProviderApplication.class, RecordControllerIT.TestConfig.class},
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(initializers = {RecordControllerTest.Initializer.class})
+@ContextConfiguration(initializers = {RecordControllerIT.Initializer.class})
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-public class RecordControllerTest {
+public class RecordControllerIT {
     @Autowired
     private RecordService recordService;
 

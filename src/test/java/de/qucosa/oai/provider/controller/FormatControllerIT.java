@@ -17,8 +17,9 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
+import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Set;
-import de.qucosa.oai.provider.services.SetService;
+import de.qucosa.oai.provider.services.FormatService;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -68,17 +69,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
-        classes = {QucosaOaiProviderApplication.class, SetControllerTest.TestConfig.class},
+        classes = {QucosaOaiProviderApplication.class, FormatControllerIT.TestConfig.class},
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(initializers = {SetControllerTest.Initializer.class})
+@ContextConfiguration(initializers = {FormatControllerIT.Initializer.class})
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-public class SetControllerTest {
-    private List<Set> sets = null;
+public class FormatControllerIT {
+    private List<Format> formats = null;
 
     @Autowired
-    private SetService setService;
+    private FormatService formatService;
 
     @Autowired
     private ObjectMapper om;
@@ -120,190 +121,184 @@ public class SetControllerTest {
 
     @BeforeAll
     public void setUp() throws IOException {
-        sets = om.readValue(TestData.SETS, om.getTypeFactory().constructCollectionType(List.class, Set.class));
+        formats = om.readValue(TestData.FORMATS, om.getTypeFactory().constructCollectionType(List.class, Format.class));
     }
 
     @Test
-    @DisplayName("Find all inserted sets.")
+    @DisplayName("Find all inserted format rows.")
     @Order(1)
     public void findAll() throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/sets")
+                get("/formats")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk()).andReturn();
         String content = mvcResult.getResponse().getContentAsString();
 
         assertThat(content).isNotEmpty();
 
-        List<Set> data = om.readValue(content, om.getTypeFactory().constructCollectionType(List.class, Set.class));
+        List<Set> data = om.readValue(content, om.getTypeFactory().constructCollectionType(List.class, Format.class));
 
         assertThat(data).isNotNull();
         assertThat(data.size()).isGreaterThan(0);
     }
 
     @Test
-    @DisplayName("Find a set object by setspec.")
+    @DisplayName("Find format by mdprefix.")
     @Order(2)
-    public void findSet() throws Exception {
+    public void findFormat() throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/sets/ddc:610")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk()).andReturn();
+                get("/formats/format?mdprefix=oai_dc")
+                    .accept(MediaType.APPLICATION_JSON_VALUE))
+                    .andExpect(status().isOk()).andReturn();
         String content = mvcResult.getResponse().getContentAsString();
 
         assertThat(content).isNotEmpty();
 
-        Set set = om.readValue(content, Set.class);
+        Format format = om.readValue(content, Format.class);
 
-        assertThat(set).isNotNull();
-        assertThat(set.getSetSpec()).isEqualTo("ddc:610");
+        assertThat(format).isNotNull();
+        assertThat(format.getMdprefix()).isEqualTo("oai_dc");
     }
 
     @Test
-    @DisplayName("If set not found in table returns a error details object.")
+    @DisplayName("Format not found because the mdprefix is wrong.")
     @Order(3)
-    public void setNotFound() throws Exception {
-        Set set = sets.get(0);
-
+    public void formatNotFound() throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/sets/" + set.getSetSpec())
-                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                get("/formats/format?mdprefix=test")
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk()).andReturn();
-        Set setRes = om.readValue(mvcResult.getResponse().getContentAsString(), Set.class);
-        Assertions.assertNull(setRes.getSetSpec());
+        Format responseFormat = om.readValue(mvcResult.getResponse().getContentAsString(), Format.class);
+        Assertions.assertNull(responseFormat.getFormatId());
     }
 
     @Test
-    @DisplayName("If cannot save set object then returns a error details object.")
+    @DisplayName("Save new format is successful.")
     @Order(4)
-    public void saveSetNotSuccessful() throws Exception {
-        Set set = setService.find("setspec", "ddc:610").iterator().next();
-        mvc.perform(
-                post("/sets")
+    public void saveFormat() throws Exception {
+        Format format = formats.get(2);
+        MvcResult mvcResult = mvc.perform(
+                post("/formats")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(set)))
+                        .content(om.writeValueAsString(format)))
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isNotEmpty();
+
+        Format responseFormat = om.readValue(response, Format.class);
+
+        assertThat(responseFormat).isNotNull();
+        assertThat(responseFormat.getMdprefix()).isEqualTo("epicur");
+    }
+
+    @Test
+    @DisplayName("Format cannot save.")
+    @Order(5)
+    public void formatNotSaved() throws Exception {
+        Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
+
+        mvc.perform(
+                post("/formats")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(om.writeValueAsString(format)))
                 .andExpect(status().isNotAcceptable())
                 .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot save set objects.")))
-                .andExpect(jsonPath("$.method", is("save")));
+                .andExpect(jsonPath("$.errorMsg", is("Cannot save format.")));
     }
 
     @Test
-    @DisplayName("If the save set process is successful then returns the saved set object.")
-    @Order(5)
-    public void saveSetIsSuccessful() throws Exception {
-        Set set = sets.get(0);
-        MvcResult mvcResult = mvc.perform(
-                post("/sets")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(set)))
-                .andExpect(status().isOk()).andReturn();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(response).isNotEmpty();
-
-        Set responseSet = om.readValue(response, Set.class);
-
-        assertThat(responseSet).isNotNull();
-        assertThat(responseSet.getSetSpec()).isEqualTo(set.getSetSpec());
-
-        setService.delete(responseSet);
-    }
-
-    @Test
-    @DisplayName("Save an set collection, if this process successful then returns an collection object with saved sets.")
+    @DisplayName("Update format is successful.")
     @Order(6)
-    public void saveSetCollectionIsSuccessful() throws Exception {
+    public void updateFormat() throws Exception {
+        Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
+        format.setNamespace("update_ns");
+        format.setSchemaUrl("update_url");
+
         MvcResult mvcResult = mvc.perform(
-                post("/sets")
+                put("/formats/oai_dc")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(sets)))
+                        .content(om.writeValueAsString(format)))
                 .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
         assertThat(response).isNotEmpty();
 
-        List<Set> responseList = om.readValue(response,
-                om.getTypeFactory().constructCollectionType(List.class, Set.class));
-
-        assertThat(responseList).isNotNull();
-        assertThat(responseList.size()).isGreaterThan(0);
-        assertThat(responseList.size()).isEqualTo(2);
+        Format responseFormat = om.readValue(response, Format.class);
+        assertThat(responseFormat).isNotNull();
+        assertThat(responseFormat.getNamespace()).isEqualTo("update_ns");
+        assertThat(responseFormat.getSchemaUrl()).isEqualTo("update_url");
     }
 
     @Test
-    @DisplayName("Update a exists set object is successful.")
+    @DisplayName("Cannot update format object.")
     @Order(7)
-    public void updateSet() throws Exception {
-        Set set = setService.find("setspec", "ddc:610").iterator().next();
-        set.setSetDescription("This set has a desc now.");
+    public void formatNotUpdated() throws Exception {
+        Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
+        format.setMdprefix("test");
 
-        MvcResult mvcResult = mvc.perform(
-                put("/sets/" + set.getSetSpec())
+        mvc.perform(
+                put("/formats/test")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(set)))
-                .andExpect(status().isOk()).andReturn();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(response).isNotEmpty();
-        Set responseSet = om.readValue(response, Set.class);
-
-        assertThat(responseSet).isNotNull();
-        assertThat(responseSet.getSetDescription()).isEqualTo(set.getSetDescription());
+                        .content(om.writeValueAsString(format)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot update format.")));
     }
 
     @Test
-    @DisplayName("Mark a set object as deleted.")
+    @DisplayName("Mark format as deleted.")
     @Order(8)
-    public void markSetAsDeleted() throws Exception {
-        Set set = setService.find("setspec", "ddc:610").iterator().next();
-        set.setDeleted(true);
+    public void markAsDeleted() throws Exception {
+        Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
+        format.setDeleted(true);
 
         MvcResult mvcResult = mvc.perform(
-                put("/sets/" + set.getSetSpec())
+                put("/formats/oai_dc")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(set)))
+                        .content(om.writeValueAsString(format)))
                 .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
         assertThat(response).isNotEmpty();
-        Set responseSet = om.readValue(response, Set.class);
 
-        assertThat(responseSet).isNotNull();
-        assertThat(responseSet.isDeleted()).isTrue();
+        Format responseFormat = om.readValue(response, Format.class);
+
+        assertThat(responseFormat).isNotNull();
+        assertThat(responseFormat.isDeleted()).isTrue();
     }
 
     @Test
-    @DisplayName("Undo the set delete mark.")
+    @DisplayName("Undo mark format as deleted.")
     @Order(9)
-    public void undoDeleteMarked() throws Exception {
-        Set set = setService.find("setspec", "ddc:610").iterator().next();
-        set.setDeleted(false);
+    public void markAsDeletedUndo() throws Exception {
+        Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
+        format.setDeleted(false);
 
         MvcResult mvcResult = mvc.perform(
-                put("/sets/" + set.getSetSpec())
+                put("/formats/oai_dc")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(set)))
+                        .content(om.writeValueAsString(format)))
                 .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
         assertThat(response).isNotEmpty();
-        Set responseSet = om.readValue(response, Set.class);
 
-        assertThat(responseSet).isNotNull();
-        assertThat(responseSet.isDeleted()).isFalse();
+        Format responseFormat = om.readValue(response, Format.class);
+
+        assertThat(responseFormat).isNotNull();
+        assertThat(responseFormat.isDeleted()).isFalse();
     }
 
     @Test
-    @DisplayName("Delete set hard from the sets table.")
+    @DisplayName("Hard deleted format from table.")
     @Order(10)
-    public void hardDeleteSet() throws Exception {
-        Set set = setService.find("setspec", "ddc:610").iterator().next();
-
+    public void deleteFormat() throws Exception {
+        Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
         MvcResult mvcResult = mvc.perform(
-                delete("/sets")
+                delete("/formats")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(set)))
+                        .content(om.writeValueAsString(format)))
                 .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
@@ -312,23 +307,23 @@ public class SetControllerTest {
     }
 
     @Test
-    @DisplayName("Hard delete set was not successful and returns a error details object.")
+    @DisplayName("Hard delete format from table is not successful because the mdprefix is wrong.")
     @Order(11)
     public void hardDeleteNotSuccessful() throws Exception {
-        Set set = sets.get(0);
-        set.setSetSpec("ddc:8000");
+        Format format = formatService.find("mdprefix", "xmetadissplus").iterator().next();
+        format.setMdprefix("test");
 
         mvc.perform(
-                delete("/sets")
+                delete("/formats")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(set)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.BAD_REQUEST.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot hard delete set.")));
+                        .content(om.writeValueAsString(format)))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
+                .andExpect(jsonPath("$.errorMsg", is("Cannot delete format " + format.getMdprefix() + ".")));
     }
 
     @AfterAll
-    public void shutdownTestContainers() {
+    public void schutdwonTest() {
         sqlContainer.stop();
     }
 }

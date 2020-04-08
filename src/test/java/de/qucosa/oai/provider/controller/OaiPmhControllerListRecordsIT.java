@@ -63,19 +63,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
-        classes = {QucosaOaiProviderApplication.class, OaiPmhControllerListIdentifiersTest.TestConfig.class},
+        classes = {QucosaOaiProviderApplication.class, OaiPmhControllerListRecordsIT.TestConfig.class},
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(initializers = {OaiPmhControllerListIdentifiersTest.Initializer.class})
+@ContextConfiguration(initializers = {OaiPmhControllerListRecordsIT.Initializer.class})
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-public class OaiPmhControllerListIdentifiersTest {
+public class OaiPmhControllerListRecordsIT {
     @Autowired
     private MockMvc mvc;
 
     private XPath xPath;
 
-    private static final String VERB = "ListIdentifiers";
+    private static final String VERB = "ListRecords";
 
     @Container
     private static final PostgreSQLContainer sqlContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:9.5")
@@ -116,10 +116,10 @@ public class OaiPmhControllerListIdentifiersTest {
     }
 
     @Test
-    @DisplayName("If verb parameter not exists in properties verbs config then returns error details object.")
+    @DisplayName("If verb parameter not exists in properties verbs config then retirns error details object.")
     public void notExistsVerb() throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/oai?verb=ListIdntifers&metadataPrefix=oai_dc")
+                get("/oai?verb=ListRecods&metadataPrefix=oai_dc")
                         .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk()).andReturn();
         Document response = DocumentXmlUtils.document(
@@ -154,7 +154,6 @@ public class OaiPmhControllerListIdentifiersTest {
         assertThat(document).isNotNull();
         NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
-        assertThat(nodeList.getLength()).isEqualTo(10);
     }
 
     @Test
@@ -162,7 +161,7 @@ public class OaiPmhControllerListIdentifiersTest {
     public void oaiDcXmlFromUntil() throws Exception {
         Document document = xmlResponse("&metadataPrefix=oai_dc&from=2019-01-23&until=2019-01-31");
         assertThat(document).isNotNull();
-        NodeList nodeList = (NodeList) xPath.evaluate("//header", document, XPathConstants.NODESET);
+        NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
     }
 
@@ -189,7 +188,6 @@ public class OaiPmhControllerListIdentifiersTest {
         assertThat(document).isNotNull();
         NodeList nodeList = (NodeList) xPath.compile("//header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
-        assertThat(nodeList.getLength()).isEqualTo(10);
     }
 
     @Test
@@ -201,11 +199,6 @@ public class OaiPmhControllerListIdentifiersTest {
         assertThat(nodeList.getLength()).isGreaterThan(0);
     }
 
-    @AfterAll
-    public void schutdwonTest() {
-        sqlContainer.stop();
-    }
-
     private Document xmlResponse(String params) throws Exception {
         MvcResult mvcResult = mvc.perform(
                 get("/oai?verb=" + VERB + params)
@@ -215,5 +208,10 @@ public class OaiPmhControllerListIdentifiersTest {
 
         return DocumentXmlUtils.document(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)),
                 false);
+    }
+
+    @AfterAll
+    public void schutdwonTest() {
+        sqlContainer.stop();
     }
 }

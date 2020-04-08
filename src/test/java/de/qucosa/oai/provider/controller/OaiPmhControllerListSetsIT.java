@@ -56,13 +56,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
-        classes = {QucosaOaiProviderApplication.class, OaiPmhControllerListMetadataFormatsTest.TestConfig.class},
+        classes = {QucosaOaiProviderApplication.class, OaiPmhControllerListSetsIT.TestConfig.class},
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(initializers = {OaiPmhControllerListMetadataFormatsTest.Initializer.class})
+@ContextConfiguration(initializers = {OaiPmhControllerListSetsIT.Initializer.class})
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-public class OaiPmhControllerListMetadataFormatsTest {
+public class OaiPmhControllerListSetsIT {
     @Autowired
     private MockMvc mvc;
 
@@ -99,11 +99,11 @@ public class OaiPmhControllerListMetadataFormatsTest {
     }
 
     @Test
-    @DisplayName("Returns list of formats.")
-    public void getListMetadataFormats() throws Exception {
+    @DisplayName("Returns list of sets.")
+    public void getListSets() throws Exception {
         MvcResult mvcResult = mvc.perform(
-                get("/oai?verb=ListMetadataFormats")
-                        .accept(MediaType.APPLICATION_XML_VALUE))
+                get("/oai?verb=ListSets")
+                        .accept(MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
         assertThat(response).isNotEmpty();
@@ -112,8 +112,8 @@ public class OaiPmhControllerListMetadataFormatsTest {
                 new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)), true);
         assertThat(document).isNotNull();
 
-        Node listMetadataFormats = document.getElementsByTagName("ListMetadataFormats").item(0);
-        assertThat(listMetadataFormats.getNodeName()).isEqualTo("ListMetadataFormats");
+        Node listSets = document.getElementsByTagName("ListSets").item(0);
+        assertThat(listSets.getNodeName()).isEqualTo("ListSets");
     }
 
     @AfterAll
