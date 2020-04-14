@@ -17,13 +17,16 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.ErrorDetails;
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
+import de.qucosa.oai.provider.api.validators.xml.XmlSchemaValidator;
+import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
+import de.qucosa.oai.provider.persistence.model.OaiRecord;
 import de.qucosa.oai.provider.persistence.model.Record;
-import de.qucosa.oai.provider.persistence.model.RecordTransport;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.SetsToRecord;
 import de.qucosa.oai.provider.services.DisseminationService;
@@ -46,6 +49,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,14 +71,18 @@ public class RecordController {
 
     private final SetsToRecordService setsToRecordService;
 
+    private final XmlNamespacesConfig xmlNamespacesConfig;
+
     @Autowired
     public RecordController(RecordService recordService, FormatService formatService, SetService setService,
-                            DisseminationService disseminationService, SetsToRecordService setsToRecordService) {
+                            DisseminationService disseminationService, SetsToRecordService setsToRecordService,
+                            XmlNamespacesConfig xmlNamespacesConfig) {
         this.recordService = recordService;
         this.formatService = formatService;
         this.setService = setService;
         this.disseminationService = disseminationService;
         this.setsToRecordService = setsToRecordService;
+        this.xmlNamespacesConfig = xmlNamespacesConfig;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -83,7 +91,7 @@ public class RecordController {
         ObjectMapper om = new ObjectMapper();
 
         try {
-            List<RecordTransport> inputData = om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, RecordTransport.class));
+            List<OaiRecord> inputData = om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, OaiRecord.class));
 
             if (inputData == null || inputData.size() == 0) {
                 return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
@@ -95,7 +103,33 @@ public class RecordController {
                         HttpStatus.BAD_REQUEST, "OAI_DC dissemination failed.", null).response();
             }
 
-            for (RecordTransport rt : inputData) {
+            for (OaiRecord rt : inputData) {
+
+                if (rt.isValidateXmlSchema()) {
+
+                    if (rt.getDissemination().getXmldata() != null && !rt.getDissemination().getXmldata().isEmpty()) {
+                        XmlSchemaValidator schemaValidator = new XmlSchemaValidator(xmlNamespacesConfig);
+                        schemaValidator.setFormat(rt.getFormat().getMdprefix());
+                        try {
+                            schemaValidator.setXmlDoc(rt.getDissemination().getXmldata());
+
+                            try {
+
+                                if (!schemaValidator.isValid()) {
+                                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                            HttpStatus.NOT_ACCEPTABLE, "This xml has not valid schema.", null).response();
+                                }
+                            } catch (XPathExpressionException e) {
+                                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                        HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
+                            }
+                        } catch (XmlDomParserException e) {
+                            return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
+                        }
+                    }
+                }
+
                 Format format = format(rt);
 
                 if (format == null) {
@@ -249,7 +283,7 @@ public class RecordController {
         return new ResponseEntity<>(record, HttpStatus.OK);
     }
 
-    private Format format(RecordTransport rt) {
+    private Format format(OaiRecord rt) {
         Collection<Format> formats;
 
         try {
@@ -277,7 +311,7 @@ public class RecordController {
         return null;
     }
 
-    private Record record(RecordTransport rt) {
+    private Record record(OaiRecord rt) {
         Collection<Record> records;
         Record record = null;
 
@@ -306,7 +340,7 @@ public class RecordController {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    private ResponseEntity saveSets(RecordTransport rt, Record record) {
+    private ResponseEntity saveSets(OaiRecord rt, Record record) {
 
         for (Set set : rt.getSets()) {
             Set readSet = null;

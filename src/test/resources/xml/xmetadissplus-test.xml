@@ -1,0 +1,74 @@
+<xMetaDiss:xMetaDiss xmlns:cc="http://www.d-nb.de/standards/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/"
+                     xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ddb="http://www.d-nb.de/standards/ddb/"
+                     xmlns:dini="http://www.d-nb.de/standards/xmetadissplus/type/" xmlns:mets="http://www.loc.gov/METS/"
+                     xmlns:mods="http://www.loc.gov/mods/v3" xmlns:myfunc="urn:de:qucosa:xmetadissplus"
+                     xmlns:pc="http://www.d-nb.de/standards/pc/" xmlns:slub="http://slub-dresden.de/"
+                     xmlns:subject="http://www.d.nb.de/standards/subject/"
+                     xmlns:thesis="http://www.ndltd.org/standards/metadata/etdms/1.0/"
+                     xmlns:urn="http://www.d-nb.de/standards/urn/"
+                     xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/"
+                     xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd
+                            http://www.d-nb.de/standards/xmetadissplus/ http://files.dnb.de/standards/xmetadissplus/xmetadissplus.xsd
+                            http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods.xsd
+                            http://purl.org/dc/elements/1.1/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dc.xsd
+                            http://www.d-nb.de/standards/pc/ http://files.dnb.de/standards/xmetadiss/pc.xsd
+                            http://www.d-nb.de/standards/ddb/ http://files.dnb.de/standards/xmetadiss/ddb.xsd
+                            http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd
+                            http://www.d.nb.de/standards/subject/ http://files.dnb.de/standards/xmetadiss/subject.xsd
+                            http://www.d-nb.de/standards/cc/ http://files.dnb.de/standards/xmetadiss/cc.xsd
+                            http://www.ndltd.org/standards/metadata/etdms/1.0/ http://files.dnb.de/standards/xmetadiss/thesis.xsd
+                            http://www.w3.org/2001/XMLSchema https://www.w3.org/2009/XMLSchema/XMLSchema.xsd
+                            http://www.d-nb.de/standards/xmetadissplus/type/ http://files.dnb.de/standards/xmetadissplus/xmetadissplustype.xsd
+                            http://www.d-nb.de/standards/urn/ http://files.dnb.de/standards/xmetadiss/urn.xsd">
+    <dc:title xml:lang="eng" xsi:type="ddb:titleISO639-2">Advanced symptoms are associated with myocardial damage in patients with severe aortic stenosis</dc:title>
+    <dc:creator xsi:type="pc:MetaPers">
+        <pc:person>
+            <pc:name type="nameUsedByThePerson">
+                <pc:foreName>Ricardo</pc:foreName>
+                <pc:surName>Spampinato Torcivia</pc:surName>
+            </pc:name>
+        </pc:person>
+    </dc:creator>
+    <dc:subject xsi:type="xMetaDiss:noScheme">Aortic stenosis</dc:subject>
+    <dc:subject xsi:type="xMetaDiss:noScheme">myocardial damage</dc:subject>
+    <dc:subject xsi:type="xMetaDiss:noScheme">troponin</dc:subject>
+    <dc:subject xsi:type="dcterms:DDC">610</dc:subject>
+    <dc:subject xsi:type="subject:DDC-SG">610</dc:subject>
+    <dcterms:tableOfContents ddb:type="subject:noScheme" xml:lang="eng" xsi:type="ddb:contentISO639-2">Einführung................................................................................................3 Publikationsmanuskript...........................................................................12 Zusammenfassung..................................................................................19 Literaturverzeichnis..................................................................................24
+        Erklärung über die eigenständige Abfassung der Arbeit.........................28
+        Darstellung des eigenen Beitrags............................................................29
+        Curriculum vitae.......................................................................................30 Danksagung.............................................................................................36
+    </dcterms:tableOfContents>
+    <dcterms:abstract ddb:type="subject:noScheme" xml:lang="eng" xsi:type="ddb:contentISO639-2">Background: Once aortic stenosis (AS) is severe, patients develop symptoms at different stages. Indeed, symptom status may correlate poorly with the grade of valve narrowing. Multiple pathophysiological mechanisms, other than valvular load, may explain the link between AS and symptom severity. We aimed to describe the relationship between the severity of symptoms and the characteristics of a cohort of patients with severe AS already referred for aortic valve replacement (AVR).
+        Methods: We analyzed 118 consecutive patients (70 ± 9 years, 55% men) with severe AS referred for AVR. We identified 84 patients with New York Heart Association (NYHA) I–II, and 34 with NYHA III–IV symptoms. Clinical and echocardiographic parameters were compared between these two groups. Left ventricular ejection fraction (LVEF), global longitudinal peak systolic strain (GLPS), NT-pro-B-type natriuretic peptide (BNP), and high-sensitive troponin T (hs-TNT) were determined at the time of admission.
+        Results: AS severity was similar between groups. Compared with the NYHA I–II group, patients in NYHA III–IV group were older and more likely to have comorbidities, worse intracardiac hemodynamics and more LV damage. Variables independently associated with NYHA III–IV symptomatology were the absence of sinus rhythm, higher E/e0 ratio, and increased hs-TNT. GLPS showed a good correlation not only with hs-TNT as a marker of myocardial damage, but also with markers of increased afterload imposed on LV, being not directly related with advanced symptoms.
+        Conclusions: Advanced symptoms in patients with severe AS referred for AVR are associated with worse intracardiac hemodynamics, absence of sinus rhythm, and more myocardial damage. It supports the concept of transition from adaptive LV remodeling to myocyte death as an important determinant of symptoms of heart failure.
+    </dcterms:abstract>
+    <dcterms:dateSubmitted xsi:type="dcterms:W3CDTF">2018-03-08</dcterms:dateSubmitted>
+    <dcterms:dateAccepted xsi:type="dcterms:W3CDTF">2018-11-08</dcterms:dateAccepted>
+    <dcterms:issued xsi:type="dcterms:W3CDTF">2018-12-11</dcterms:issued>
+    <dcterms:modified xsi:type="dcterms:W3CDTF">2019-03-01</dcterms:modified>
+    <dc:type xsi:type="dini:PublType">doctoralThesis</dc:type>
+    <dini:version_driver>publishedVersion</dini:version_driver>
+    <dc:identifier xsi:type="urn:nbn">urn:nbn:de:bsz:15-qucosa2-323948</dc:identifier>
+    <dcterms:medium/>
+    <dc:language xsi:type="dcterms:ISO639-2">eng</dc:language>
+    <dc:rights xsi:type="ddb:noScheme">info:eu-repo/semantics/openAccess</dc:rights>
+    <thesis:degree>
+        <thesis:level>thesis.doctoral</thesis:level>
+        <thesis:grantor xsi:type="cc:Corporate">
+            <cc:universityOrInstitution>
+                <cc:name>Universität Leipzig</cc:name>
+                <cc:place>Leipzig</cc:place>
+                <cc:department>
+                    <cc:name>Medizin</cc:name>
+                </cc:department>
+            </cc:universityOrInstitution>
+        </thesis:grantor>
+    </thesis:degree>
+    <ddb:fileNumber>1</ddb:fileNumber>
+    <ddb:transfer ddb:type="dcterms:URI">http://ubl.example.com/qucosa:32394/content.zip</ddb:transfer>
+    <ddb:identifier ddb:type="URN">urn:nbn:de:bsz:15-qucosa2-323948</ddb:identifier>
+    <ddb:rights ddb:kind="free"/>
+</xMetaDiss:xMetaDiss>

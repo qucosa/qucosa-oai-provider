@@ -16,6 +16,7 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhList;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhListByToken;
@@ -31,7 +32,7 @@ public class ListIdentifiers extends OaiPmhDataBuilderAbstract implements OaiPmh
     private Collection<OaiPmhList> oaiPmhList;
 
     @Override
-    public Document oaiXmlData() {
+    public Document oaiXmlData() throws XmlDomParserException {
 
         if (oaiPmhList == null && oaiPmhListByToken == null) {
             throw new RuntimeException("Not exists list objects.");
@@ -58,7 +59,7 @@ public class ListIdentifiers extends OaiPmhDataBuilderAbstract implements OaiPmh
         this.oaiPmhList = oaiPmhList;
     }
 
-    private void buildListWithResumptionToken(Node verbNode) {
+    private void buildListWithResumptionToken(Node verbNode) throws XmlDomParserException {
 
         for (OaiPmhListByToken obj : oaiPmhListByToken) {
             Node importedHeader = oaiPmhTpl.importNode(addHeaderTpl(obj.getUid(),
@@ -69,7 +70,7 @@ public class ListIdentifiers extends OaiPmhDataBuilderAbstract implements OaiPmh
         new ResumptionToken(oaiPmhTpl).add(verb, dataSize, resumptionToken, recordsProPage);
     }
 
-    private void buildList(Node verbNode) {
+    private void buildList(Node verbNode) throws XmlDomParserException {
 
         for (OaiPmhList obj : oaiPmhList) {
             Node importedHeader = oaiPmhTpl.importNode(addHeaderTpl(obj.getUid(),

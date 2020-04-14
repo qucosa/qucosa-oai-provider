@@ -24,63 +24,6 @@ public class TestData {
             "{\"mdprefix\" : \"xmetadiss\", \"schemaurl\" : \"http://www.d-nb.de/standards/xmetadissplus/\", \"namespace\" : \"xmetadiss\", \"deleted\" : \"false\"}," +
             "{\"mdprefix\" : \"epicur\", \"schemaurl\" : \"http://www.persistent-identifier.de/xepicur/version1.0/xepicur.xsd\", \"namespace\" : \"epicur\", \"deleted\" : \"false\"}]";
 
-    public static final String RECORDS_INPUT = "[\n" +
-            "  {\n" +
-            "    \"record\" : {\n" +
-            "      \"pid\" : \"qucosa:55887\",\n" +
-            "      \"uid\" : \"oai:example:org:qucosa:55887\"\n" +
-            "    },\n" +
-            "    \"format\" : {\n" +
-            "      \"mdprefix\" : \"oai_dc\",\n" +
-            "      \"schemaurl\" : \"http://www.openarchives.org/OAI/2.0/oai_dc/\",\n" +
-            "      \"namespace\" : \"oai_dc\"\n" +
-            "    },\n" +
-            "    \"dissemination\" : {\n" +
-            "      \"lastmoddate\" : 1513255949071,\n" +
-            "      \"xmldata\" : \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-16\\\"?><oai_dc:dc xmlns:dc=\\\"http://purl.org/dc/elements/1.1/\\\" xmlns:mets=\\\"http://www.loc.gov/METS/\\\" xmlns:mods=\\\"http://www.loc.gov/mods/v3\\\" xmlns:myfunc=\\\"urn:de:qucosa:dc\\\" xmlns:oai_dc=\\\"http://www.openarchives.org/OAI/2.0/oai_dc/\\\" xmlns:slub=\\\"http://slub-dresden.de/\\\" xmlns:xs=\\\"http://www.w3.org/2001/XMLSchema\\\" xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\"></oai_dc:dc>\"\n" +
-            "    },\n" +
-            "    \"sets\" : [\n" +
-            "      {\n" +
-            "        \"setspec\": \"ddc:980\",\n" +
-            "        \"setname\": \"General history of South America\",\n" +
-            "        \"setdescription\" : \"\"\n" +
-            "      },\n" +
-            "      {\n" +
-            "        \"setspec\": \"ddc:990\",\n" +
-            "        \"setname\": \"General history of other areas\",\n" +
-            "        \"setdescription\" : \"\"\n" +
-            "      }\n" +
-            "    ]\n" +
-            "  },\n" +
-            "  {\n" +
-            "    \"record\" : {\n" +
-            "      \"pid\" : \"qucosa:55887\",\n" +
-            "      \"uid\" : \"oai:example:org:qucosa:55887\"\n" +
-            "    },\n" +
-            "    \"format\" : {\n" +
-            "      \"mdprefix\" : \"xmetadiss\",\n" +
-            "      \"schemaurl\" : \"http://www.d-nb.de/standards/xmetadissplus/\",\n" +
-            "      \"namespace\" : \"xmetadiss\"\n" +
-            "    },\n" +
-            "    \"dissemination\" : {\n" +
-            "      \"lastmoddate\" : 1513255949071,\n" +
-            "      \"xmldata\" : \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-16\\\"?>\\n<xMetaDiss:xMetaDiss xmlns:cc=\\\"http://www.d-nb.de/standards/cc/\\\" xmlns:dc=\\\"http://purl.org/dc/elements/1.1/\\\" xmlns:dcterms=\\\"http://purl.org/dc/terms/\\\" xmlns:ddb=\\\"http://www.d-nb.de/standards/ddb/\\\" xmlns:dini=\\\"http://www.d-nb.de/standards/xmetadissplus/type/\\\" xmlns:mets=\\\"http://www.loc.gov/METS/\\\" xmlns:mods=\\\"http://www.loc.gov/mods/v3\\\" xmlns:myfunc=\\\"urn:de:qucosa:xmetadissplus\\\" xmlns:pc=\\\"http://www.d-nb.de/standards/pc/\\\" xmlns:slub=\\\"http://slub-dresden.de/\\\" xmlns:subject=\\\"http://www.d.nb.de/standards/subject/\\\" xmlns:thesis=\\\"http://www.ndltd.org/standards/metadata/etdms/1.0/\\\" xmlns:urn=\\\"http://www.d-nb.de/standards/urn/\\\" xmlns:xMetaDiss=\\\"http://www.d-nb.de/standards/xmetadissplus/\\\" xmlns:xs=\\\"http://www.w3.org/2001/XMLSchema\\\" xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\"></xMetaDiss:xMetaDiss>\"\n" +
-            "    },\n" +
-            "    \"sets\" : [\n" +
-            "      {\n" +
-            "        \"setspec\": \"ddc:980\",\n" +
-            "        \"setname\": \"General history of South America\",\n" +
-            "        \"setdescription\" : \"\"\n" +
-            "      },\n" +
-            "      {\n" +
-            "        \"setspec\": \"ddc:990\",\n" +
-            "        \"setname\": \"General history of other areas\",\n" +
-            "        \"setdescription\" : \"\"\n" +
-            "      }\n" +
-            "    ]\n" +
-            "  }\n" +
-            "]";
-
     public static final String DISSEMINATIONS = "[{\"recordid\" : \"qucosa:32394\", \"formatid\" : 17, \"lastmoddate\" : 1513255949071, \"xmldata\" : \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-16\\\"?><oai_dc:dc xmlns:dc=\\\"http://purl.org/dc/elements/1.1/\\\" xmlns:mets=\\\"http://www.loc.gov/METS/\\\" xmlns:mods=\\\"http://www.loc.gov/mods/v3\\\" xmlns:myfunc=\\\"urn:de:qucosa:dc\\\" xmlns:oai_dc=\\\"http://www.openarchives.org/OAI/2.0/oai_dc/\\\" xmlns:slub=\\\"http://slub-dresden.de/\\\" xmlns:xs=\\\"http://www.w3.org/2001/XMLSchema\\\" xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\"></oai_dc:dc>\"}, " +
             "{\"recordid\" : \"qucosa:32394\", \"formatid\" : 22, \"lastmoddate\" : 1513255949071, \"xmldata\" : \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-16\\\"?>\\n<xMetaDiss:xMetaDiss xmlns:cc=\\\"http://www.d-nb.de/standards/cc/\\\" xmlns:dc=\\\"http://purl.org/dc/elements/1.1/\\\" xmlns:dcterms=\\\"http://purl.org/dc/terms/\\\" xmlns:ddb=\\\"http://www.d-nb.de/standards/ddb/\\\" xmlns:dini=\\\"http://www.d-nb.de/standards/xmetadissplus/type/\\\" xmlns:mets=\\\"http://www.loc.gov/METS/\\\" xmlns:mods=\\\"http://www.loc.gov/mods/v3\\\" xmlns:myfunc=\\\"urn:de:qucosa:xmetadissplus\\\" xmlns:pc=\\\"http://www.d-nb.de/standards/pc/\\\" xmlns:slub=\\\"http://slub-dresden.de/\\\" xmlns:subject=\\\"http://www.d.nb.de/standards/subject/\\\" xmlns:thesis=\\\"http://www.ndltd.org/standards/metadata/etdms/1.0/\\\" xmlns:urn=\\\"http://www.d-nb.de/standards/urn/\\\" xmlns:xMetaDiss=\\\"http://www.d-nb.de/standards/xmetadissplus/\\\" xmlns:xs=\\\"http://www.w3.org/2001/XMLSchema\\\" xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\"></xMetaDiss:xMetaDiss>\"}, " +
             "{\"recordid\" : \"qucosa:32394\", \"formatid\" : 1, \"lastmoddate\" : 1513255949071, \"xmldata\" : \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-16\\\"?><epicur xsi:schemaLocation=\\\"urn:nbn:de:1111-2004033116 http://www.persistent-identifier.de/xepicur/version1.0/xepicur.xsd\\\"><administrative_data><delivery><update_status type=\\\"urn_new\\\"/></delivery></administrative_data><record><identifier scheme=\\\"urn:nbn:de\\\">urn:nbn:de:bsz:14-qucosa-32394</identifier><resource><identifier scheme=\\\"url\\\" type=\\\"frontpage\\\" role=\\\"primary\\\" origin=\\\"original\\\">http://test.tud.qucosa.de/id/qucosa%3A32394</identifier><format scheme=\\\"imt\\\">text/html</format></resource></record></epicur>\"}]";

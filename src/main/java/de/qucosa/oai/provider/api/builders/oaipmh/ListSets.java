@@ -16,6 +16,7 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.model.Set;
 import org.w3c.dom.Document;
@@ -27,7 +28,7 @@ public class ListSets extends OaiPmhDataBuilderAbstract implements OaiPmhDataBui
     private Collection<Set> sets;
 
     @Override
-    public Document oaiXmlData() {
+    public Document oaiXmlData() throws XmlDomParserException {
 
         if (sets == null || sets.size() == 0) {
             throw new RuntimeException("Not exists sets objects.");
@@ -43,7 +44,7 @@ public class ListSets extends OaiPmhDataBuilderAbstract implements OaiPmhDataBui
         this.sets = sets;
     }
 
-    private void buildSets() {
+    private void buildSets() throws XmlDomParserException {
 
         for (Set set : sets) {
             Document setTpl = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/set.xml"), true);

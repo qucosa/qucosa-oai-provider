@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Configuration
 public class XmlNamespacesConfig {
     private List<NamespaceMapper> mapper;
 

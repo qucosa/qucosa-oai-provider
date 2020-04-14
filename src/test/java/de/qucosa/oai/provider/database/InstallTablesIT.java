@@ -52,13 +52,13 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
-        classes = {QucosaOaiProviderApplication.class, InstallTablesTest.TestConfig.class},
+        classes = {QucosaOaiProviderApplication.class, InstallTablesIT.TestConfig.class},
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(initializers = {InstallTablesTest.Initializer.class})
+@ContextConfiguration(initializers = {InstallTablesIT.Initializer.class})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-public class InstallTablesTest {
+public class InstallTablesIT {
     private static Connection connection;
 
     @Container

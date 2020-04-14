@@ -56,13 +56,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
-        classes = {QucosaOaiProviderApplication.class, OaiPmhControllerListSetsTest.TestConfig.class},
+        classes = {QucosaOaiProviderApplication.class, OaiPmhControllerListSetsIT.TestConfig.class},
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(initializers = {OaiPmhControllerListSetsTest.Initializer.class})
+@ContextConfiguration(initializers = {OaiPmhControllerListSetsIT.Initializer.class})
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-public class OaiPmhControllerListSetsTest {
+public class OaiPmhControllerListSetsIT {
     @Autowired
     private MockMvc mvc;
 

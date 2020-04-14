@@ -16,6 +16,7 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.persistence.model.Format;
 import org.w3c.dom.Document;
@@ -27,7 +28,7 @@ public class ListMetadataFormats extends OaiPmhDataBuilderAbstract implements Oa
     private Collection<Format> formats;
 
     @Override
-    public Document oaiXmlData() {
+    public Document oaiXmlData() throws XmlDomParserException {
 
         if (formats == null || formats.size() == 0) {
             throw new RuntimeException("Not exists formats objects.");
@@ -42,7 +43,7 @@ public class ListMetadataFormats extends OaiPmhDataBuilderAbstract implements Oa
         this.formats = formats;
     }
 
-    private void buildFormatsList() {
+    private void buildFormatsList() throws XmlDomParserException {
 
         for (Format format : formats) {
             Document formatTpl = DocumentXmlUtils.document(getClass().getResourceAsStream("/templates/format.xml"), true);

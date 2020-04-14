@@ -17,6 +17,7 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
+import de.qucosa.oai.provider.persistence.model.OaiRecord;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.services.RecordService;
 import org.jetbrains.annotations.NotNull;
@@ -45,7 +46,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import testdata.TestData;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -65,13 +65,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties= {"spring.main.allow-bean-definition-overriding=true"},
-        classes = {QucosaOaiProviderApplication.class, RecordControllerTest.TestConfig.class},
+        classes = {QucosaOaiProviderApplication.class, RecordControllerIT.TestConfig.class},
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-@ContextConfiguration(initializers = {RecordControllerTest.Initializer.class})
+@ContextConfiguration(initializers = {RecordControllerIT.Initializer.class})
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers
-public class RecordControllerTest {
+public class RecordControllerIT {
     @Autowired
     private RecordService recordService;
 
@@ -250,8 +250,19 @@ public class RecordControllerTest {
     }
 
     @Test
-    @DisplayName("Delete record from table.")
+    @DisplayName("Save oai record input from camel service.")
     @Order(9)
+    public void saveRecordInput() throws Exception {
+        List<OaiRecord> oaiRecords = om.readValue(getClass().getResourceAsStream("/oai_records.json"), om.getTypeFactory().constructCollectionType(List.class, OaiRecord.class));
+        mvc.perform(
+                post("/records")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(oaiRecords)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Delete record from table.")
+    @Order(10)
     public void isDeleted() throws Exception {
         MvcResult mvcResult = mvc.perform(
                 delete("/records/qucosa:32394")
@@ -264,7 +275,7 @@ public class RecordControllerTest {
 
     @Test
     @DisplayName("Delete record is not successful because uid parameter is does not exists in racords table.")
-    @Order(10)
+    @Order(11)
     public void isNotDeleted() throws Exception {
         mvc.perform(
                 delete("/records/qucosa:00000")
@@ -273,15 +284,5 @@ public class RecordControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_FOUND.name())))
                 .andExpect(jsonPath("$.errorMsg", is("Cannot found record.")));
-    }
-
-    @Test
-    @DisplayName("Save record trabsport input from camel service.")
-    @Order(11)
-    public void saveRecordInput() throws Exception {
-        mvc.perform(
-                post("/records")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE).content(TestData.RECORDS_INPUT))
-                .andExpect(status().isOk());
     }
 }

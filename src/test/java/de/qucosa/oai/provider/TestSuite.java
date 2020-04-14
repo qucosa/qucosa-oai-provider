@@ -16,16 +16,16 @@
 
 package de.qucosa.oai.provider;
 
-import de.qucosa.oai.provider.controller.FormatControllerTest;
-import de.qucosa.oai.provider.controller.OaiPmhControllerGetRecordTest;
-import de.qucosa.oai.provider.controller.OaiPmhControllerIdentifyTest;
-import de.qucosa.oai.provider.controller.OaiPmhControllerListIdentifiersTest;
-import de.qucosa.oai.provider.controller.OaiPmhControllerListMetadataFormatsTest;
-import de.qucosa.oai.provider.controller.OaiPmhControllerListRecordsTest;
-import de.qucosa.oai.provider.controller.OaiPmhControllerListSetsTest;
-import de.qucosa.oai.provider.controller.RecordControllerTest;
-import de.qucosa.oai.provider.controller.SetControllerTest;
-import de.qucosa.oai.provider.database.InstallTablesTest;
+import de.qucosa.oai.provider.controller.FormatControllerIT;
+import de.qucosa.oai.provider.controller.OaiPmhControllerGetRecordIT;
+import de.qucosa.oai.provider.controller.OaiPmhControllerIdentifyIT;
+import de.qucosa.oai.provider.controller.OaiPmhControllerListIdentifiersIT;
+import de.qucosa.oai.provider.controller.OaiPmhControllerListMetadataFormatsIT;
+import de.qucosa.oai.provider.controller.OaiPmhControllerListRecordsIT;
+import de.qucosa.oai.provider.controller.OaiPmhControllerListSetsIT;
+import de.qucosa.oai.provider.controller.RecordControllerIT;
+import de.qucosa.oai.provider.controller.SetControllerIT;
+import de.qucosa.oai.provider.database.InstallTablesIT;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.platform.suite.api.SelectClasses;
@@ -34,16 +34,16 @@ import org.junit.runner.RunWith;
 @SuppressWarnings("JUnit5Platform")
 @RunWith(JUnitPlatform.class)
 @DisplayName("Embedded postgres and spring controller test suite.")
-@SelectClasses({InstallTablesTest.class,
-        FormatControllerTest.class,
-        SetControllerTest.class,
-        RecordControllerTest.class,
-        OaiPmhControllerListIdentifiersTest.class,
-        OaiPmhControllerListRecordsTest.class,
-        OaiPmhControllerGetRecordTest.class,
-        OaiPmhControllerListSetsTest.class,
-        OaiPmhControllerListMetadataFormatsTest.class,
-        OaiPmhControllerIdentifyTest.class})
+@SelectClasses({InstallTablesIT.class,
+        FormatControllerIT.class,
+        SetControllerIT.class,
+        RecordControllerIT.class,
+        OaiPmhControllerListIdentifiersIT.class,
+        OaiPmhControllerListRecordsIT.class,
+        OaiPmhControllerGetRecordIT.class,
+        OaiPmhControllerListSetsIT.class,
+        OaiPmhControllerListMetadataFormatsIT.class,
+        OaiPmhControllerIdentifyIT.class})
 public class TestSuite {
 
 }

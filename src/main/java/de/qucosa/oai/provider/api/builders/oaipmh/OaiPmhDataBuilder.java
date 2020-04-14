@@ -16,6 +16,7 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import org.w3c.dom.Document;
 
 public interface OaiPmhDataBuilder {
@@ -25,5 +26,5 @@ public interface OaiPmhDataBuilder {
 
     void setVerb(String verb);
 
-    Document oaiXmlData();
+    Document oaiXmlData() throws XmlDomParserException;
 }

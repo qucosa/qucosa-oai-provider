@@ -16,6 +16,7 @@
 
 package de.qucosa.oai.provider.api.builders.oaipmh;
 
+import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
@@ -70,7 +71,7 @@ public class OaiPmhDataBuilderFactory {
         this.oaiPmhTemplate = oaiPmhTemplate;
     }
 
-    public Document oaiPmhData() throws IllegalAccessException {
+    public Document oaiPmhData() throws IllegalAccessException, XmlDomParserException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
         Node responseDate = oaiPmhTemplate.getElementsByTagName("responseDate").item(0);
         responseDate.setTextContent(sdf.format(new Date()));

@@ -25,7 +25,10 @@ import java.util.List;
 @SuppressWarnings("unused")
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RecordTransport implements Serializable {
+public class OaiRecord implements Serializable {
+    @JsonProperty("validateXmlSchema")
+    private boolean validateXmlSchema = true;
+
     @JsonProperty("record")
     private Record record;
 
@@ -36,6 +39,14 @@ public class RecordTransport implements Serializable {
     private Dissemination dissemination;
     @JsonProperty("sets")
     private List<Set> sets;
+
+    public boolean isValidateXmlSchema() {
+        return validateXmlSchema;
+    }
+
+    public void setValidateXmlSchema(boolean validateXmlSchema) {
+        this.validateXmlSchema = validateXmlSchema;
+    }
 
     public Record getRecord() {
         return record;
