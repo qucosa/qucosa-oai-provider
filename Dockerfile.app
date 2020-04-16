@@ -9,6 +9,12 @@ FROM openjdk:8-jdk-alpine
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait /wait
 RUN chmod +x /wait
 WORKDIR /app
+COPY ./app-run.sh ./app-run.sh
+RUN chmod -x ./app-run.sh
 COPY --from=builder ./app/target/qucosa-oai-provider-0.0.1-SNAPSHOT.jar .
-CMD /wait && java -jar qucosa-oai-provider-0.0.1-SNAPSHOT.jar --spring.config.location=classpath:application-docker.properties
+#CMD /wait && java -jar qucosa-oai-provider-0.0.1-SNAPSHOT.jar --spring.config.location=classpath:application-docker.properties
+
+CMD /wait && sh ./app-run.sh
+#ENTRYPOINT ["sh", "./app-run.sh"]
+
 EXPOSE 8080
