@@ -44,7 +44,6 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +51,7 @@ import java.util.List;
 public class XmlSchemaValidator {
     private Document xmlDoc;
 
-    private XPath xPath;
+    private final XPath xPath;
 
     private Node xmlNode;
 
@@ -64,7 +63,7 @@ public class XmlSchemaValidator {
         xPath = DocumentXmlUtils.xpath(xmlNamespacesConfig.getNamespaces());
     }
 
-    public void setXmlDoc(String data) throws UnsupportedEncodingException, XmlDomParserException {
+    public void setXmlDoc(String data) throws XmlDomParserException {
         Document document = DocumentXmlUtils.document(
                 new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8)), true);
         setXmlDoc(document);
@@ -83,7 +82,7 @@ public class XmlSchemaValidator {
         this.xmlNode = xmlNode;
     }
 
-    public boolean isValid() throws XPathExpressionException, IOException {
+    public boolean isValid() throws XPathExpressionException {
         checkSchema();
         return isValid;
     }
@@ -92,7 +91,7 @@ public class XmlSchemaValidator {
         return xmlNode;
     }
 
-    private void checkSchema() throws XPathExpressionException, IOException {
+    private void checkSchema() throws XPathExpressionException {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         schemaFactory.setResourceResolver(new RedirectResolver());
         String schemaUrl= xsdSchema();

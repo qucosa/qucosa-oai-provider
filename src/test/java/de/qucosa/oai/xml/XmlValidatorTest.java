@@ -36,7 +36,7 @@ import java.nio.charset.StandardCharsets;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class XmlValidatorTest {
-    private String testXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+    private final String testXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
             "<test><hello></hello><welt /><msg></test>";
 
     private XmlSchemaValidator schemaValidator;
