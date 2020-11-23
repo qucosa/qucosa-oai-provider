@@ -28,11 +28,8 @@ public class Record implements Serializable, HasIdentifier {
     @JsonProperty("recordId")
     private Long recordId;
 
-    @JsonProperty("pid")
-    private String pid;
-
-    @JsonProperty("uid")
-    private String uid;
+    @JsonProperty("oaiID")
+    private String oaiID;
 
     @JsonProperty("deleted")
     private boolean deleted;
@@ -54,13 +51,13 @@ public class Record implements Serializable, HasIdentifier {
         this.recordId = recordId;
     }
 
-    public String getPid() { return pid; }
+    public String getOaiID() {
+        return oaiID;
+    }
 
-    public void setPid(String pid) { this.pid = pid; }
-
-    public String getUid() { return uid; }
-
-    public void setUid(String uid) { this.uid = uid; }
+    public void setOaiID(String oaiID) {
+        this.oaiID = oaiID;
+    }
 
     public boolean isDeleted() { return deleted; }
 
