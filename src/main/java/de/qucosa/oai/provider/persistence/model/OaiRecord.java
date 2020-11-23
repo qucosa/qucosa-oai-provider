@@ -37,6 +37,7 @@ public class OaiRecord implements Serializable {
 
     @JsonProperty("dissemination")
     private Dissemination dissemination;
+
     @JsonProperty("sets")
     private List<Set> sets;
 
