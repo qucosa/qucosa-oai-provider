@@ -62,8 +62,6 @@ public class RecordDao<T extends Record> implements Dao<Record> {
         try {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-            ps.setString(1, object.getPid());
-            ps.setString(2, object.getUid());
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
@@ -98,9 +96,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, object.getPid());
             ps.setBoolean(2, object.isDeleted());
-            ps.setString(3, object.getUid());
             int updatedRows = ps.executeUpdate();
 
             if (updatedRows == 0) {
@@ -134,8 +130,6 @@ public class RecordDao<T extends Record> implements Dao<Record> {
                 do {
                     Record record = new Record();
                     record.setIdentifier(resultSet.getLong("id"));
-                    record.setPid(resultSet.getString("pid"));
-                    record.setUid(resultSet.getString("uid"));
                     record.setDeleted(resultSet.getBoolean("deleted"));
                     records.add(record);
                 } while (resultSet.next());
@@ -169,8 +163,6 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
             while (resultSet.next()) {
                 record.setIdentifier(resultSet.getLong("id"));
-                record.setPid(resultSet.getString("pid"));
-                record.setUid(resultSet.getString("uid"));
                 record.setDeleted(resultSet.getBoolean("deleted"));
                 records.add(record);
             }
@@ -232,8 +224,6 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
             while (resultSet.next()) {
                 Record record = new Record();
-                record.setUid(resultSet.getString("uid"));
-                record.setPid(resultSet.getString("pid"));
                 record.setRecordId(resultSet.getLong("id"));
                 record.setDeleted(resultSet.getBoolean("deleted"));
                 records.add(record);
