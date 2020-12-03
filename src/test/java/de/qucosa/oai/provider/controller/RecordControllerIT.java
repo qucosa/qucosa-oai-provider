@@ -86,7 +86,7 @@ public class RecordControllerIT {
             .withDatabaseName("oaiprovider")
             .withUsername("postgres")
             .withPassword("postgres")
-            .withInitScript("db/init-tables.sql")
+            .withInitScript("db/test-install.sql")
             .withStartupTimeoutSeconds(600);
 
     public static class Initializer
@@ -183,7 +183,7 @@ public class RecordControllerIT {
         Record record = om.readValue(response, Record.class);
 
         assertThat(record).isNotNull();
-        assertThat(record.getUid()).isEqualTo("qucosa:32394");
+        assertThat(record.getOaiID()).isEqualTo("qucosa:32394");
     }
 
     @Test
@@ -224,7 +224,7 @@ public class RecordControllerIT {
     @Order(7)
     public void updateFailed_1() throws Exception {
         Record record = new Record();
-        record.setUid("qucosa:00000");
+        record.setOaiID("qucosa:00000");
 
         mvc.perform(
                 put("/records/qucosa:00000")
@@ -239,7 +239,7 @@ public class RecordControllerIT {
     @Order(8)
     public void updateFailed_2() throws Exception {
         Record record = new Record();
-        record.setUid("qucosa:00000");
+        record.setOaiID("qucosa:00000");
 
         mvc.perform(
                 put("/records/qucosa:00001")
@@ -253,10 +253,11 @@ public class RecordControllerIT {
     @DisplayName("Save oai record input from camel service.")
     @Order(9)
     public void saveRecordInput() throws Exception {
-        List<OaiRecord> oaiRecords = om.readValue(getClass().getResourceAsStream("/oai_records.json"), om.getTypeFactory().constructCollectionType(List.class, OaiRecord.class));
+        OaiRecord oaiRecord = om.readValue(getClass()
+                .getResourceAsStream("/oai-record.json"), OaiRecord.class);
         mvc.perform(
                 post("/records")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(oaiRecords)))
+                        .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(oaiRecord)))
                 .andExpect(status().isOk());
     }
 
