@@ -38,8 +38,8 @@ public class OaiPmhListByToken implements Serializable, HasIdentifier {
     @JsonProperty("expirationDate")
     private Timestamp expirationDate;
 
-    @JsonProperty("uid")
-    private String uid;
+    @JsonProperty("oaiid")
+    private String oaiid;
 
     @JsonProperty("recordId")
     private Long recordId;
@@ -78,12 +78,12 @@ public class OaiPmhListByToken implements Serializable, HasIdentifier {
         this.expirationDate = expirationDate;
     }
 
-    public String getUid() {
-        return uid;
+    public String getOaiid() {
+        return oaiid;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setOaiid(String oaiid) {
+        this.oaiid = oaiid;
     }
 
     public Long getRecordId() {
