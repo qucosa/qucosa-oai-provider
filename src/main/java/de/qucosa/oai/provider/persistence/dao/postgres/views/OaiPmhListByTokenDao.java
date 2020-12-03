@@ -116,7 +116,7 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
             while (resultSet.next()) {
                 OaiPmhListByToken oaiPmhLists = new OaiPmhListByToken();
                 oaiPmhLists.setRstId(resultSet.getString("rst_id"));
-                oaiPmhLists.setUid(resultSet.getString("uid"));
+                oaiPmhLists.setOaiid(resultSet.getString("oaiid"));
                 oaiPmhLists.setRecordId(resultSet.getLong("record_id"));
                 oaiPmhLists.setLastModDate(resultSet.getTimestamp("lastmoddate"));
                 oaiPmhLists.setExpirationDate(resultSet.getTimestamp("expiration_date"));
