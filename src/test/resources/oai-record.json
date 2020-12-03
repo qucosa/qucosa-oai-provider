@@ -1,5 +1,5 @@
 {
-  "validateXmlSchema":true,
+  "validateXmlSchema":false,
   "record":
     {
       "oaiID":"oai:qucosa:12164",
