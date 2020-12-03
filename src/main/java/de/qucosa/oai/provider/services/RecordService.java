@@ -54,8 +54,8 @@ public class RecordService {
         dao.delete(record.getOaiID());
     }
 
-    public Collection<Record> findRecord(String column, String uid) throws NotFound {
-        return dao.findByPropertyAndValue(column, uid);
+    public Collection<Record> findRecord(String column, String oaiid) throws NotFound {
+        return dao.findByPropertyAndValue(column, oaiid);
     }
 
     public Collection<Record> findAll() throws NotFound {
@@ -66,7 +66,7 @@ public class RecordService {
         return dao.findRowsByMultipleValues(clause, values);
     }
 
-    public boolean checkIfOaiDcDisseminationExists(List<OaiRecord> input) {
+    /*public boolean checkIfOaiDcDisseminationExists(OaiRecord input) {
         boolean exists = false;
 
         for (OaiRecord rt : input) {
@@ -79,5 +79,5 @@ public class RecordService {
         }
 
         return exists;
-    }
+    }*/
 }
