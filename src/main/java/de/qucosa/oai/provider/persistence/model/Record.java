@@ -31,6 +31,9 @@ public class Record implements Serializable, HasIdentifier {
     @JsonProperty("oaiID")
     private String oaiID;
 
+    @JsonProperty("pid")
+    private String pid;
+
     @JsonProperty("deleted")
     private boolean deleted;
 
@@ -57,6 +60,14 @@ public class Record implements Serializable, HasIdentifier {
 
     public void setOaiID(String oaiID) {
         this.oaiID = oaiID;
+    }
+
+    public String getPid() {
+        return pid;
+    }
+
+    public void setPid(String pid) {
+        this.pid = pid;
     }
 
     public boolean isDeleted() { return deleted; }
