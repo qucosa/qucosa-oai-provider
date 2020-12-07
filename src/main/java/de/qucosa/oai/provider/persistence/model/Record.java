@@ -37,6 +37,9 @@ public class Record implements Serializable, HasIdentifier {
     @JsonProperty("deleted")
     private boolean deleted;
 
+    @JsonProperty("visible")
+    private boolean visible;
+
     @Override
     public void setIdentifier(Object identifier) {
         setRecordId(Long.valueOf(identifier.toString()));
@@ -73,4 +76,12 @@ public class Record implements Serializable, HasIdentifier {
     public boolean isDeleted() { return deleted; }
 
     public void setDeleted(boolean deleted) { this.deleted = deleted; }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 }
