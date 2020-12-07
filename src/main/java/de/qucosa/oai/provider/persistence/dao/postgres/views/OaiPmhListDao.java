@@ -98,7 +98,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
         }
 
         Collection<OaiPmhList> oaiPmhList = new ArrayList<>();
-        String sql = "SELECT * FROM oai_pmh_list WHERE " + property + " = ?";
+        String sql = "SELECT * FROM oai_pmh_list WHERE " + property + " = ? AND visible = true";
 
         try {
             PreparedStatement pst = connection.prepareStatement(sql);
@@ -130,7 +130,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     @Override
     public Collection<OaiPmhList> findRowsByMultipleValues(String clause, String... values) throws NotFound {
         Collection<OaiPmhList> oaiPmhList = new ArrayList<>();
-        String sql = "SELECT * FROM oai_pmh_list WHERE format_id = ?";
+        String sql = "SELECT * FROM oai_pmh_list WHERE format_id = ? AND visible = true";
 
         if (clause.isEmpty()) {
             sql += " AND lastmoddate BETWEEN ? AND (?::date + '24 hours'::interval)";
