@@ -55,7 +55,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
     @Override
     public Record saveAndSetIdentifier(Record object) throws SaveFailed {
-        String sql = "INSERT INTO records (id, oaiid, pid) VALUES (nextval('oaiprovider'), ?, ?)";
+        String sql = "INSERT INTO records (id, oaiid, pid, visible) VALUES (nextval('oaiprovider'), ?, ?, ?)";
         sql+="ON CONFLICT (oaiid) ";
         sql+="DO NOTHING";
 
@@ -63,6 +63,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, object.getOaiID());
             ps.setString(2, object.getPid());
+            ps.setBoolean(3, object.isVisible());
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
