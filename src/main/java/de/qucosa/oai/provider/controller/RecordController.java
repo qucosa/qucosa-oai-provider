@@ -138,7 +138,7 @@ public class RecordController {
                         HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).response();
             }
 
-            Record record = record(oaiRecord);
+            Record record = record(oaiRecord, format);
 
             if (record == null) {
                 return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
@@ -311,7 +311,7 @@ public class RecordController {
         return null;
     }
 
-    private Record record(OaiRecord rt) {
+    private Record record(OaiRecord rt, Format format) {
         Collection<Record> records;
         Record record = null;
 
@@ -331,6 +331,10 @@ public class RecordController {
 
                     if (matcher.find()) {
                         saveRec.setPid(matcher.group(0));
+                    }
+
+                    if (format.getMdprefix().equals("oai_dc")) {
+                        saveRec.setVisible(true);
                     }
 
                     record = recordService.saveRecord(saveRec);
