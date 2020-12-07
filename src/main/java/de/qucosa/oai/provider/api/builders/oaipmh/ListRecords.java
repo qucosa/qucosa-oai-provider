@@ -90,7 +90,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
                 metadataInsert(new ByteArrayInputStream(oaiPmhList.getXmldata().getBytes(StandardCharsets.UTF_8)), metadata);
             }
 
-            buildHeader(oaiPmhList.getUid(), oaiPmhList.getLastModDate(), oaiPmhList.isRecordStatus(),
+            buildHeader(oaiPmhList.getOaiid(), oaiPmhList.getLastModDate(), oaiPmhList.isRecordStatus(),
                     oaiPmhList.getSets(), record, metadata);
             importRecordTpl(verbNode);
         }

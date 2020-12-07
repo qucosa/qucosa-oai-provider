@@ -37,8 +37,8 @@ public class OaiPmhList implements Serializable, HasIdentifier {
     private Long recordId;
 
     // column uid
-    @JsonProperty("uid")
-    private String uid;
+    @JsonProperty("oaiid")
+    private String oaiid;
 
     // column pid
     @JsonProperty("pid")
@@ -79,12 +79,12 @@ public class OaiPmhList implements Serializable, HasIdentifier {
         this.recordId = recordId;
     }
 
-    public String getUid() {
-        return uid;
+    public String getOaiid() {
+        return oaiid;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setOaiid(String oaiid) {
+        this.oaiid = oaiid;
     }
 
     public String getPid() {
