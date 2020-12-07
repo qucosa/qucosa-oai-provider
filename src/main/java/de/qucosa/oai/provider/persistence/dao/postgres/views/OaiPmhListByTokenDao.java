@@ -104,7 +104,7 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
         }
 
         clause = clause.replace("%s", "?");
-        String sql = "SELECT * FROM " + TABLE_NAME + " WHERE " + clause;
+        String sql = "SELECT * FROM " + TABLE_NAME + " WHERE " + clause + " AND visible = true";
         Collection<OaiPmhListByToken> pmhLists = new ArrayList<>();
 
         try {
