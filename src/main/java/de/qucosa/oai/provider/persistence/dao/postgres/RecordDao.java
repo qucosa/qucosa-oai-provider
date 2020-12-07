@@ -121,7 +121,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     @Override
     public Collection<Record> findAll() throws NotFound {
         Collection<Record> records = new ArrayList<>();
-        String sql = "SELECT * FROM records";
+        String sql = "SELECT * FROM records WHERE visible = true";
 
         try {
             Statement stmt = connection.createStatement();
@@ -155,7 +155,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     public Collection<Record> findByPropertyAndValue(String property, String value) throws NotFound {
         Record record = new Record();
         Collection<Record> records = new ArrayList<>();
-        String sql = "SELECT * FROM records WHERE " + property + " = ?";
+        String sql = "SELECT * FROM records WHERE " + property + " = ? AND visible = true";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
@@ -198,7 +198,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
         String sql = "SELECT rc.id, rc.oaiid, rc.pid, rc.deleted, diss.lastmoddate FROM records rc" +
                 " LEFT JOIN disseminations diss ON diss.id_record = rc.oaiid" +
-                " WHERE diss.id_format = ? AND lastmoddate";
+                " WHERE diss.id_format = ? AND lastmoddate AND visible = true";
 
         if (clause.isEmpty()) {
             sql += " BETWEEN ? AND (?::date + '24 hours'::interval)";
