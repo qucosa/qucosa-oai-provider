@@ -53,6 +53,7 @@ CREATE TABLE public.records
   oaiid character varying(100) NOT NULL,
   pid character varying(100) NOT NULL,
   deleted boolean NOT NULL DEFAULT false,
+  visible boolean NOT NULL DEFAULT false,
   CONSTRAINT record_pkey PRIMARY KEY (id),
   CONSTRAINT record_unique UNIQUE (oaiid)
 )
@@ -160,7 +161,8 @@ CREATE OR REPLACE VIEW public.oai_pmh_list AS
           WHERE str.id_record = rc.id) AS set
    FROM records rc
      LEFT JOIN disseminations diss ON rc.oaiid::text = diss.id_record::text
-     LEFT JOIN formats f ON diss.id_format = f.id;
+     LEFT JOIN formats f ON diss.id_format = f.id
+   WHERE rc.visible = true;
 
 ALTER TABLE public.oai_pmh_list
   OWNER TO postgres;
@@ -185,7 +187,8 @@ CREATE OR REPLACE VIEW public.oai_pmh_list_by_token AS
      LEFT JOIN resumption_tokens rt ON rti.rst_id::text = rt.token_id::text
      LEFT JOIN records rc ON rti.record_id = rc.id
      LEFT JOIN disseminations diss ON rc.oaiid::text = diss.id_record::text
-     LEFT JOIN formats fm ON fm.id = diss.id_format;
+     LEFT JOIN formats fm ON fm.id = diss.id_format
+   WHERE rc.visible = true;
 
 ALTER TABLE public.oai_pmh_list_by_token
   OWNER TO postgres;
