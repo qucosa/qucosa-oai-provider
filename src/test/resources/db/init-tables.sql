@@ -5188,19 +5188,19 @@ SELECT pg_catalog.setval('oaiprovider', 211, true);
 --
 
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (28, 'qucosa:24994', 'qucosa:24994', false, false);
-INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (31, 'qucosa:30859', 'qucosa:30859', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (31, 'qucosa:30859', 'qucosa:30859', false, true);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (36, 'qucosa:30725', 'qucosa:30725', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (40, 'qucosa:30751', 'qucosa:30751', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (43, 'qucosa:30738', 'qucosa:30738', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (47, 'qucosa:31145', 'qucosa:31145', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (51, 'qucosa:31834', 'qucosa:31834', false, false);
-INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (55, 'qucosa:30805', 'qucosa:30805', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (55, 'qucosa:30805', 'qucosa:30805', false, true);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (59, 'qucosa:31127', 'qucosa:31127', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (62, 'qucosa:31901', 'qucosa:31901', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (65, 'qucosa:30803', 'qucosa:30803', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (68, 'qucosa:31971', 'qucosa:31971', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (71, 'qucosa:31141', 'qucosa:31141', false, false);
-INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (74, 'qucosa:30089', 'qucosa:30089', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (74, 'qucosa:30089', 'qucosa:30089', false, true);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (78, 'qucosa:30413', 'qucosa:30413', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (81, 'qucosa:31974', 'qucosa:31974', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (84, 'qucosa:31905', 'qucosa:31905', false, false);
@@ -5208,7 +5208,7 @@ INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (88, 'qucosa:70491
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (91, 'qucosa:70493', 'qucosa:70493', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (94, 'qucosa:70494', 'qucosa:70494', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (97, 'qucosa:70495', 'qucosa:70495', false, false);
-INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (101, 'qucosa:70496', 'qucosa:70496', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (101, 'qucosa:70496', 'qucosa:70496', false, true);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (104, 'qucosa:70481', 'qucosa:70481', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (109, 'qucosa:26121', 'qucosa:26121', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (113, 'qucosa:30686', 'qucosa:30686', false, false);
@@ -5217,7 +5217,7 @@ INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (120, 'qucosa:7048
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (123, 'qucosa:31900', 'qucosa:31900', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (126, 'qucosa:31011', 'qucosa:31011', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (129, 'qucosa:70479', 'qucosa:70479', false, false);
-INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (132, 'qucosa:70480', 'qucosa:70480', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (132, 'qucosa:70480', 'qucosa:70480', false, true);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (135, 'qucosa:70492', 'qucosa:70492', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (138, 'qucosa:7944', 'qucosa:7944', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (142, 'qucosa:3445', 'qucosa:3445', false, false);
@@ -5242,7 +5242,7 @@ INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (200, 'qucosa:7050
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (203, 'qucosa:70489', 'qucosa:70489', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (206, 'qucosa:70508', 'qucosa:70508', false, false);
 INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (209, 'qucosa:70487', 'qucosa:70487', false, false);
-INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (18, 'qucosa:32394', 'qucosa:32394', true, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (18, 'qucosa:32394', 'qucosa:32394', true, true);
 
 
 --
