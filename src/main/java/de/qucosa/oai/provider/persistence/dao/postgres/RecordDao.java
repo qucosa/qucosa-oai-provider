@@ -61,7 +61,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, object.getOaiID());
+            ps.setString(1, object.getOaiid());
             ps.setString(2, object.getPid());
             ps.setBoolean(3, object.isVisible());
             int affectedRows = ps.executeUpdate();
@@ -94,11 +94,12 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
     @Override
     public Record update(Record object) throws UpdateFailed {
-        String sql = "UPDATE records SET oaiid = ?, pid = ?, deleted = ? WHERE oaiid = ?";
+        String sql = "UPDATE records SET deleted = ? WHERE oaiid = ?";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setBoolean(3, object.isDeleted());
+            ps.setBoolean(1, object.isDeleted());
+            ps.setString(2, object.getOaiid());
             int updatedRows = ps.executeUpdate();
 
             if (updatedRows == 0) {
@@ -165,6 +166,9 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
             while (resultSet.next()) {
                 record.setIdentifier(resultSet.getLong("id"));
+                record.setPid(resultSet.getString("pid"));
+                record.setOaiid(resultSet.getString("oaiid"));
+                record.setVisible(resultSet.getBoolean("visible"));
                 record.setDeleted(resultSet.getBoolean("deleted"));
                 records.add(record);
             }
@@ -196,17 +200,17 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
         Collection<Record> records = new ArrayList<>();
 
-        String sql = "SELECT rc.id, rc.oaiid, rc.pid, rc.deleted, diss.lastmoddate FROM records rc" +
+        String sql = "SELECT rc.id, rc.oaiid, rc.pid, rc.deleted, rc.visible, diss.lastmoddate FROM records rc" +
                 " LEFT JOIN disseminations diss ON diss.id_record = rc.oaiid" +
-                " WHERE diss.id_format = ? AND lastmoddate AND visible = true";
+                " WHERE diss.id_format = ? AND rc.visible = true";
 
         if (clause.isEmpty()) {
-            sql += " BETWEEN ? AND (?::date + '24 hours'::interval)";
+            sql += " AND lastmoddate BETWEEN ? AND (?::date + '24 hours'::interval)";
         } else {
-            sql += " " + clause;
+            sql += " AND " + clause;
         }
 
-        sql += " ORDER BY lastmoddate ASC";
+        sql += " ORDER BY diss.lastmoddate ASC";
 
         try {
             PreparedStatement pst = connection.prepareStatement(sql);
