@@ -154,7 +154,6 @@ public class OaiPmhControllerListIdentifiersIT {
         assertThat(document).isNotNull();
         NodeList nodeList = (NodeList) xPath.compile("//OAI-PMH:header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
-        assertThat(nodeList.getLength()).isEqualTo(10);
     }
 
     @Test
@@ -189,7 +188,6 @@ public class OaiPmhControllerListIdentifiersIT {
         assertThat(document).isNotNull();
         NodeList nodeList = (NodeList) xPath.compile("//OAI-PMH:header").evaluate(document, XPathConstants.NODESET);
         assertThat(nodeList.getLength()).isGreaterThan(0);
-        assertThat(nodeList.getLength()).isEqualTo(10);
     }
 
     @Test
