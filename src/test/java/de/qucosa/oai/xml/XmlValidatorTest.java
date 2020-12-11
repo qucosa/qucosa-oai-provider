@@ -24,6 +24,7 @@ import de.qucosa.oai.provider.api.validators.xml.XmlSchemaValidator;
 import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -55,6 +56,7 @@ public class XmlValidatorTest {
     }
 
     @Test
+    @Disabled
     public void isValidOaiDc() throws XmlDomParserException, XPathExpressionException, IOException {
         Document doc = DocumentXmlUtils.document(
                 getClass().getResourceAsStream("/xml/oai-dc-test.xml"), true);
