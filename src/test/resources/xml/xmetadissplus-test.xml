@@ -1,16 +1,14 @@
 <xMetaDiss:xMetaDiss xmlns:cc="http://www.d-nb.de/standards/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/"
                      xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ddb="http://www.d-nb.de/standards/ddb/"
-                     xmlns:dini="http://www.d-nb.de/standards/xmetadissplus/type/" xmlns:mets="http://www.loc.gov/METS/"
-                     xmlns:mods="http://www.loc.gov/mods/v3" xmlns:myfunc="urn:de:qucosa:xmetadissplus"
-                     xmlns:pc="http://www.d-nb.de/standards/pc/" xmlns:slub="http://slub-dresden.de/"
+                     xmlns:dini="http://www.d-nb.de/standards/xmetadissplus/type/"
+                     xmlns:pc="http://www.d-nb.de/standards/pc/"
                      xmlns:subject="http://www.d.nb.de/standards/subject/"
                      xmlns:thesis="http://www.ndltd.org/standards/metadata/etdms/1.0/"
                      xmlns:urn="http://www.d-nb.de/standards/urn/"
                      xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/"
-                     xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                     xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd
-                            http://www.d-nb.de/standards/xmetadissplus/ http://files.dnb.de/standards/xmetadissplus/xmetadissplus.xsd
-                            http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods.xsd
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="http://www.d-nb.de/standards/xmetadissplus/ http://files.dnb.de/standards/xmetadissplus/xmetadissplus.xsd
+
                             http://purl.org/dc/elements/1.1/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dc.xsd
                             http://www.d-nb.de/standards/pc/ http://files.dnb.de/standards/xmetadiss/pc.xsd
                             http://www.d-nb.de/standards/ddb/ http://files.dnb.de/standards/xmetadiss/ddb.xsd
@@ -18,7 +16,7 @@
                             http://www.d.nb.de/standards/subject/ http://files.dnb.de/standards/xmetadiss/subject.xsd
                             http://www.d-nb.de/standards/cc/ http://files.dnb.de/standards/xmetadiss/cc.xsd
                             http://www.ndltd.org/standards/metadata/etdms/1.0/ http://files.dnb.de/standards/xmetadiss/thesis.xsd
-                            http://www.w3.org/2001/XMLSchema https://www.w3.org/2009/XMLSchema/XMLSchema.xsd
+
                             http://www.d-nb.de/standards/xmetadissplus/type/ http://files.dnb.de/standards/xmetadissplus/xmetadissplustype.xsd
                             http://www.d-nb.de/standards/urn/ http://files.dnb.de/standards/xmetadiss/urn.xsd">
     <dc:title xml:lang="eng" xsi:type="ddb:titleISO639-2">Advanced symptoms are associated with myocardial damage in patients with severe aortic stenosis</dc:title>
