@@ -2,7 +2,8 @@
   "validateXmlSchema":false,
   "record":
     {
-      "oaiID":"oai:qucosa:12164",
+      "oaiid":"oai:qucosa:12164",
+      "visible" : true,
       "deleted":false
     },
   "format":
