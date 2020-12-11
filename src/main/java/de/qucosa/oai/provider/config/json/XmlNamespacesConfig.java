@@ -32,7 +32,7 @@ import java.util.Map;
 
 @Configuration
 public class XmlNamespacesConfig {
-    private List<NamespaceMapper> mapper;
+    private final List<NamespaceMapper> mapper;
 
     public XmlNamespacesConfig(String path) throws IOException {
         this(new File(path));

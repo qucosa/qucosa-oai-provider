@@ -34,7 +34,7 @@ import java.util.Collection;
 
 @Repository
 public class FormatDao<T extends Format> implements Dao<Format> {
-    private Connection connection;
+    private final Connection connection;
 
     @Autowired
     public FormatDao(Connection connection) {

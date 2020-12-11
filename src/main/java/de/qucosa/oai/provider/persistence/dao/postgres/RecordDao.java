@@ -37,7 +37,7 @@ import java.util.Collection;
 @Repository
 public class RecordDao<T extends Record> implements Dao<Record> {
 
-    private Connection connection;
+    private final Connection connection;
 
     @Autowired
     public RecordDao(Connection connection) {

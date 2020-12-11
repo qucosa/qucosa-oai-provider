@@ -30,7 +30,7 @@ import java.util.Collection;
 
 @Repository
 public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstToIdentifiers> {
-    private Connection connection;
+    private final Connection connection;
 
     @Autowired
     public RstToIdentifiersDao(Connection connection) {

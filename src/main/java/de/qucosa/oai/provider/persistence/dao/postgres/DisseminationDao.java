@@ -36,7 +36,7 @@ import java.util.Collection;
 @Repository
 public class DisseminationDao<T extends Dissemination> implements Dao<Dissemination> {
 
-    private Connection connection;
+    private final Connection connection;
 
     @Autowired
     public DisseminationDao(Connection connection) {

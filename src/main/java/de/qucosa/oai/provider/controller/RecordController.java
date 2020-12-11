@@ -325,7 +325,7 @@ public class RecordController {
 
                 try {
                     Record saveRec = rt.getRecord();
-                    Pattern pattern = Pattern.compile("qucosa\\:\\d+");
+                    Pattern pattern = Pattern.compile("qucosa:\\d+");
                     Matcher matcher = pattern.matcher(saveRec.getOaiid());
 
                     if (matcher.find()) {
