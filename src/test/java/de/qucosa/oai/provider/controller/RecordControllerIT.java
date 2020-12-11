@@ -86,7 +86,7 @@ public class RecordControllerIT {
             .withDatabaseName("oaiprovider")
             .withUsername("postgres")
             .withPassword("postgres")
-            .withInitScript("db/test-install.sql")
+            .withInitScript("db/init-tables.sql")
             .withStartupTimeoutSeconds(600);
 
     public static class Initializer
@@ -169,7 +169,7 @@ public class RecordControllerIT {
     }
 
     @Test
-    @DisplayName("Find record by uid.")
+    @DisplayName("Find record by oaiid.")
     @Order(4)
     public void find() throws Exception {
         MvcResult mvcResult = mvc.perform(
@@ -183,7 +183,7 @@ public class RecordControllerIT {
         Record record = om.readValue(response, Record.class);
 
         assertThat(record).isNotNull();
-        assertThat(record.getOaiID()).isEqualTo("qucosa:32394");
+        assertThat(record.getOaiid()).isEqualTo("qucosa:32394");
     }
 
     @Test
@@ -202,7 +202,7 @@ public class RecordControllerIT {
     @DisplayName("Update record by deleted property for mark / undo mark as deleted.")
     @Order(6)
     public void update() throws Exception {
-        Record record = recordService.findRecord("uid", "qucosa:32394").iterator().next();
+        Record record = recordService.findRecord("oaiid", "qucosa:32394").iterator().next();
         record.setDeleted(true);
 
         MvcResult mvcResult = mvc.perform(
@@ -224,7 +224,7 @@ public class RecordControllerIT {
     @Order(7)
     public void updateFailed_1() throws Exception {
         Record record = new Record();
-        record.setOaiID("qucosa:00000");
+        record.setOaiid("qucosa:00000");
 
         mvc.perform(
                 put("/records/qucosa:00000")
@@ -235,18 +235,18 @@ public class RecordControllerIT {
     }
 
     @Test
-    @DisplayName("Update record is not successful because uid parameter and object uid are unequal.")
+    @DisplayName("Update record is not successful because oaiid parameter and object oaiid are unequal.")
     @Order(8)
     public void updateFailed_2() throws Exception {
         Record record = new Record();
-        record.setOaiID("qucosa:00000");
+        record.setOaiid("qucosa:00000");
 
         mvc.perform(
                 put("/records/qucosa:00001")
                         .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
                 .andExpect(status().isNotAcceptable())
                 .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Unequal uid parameter with record object uid.")));
+                .andExpect(jsonPath("$.errorMsg", is("Unequal oaiid parameter with record object oaiid.")));
     }
 
     @Test
