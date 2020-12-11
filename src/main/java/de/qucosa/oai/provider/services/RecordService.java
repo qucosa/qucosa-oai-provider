@@ -43,15 +43,15 @@ public class RecordService {
 
     public Record updateRecord(Record record, String oaiId) throws UpdateFailed {
 
-        if (!record.getOaiID().equals(oaiId) || oaiId.isEmpty()) {
-            throw new UpdateFailed("Unequal uid parameter with record object uid.");
+        if (!record.getOaiid().equals(oaiId) || oaiId.isEmpty()) {
+            throw new UpdateFailed("Unequal oaiid parameter with record object oaiid.");
         }
 
         return dao.update(record);
     }
 
     public void delete(Record record) throws DeleteFailed {
-        dao.delete(record.getOaiID());
+        dao.delete(record.getOaiid());
     }
 
     public Collection<Record> findRecord(String column, String oaiid) throws NotFound {
