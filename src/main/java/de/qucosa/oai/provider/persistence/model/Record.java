@@ -28,8 +28,8 @@ public class Record implements Serializable, HasIdentifier {
     @JsonProperty("recordId")
     private Long recordId;
 
-    @JsonProperty("oaiID")
-    private String oaiID;
+    @JsonProperty("oaiid")
+    private String oaiid;
 
     @JsonProperty("pid")
     private String pid;
@@ -57,12 +57,12 @@ public class Record implements Serializable, HasIdentifier {
         this.recordId = recordId;
     }
 
-    public String getOaiID() {
-        return oaiID;
+    public String getOaiid() {
+        return oaiid;
     }
 
-    public void setOaiID(String oaiID) {
-        this.oaiID = oaiID;
+    public void setOaiid(String oaiid) {
+        this.oaiid = oaiid;
     }
 
     public String getPid() {
