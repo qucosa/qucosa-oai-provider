@@ -36,7 +36,7 @@ import java.util.List;
 @Repository
 public class SetDao<T extends Set> implements Dao<Set> {
 
-    private Connection connection;
+    private final Connection connection;
 
     @Autowired
     public SetDao(Connection connection) {

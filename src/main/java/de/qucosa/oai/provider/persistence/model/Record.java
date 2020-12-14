@@ -28,14 +28,17 @@ public class Record implements Serializable, HasIdentifier {
     @JsonProperty("recordId")
     private Long recordId;
 
+    @JsonProperty("oaiid")
+    private String oaiid;
+
     @JsonProperty("pid")
     private String pid;
 
-    @JsonProperty("uid")
-    private String uid;
-
     @JsonProperty("deleted")
     private boolean deleted;
+
+    @JsonProperty("visible")
+    private boolean visible;
 
     @Override
     public void setIdentifier(Object identifier) {
@@ -54,15 +57,31 @@ public class Record implements Serializable, HasIdentifier {
         this.recordId = recordId;
     }
 
-    public String getPid() { return pid; }
+    public String getOaiid() {
+        return oaiid;
+    }
 
-    public void setPid(String pid) { this.pid = pid; }
+    public void setOaiid(String oaiid) {
+        this.oaiid = oaiid;
+    }
 
-    public String getUid() { return uid; }
+    public String getPid() {
+        return pid;
+    }
 
-    public void setUid(String uid) { this.uid = uid; }
+    public void setPid(String pid) {
+        this.pid = pid;
+    }
 
     public boolean isDeleted() { return deleted; }
 
     public void setDeleted(boolean deleted) { this.deleted = deleted; }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 }

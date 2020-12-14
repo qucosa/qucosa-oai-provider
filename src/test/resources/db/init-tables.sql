@@ -96,8 +96,9 @@ ALTER TABLE formats OWNER TO postgres;
 CREATE TABLE records (
     id bigint NOT NULL,
     pid character varying(255) NOT NULL,
-    uid character varying(400) NOT NULL,
-    deleted boolean DEFAULT false NOT NULL
+    oaiid character varying(400) NOT NULL,
+    deleted boolean DEFAULT false NOT NULL,
+    visible boolean NOT NULL DEFAULT false
 );
 
 
@@ -140,8 +141,9 @@ ALTER TABLE sets_to_records OWNER TO postgres;
 CREATE VIEW oai_pmh_list AS
  SELECT rc.id AS record_id,
     rc.pid,
-    rc.uid,
+    rc.oaiid,
     rc.deleted AS record_status,
+    rc.visible,
     f.id AS format_id,
     f.mdprefix,
     diss.lastmoddate,
@@ -152,7 +154,7 @@ CREATE VIEW oai_pmh_list AS
              LEFT JOIN sets_to_records str ON ((str.id_set = st.id)))
           WHERE (str.id_record = rc.id)) AS set
    FROM ((records rc
-     LEFT JOIN disseminations diss ON (((rc.uid)::text = (diss.id_record)::text)))
+     LEFT JOIN disseminations diss ON (((rc.oaiid)::text = (diss.id_record)::text)))
      LEFT JOIN formats f ON ((diss.id_format = f.id)));
 
 
@@ -194,9 +196,10 @@ ALTER TABLE rst_to_identifiers OWNER TO postgres;
 CREATE VIEW oai_pmh_list_by_token AS
  SELECT rti.rst_id,
     rt.expiration_date,
-    rc.uid,
+    rc.oaiid,
     rc.id AS record_id,
     rc.deleted AS record_status,
+    rc.visible,
     diss.lastmoddate,
     diss.xmldata,
     diss.deleted AS dissemination_status,
@@ -208,7 +211,7 @@ CREATE VIEW oai_pmh_list_by_token AS
    FROM ((((rst_to_identifiers rti
      LEFT JOIN resumption_tokens rt ON (((rti.rst_id)::text = (rt.token_id)::text)))
      LEFT JOIN records rc ON ((rti.record_id = rc.id)))
-     LEFT JOIN disseminations diss ON (((rc.uid)::text = (diss.id_record)::text)))
+     LEFT JOIN disseminations diss ON (((rc.oaiid)::text = (diss.id_record)::text)))
      LEFT JOIN formats fm ON ((fm.id = diss.id_format)));
 
 
@@ -945,14 +948,14 @@ Recommendations: Based on the results of this study, it is advisable to investig
    <ddb:rights ddb:kind="free"/>
 </xMetaDiss:xMetaDiss>', false, 'qucosa:31834');
 INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, deleted, id_record) VALUES (57, 17, '2018-11-15 12:26:29.194+01', '<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:mets="http://www.loc.gov/METS/" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:myfunc="urn:de:qucosa:dc" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:slub="http://slub-dresden.de/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-   <dc:title>Big Data in Bicycle Traffic:A user-oriented guide to the use of smartphone-generated bicycle traffic data</dc:title>
+   <dc:title>Big Data in Bicycle Traffic:A user-oriented goaiide to the use of smartphone-generated bicycle traffic data</dc:title>
    <dc:identifier>urn:nbn:de:bsz:14-qucosa-233278</dc:identifier>
    <dc:language>eng</dc:language>
-   <dc:description>For cycling to be attractive, the infrastructure must be of high quality. Due to the high level of resources required to record it locally, the available data on the volume of cycling traffic has to date been patchy. At the moment, the most reliable and usable numbers seem to be derived from permanently installed automatic cycling traffic counters, already used by many local authorities. One disadvantage of these is that the number of data collection points is generally far too low to cover the entirety of a city or other municipality in a way that achieves truly meaningful results. The effect of side roads on cycling traffic is therefore only incompletely assessed. Furthermore, there is usually no data at all on other parameters, such as waiting times, route choices and cyclists’ speed. This gap might in future be filled by methods such as GPS route data, as is now possible by today’s widespread use of smartphones and the relevant tracking apps. The results of the project presented in this guide have been supported by the BMVI [Federal Ministry of Transport and Digital Infrastructure] within the framework of its 2020 National Cycling Plan. This research project seeks to investigate the usability of user data generated using a smartphone app for bicycle traffic planning by local authorities.
+   <dc:description>For cycling to be attractive, the infrastructure must be of high quality. Due to the high level of resources required to record it locally, the available data on the volume of cycling traffic has to date been patchy. At the moment, the most reliable and usable numbers seem to be derived from permanently installed automatic cycling traffic counters, already used by many local authorities. One disadvantage of these is that the number of data collection points is generally far too low to cover the entirety of a city or other municipality in a way that achieves truly meaningful results. The effect of side roads on cycling traffic is therefore only incompletely assessed. Furthermore, there is usually no data at all on other parameters, such as waiting times, route choices and cyclists’ speed. This gap might in future be filled by methods such as GPS route data, as is now possible by today’s widespread use of smartphones and the relevant tracking apps. The results of the project presented in this goaiide have been supported by the BMVI [Federal Ministry of Transport and Digital Infrastructure] within the framework of its 2020 National Cycling Plan. This research project seeks to investigate the usability of user data generated using a smartphone app for bicycle traffic planning by local authorities.
 
-In summary, it can be stated that, taking into account the factors described in this guide, GPS data are usable for bicycle traffic planning within certain limitations. (The GPS data evaluated in this case were provided by Strava Inc.) Nowadays it is already possible to assess where, when and how cyclists are moving around across the entire network. The data generated by the smartphone app could be most useful to local authorities as a supplement to existing permanent traffic counters. However, there are a few aspects that need to be considered when evaluating and interpreting the data, such as the rather fitness-oriented context of the routes surveyed in the examples examined. Moreover, some of the data is still provided as database or GIS files, although some online templates that are easier to use are being set up, and some can already be used in a basic initial form. This means that evaluation and interpretation still require specialist expertise as well as human resources. However, the need for these is expected to reduce in the future with the further development of web interfaces and supporting evaluation templates. For this to work, developers need to collaborate with local authorities to work out what parameters are needed as well as the most suitable formats. This research project carried out an approach to extrapolating cycling traffic volumes from random samples of GPS data over the whole network. This was also successfully verified in another municipality. Further research is still nevertheless required in the future, as well as adaptation to the needs of different localities.
+In summary, it can be stated that, taking into account the factors described in this goaiide, GPS data are usable for bicycle traffic planning within certain limitations. (The GPS data evaluated in this case were provided by Strava Inc.) Nowadays it is already possible to assess where, when and how cyclists are moving around across the entire network. The data generated by the smartphone app could be most useful to local authorities as a supplement to existing permanent traffic counters. However, there are a few aspects that need to be considered when evaluating and interpreting the data, such as the rather fitness-oriented context of the routes surveyed in the examples examined. Moreover, some of the data is still provided as database or GIS files, although some online templates that are easier to use are being set up, and some can already be used in a basic initial form. This means that evaluation and interpretation still require specialist expertise as well as human resources. However, the need for these is expected to reduce in the future with the further development of web interfaces and supporting evaluation templates. For this to work, developers need to collaborate with local authorities to work out what parameters are needed as well as the most suitable formats. This research project carried out an approach to extrapolating cycling traffic volumes from random samples of GPS data over the whole network. This was also successfully verified in another municipality. Further research is still nevertheless required in the future, as well as adaptation to the needs of different localities.
 
-Evidence for the usability of GPS data in practice still needs to be acquired in the near future. The cities of Dresden, Leipzig and Mainz could be taken as examples for this, as they have all already taken their first steps in the use of GPS data in planning for and supporting cycling. These steps make sense in the light of the increasing digitisation of traffic and transport and the growing amount of data available as a result – despite the limitations on these data to date – so that administrative bodies can start early in building up the appropriate skills among their staff. The use of GPS data would yield benefits for bicycle traffic planning in the long run. In addition, the active involvement of cyclists opens up new possibilities in communication and citizen participation – even without requiring specialist knowledge. This guide delivers a practical introduction to the topic, giving a comprehensive overview of the opportunities, obstacles and potential offered by GPS data.</dc:description>
+Evidence for the usability of GPS data in practice still needs to be acquired in the near future. The cities of Dresden, Leipzig and Mainz could be taken as examples for this, as they have all already taken their first steps in the use of GPS data in planning for and supporting cycling. These steps make sense in the light of the increasing digitisation of traffic and transport and the growing amount of data available as a result – despite the limitations on these data to date – so that administrative bodies can start early in building up the appropriate skills among their staff. The use of GPS data would yield benefits for bicycle traffic planning in the long run. In addition, the active involvement of cyclists opens up new possibilities in communication and citizen participation – even without requiring specialist knowledge. This goaiide delivers a practical introduction to the topic, giving a comprehensive overview of the opportunities, obstacles and potential offered by GPS data.</dc:description>
    <dc:subject>info:eu-repo/classification/ddc/380</dc:subject>
    <dc:subject>Dresden; Radfahrer; Radfahrerverkehr; Verkehrsverhalten; Datensammlung; Smarthphone; Orientierung</dc:subject>
    <dc:subject>GPS-Daten, Radverkehr, Verhaltensdaten</dc:subject>
@@ -967,7 +970,7 @@ Evidence for the usability of GPS data in practice still needs to be acquired in
 </oai_dc:dc>', false, 'qucosa:30805');
 INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, deleted, id_record) VALUES (58, 22, '2018-11-15 12:26:29.194+01', '<xMetaDiss:xMetaDiss xmlns:cc="http://www.d-nb.de/standards/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ddb="http://www.d-nb.de/standards/ddb/" xmlns:dini="http://www.d-nb.de/standards/xmetadissplus/type/" xmlns:mets="http://www.loc.gov/METS/" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:myfunc="urn:de:qucosa:xmetadissplus" xmlns:pc="http://www.d-nb.de/standards/pc/" xmlns:slub="http://slub-dresden.de/" xmlns:subject="http://www.d.nb.de/standards/subject/" xmlns:thesis="http://www.ndltd.org/standards/metadata/etdms/1.0/" xmlns:urn="http://www.d-nb.de/standards/urn/" xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <dc:title xml:lang="eng" xsi:type="ddb:titleISO639-2">Big Data in Bicycle Traffic</dc:title>
-   <dcterms:alternative xml:lang="eng" xsi:type="ddb:talternativeISO639-2">A user-oriented guide to the use of smartphone-generated bicycle traffic data</dcterms:alternative>
+   <dcterms:alternative xml:lang="eng" xsi:type="ddb:talternativeISO639-2">A user-oriented goaiide to the use of smartphone-generated bicycle traffic data</dcterms:alternative>
    <dc:creator xsi:type="pc:MetaPers">
       <pc:person>
          <pc:name type="nameUsedByThePerson">
@@ -999,11 +1002,11 @@ INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, deleted, id_rec
    <dc:subject xsi:type="xMetaDiss:noScheme">Verhaltensdaten</dc:subject>
    <dc:subject xsi:type="xMetaDiss:noScheme">GPS</dc:subject>
    <dc:subject xsi:type="xMetaDiss:noScheme">Cycling</dc:subject>
-   <dcterms:abstract ddb:type="subject:noScheme" xml:lang="eng" xsi:type="ddb:contentISO639-2">For cycling to be attractive, the infrastructure must be of high quality. Due to the high level of resources required to record it locally, the available data on the volume of cycling traffic has to date been patchy. At the moment, the most reliable and usable numbers seem to be derived from permanently installed automatic cycling traffic counters, already used by many local authorities. One disadvantage of these is that the number of data collection points is generally far too low to cover the entirety of a city or other municipality in a way that achieves truly meaningful results. The effect of side roads on cycling traffic is therefore only incompletely assessed. Furthermore, there is usually no data at all on other parameters, such as waiting times, route choices and cyclists’ speed. This gap might in future be filled by methods such as GPS route data, as is now possible by today’s widespread use of smartphones and the relevant tracking apps. The results of the project presented in this guide have been supported by the BMVI [Federal Ministry of Transport and Digital Infrastructure] within the framework of its 2020 National Cycling Plan. This research project seeks to investigate the usability of user data generated using a smartphone app for bicycle traffic planning by local authorities.
+   <dcterms:abstract ddb:type="subject:noScheme" xml:lang="eng" xsi:type="ddb:contentISO639-2">For cycling to be attractive, the infrastructure must be of high quality. Due to the high level of resources required to record it locally, the available data on the volume of cycling traffic has to date been patchy. At the moment, the most reliable and usable numbers seem to be derived from permanently installed automatic cycling traffic counters, already used by many local authorities. One disadvantage of these is that the number of data collection points is generally far too low to cover the entirety of a city or other municipality in a way that achieves truly meaningful results. The effect of side roads on cycling traffic is therefore only incompletely assessed. Furthermore, there is usually no data at all on other parameters, such as waiting times, route choices and cyclists’ speed. This gap might in future be filled by methods such as GPS route data, as is now possible by today’s widespread use of smartphones and the relevant tracking apps. The results of the project presented in this goaiide have been supported by the BMVI [Federal Ministry of Transport and Digital Infrastructure] within the framework of its 2020 National Cycling Plan. This research project seeks to investigate the usability of user data generated using a smartphone app for bicycle traffic planning by local authorities.
 
-In summary, it can be stated that, taking into account the factors described in this guide, GPS data are usable for bicycle traffic planning within certain limitations. (The GPS data evaluated in this case were provided by Strava Inc.) Nowadays it is already possible to assess where, when and how cyclists are moving around across the entire network. The data generated by the smartphone app could be most useful to local authorities as a supplement to existing permanent traffic counters. However, there are a few aspects that need to be considered when evaluating and interpreting the data, such as the rather fitness-oriented context of the routes surveyed in the examples examined. Moreover, some of the data is still provided as database or GIS files, although some online templates that are easier to use are being set up, and some can already be used in a basic initial form. This means that evaluation and interpretation still require specialist expertise as well as human resources. However, the need for these is expected to reduce in the future with the further development of web interfaces and supporting evaluation templates. For this to work, developers need to collaborate with local authorities to work out what parameters are needed as well as the most suitable formats. This research project carried out an approach to extrapolating cycling traffic volumes from random samples of GPS data over the whole network. This was also successfully verified in another municipality. Further research is still nevertheless required in the future, as well as adaptation to the needs of different localities.
+In summary, it can be stated that, taking into account the factors described in this goaiide, GPS data are usable for bicycle traffic planning within certain limitations. (The GPS data evaluated in this case were provided by Strava Inc.) Nowadays it is already possible to assess where, when and how cyclists are moving around across the entire network. The data generated by the smartphone app could be most useful to local authorities as a supplement to existing permanent traffic counters. However, there are a few aspects that need to be considered when evaluating and interpreting the data, such as the rather fitness-oriented context of the routes surveyed in the examples examined. Moreover, some of the data is still provided as database or GIS files, although some online templates that are easier to use are being set up, and some can already be used in a basic initial form. This means that evaluation and interpretation still require specialist expertise as well as human resources. However, the need for these is expected to reduce in the future with the further development of web interfaces and supporting evaluation templates. For this to work, developers need to collaborate with local authorities to work out what parameters are needed as well as the most suitable formats. This research project carried out an approach to extrapolating cycling traffic volumes from random samples of GPS data over the whole network. This was also successfully verified in another municipality. Further research is still nevertheless required in the future, as well as adaptation to the needs of different localities.
 
-Evidence for the usability of GPS data in practice still needs to be acquired in the near future. The cities of Dresden, Leipzig and Mainz could be taken as examples for this, as they have all already taken their first steps in the use of GPS data in planning for and supporting cycling. These steps make sense in the light of the increasing digitisation of traffic and transport and the growing amount of data available as a result – despite the limitations on these data to date – so that administrative bodies can start early in building up the appropriate skills among their staff. The use of GPS data would yield benefits for bicycle traffic planning in the long run. In addition, the active involvement of cyclists opens up new possibilities in communication and citizen participation – even without requiring specialist knowledge. This guide delivers a practical introduction to the topic, giving a comprehensive overview of the opportunities, obstacles and potential offered by GPS data.</dcterms:abstract>
+Evidence for the usability of GPS data in practice still needs to be acquired in the near future. The cities of Dresden, Leipzig and Mainz could be taken as examples for this, as they have all already taken their first steps in the use of GPS data in planning for and supporting cycling. These steps make sense in the light of the increasing digitisation of traffic and transport and the growing amount of data available as a result – despite the limitations on these data to date – so that administrative bodies can start early in building up the appropriate skills among their staff. The use of GPS data would yield benefits for bicycle traffic planning in the long run. In addition, the active involvement of cyclists opens up new possibilities in communication and citizen participation – even without requiring specialist knowledge. This goaiide delivers a practical introduction to the topic, giving a comprehensive overview of the opportunities, obstacles and potential offered by GPS data.</dcterms:abstract>
    <dc:publisher xsi:type="cc:Publisher">
       <cc:universityOrInstitution>
          <cc:name>Technische Universität Dresden</cc:name>
@@ -1029,7 +1032,7 @@ INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, deleted, id_rec
    <dc:language>eng</dc:language>
    <dc:description>Airports have long been considered as an industry in which firms are able to exert significant market power. Nowadays, there is controversial discussion whether airports face a degree of competition which is sufficient to constrain potentially abusive behaviour resulting from this market power. The level of competition encountered by European airports has hence been evaluated by analysing the switching potential of both airlines and passengers between different airports, for example. The research within this thesis contributes to the field of airport competition by analysing the degree of potential competition 36 European hub airports face on their origin-destination market in their local catchments as well as on the transfer market within the period from 2000 to 2016. For this purpose, a two-step approach is applied for each market, with first analysing the degree of market concentration, using the Herfindahl Hirschman Index as a measure, for each destination offered at the hub airports and the respective development over time. In the second step, the effect of market concentration on the seat capacities at the hub airports is estimated.
 This analysis shows that the majority of European hub airports has a dominant position on both the origin-destination and transfer market. However, it can be observed that the level of market concentration has been decreasing over time, thus implying a higher overlap between destinations offered at hub airports and their competitive counterparts. Passengers thus have more alternatives available when travelling between two points, this increasing switching ability therefore imposes potential constraints on airport market power. In the second step of the analysis, the above approach is complemented by empirically estimating the impact of an increase in market concentration, and additional factors such as the presence of low cost carriers at competing airports, on the seat capacities offered on a particular destination. Using panel data for the considered time period, the statistically significant results show that an increase in market concentration leads to a decrease in the amount of seats as well the flight frequencies offered to a destination. These findings are coherent for both the origin-destination and transfer market. Considering the decrease in market concentration across the majority of European hub airports, it can in turn be inferred that more seats and frequencies are supplied on the respective routes, resulting in an increase in consumer welfare. 
-This approach and the respective findings in this thesis serve as further guidance to policy makers deciding on the extent of economic regulation feasible for individual hub airports in Europe. From an airport and airline standpoint these results can, of course, also be applied to gain insight as to which airports are their main competitors, and which routes face a high overlap with other airports and airlines, thus designing their network structure accordingly.</dc:description>
+This approach and the respective findings in this thesis serve as further goaiidance to policy makers deciding on the extent of economic regulation feasible for individual hub airports in Europe. From an airport and airline standpoint these results can, of course, also be applied to gain insight as to which airports are their main competitors, and which routes face a high overlap with other airports and airlines, thus designing their network structure accordingly.</dc:description>
    <dc:subject>Flughafenwettbewerb, Europa</dc:subject>
    <dc:subject>Airport competition, Europe</dc:subject>
    <dc:subject>info:eu-repo/classification/ddc/380</dc:subject>
@@ -1064,7 +1067,7 @@ INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, deleted, id_rec
    <dc:subject xsi:type="xMetaDiss:RVK">QR 840</dc:subject>
    <dcterms:abstract ddb:type="subject:noScheme" xml:lang="eng" xsi:type="ddb:contentISO639-2">Airports have long been considered as an industry in which firms are able to exert significant market power. Nowadays, there is controversial discussion whether airports face a degree of competition which is sufficient to constrain potentially abusive behaviour resulting from this market power. The level of competition encountered by European airports has hence been evaluated by analysing the switching potential of both airlines and passengers between different airports, for example. The research within this thesis contributes to the field of airport competition by analysing the degree of potential competition 36 European hub airports face on their origin-destination market in their local catchments as well as on the transfer market within the period from 2000 to 2016. For this purpose, a two-step approach is applied for each market, with first analysing the degree of market concentration, using the Herfindahl Hirschman Index as a measure, for each destination offered at the hub airports and the respective development over time. In the second step, the effect of market concentration on the seat capacities at the hub airports is estimated.
 This analysis shows that the majority of European hub airports has a dominant position on both the origin-destination and transfer market. However, it can be observed that the level of market concentration has been decreasing over time, thus implying a higher overlap between destinations offered at hub airports and their competitive counterparts. Passengers thus have more alternatives available when travelling between two points, this increasing switching ability therefore imposes potential constraints on airport market power. In the second step of the analysis, the above approach is complemented by empirically estimating the impact of an increase in market concentration, and additional factors such as the presence of low cost carriers at competing airports, on the seat capacities offered on a particular destination. Using panel data for the considered time period, the statistically significant results show that an increase in market concentration leads to a decrease in the amount of seats as well the flight frequencies offered to a destination. These findings are coherent for both the origin-destination and transfer market. Considering the decrease in market concentration across the majority of European hub airports, it can in turn be inferred that more seats and frequencies are supplied on the respective routes, resulting in an increase in consumer welfare. 
-This approach and the respective findings in this thesis serve as further guidance to policy makers deciding on the extent of economic regulation feasible for individual hub airports in Europe. From an airport and airline standpoint these results can, of course, also be applied to gain insight as to which airports are their main competitors, and which routes face a high overlap with other airports and airlines, thus designing their network structure accordingly.</dcterms:abstract>
+This approach and the respective findings in this thesis serve as further goaiidance to policy makers deciding on the extent of economic regulation feasible for individual hub airports in Europe. From an airport and airline standpoint these results can, of course, also be applied to gain insight as to which airports are their main competitors, and which routes face a high overlap with other airports and airlines, thus designing their network structure accordingly.</dcterms:abstract>
    <dc:contributor thesis:role="referee" xsi:type="pc:Contributor">
       <pc:person>
          <pc:name type="nameUsedByThePerson">
@@ -2716,7 +2719,7 @@ INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, deleted, id_rec
    <dc:description>offen</dc:description>
    <dc:subject>Aircraft Boarding Efficiency</dc:subject>
    <dc:creator>Schultz,Michael</dc:creator>
-   <dc:creator>Deutsche Zentrum für Luft- und Raumfahrt e. V..Institute of Flight Guidance, Department of Air Transportation German Aerospace Center (DLR e.V.)</dc:creator>
+   <dc:creator>Deutsche Zentrum für Luft- und Raumfahrt e. V..Institute of Flight Goaiidance, Department of Air Transportation German Aerospace Center (DLR e.V.)</dc:creator>
    <dc:date>2014</dc:date>
    <dc:type>info:eu-repo/semantics/publishedVersion</dc:type>
    <dc:date>2018-11-22</dc:date>
@@ -3312,7 +3315,7 @@ INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, deleted, id_rec
    <dc:description>In dieser Arbeit wird der Einsatz von Leckwellenleiter (engl. Leaky Coaxial Cable, LCX) zur funkgestützten Indoor-Positionierung in Fahrgastzellen untersucht. Mit Hilfe eines erstellten Vorgehensmodells werden zwei unterschiedliche LCX-Prototypen speziell für den Ortungseinsatz entwickelt. Hierbei wird die elektromagnetische Feldberechnung verwendet, um sowohl Leckwellenleiterstrukturen als auch deren Einsatz in einer Fahrgastzelle zu bewerten. Nach Fertigung beider Leckwellenleiter erfolgt eine messtechnische Validierung in einer vordefinierten Fahrgastzellenumgebung. Der Einsatz dieser Prototypen zur Indoor-Positionierung wird sowohl in Modell- als auch in realen Fahrzeugumgebungen, wie der AutoTram Extra Grand des Fraunhofer IVI, durchgeführt. Eine statistische Betrachtung von Messergebnissen sowie
 die Vorstellung eines zonenselektiven Positionierungsansatzes schließen diese Arbeit.</dc:description>
    <dc:subject>Indoor-Positionierung, Leckwellenleiter, Fahrgastzelle, funkgestützte Positionierung, Leckwellenleitersimulation</dc:subject>
-   <dc:subject>Indoor positioning, leaky fiber, passenger cabin, radio-based positioning, leaky-waveguide simulation</dc:subject>
+   <dc:subject>Indoor positioning, leaky fiber, passenger cabin, radio-based positioning, leaky-wavegoaiide simulation</dc:subject>
    <dc:subject>info:eu-repo/classification/ddc/621.3</dc:subject>
    <dc:subject>info:eu-repo/classification/ddc/380</dc:subject>
    <dc:creator>Engelbrecht,Julia Maria</dc:creator>
@@ -3346,7 +3349,7 @@ INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, deleted, id_rec
    <dc:subject xsi:type="xMetaDiss:noScheme">leaky fiber</dc:subject>
    <dc:subject xsi:type="xMetaDiss:noScheme">passenger cabin</dc:subject>
    <dc:subject xsi:type="xMetaDiss:noScheme">radio-based positioning</dc:subject>
-   <dc:subject xsi:type="xMetaDiss:noScheme">leaky-waveguide simulation</dc:subject>
+   <dc:subject xsi:type="xMetaDiss:noScheme">leaky-wavegoaiide simulation</dc:subject>
    <dc:subject xsi:type="dcterms:DDC">621.3</dc:subject>
    <dc:subject xsi:type="subject:DDC-SG">621.3</dc:subject>
    <dc:subject xsi:type="dcterms:DDC">380</dc:subject>
@@ -5184,62 +5187,62 @@ SELECT pg_catalog.setval('oaiprovider', 211, true);
 -- Data for Name: records; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO records (id, pid, uid, deleted) VALUES (28, 'qucosa:24994', 'qucosa:24994', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (31, 'qucosa:30859', 'qucosa:30859', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (36, 'qucosa:30725', 'qucosa:30725', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (40, 'qucosa:30751', 'qucosa:30751', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (43, 'qucosa:30738', 'qucosa:30738', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (47, 'qucosa:31145', 'qucosa:31145', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (51, 'qucosa:31834', 'qucosa:31834', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (55, 'qucosa:30805', 'qucosa:30805', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (59, 'qucosa:31127', 'qucosa:31127', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (62, 'qucosa:31901', 'qucosa:31901', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (65, 'qucosa:30803', 'qucosa:30803', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (68, 'qucosa:31971', 'qucosa:31971', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (71, 'qucosa:31141', 'qucosa:31141', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (74, 'qucosa:30089', 'qucosa:30089', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (78, 'qucosa:30413', 'qucosa:30413', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (81, 'qucosa:31974', 'qucosa:31974', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (84, 'qucosa:31905', 'qucosa:31905', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (88, 'qucosa:70491', 'qucosa:70491', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (91, 'qucosa:70493', 'qucosa:70493', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (94, 'qucosa:70494', 'qucosa:70494', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (97, 'qucosa:70495', 'qucosa:70495', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (101, 'qucosa:70496', 'qucosa:70496', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (104, 'qucosa:70481', 'qucosa:70481', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (109, 'qucosa:26121', 'qucosa:26121', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (113, 'qucosa:30686', 'qucosa:30686', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (116, 'qucosa:31635', 'qucosa:31635', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (120, 'qucosa:70488', 'qucosa:70488', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (123, 'qucosa:31900', 'qucosa:31900', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (126, 'qucosa:31011', 'qucosa:31011', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (129, 'qucosa:70479', 'qucosa:70479', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (132, 'qucosa:70480', 'qucosa:70480', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (135, 'qucosa:70492', 'qucosa:70492', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (138, 'qucosa:7944', 'qucosa:7944', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (142, 'qucosa:3445', 'qucosa:3445', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (145, 'qucosa:16954', 'qucosa:16954', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (148, 'qucosa:70498', 'qucosa:70498', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (152, 'qucosa:70500', 'qucosa:70500', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (156, 'qucosa:70499', 'qucosa:70499', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (159, 'qucosa:31830', 'qucosa:31830', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (163, 'qucosa:25014', 'qucosa:25014', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (166, 'qucosa:29202', 'qucosa:29202', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (170, 'qucosa:30072', 'qucosa:30072', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (173, 'qucosa:16953', 'qucosa:16953', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (176, 'qucosa:70501', 'qucosa:70501', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (179, 'qucosa:29204', 'qucosa:29204', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (182, 'qucosa:70502', 'qucosa:70502', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (185, 'qucosa:70503', 'qucosa:70503', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (188, 'qucosa:70504', 'qucosa:70504', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (191, 'qucosa:70505', 'qucosa:70505', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (194, 'qucosa:70506', 'qucosa:70506', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (197, 'qucosa:3441', 'qucosa:3441', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (200, 'qucosa:70507', 'qucosa:70507', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (203, 'qucosa:70489', 'qucosa:70489', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (206, 'qucosa:70508', 'qucosa:70508', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (209, 'qucosa:70487', 'qucosa:70487', false);
-INSERT INTO records (id, pid, uid, deleted) VALUES (18, 'qucosa:32394', 'qucosa:32394', true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (28, 'qucosa:24994', 'qucosa:24994', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (31, 'qucosa:30859', 'qucosa:30859', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (36, 'qucosa:30725', 'qucosa:30725', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (40, 'qucosa:30751', 'qucosa:30751', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (43, 'qucosa:30738', 'qucosa:30738', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (47, 'qucosa:31145', 'qucosa:31145', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (51, 'qucosa:31834', 'qucosa:31834', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (55, 'qucosa:30805', 'qucosa:30805', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (59, 'qucosa:31127', 'qucosa:31127', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (62, 'qucosa:31901', 'qucosa:31901', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (65, 'qucosa:30803', 'qucosa:30803', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (68, 'qucosa:31971', 'qucosa:31971', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (71, 'qucosa:31141', 'qucosa:31141', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (74, 'qucosa:30089', 'qucosa:30089', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (78, 'qucosa:30413', 'qucosa:30413', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (81, 'qucosa:31974', 'qucosa:31974', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (84, 'qucosa:31905', 'qucosa:31905', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (88, 'qucosa:70491', 'qucosa:70491', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (91, 'qucosa:70493', 'qucosa:70493', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (94, 'qucosa:70494', 'qucosa:70494', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (97, 'qucosa:70495', 'qucosa:70495', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (101, 'qucosa:70496', 'qucosa:70496', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (104, 'qucosa:70481', 'qucosa:70481', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (109, 'qucosa:26121', 'qucosa:26121', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (113, 'qucosa:30686', 'qucosa:30686', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (116, 'qucosa:31635', 'qucosa:31635', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (120, 'qucosa:70488', 'qucosa:70488', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (123, 'qucosa:31900', 'qucosa:31900', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (126, 'qucosa:31011', 'qucosa:31011', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (129, 'qucosa:70479', 'qucosa:70479', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (132, 'qucosa:70480', 'qucosa:70480', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (135, 'qucosa:70492', 'qucosa:70492', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (138, 'qucosa:7944', 'qucosa:7944', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (142, 'qucosa:3445', 'qucosa:3445', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (145, 'qucosa:16954', 'qucosa:16954', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (148, 'qucosa:70498', 'qucosa:70498', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (152, 'qucosa:70500', 'qucosa:70500', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (156, 'qucosa:70499', 'qucosa:70499', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (159, 'qucosa:31830', 'qucosa:31830', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (163, 'qucosa:25014', 'qucosa:25014', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (166, 'qucosa:29202', 'qucosa:29202', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (170, 'qucosa:30072', 'qucosa:30072', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (173, 'qucosa:16953', 'qucosa:16953', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (176, 'qucosa:70501', 'qucosa:70501', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (179, 'qucosa:29204', 'qucosa:29204', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (182, 'qucosa:70502', 'qucosa:70502', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (185, 'qucosa:70503', 'qucosa:70503', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (188, 'qucosa:70504', 'qucosa:70504', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (191, 'qucosa:70505', 'qucosa:70505', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (194, 'qucosa:70506', 'qucosa:70506', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (197, 'qucosa:3441', 'qucosa:3441', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (200, 'qucosa:70507', 'qucosa:70507', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (203, 'qucosa:70489', 'qucosa:70489', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (206, 'qucosa:70508', 'qucosa:70508', false, true);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (209, 'qucosa:70487', 'qucosa:70487', false, false);
+INSERT INTO records (id, pid, oaiid, deleted, visible) VALUES (18, 'qucosa:32394', 'qucosa:32394', true, true);
 
 
 --
@@ -6321,11 +6324,11 @@ ALTER TABLE ONLY records
 
 --
 -- TOC entry 2159 (class 2606 OID 32061)
--- Name: record_uid_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: record_oaiid_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY records
-    ADD CONSTRAINT record_uid_unique UNIQUE (uid);
+    ADD CONSTRAINT record_oaiid_unique UNIQUE (oaiid);
 
 
 --
@@ -6378,7 +6381,7 @@ ALTER TABLE ONLY disseminations
 --
 
 ALTER TABLE ONLY disseminations
-    ADD CONSTRAINT dissemination_record_fkey FOREIGN KEY (id_record) REFERENCES records(uid) ON DELETE CASCADE;
+    ADD CONSTRAINT dissemination_record_fkey FOREIGN KEY (id_record) REFERENCES records(oaiid) ON DELETE CASCADE;
 
 
 --

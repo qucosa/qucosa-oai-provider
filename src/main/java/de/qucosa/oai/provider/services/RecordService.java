@@ -21,11 +21,9 @@ import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Record;
-import de.qucosa.oai.provider.persistence.model.OaiRecord;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.List;
 
 @Service
 public class RecordService {
@@ -41,21 +39,21 @@ public class RecordService {
         return dao.saveAndSetIdentifier(record);
     }
 
-    public Record updateRecord(Record record, String uid) throws UpdateFailed {
+    public Record updateRecord(Record record, String oaiId) throws UpdateFailed {
 
-        if (!record.getUid().equals(uid) || uid.isEmpty()) {
-            throw new UpdateFailed("Unequal uid parameter with record object uid.");
+        if (!record.getOaiid().equals(oaiId) || oaiId.isEmpty()) {
+            throw new UpdateFailed("Unequal oaiid parameter with record object oaiid.");
         }
 
         return dao.update(record);
     }
 
     public void delete(Record record) throws DeleteFailed {
-        dao.delete(record.getUid());
+        dao.delete(record.getOaiid());
     }
 
-    public Collection<Record> findRecord(String column, String uid) throws NotFound {
-        return dao.findByPropertyAndValue(column, uid);
+    public Collection<Record> findRecord(String column, String oaiid) throws NotFound {
+        return dao.findByPropertyAndValue(column, oaiid);
     }
 
     public Collection<Record> findAll() throws NotFound {
@@ -66,7 +64,7 @@ public class RecordService {
         return dao.findRowsByMultipleValues(clause, values);
     }
 
-    public boolean checkIfOaiDcDisseminationExists(List<OaiRecord> input) {
+    /*public boolean checkIfOaiDcDisseminationExists(OaiRecord input) {
         boolean exists = false;
 
         for (OaiRecord rt : input) {
@@ -79,5 +77,5 @@ public class RecordService {
         }
 
         return exists;
-    }
+    }*/
 }

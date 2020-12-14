@@ -74,7 +74,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
                 metadataInsert(new ByteArrayInputStream(oaiPmhListByToken.getXmldata().getBytes(StandardCharsets.UTF_8)), metadata);
             }
 
-            buildHeader(oaiPmhListByToken.getUid(), oaiPmhListByToken.getLastModDate(),
+            buildHeader(oaiPmhListByToken.getOaiid(), oaiPmhListByToken.getLastModDate(),
                     oaiPmhListByToken.isRecordStatus(), oaiPmhListByToken.getSets(), record, metadata);
             importRecordTpl(verbNode);
         }
@@ -90,7 +90,7 @@ public class ListRecords extends OaiPmhDataBuilderAbstract implements OaiPmhData
                 metadataInsert(new ByteArrayInputStream(oaiPmhList.getXmldata().getBytes(StandardCharsets.UTF_8)), metadata);
             }
 
-            buildHeader(oaiPmhList.getUid(), oaiPmhList.getLastModDate(), oaiPmhList.isRecordStatus(),
+            buildHeader(oaiPmhList.getOaiid(), oaiPmhList.getLastModDate(), oaiPmhList.isRecordStatus(),
                     oaiPmhList.getSets(), record, metadata);
             importRecordTpl(verbNode);
         }

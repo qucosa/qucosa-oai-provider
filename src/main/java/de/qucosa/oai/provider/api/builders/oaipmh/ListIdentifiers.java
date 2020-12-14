@@ -62,7 +62,7 @@ public class ListIdentifiers extends OaiPmhDataBuilderAbstract implements OaiPmh
     private void buildListWithResumptionToken(Node verbNode) throws XmlDomParserException {
 
         for (OaiPmhListByToken obj : oaiPmhListByToken) {
-            Node importedHeader = oaiPmhTpl.importNode(addHeaderTpl(obj.getUid(),
+            Node importedHeader = oaiPmhTpl.importNode(addHeaderTpl(obj.getOaiid(),
                     DateTimeConverter.sqlTimestampToString(obj.getLastModDate()), obj.isRecordStatus(), obj.getSets()).getDocumentElement(), true);
             verbNode.appendChild(importedHeader);
         }
@@ -73,7 +73,7 @@ public class ListIdentifiers extends OaiPmhDataBuilderAbstract implements OaiPmh
     private void buildList(Node verbNode) throws XmlDomParserException {
 
         for (OaiPmhList obj : oaiPmhList) {
-            Node importedHeader = oaiPmhTpl.importNode(addHeaderTpl(obj.getUid(),
+            Node importedHeader = oaiPmhTpl.importNode(addHeaderTpl(obj.getOaiid(),
                     DateTimeConverter.sqlTimestampToString(obj.getLastModDate()), obj.isRecordStatus(), obj.getSets()).getDocumentElement(), true);
             verbNode.appendChild(importedHeader);
         }

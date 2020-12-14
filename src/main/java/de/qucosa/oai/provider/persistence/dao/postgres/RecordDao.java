@@ -37,7 +37,7 @@ import java.util.Collection;
 @Repository
 public class RecordDao<T extends Record> implements Dao<Record> {
 
-    private Connection connection;
+    private final Connection connection;
 
     @Autowired
     public RecordDao(Connection connection) {
@@ -55,25 +55,25 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
     @Override
     public Record saveAndSetIdentifier(Record object) throws SaveFailed {
-        String sql = "INSERT INTO records (id, pid, uid) VALUES (nextval('oaiprovider'), ?, ?)";
-        sql+="ON CONFLICT (uid) ";
+        String sql = "INSERT INTO records (id, oaiid, pid, visible) VALUES (nextval('oaiprovider'), ?, ?, ?)";
+        sql+="ON CONFLICT (oaiid) ";
         sql+="DO NOTHING";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-
-            ps.setString(1, object.getPid());
-            ps.setString(2, object.getUid());
+            ps.setString(1, object.getOaiid());
+            ps.setString(2, object.getPid());
+            ps.setBoolean(3, object.isVisible());
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SaveFailed("Creating format failed, no rows affected.");
+                throw new SaveFailed("Creating record failed, no rows affected.");
             }
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
 
                 if (!generatedKeys.next()) {
-                    throw new SaveFailed("Creating format failed, no ID obtained.");
+                    throw new SaveFailed("Creating record failed, no ID obtained.");
                 }
 
                 object.setIdentifier(generatedKeys.getLong("id"));
@@ -94,13 +94,12 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
     @Override
     public Record update(Record object) throws UpdateFailed {
-        String sql = "UPDATE records SET pid = ?, deleted = ? WHERE uid = ?";
+        String sql = "UPDATE records SET deleted = ? WHERE oaiid = ?";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, object.getPid());
-            ps.setBoolean(2, object.isDeleted());
-            ps.setString(3, object.getUid());
+            ps.setBoolean(1, object.isDeleted());
+            ps.setString(2, object.getOaiid());
             int updatedRows = ps.executeUpdate();
 
             if (updatedRows == 0) {
@@ -123,7 +122,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     @Override
     public Collection<Record> findAll() throws NotFound {
         Collection<Record> records = new ArrayList<>();
-        String sql = "SELECT * FROM records";
+        String sql = "SELECT * FROM records WHERE visible = true";
 
         try {
             Statement stmt = connection.createStatement();
@@ -134,8 +133,6 @@ public class RecordDao<T extends Record> implements Dao<Record> {
                 do {
                     Record record = new Record();
                     record.setIdentifier(resultSet.getLong("id"));
-                    record.setPid(resultSet.getString("pid"));
-                    record.setUid(resultSet.getString("uid"));
                     record.setDeleted(resultSet.getBoolean("deleted"));
                     records.add(record);
                 } while (resultSet.next());
@@ -159,7 +156,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     public Collection<Record> findByPropertyAndValue(String property, String value) throws NotFound {
         Record record = new Record();
         Collection<Record> records = new ArrayList<>();
-        String sql = "SELECT * FROM records WHERE " + property + " = ?";
+        String sql = "SELECT * FROM records WHERE " + property + " = ? AND visible = true";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
@@ -170,7 +167,8 @@ public class RecordDao<T extends Record> implements Dao<Record> {
             while (resultSet.next()) {
                 record.setIdentifier(resultSet.getLong("id"));
                 record.setPid(resultSet.getString("pid"));
-                record.setUid(resultSet.getString("uid"));
+                record.setOaiid(resultSet.getString("oaiid"));
+                record.setVisible(resultSet.getBoolean("visible"));
                 record.setDeleted(resultSet.getBoolean("deleted"));
                 records.add(record);
             }
@@ -181,8 +179,8 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
             resultSet.close();
             ps.close();
-        } catch (SQLException e) {
-            throw new NotFound("SQL-ERROR: Cannot found record.", e);
+        } catch (SQLException ignore) {
+            //throw new NotFound("SQL-ERROR: Cannot found record.", e);
         }
 
         return records;
@@ -202,17 +200,17 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
         Collection<Record> records = new ArrayList<>();
 
-        String sql = "SELECT rc.id, rc.pid, rc.uid, rc.deleted, diss.lastmoddate FROM records rc" +
-                " LEFT JOIN disseminations diss ON diss.id_record = rc.uid" +
-                " WHERE diss.id_format = ? AND lastmoddate";
+        String sql = "SELECT rc.id, rc.oaiid, rc.pid, rc.deleted, rc.visible, diss.lastmoddate FROM records rc" +
+                " LEFT JOIN disseminations diss ON diss.id_record = rc.oaiid" +
+                " WHERE diss.id_format = ? AND rc.visible = true";
 
         if (clause.isEmpty()) {
-            sql += " BETWEEN ? AND (?::date + '24 hours'::interval)";
+            sql += " AND lastmoddate BETWEEN ? AND (?::date + '24 hours'::interval)";
         } else {
-            sql += " " + clause;
+            sql += " AND " + clause;
         }
 
-        sql += " ORDER BY lastmoddate ASC";
+        sql += " ORDER BY diss.lastmoddate ASC";
 
         try {
             PreparedStatement pst = connection.prepareStatement(sql);
@@ -232,8 +230,6 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
             while (resultSet.next()) {
                 Record record = new Record();
-                record.setUid(resultSet.getString("uid"));
-                record.setPid(resultSet.getString("pid"));
                 record.setRecordId(resultSet.getLong("id"));
                 record.setDeleted(resultSet.getBoolean("deleted"));
                 records.add(record);
@@ -270,7 +266,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
     @Override
     public void delete(String ident) throws DeleteFailed {
-        String sql = "DELETE FROM records WHERE uid = ?";
+        String sql = "DELETE FROM records WHERE oaiid = ?";
 
         try {
             PreparedStatement statement = connection.prepareStatement(sql);

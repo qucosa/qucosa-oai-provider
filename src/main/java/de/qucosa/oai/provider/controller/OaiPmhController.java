@@ -300,7 +300,7 @@ public class OaiPmhController {
                 );
             } else if (metadataPrefix != null && from != null && until == null) {
                 oaiPmhDataBuilderFactory.setOaiPmhList(
-                        oaiPmhListService.findByMultipleValues("BETWEEN ? AND NOW()", String.valueOf(format.getFormatId()), from)
+                        oaiPmhListService.findByMultipleValues("lastmoddate BETWEEN ? AND NOW()", String.valueOf(format.getFormatId()), from)
                 );
             } else {
                 oaiPmhDataBuilderFactory.setOaiPmhList(

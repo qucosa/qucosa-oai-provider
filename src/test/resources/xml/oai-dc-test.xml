@@ -1,6 +1,6 @@
-<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:myfunc="urn:de:qucosa:dc"
-           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:slub="http://slub-dresden.de/"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/"
+           xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd
                         http://purl.org/dc/elements/1.1/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dc.xsd">
     <dc:title>Advanced symptoms are associated with myocardial damage in patients with severe aortic stenosis</dc:title>

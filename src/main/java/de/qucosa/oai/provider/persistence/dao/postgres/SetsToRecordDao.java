@@ -36,7 +36,7 @@ import java.util.List;
 @Repository
 public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord>, HasIdentifier {
 
-    private Connection connection;
+    private final Connection connection;
 
     @Autowired
     public SetsToRecordDao(Connection connection) {

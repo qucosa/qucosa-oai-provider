@@ -47,7 +47,7 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
 
             for (OaiPmhList entry : oaiPmhList) {
 
-                if (!entry.getUid().equals(identifier)) {
+                if (!entry.getOaiid().equals(identifier)) {
                     continue;
                 }
 
@@ -80,7 +80,7 @@ public class GetRecord extends OaiPmhDataBuilderAbstract implements OaiPmhDataBu
             metadata.appendChild(metadataImport);
         }
 
-        Node importHeader = recordTpl.importNode(addHeaderTpl(record.getUid(),
+        Node importHeader = recordTpl.importNode(addHeaderTpl(record.getOaiid(),
                 DateTimeConverter.sqlTimestampToString(record.getLastModDate()), record.isRecordStatus(), record.getSets()).getDocumentElement(), true);
         recordNode.insertBefore(importHeader, metadata);
 

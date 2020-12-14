@@ -40,7 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,7 +52,8 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RequestMapping("/records")
 @RestController
@@ -91,74 +91,73 @@ public class RecordController {
         ObjectMapper om = new ObjectMapper();
 
         try {
-            List<OaiRecord> inputData = om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, OaiRecord.class));
+            OaiRecord oaiRecord = om.readValue(input, OaiRecord.class);
 
-            if (inputData == null || inputData.size() == 0) {
+            if (oaiRecord == null) {
                 return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                         HttpStatus.BAD_REQUEST, "Record transport mapping failed.", null).response();
             }
 
-            if (!recordService.checkIfOaiDcDisseminationExists(inputData)) {
+            //@todo changed the oai dc dissemination exsists control
+            /*if (!recordService.checkIfOaiDcDisseminationExists(oaiRecord)) {
                 return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                         HttpStatus.BAD_REQUEST, "OAI_DC dissemination failed.", null).response();
-            }
+            }*/
 
-            for (OaiRecord rt : inputData) {
+            if (oaiRecord.isValidateXmlSchema()) {
 
-                if (rt.isValidateXmlSchema()) {
+                if (oaiRecord.getDissemination().getXmldata() != null && !oaiRecord.getDissemination().getXmldata().isEmpty()) {
+                    XmlSchemaValidator schemaValidator = new XmlSchemaValidator(xmlNamespacesConfig);
+                    schemaValidator.setFormat(oaiRecord.getFormat().getMdprefix());
 
-                    if (rt.getDissemination().getXmldata() != null && !rt.getDissemination().getXmldata().isEmpty()) {
-                        XmlSchemaValidator schemaValidator = new XmlSchemaValidator(xmlNamespacesConfig);
-                        schemaValidator.setFormat(rt.getFormat().getMdprefix());
+                    try {
+                        schemaValidator.setXmlDoc(oaiRecord.getDissemination().getXmldata());
+
                         try {
-                            schemaValidator.setXmlDoc(rt.getDissemination().getXmldata());
 
-                            try {
-
-                                if (!schemaValidator.isValid()) {
-                                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                                            HttpStatus.NOT_ACCEPTABLE, "This xml has not valid schema.", null).response();
-                                }
-                            } catch (XPathExpressionException e) {
+                            if (!schemaValidator.isValid()) {
                                 return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                                        HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
+                                        HttpStatus.NOT_ACCEPTABLE, "This xml has not valid schema.", null).response();
                             }
-                        } catch (XmlDomParserException e) {
+                        } catch (XPathExpressionException e) {
                             return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                                     HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
                         }
-                    }
-                }
-
-                Format format = format(rt);
-
-                if (format == null) {
-                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                            HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).response();
-                }
-
-                Record record = record(rt);
-
-                if (record == null) {
-                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                            HttpStatus.NOT_ACCEPTABLE, "Cannot find or save record.", null).response();
-                }
-
-                saveSets(rt, record);
-
-                rt.getDissemination().setFormatId(format.getFormatId());
-                rt.getDissemination().setRecordId(record.getUid());
-
-                try {
-
-                    if (disseminationService.saveDissemination(rt.getDissemination()) == null) {
+                    } catch (XmlDomParserException e) {
                         return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                                HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination because exists.", null).response();
+                                HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
                     }
-                } catch (SaveFailed e) {
-                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                            HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination.", null).response();
                 }
+            }
+
+            Format format = format(oaiRecord);
+
+            if (format == null) {
+                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).response();
+            }
+
+            Record record = record(oaiRecord, format);
+
+            if (record == null) {
+                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.NOT_ACCEPTABLE, "Cannot find or save record.", null).response();
+            }
+
+            saveSets(oaiRecord, record);
+
+            oaiRecord.getDissemination().setFormatId(format.getFormatId());
+            oaiRecord.getDissemination().setRecordId(record.getOaiid());
+
+            try {
+
+                if (disseminationService.saveDissemination(oaiRecord.getDissemination()) == null) {
+                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                            HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination because exists.", null).response();
+                }
+            } catch (SaveFailed e) {
+                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination.", null).response();
             }
         } catch (IOException e) {
             return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
@@ -168,9 +167,9 @@ public class RecordController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "{uid}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "{oaiid}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity update(@RequestBody String input, @PathVariable String uid) {
+    public ResponseEntity update(@RequestBody String input, @PathVariable String oaiid) {
         ObjectMapper om = new ObjectMapper();
         Record updatedRecord;
 
@@ -178,26 +177,26 @@ public class RecordController {
             Record record = om.readValue(input, Record.class);
 
             try {
-                updatedRecord = recordService.updateRecord(record, uid);
+                updatedRecord = recordService.updateRecord(record, oaiid);
             } catch (UpdateFailed e) {
-                return new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{uid}",
+                return new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{oaiid}",
                         HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
             }
         } catch (IOException e) {
-            return new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{uid}",
+            return new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{oaiid}",
                     HttpStatus.BAD_REQUEST, "Bad request input.", e).response();
         }
 
         return new ResponseEntity<>(updatedRecord, HttpStatus.OK);
     }
 
-    @RequestMapping(value = {"{uid}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = {"{oaiid}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity delete(@PathVariable String uid) {
+    public ResponseEntity delete(@PathVariable String oaiid) {
         Record record = null;
 
         try {
-            Collection<Record> records = recordService.findRecord("uid", uid);
+            Collection<Record> records = recordService.findRecord("oaiid", oaiid);
 
             if (records != null) {
                 record = records.iterator().next();
@@ -206,7 +205,7 @@ public class RecordController {
                     try {
                         recordService.delete(record);
                     } catch (DeleteFailed deleteFailed) {
-                        return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}",
+                        return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{oaiid}",
                                 HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).response();
                     }
                 }
@@ -214,14 +213,14 @@ public class RecordController {
         } catch (NotFound ignored) { }
 
         if (record == null) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{uid}",
+            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{oaiid}",
                     HttpStatus.NOT_FOUND, "Cannot found record.", null).response();
         }
 
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity findAll(@RequestParam(value = "metadataPrefix", required = false) String metadataPrefix,
                                   @RequestParam(value = "from", required = false) String from,
@@ -242,7 +241,7 @@ public class RecordController {
             }
 
             if (metadataPrefix != null && from != null && until == null) {
-                records = recordService.findRowsByMultipleValues("between ? AND NOW()", metadataPrefix, from);
+                records = recordService.findRowsByMultipleValues("lastmoddate BETWEEN ? AND NOW()", metadataPrefix, from);
             }
 
             if (metadataPrefix != null && from == null && until == null) {
@@ -261,22 +260,22 @@ public class RecordController {
         return new ResponseEntity<>(records, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "{uid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "{oaiid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity find(@PathVariable(value = "uid", required = false) String uid) {
+    public ResponseEntity find(@PathVariable(value = "oaiid", required = false) String oaiid) {
         Record record;
 
         try {
-            Collection<Record> records = recordService.findRecord("uid", uid);
+            Collection<Record> records = recordService.findRecord("oaiid", oaiid);
 
             if (records == null) {
-                return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{uid}",
+                return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{oaiid}",
                         HttpStatus.NOT_FOUND, "Cannot found record.", null).response();
             }
 
             record = records.iterator().next();
         } catch (NotFound e) {
-            return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{uid}",
+            return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{oaiid}",
                     HttpStatus.NOT_FOUND, e.getMessage(), e).response();
         }
 
@@ -311,21 +310,33 @@ public class RecordController {
         return null;
     }
 
-    private Record record(OaiRecord rt) {
+    private Record record(OaiRecord rt, Format format) {
         Collection<Record> records;
         Record record = null;
 
         try {
-            records = recordService.findRecord("uid", rt.getRecord().getUid());
+            records = recordService.findRecord("oaiid", rt.getRecord().getOaiid());
 
-            if (records != null) {
+            if (records != null && records.size() > 0) {
                 record = records.iterator().next();
             }
 
             if (record == null) {
 
                 try {
-                    record = recordService.saveRecord(rt.getRecord());
+                    Record saveRec = rt.getRecord();
+                    Pattern pattern = Pattern.compile("qucosa:\\d+");
+                    Matcher matcher = pattern.matcher(saveRec.getOaiid());
+
+                    if (matcher.find()) {
+                        saveRec.setPid(matcher.group(0));
+                    }
+
+                    if (format.getMdprefix().equals("oai_dc")) {
+                        saveRec.setVisible(true);
+                    }
+
+                    record = recordService.saveRecord(saveRec);
                 } catch (SaveFailed e1) {
                     logger.error("Cannot save record..", e1);
                 }
@@ -333,7 +344,7 @@ public class RecordController {
 
             return record;
         } catch (NotFound e) {
-            logger.info("Cannot find record by uid (" + rt.getRecord().getUid() + ").", e);
+            logger.info("Cannot find record by uid (" + rt.getRecord().getOaiid() + ").", e);
         }
 
         return null;
