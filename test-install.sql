@@ -1,3 +1,14 @@
+-- DROP SEQUENCE public.oaiprovider;
+
+CREATE SEQUENCE public.oaiprovider
+  INCREMENT 1
+  MINVALUE 1
+  MAXVALUE 9223372036854775807
+  START 211
+  CACHE 1;
+ALTER TABLE public.oaiprovider
+  OWNER TO postgres;
+
 -- Table: public.sets
 -- DROP TABLE public.sets;
 CREATE TABLE public.sets
@@ -39,12 +50,12 @@ ALTER TABLE public.formats
 CREATE TABLE public.records
 (
   id bigint NOT NULL,
-  pid character varying(50) NOT NULL,
-  uid character varying(100) NOT NULL,
+  oaiid character varying(100) NOT NULL,
+  pid character varying(100) NOT NULL,
   deleted boolean NOT NULL DEFAULT false,
+  visible boolean NOT NULL DEFAULT false,
   CONSTRAINT record_pkey PRIMARY KEY (id),
-  CONSTRAINT record_unique UNIQUE (pid),
-  CONSTRAINT record_uid_unique UNIQUE (uid)
+  CONSTRAINT record_unique UNIQUE (oaiid)
 )
 WITH (
   OIDS=FALSE
@@ -67,7 +78,7 @@ CREATE TABLE public.disseminations
       REFERENCES public.formats (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE CASCADE,
   CONSTRAINT dissemination_record_fkey FOREIGN KEY (id_record)
-      REFERENCES public.records (uid) MATCH SIMPLE
+      REFERENCES public.records (oaiid) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE CASCADE
 )
 WITH (
@@ -137,8 +148,7 @@ ALTER TABLE public.rst_to_identifiers
 -- DROP VIEW public.oai_pmh_list;
 CREATE OR REPLACE VIEW public.oai_pmh_list AS
  SELECT rc.id AS record_id,
-    rc.pid,
-    rc.uid,
+    rc.oaiid,
     rc.deleted AS record_status,
     f.id AS format_id,
     f.mdprefix,
@@ -150,8 +160,9 @@ CREATE OR REPLACE VIEW public.oai_pmh_list AS
              LEFT JOIN sets_to_records str ON str.id_set = st.id
           WHERE str.id_record = rc.id) AS set
    FROM records rc
-     LEFT JOIN disseminations diss ON rc.uid::text = diss.id_record::text
-     LEFT JOIN formats f ON diss.id_format = f.id;
+     LEFT JOIN disseminations diss ON rc.oaiid::text = diss.id_record::text
+     LEFT JOIN formats f ON diss.id_format = f.id
+   WHERE rc.visible = true;
 
 ALTER TABLE public.oai_pmh_list
   OWNER TO postgres;
@@ -161,7 +172,7 @@ ALTER TABLE public.oai_pmh_list
 CREATE OR REPLACE VIEW public.oai_pmh_list_by_token AS
  SELECT rti.rst_id,
     rt.expiration_date,
-    rc.uid,
+    rc.oaiid,
     rc.id AS record_id,
     rc.deleted AS record_status,
     diss.lastmoddate,
@@ -175,8 +186,9 @@ CREATE OR REPLACE VIEW public.oai_pmh_list_by_token AS
    FROM rst_to_identifiers rti
      LEFT JOIN resumption_tokens rt ON rti.rst_id::text = rt.token_id::text
      LEFT JOIN records rc ON rti.record_id = rc.id
-     LEFT JOIN disseminations diss ON rc.uid::text = diss.id_record::text
-     LEFT JOIN formats fm ON fm.id = diss.id_format;
+     LEFT JOIN disseminations diss ON rc.oaiid::text = diss.id_record::text
+     LEFT JOIN formats fm ON fm.id = diss.id_format
+   WHERE rc.visible = true;
 
 ALTER TABLE public.oai_pmh_list_by_token
   OWNER TO postgres;

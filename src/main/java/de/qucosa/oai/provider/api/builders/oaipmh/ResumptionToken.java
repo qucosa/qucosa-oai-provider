@@ -38,7 +38,12 @@ public class ResumptionToken {
         Node resumptionTokenElem = resumptionTokenDoc.getDocumentElement();
 
         if ((dataSize - Integer.parseInt(String.valueOf(resumptionToken.getCursor()))) >= recordsProPage) {
-            resumptionTokenElem.setTextContent(resumptionToken.getTokenId());
+            String[] token = resumptionToken.getTokenId().split("/");
+            int count = Integer.valueOf(token[1]);
+            int page = (count + 1);
+            String tokenID = token[0] + "/" + String.valueOf(page);
+
+            resumptionTokenElem.setTextContent(tokenID);
         }
 
         resumptionTokenElem.getAttributes().getNamedItem("cursor").setNodeValue(String.valueOf(resumptionToken.getCursor()));
