@@ -28,8 +28,8 @@ services:
     environment:
       WAIT_HOSTS: oai-db:5432
       PSQL_URL: jdbc:postgresql://172.17.0.1:4811/oaiprovider
-#      PSQL_USER:
+      PSQL_USER:
       PSQL_PASSWD: oaiprov
-#      MIN_POOL_SIZE:
-#      MAX_POOL_SIZE:
-#      APP_URL:
+      MIN_POOL_SIZE:
+      MAX_POOL_SIZE:
+      APP_URL:
