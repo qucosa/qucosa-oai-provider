@@ -68,7 +68,8 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
         } catch (NotFound ignore) { }
 
         if (selectDiss != null) {
-            throw new SaveFailed("Cannot save dissemination because data row is exists.");
+            return null;
+            //throw new SaveFailed("Cannot save dissemination because data row is exists.");
         }
 
         String sql = "INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, id_record) VALUES " +
@@ -114,7 +115,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     public Dissemination update(Dissemination object) throws UpdateFailed {
         String sql = "UPDATE disseminations" +
                 " SET id_format = ?, lastmoddate = ?, xmldata = ?, id_record = ?, deleted = ?" +
-                " WHERE id = ?";
+                " WHERE id_format = ? AND id_record = ?";
 
         try {
             SQLXML sqlxml = connection.createSQLXML();
@@ -127,7 +128,8 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             statement.setSQLXML(3, sqlxml);
             statement.setString(4, object.getRecordId());
             statement.setBoolean(5, object.isDeleted());
-            statement.setLong(6, object.getDissId());
+            statement.setLong(6, object.getFormatId());
+            statement.setString(7, object.getRecordId());
             int updatedRows = statement.executeUpdate();
             connection.commit();
 
