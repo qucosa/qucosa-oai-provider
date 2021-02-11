@@ -247,32 +247,11 @@ class DisseminationControllerIT {
     }
 
     /**
-     * This test has a dependency to the saveDissemination with order number 2 and is not running as stand alone test.
-     * Value qucosa:32394 is referenced in psql-oai-provider-test-data.backup file.
-     */
-    @Test
-    @DisplayName("Save dissemination is not successful because exists in table.")
-    @Order(7)
-    public void saveDisseminationBecauseExists() throws Exception {
-        Dissemination dissemination = disseminations.get(2);
-        dissemination.setFormatId(format.getFormatId());
-        dissemination.setRecordId("qucosa:32394");
-
-        mvc.perform(
-                post("/disseminations")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(dissemination)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because data row is exists.")));
-    }
-
-    /**
      * Value 17 and qucosa:32394 are referenced in psql-oai-provider-test-data.backup file.
      */
     @Test
     @DisplayName("Update dissemination object with delete property for mark object as deleted.")
-    @Order(8)
+    @Order(7)
     public void updateDissemination() throws Exception {
         Dissemination dissemination = disseminationService.findByMultipleValues(
                 "id_record = %s AND id_format = %s",
@@ -300,7 +279,7 @@ class DisseminationControllerIT {
      */
     @Test
     @DisplayName("Delete dissemination from table.")
-    @Order(9)
+    @Order(8)
     public void deleteDissemination() throws Exception {
         Dissemination dissemination = disseminationService.findByMultipleValues(
                 "id_record = %s AND id_format = %s",
