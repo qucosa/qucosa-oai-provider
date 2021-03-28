@@ -152,12 +152,14 @@ public class RecordController {
             try {
 
                 if (disseminationService.saveDissemination(oaiRecord.getDissemination()) == null) {
-                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                            HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination because exists.", null).response();
+                    disseminationService.update(oaiRecord.getDissemination());
                 }
             } catch (SaveFailed e) {
                 return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                         HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination.", null).response();
+            } catch (UpdateFailed updateFailed) {
+                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.NOT_ACCEPTABLE, "Cannot update exists dissemination.", null).response();
             }
         } catch (IOException e) {
             return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
