@@ -44,8 +44,6 @@ public class ErrorDetails {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private LogMessage logMessage;
-
     public ErrorDetails(String classname,
                         String method,
                         String requestMethodAndPath,
@@ -102,18 +100,7 @@ public class ErrorDetails {
     }
 
     public String responseToString() throws JsonProcessingException {
-        logMessage = new LogMessage();
-        logMessage.setClassname(this.getClassname());
-        logMessage.setDate(this.getDate());
-        logMessage.setErrorMsg(this.getErrorMsg());
-        logMessage.setHttpStatus(this.getHttpStatus());
-        logMessage.setException(this.getException());
-        logMessage.setMethod(this.getMethod());
-        logMessage.setRequestMethod(this.getRequestMethod());
-        logMessage.setRequestPath(this.getRequestPath());
-        logMessage.setStacktrace(this.getStacktrace());
-
-        return objectMapper.writeValueAsString(logMessage);
+        return objectMapper.writeValueAsString(this);
     }
 
     private void setRequestPath(String requestMethodAndPath) {
