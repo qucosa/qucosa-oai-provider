@@ -15,6 +15,8 @@
  */
 package de.qucosa.oai.provider;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -39,6 +41,10 @@ public class ErrorDetails {
     private final LocalDateTime date;
 
     private final String method;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private LogMessage logMessage;
 
     public ErrorDetails(String classname,
                         String method,
@@ -93,6 +99,21 @@ public class ErrorDetails {
 
     public ResponseEntity response() {
         return new ResponseEntity<>(this, this.httpStatus);
+    }
+
+    public String responseToString() throws JsonProcessingException {
+        logMessage = new LogMessage();
+        logMessage.setClassname(this.getClassname());
+        logMessage.setDate(this.getDate());
+        logMessage.setErrorMsg(this.getErrorMsg());
+        logMessage.setHttpStatus(this.getHttpStatus());
+        logMessage.setException(this.getException());
+        logMessage.setMethod(this.getMethod());
+        logMessage.setRequestMethod(this.getRequestMethod());
+        logMessage.setRequestPath(this.getRequestPath());
+        logMessage.setStacktrace(this.getStacktrace());
+
+        return objectMapper.writeValueAsString(logMessage);
     }
 
     private void setRequestPath(String requestMethodAndPath) {
