@@ -16,6 +16,8 @@
 
 package de.qucosa.oai.provider.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.api.OaiError;
 import de.qucosa.oai.provider.api.builders.oaipmh.OaiPmhDataBuilderFactory;
 import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
@@ -33,6 +35,8 @@ import de.qucosa.oai.provider.services.RstToIdentifiersService;
 import de.qucosa.oai.provider.services.views.OaiPmhListByTokenService;
 import de.qucosa.oai.provider.services.views.OaiPmhListService;
 import org.apache.tomcat.util.buf.HexUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -66,6 +70,8 @@ import java.util.UUID;
 @RequestMapping("/oai")
 @RestController
 public class OaiPmhController {
+    private final Logger logger = LoggerFactory.getLogger(RecordController.class);
+
     private final Environment environment;
 
     @Value("${records.pro.page}")
@@ -119,9 +125,10 @@ public class OaiPmhController {
                                   @RequestParam(value = "until", required = false) String until,
                                   @RequestParam(value = "identifier", required = false) String identifier,
                                   @RequestParam(value = "resumptionToken", required = false) String resumptionToken,
-                                  HttpServletRequest request) throws TransformerException, XmlDomParserException {
+                                  HttpServletRequest request) throws TransformerException, XmlDomParserException, JsonProcessingException {
 
         if (verb == null || verb.isEmpty() || !verbs.contains(verb)) {
+            logger.info(errorDetails(new RuntimeException("badVerb"), "findAll", "GET:findAll", HttpStatus.BAD_REQUEST));
             return oaiError(request, "badVerb");
         }
 
@@ -142,6 +149,7 @@ public class OaiPmhController {
                     output = getOaiPmhList(oaiPmhDataBuilderFactory, metadataPrefix, from, until, request);
                 }
             } catch (Exception e) {
+                logger.info(errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND));
                 return oaiError(request, "noRecordsMatch");
             }
         }
@@ -149,33 +157,25 @@ public class OaiPmhController {
         if (verb.equals("ListSets")) {
             try {
                 output = getListSets(oaiPmhDataBuilderFactory, request);
-            } catch (Exception e) {
-                //return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
-            }
+            } catch (Exception ignore) {}
         }
 
         if (verb.equals("ListMetadataFormats")) {
             try {
                 output = getListMetadataFormats(oaiPmhDataBuilderFactory, request);
-            } catch (Exception e) {
-                //return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
-            }
+            } catch (Exception ignore) {}
         }
 
         if (verb.equals("GetRecord")) {
             try {
                 output = getRecord(metadataPrefix, identifier, oaiPmhDataBuilderFactory, request);
-            } catch (Exception e) {
-                //return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
-            }
+            } catch (Exception ignore) {}
         }
 
         if (verb.equals("Identify")) {
             try {
                 output = identify(oaiPmhDataBuilderFactory);
-            } catch (Exception e) {
-//                return errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND);
-            }
+            } catch (Exception ignore) {}
         }
 
         return output;
@@ -242,6 +242,9 @@ public class OaiPmhController {
                 resumptionTokenObj = resumptionTokenService.findById(resumptionToken);
 
                 if (resumptionTokenObj.getTokenId() == null) {
+                    logger.info(errorDetails(
+                            new RuntimeException(""), "getOaiPmhListByToken", "GET:findAll",
+                            HttpStatus.BAD_REQUEST));
                     return oaiError(request, "badResumptionToken");
                 }
             }
@@ -261,9 +264,9 @@ public class OaiPmhController {
             oaiPmhDataBuilderFactory.setResumptionToken(resumptionTokenObj);
             oaiPmhDataBuilderFactory.setFormat(format);
         } catch (SaveFailed saveFailed) {
-            //return errorDetails(saveFailed, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_ACCEPTABLE);
+            logger.info(errorDetails(saveFailed, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_ACCEPTABLE));
         } catch (NotFound | NoSuchAlgorithmException notFound) {
-            //return errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND);
+            logger.info(errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND));
         }
 
         try {
@@ -273,8 +276,8 @@ public class OaiPmhController {
                             String.valueOf(resumptionTokenObj.getFormatId()))
             );
         } catch (NotFound notFound) {
+            logger.info(errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND));
             return oaiError(request, "noRecordsMatch");
-            //return errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
@@ -308,10 +311,8 @@ public class OaiPmhController {
                 );
             }
         } catch (NotFound notFound) {
+            logger.info(errorDetails(notFound,  "findAll", "GET:findAll", HttpStatus.NOT_FOUND));
             return oaiError(request, "noRecordsMatch");
-            //@TOTO  return oaierror xml
-            /*return errorDetails(notFound,  "findAll", "GET:findAll",
-                    HttpStatus.NOT_FOUND);*/
         }
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
@@ -322,10 +323,10 @@ public class OaiPmhController {
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(error.getOaiErrorXml()), HttpStatus.OK);
     }
 
-//    private ResponseEntity errorDetails(Exception e, String method, String requestMethodAndApth, HttpStatus status) {
-//        return new ErrorDetails(this.getClass().getName(), method, requestMethodAndApth, status, e.getMessage(), e)
-//                .response();
-//    }
+    private String errorDetails(Exception e, String method, String requestMethodAndApth, HttpStatus status) throws JsonProcessingException {
+        return new ErrorDetails(this.getClass().getName(), method, requestMethodAndApth, status, e.getMessage(), e)
+                .responseToString();
+    }
 
     private ResponseEntity getListSets(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory, HttpServletRequest request) throws Exception {
         Collection<Set> sets = restTemplate.exchange(appUrl + ":" + serverPort + "/sets",
@@ -335,6 +336,9 @@ public class OaiPmhController {
         oaiPmhDataBuilderFactory.setSets(sets);
 
         if (sets.size() == 0) {
+            logger.info(errorDetails(
+                    new RuntimeException("noSetHierarchy"), "getListSets",
+                    "GET:findAll", HttpStatus.NOT_FOUND));
             return oaiError(request, "noSetHierarchy");
         }
 
@@ -349,6 +353,9 @@ public class OaiPmhController {
                         new ParameterizedTypeReference<Collection<Format>>() {}).getBody());
 
         if (oaiPmhDataBuilderFactory.getFormats().size() == 0) {
+            logger.info(errorDetails(
+                    new RuntimeException("noMetadataFormats"), "getListMetadataFormats",
+                    "GET:findAll", HttpStatus.NOT_FOUND));
             return oaiError(request, "noMetadataFormats");
         }
 
@@ -367,9 +374,9 @@ public class OaiPmhController {
     private ResponseEntity getRecord(String metadataPrefix, String identifier, OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory, HttpServletRequest request) throws Exception {
 
         if (identifier == null || identifier.isEmpty()) {
+            logger.info(errorDetails(new Exception("Identyfier parameter failed."), "getRecord",
+                    "GET:findAll", HttpStatus.NOT_FOUND));
             return oaiError(request, "badArgument");
-            /*return errorDetails(new Exception("Identyfier parameter failed."), "getRecord",
-                    "GET:findAll", HttpStatus.NOT_FOUND);*/
         }
 
         oaiPmhDataBuilderFactory.setIdentifier(identifier);
@@ -382,6 +389,9 @@ public class OaiPmhController {
                     Format.class);
 
             if (format.getFormatId() == null) {
+                logger.info(errorDetails(
+                        new RuntimeException("cannotDisseminateFormat"), "getRecord",
+                        "GET:findAll", HttpStatus.NOT_FOUND));
                 return oaiError(request, "cannotDisseminateFormat");
             }
 
@@ -390,8 +400,8 @@ public class OaiPmhController {
                     oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
             );
         } catch (NotFound notFound) {
+            logger.info(errorDetails(notFound, "getRecord", "GET:findAll", HttpStatus.NOT_FOUND));
             return oaiError(request, "idDoesNotExist");
-            //return errorDetails(notFound, "getRecord", "GET:findAll", HttpStatus.NOT_FOUND);
         }
 
         Document result;
@@ -399,6 +409,7 @@ public class OaiPmhController {
         try {
             result = oaiPmhDataBuilderFactory.oaiPmhData();
         } catch (NullPointerException e) {
+            logger.info(errorDetails(e, "getRecord", "GET:findAll", HttpStatus.NOT_FOUND));
             return oaiError(request, "idDoesNotExist");
         }
 

@@ -15,6 +15,7 @@
  */
 package de.qucosa.oai.provider.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
@@ -87,15 +88,17 @@ public class RecordController {
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity save(@RequestBody String input) {
+    public ResponseEntity save(@RequestBody String input) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
 
         try {
             OaiRecord oaiRecord = om.readValue(input, OaiRecord.class);
 
             if (oaiRecord == null) {
-                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                        HttpStatus.BAD_REQUEST, "Record transport mapping failed.", null).response();
+                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.BAD_REQUEST, "Record transport mapping failed.", null).responseToString());
+
+                return new ResponseEntity("Record transport mapping failed.", HttpStatus.BAD_REQUEST);
             }
 
             //@todo changed the oai dc dissemination exsists control
@@ -116,16 +119,22 @@ public class RecordController {
                         try {
 
                             if (!schemaValidator.isValid()) {
-                                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                                        HttpStatus.NOT_ACCEPTABLE, "This xml has not valid schema.", null).response();
+                                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                        HttpStatus.NOT_ACCEPTABLE, "This xml has not valid schema.", null).responseToString());
+
+                                return new ResponseEntity("This xml has not valid schema.", HttpStatus.NOT_ACCEPTABLE);
                             }
                         } catch (XPathExpressionException e) {
-                            return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
+                            logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
+
+                            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
                         }
                     } catch (XmlDomParserException e) {
-                        return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                                HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
+                        logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
+
+                        return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
                     }
                 }
             }
@@ -133,15 +142,19 @@ public class RecordController {
             Format format = format(oaiRecord);
 
             if (format == null) {
-                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                        HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).response();
+                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).responseToString());
+
+                return new ResponseEntity("Cannot save format because properties are failed.", HttpStatus.NOT_ACCEPTABLE);
             }
 
             Record record = record(oaiRecord, format);
 
             if (record == null) {
-                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                        HttpStatus.NOT_ACCEPTABLE, "Cannot find or save record.", null).response();
+                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.NOT_ACCEPTABLE, "Cannot find or save record.", null).responseToString());
+
+                return new ResponseEntity("Cannot find or save record.", HttpStatus.NOT_ACCEPTABLE);
             }
 
             saveSets(oaiRecord, record);
@@ -155,15 +168,21 @@ public class RecordController {
                     disseminationService.update(oaiRecord.getDissemination());
                 }
             } catch (SaveFailed e) {
-                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                        HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination.", null).response();
+                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination.", null).responseToString());
+
+                return new ResponseEntity("Cannot save dissemination.", HttpStatus.NOT_ACCEPTABLE);
             } catch (UpdateFailed updateFailed) {
-                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                        HttpStatus.NOT_ACCEPTABLE, "Cannot update exists dissemination.", null).response();
+                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                        HttpStatus.NOT_ACCEPTABLE, "Cannot update exists dissemination.", null).responseToString());
+
+                return new ResponseEntity("Cannot update exists dissemination.", HttpStatus.NOT_ACCEPTABLE);
             }
         } catch (IOException e) {
-            return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                    HttpStatus.BAD_REQUEST, null, e).response();
+            logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                    HttpStatus.BAD_REQUEST, null, e).responseToString());
+
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity(HttpStatus.OK);
@@ -171,7 +190,7 @@ public class RecordController {
 
     @RequestMapping(value = "{oaiid}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity update(@RequestBody String input, @PathVariable String oaiid) {
+    public ResponseEntity update(@RequestBody String input, @PathVariable String oaiid) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
         Record updatedRecord;
 
@@ -181,12 +200,16 @@ public class RecordController {
             try {
                 updatedRecord = recordService.updateRecord(record, oaiid);
             } catch (UpdateFailed e) {
-                return new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{oaiid}",
-                        HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
+                logger.info(new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{oaiid}",
+                        HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
+
+                return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
             }
         } catch (IOException e) {
-            return new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{oaiid}",
-                    HttpStatus.BAD_REQUEST, "Bad request input.", e).response();
+            logger.info(new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{oaiid}",
+                    HttpStatus.BAD_REQUEST, "Bad request input.", e).responseToString());
+
+            return new ResponseEntity("Bad request input.", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(updatedRecord, HttpStatus.OK);
@@ -194,7 +217,7 @@ public class RecordController {
 
     @RequestMapping(value = {"{oaiid}"}, method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity delete(@PathVariable String oaiid) {
+    public ResponseEntity delete(@PathVariable String oaiid) throws JsonProcessingException {
         Record record = null;
 
         try {
@@ -207,16 +230,20 @@ public class RecordController {
                     try {
                         recordService.delete(record);
                     } catch (DeleteFailed deleteFailed) {
-                        return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{oaiid}",
-                                HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).response();
+                        logger.info(new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{oaiid}",
+                                HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).responseToString());
+
+                        return new ResponseEntity(deleteFailed.getMessage(), HttpStatus.NOT_ACCEPTABLE);
                     }
                 }
             }
         } catch (NotFound ignored) { }
 
         if (record == null) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{oaiid}",
-                    HttpStatus.NOT_FOUND, "Cannot found record.", null).response();
+            logger.info(new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{oaiid}",
+                    HttpStatus.NOT_FOUND, "Cannot found record.", null).responseToString());
+
+            return new ResponseEntity("Cannot found record.", HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(true, HttpStatus.OK);
@@ -233,9 +260,6 @@ public class RecordController {
 
             if (from != null && metadataPrefix == null) {
                 return new ResponseEntity<>(records, HttpStatus.OK);
-                /*return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll}",
-                        HttpStatus.NOT_FOUND, "The metadataPrefix parmater failed in from / until query.", null)
-                        .response();*/
             }
 
             if (metadataPrefix != null && from != null && until != null) {
@@ -254,37 +278,38 @@ public class RecordController {
             if (metadataPrefix == null && from == null && until == null) {
                 records = recordService.findAll();
             }
-        } catch (NotFound ignored) {
-            /*return new ErrorDetails(this.getClass().getName(), "findAll", "GET:findAll}",
-                    HttpStatus.NOT_FOUND, notFound.getMessage(), notFound).response();*/
-        }
+        } catch (NotFound ignored) {}
 
         return new ResponseEntity<>(records, HttpStatus.OK);
     }
 
     @RequestMapping(value = "{oaiid}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity find(@PathVariable(value = "oaiid", required = false) String oaiid) {
+    public ResponseEntity find(@PathVariable(value = "oaiid", required = false) String oaiid) throws JsonProcessingException {
         Record record;
 
         try {
             Collection<Record> records = recordService.findRecord("oaiid", oaiid);
 
             if (records == null) {
-                return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{oaiid}",
-                        HttpStatus.NOT_FOUND, "Cannot found record.", null).response();
+                logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:find/{oaiid}",
+                        HttpStatus.NOT_FOUND, "Cannot found record.", null).responseToString());
+
+                return new ResponseEntity("Cannot found record.", HttpStatus.NOT_FOUND);
             }
 
             record = records.iterator().next();
-        } catch (NotFound e) {
-            return new ErrorDetails(this.getClass().getName(), "find", "GET:find/{oaiid}",
-                    HttpStatus.NOT_FOUND, e.getMessage(), e).response();
+        } catch (NotFound | JsonProcessingException e) {
+            logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:find/{oaiid}",
+                    HttpStatus.NOT_FOUND, e.getMessage(), e).responseToString());
+
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(record, HttpStatus.OK);
     }
 
-    private Format format(OaiRecord rt) {
+    private Format format(OaiRecord rt) throws JsonProcessingException {
         Collection<Format> formats;
 
         try {
@@ -300,19 +325,21 @@ public class RecordController {
                 try {
                     format = formatService.saveFormat(rt.getFormat());
                 } catch (SaveFailed e1) {
-                    logger.error("Cannot save format.", e1);
+                    logger.info(new ErrorDetails(this.getClass().getName(), "format", "POST:format",
+                            HttpStatus.NOT_ACCEPTABLE, "Cannot save format.", e1).responseToString());
                 }
             }
 
             return format;
-        } catch (NotFound e) {
-            logger.warn("Cannot find format.", e);
+        } catch (NotFound | JsonProcessingException e) {
+            logger.info(new ErrorDetails(this.getClass().getName(), "format", "GET:format",
+                    HttpStatus.NOT_FOUND, "Cannot find format.", e).responseToString());
         }
 
         return null;
     }
 
-    private Record record(OaiRecord rt, Format format) {
+    private Record record(OaiRecord rt, Format format) throws JsonProcessingException {
         Collection<Record> records;
         Record record = null;
 
@@ -340,20 +367,22 @@ public class RecordController {
 
                     record = recordService.saveRecord(saveRec);
                 } catch (SaveFailed e1) {
-                    logger.error("Cannot save record..", e1);
+                    logger.info(new ErrorDetails(this.getClass().getName(), "record", "POST:record",
+                            HttpStatus.NOT_ACCEPTABLE, "Cannot save record.", e1).responseToString());
                 }
             }
 
             return record;
-        } catch (NotFound e) {
-            logger.info("Cannot find record by uid (" + rt.getRecord().getOaiid() + ").", e);
+        } catch (NotFound | JsonProcessingException e) {
+            logger.info(new ErrorDetails(this.getClass().getName(), "record", "GET:record",
+                    HttpStatus.NOT_FOUND, "Cannot find record by uid (" + rt.getRecord().getOaiid() + ").", e).responseToString());
         }
 
         return null;
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    private ResponseEntity saveSets(OaiRecord rt, Record record) {
+    private ResponseEntity saveSets(OaiRecord rt, Record record) throws JsonProcessingException {
 
         for (Set set : rt.getSets()) {
             Set readSet = null;
@@ -373,8 +402,10 @@ public class RecordController {
                 try {
                     set = setService.saveSet(set);
                 } catch (SaveFailed e) {
-                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                            HttpStatus.BAD_REQUEST, null, e).response();
+                    logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                            HttpStatus.BAD_REQUEST, null, e).responseToString());
+
+                    return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
                 }
             } else {
                 set = readSet;
@@ -403,8 +434,10 @@ public class RecordController {
                 try {
                     setsToRecordService.saveAndSetIdentifier(setsToRecord);
                 } catch (SaveFailed e) {
-                    return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                            HttpStatus.NOT_ACCEPTABLE, null, e).response();
+                    logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                            HttpStatus.NOT_ACCEPTABLE, null, e).responseToString());
+
+                    return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
                 }
             }
         }

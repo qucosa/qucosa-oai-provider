@@ -15,6 +15,7 @@
  */
 package de.qucosa.oai.provider.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
@@ -23,6 +24,8 @@ import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.FormatService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,6 +50,8 @@ import java.util.List;
 public class FormatsController {
     private final FormatService formatService;
 
+    private final Logger logger = LoggerFactory.getLogger(FormatsController.class);
+
     @Autowired
     public FormatsController(FormatService formatService) {
         this.formatService = formatService;
@@ -54,12 +59,14 @@ public class FormatsController {
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity findAll() {
+    public ResponseEntity findAll() throws JsonProcessingException {
         Collection<Format> formats = new ArrayList<>();
 
         try {
             formats = formatService.findAll();
         } catch (NotFound e) {
+            logger.info(new ErrorDetails(this.getClass().getName(), "findAll", "GET:formats",
+                    HttpStatus.NOT_FOUND, "", e).responseToString());
             /*return new ErrorDetails(this.getClass().getName(), "findAll", "GET:formats",
                     HttpStatus.NOT_FOUND, "", e).response();*/
         }
@@ -70,20 +77,24 @@ public class FormatsController {
     @GetMapping(value = "/format", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity find(@RequestParam(value = "mdprefix", required = false) String mdprefix,
-                               @RequestParam(value = "formatId", required = false) Long formatId) {
+                               @RequestParam(value = "formatId", required = false) Long formatId) throws JsonProcessingException {
 
         if (mdprefix == null && formatId == null) {
-            return new ErrorDetails(this.getClass().getName(), "find",
+            logger.info(new ErrorDetails(this.getClass().getName(), "find",
                     "GET:formats/format",
                     HttpStatus.BAD_REQUEST, "You must set mdprefix or formatId request paramter.",
-                    null).response();
+                    null).responseToString());
+
+            return new ResponseEntity("Missing mdprefix or formatId request paramter.", HttpStatus.BAD_REQUEST);
         }
 
         if (mdprefix != null && formatId != null) {
-            return new ErrorDetails(this.getClass().getName(), "find",
+            logger.info(new ErrorDetails(this.getClass().getName(), "find",
                     "GET:formats/format?formatId=" + formatId + "&mdprefix=" + mdprefix,
                     HttpStatus.BAD_REQUEST, "Setting from mdprefix and formatid is not allowed.",
-                    null).response();
+                    null).responseToString());
+
+            return new ResponseEntity("Setting from mdprefix and formatid is not allowed.", HttpStatus.BAD_REQUEST);
         }
 
         Collection<Format> formats;
@@ -96,8 +107,6 @@ public class FormatsController {
 
                 if (formats.isEmpty()) {
                     return new ResponseEntity<>(format, HttpStatus.OK);
-//                    return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
-//                            HttpStatus.NOT_FOUND, "Cannot found format.", null).response();
                 }
 
                 format = formats.iterator().next();
@@ -108,8 +117,10 @@ public class FormatsController {
             }
 
         } catch (NotFound e) {
-            return new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
-                    HttpStatus.NOT_FOUND, "", e).response();
+            logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
+                    HttpStatus.NOT_FOUND, "", e).responseToString());
+
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(format, HttpStatus.OK);
@@ -117,7 +128,7 @@ public class FormatsController {
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity save(@RequestBody String input) {
+    public ResponseEntity save(@RequestBody String input) throws JsonProcessingException {
         Object output;
         ObjectMapper om = new ObjectMapper();
 
@@ -128,15 +139,21 @@ public class FormatsController {
             try {
                 output = formatService.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
             } catch (IOException e1) {
-                return new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
-                        HttpStatus.BAD_REQUEST, "", e).response();
+                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
+                        HttpStatus.BAD_REQUEST, "", e).responseToString());
+
+                return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
             } catch (SaveFailed saveFailed) {
-                return new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
-                        HttpStatus.NOT_ACCEPTABLE, saveFailed.getMessage(), saveFailed).response();
+                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
+                        HttpStatus.NOT_ACCEPTABLE, saveFailed.getMessage(), saveFailed).responseToString());
+
+                return new ResponseEntity(saveFailed.getMessage(), HttpStatus.NOT_ACCEPTABLE);
             }
         } catch (SaveFailed e) {
-            return new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
-                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
+            logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
+                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
+
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
 
         return new ResponseEntity<>(output, HttpStatus.OK);
@@ -144,14 +161,16 @@ public class FormatsController {
 
     @RequestMapping(value = "{mdprefix}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity update(@RequestBody Format input, @PathVariable String mdprefix) {
+    public ResponseEntity update(@RequestBody Format input, @PathVariable String mdprefix) throws JsonProcessingException {
         Format format;
 
         try {
             format = formatService.updateFormat(input, mdprefix);
         } catch (UpdateFailed e) {
-            return new ErrorDetails(this.getClass().getName(), "update", "PUT:formats/" + mdprefix,
-                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).response();
+            logger.info(new ErrorDetails(this.getClass().getName(), "update", "PUT:formats/" + mdprefix,
+                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
+
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
 
         return new ResponseEntity<>(format, HttpStatus.OK);
@@ -159,13 +178,15 @@ public class FormatsController {
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity delete(@RequestBody Format input) {
+    public ResponseEntity delete(@RequestBody Format input) throws JsonProcessingException {
 
         try {
             formatService.delete(input);
         } catch (DeleteFailed deleteFailed) {
-            return new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats",
-                    HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).response();
+            logger.info(new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats",
+                    HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).responseToString());
+
+            return new ResponseEntity(deleteFailed.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
 
         return new ResponseEntity<>(true, HttpStatus.OK);
