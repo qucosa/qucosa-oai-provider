@@ -163,12 +163,14 @@ class DisseminationControllerIT {
     @DisplayName("Find not disseminations because record uid is wrong / not exists in database.")
     @Order(2)
     public void findNotDisseminations() throws Exception {
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 get("/disseminations?uid=qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_FOUND.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot found dissemination. UID qucosa:00000 does not exists.")));
+                .andExpect(status().isNotFound()).andReturn();
+        //Cannot found dissemination. UID qucosa:00000 does not exists.
+        String response = mvcResult.getResponse().getContentAsString();
+        assertThat(response)
+                .isEqualTo("Cannot found dissemination. UID qucosa:00000 does not exists.");
     }
 
     @Test
@@ -221,13 +223,14 @@ class DisseminationControllerIT {
         dissemination.setFormatId(format.getFormatId());
         dissemination.setRecordId(null);
 
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 post("/disseminations")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(dissemination)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because record or format failed.")));
+                .andExpect(status().isNotAcceptable()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Cannot save dissemination because record or format failed.");
     }
 
     @Test
@@ -237,13 +240,14 @@ class DisseminationControllerIT {
         Dissemination dissemination = disseminations.get(2);
         dissemination.setFormatId(0L);
 
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 post("/disseminations")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(dissemination)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because record or format failed.")));
+                .andExpect(status().isNotAcceptable()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Cannot save dissemination because record or format failed.");
     }
 
     /**
