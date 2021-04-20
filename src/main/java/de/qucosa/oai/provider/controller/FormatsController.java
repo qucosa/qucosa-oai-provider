@@ -67,8 +67,6 @@ public class FormatsController {
         } catch (NotFound e) {
             logger.info(new ErrorDetails(this.getClass().getName(), "findAll", "GET:formats",
                     HttpStatus.NOT_FOUND, "", e).responseToString());
-            /*return new ErrorDetails(this.getClass().getName(), "findAll", "GET:formats",
-                    HttpStatus.NOT_FOUND, "", e).response();*/
         }
 
         return new ResponseEntity<>(formats, HttpStatus.OK);
