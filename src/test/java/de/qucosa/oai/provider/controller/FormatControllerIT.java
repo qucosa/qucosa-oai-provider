@@ -198,13 +198,14 @@ public class FormatControllerIT {
     public void formatNotSaved() throws Exception {
         Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
 
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 post("/formats")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(format)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot save format.")));
+                .andExpect(status().isNotAcceptable()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Cannot save format.");
     }
 
     @Test
@@ -237,13 +238,14 @@ public class FormatControllerIT {
         Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
         format.setMdprefix("test");
 
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 put("/formats/test")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(format)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot update format.")));
+                .andExpect(status().isNotAcceptable()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Cannot update format.");
     }
 
     @Test
@@ -313,13 +315,14 @@ public class FormatControllerIT {
         Format format = formatService.find("mdprefix", "xmetadissplus").iterator().next();
         format.setMdprefix("test");
 
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 delete("/formats")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(format)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot delete format " + format.getMdprefix() + ".")));
+                .andExpect(status().isNotAcceptable()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Cannot delete format test.");
     }
 
     @AfterAll
