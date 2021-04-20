@@ -101,12 +101,6 @@ public class RecordController {
                 return new ResponseEntity("Record transport mapping failed.", HttpStatus.BAD_REQUEST);
             }
 
-            //@todo changed the oai dc dissemination exsists control
-            /*if (!recordService.checkIfOaiDcDisseminationExists(oaiRecord)) {
-                return new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                        HttpStatus.BAD_REQUEST, "OAI_DC dissemination failed.", null).response();
-            }*/
-
             if (oaiRecord.isValidateXmlSchema()) {
 
                 if (oaiRecord.getDissemination().getXmldata() != null && !oaiRecord.getDissemination().getXmldata().isEmpty()) {
