@@ -178,14 +178,14 @@ public class SetControllerIT {
     @Order(4)
     public void saveSetNotSuccessful() throws Exception {
         Set set = setService.find("setspec", "ddc:610").iterator().next();
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 post("/sets")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(set)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot save set objects.")))
-                .andExpect(jsonPath("$.method", is("save")));
+                .andExpect(status().isNotAcceptable()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Cannot save set objects.");
     }
 
     @Test
@@ -318,13 +318,14 @@ public class SetControllerIT {
         Set set = sets.get(0);
         set.setSetSpec("ddc:8000");
 
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 delete("/sets")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(set)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.BAD_REQUEST.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot hard delete set.")));
+                .andExpect(status().isBadRequest()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Cannot hard delete set.");
     }
 
     @AfterAll
