@@ -190,12 +190,13 @@ public class RecordControllerIT {
     @DisplayName("Not record by uid found.")
     @Order(5)
     public void notFound() throws Exception {
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 get("/records/qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_FOUND.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot found record.")));
+                .andExpect(status().isNotFound()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Cannot found record.");
     }
 
     @Test
@@ -226,12 +227,13 @@ public class RecordControllerIT {
         Record record = new Record();
         record.setOaiid("qucosa:00000");
 
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 put("/records/qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot update record.")));
+                .andExpect(status().isNotAcceptable()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Cannot update record.");
     }
 
     @Test
@@ -241,12 +243,13 @@ public class RecordControllerIT {
         Record record = new Record();
         record.setOaiid("qucosa:00000");
 
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 put("/records/qucosa:00001")
                         .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Unequal oaiid parameter with record object oaiid.")));
+                .andExpect(status().isNotAcceptable()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Unequal oaiid parameter with record object oaiid.");
     }
 
     @Test
@@ -278,12 +281,13 @@ public class RecordControllerIT {
     @DisplayName("Delete record is not successful because uid parameter is does not exists in racords table.")
     @Order(11)
     public void isNotDeleted() throws Exception {
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 delete("/records/qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(new Record())))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_FOUND.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot found record.")));
+                .andExpect(status().isNotFound()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Cannot found record.");
     }
 }
