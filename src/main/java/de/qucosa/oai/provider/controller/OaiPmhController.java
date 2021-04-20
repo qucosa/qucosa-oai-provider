@@ -299,7 +299,7 @@ public class OaiPmhController {
 
             if (metadataPrefix != null && from != null && until != null) {
                 oaiPmhDataBuilderFactory.setOaiPmhList(
-                        oaiPmhListService.findByMultipleValues("", String.valueOf(format.getFormatId()), from, until)
+                        oaiPmhListService.findByMultipleValues("lastmoddate BETWEEN ? AND ?", String.valueOf(format.getFormatId()), from, until)
                 );
             } else if (metadataPrefix != null && from != null && until == null) {
                 oaiPmhDataBuilderFactory.setOaiPmhList(
