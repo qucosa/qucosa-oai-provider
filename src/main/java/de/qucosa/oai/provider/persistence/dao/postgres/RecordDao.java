@@ -59,6 +59,12 @@ public class RecordDao<T extends Record> implements Dao<Record> {
         sql+="ON CONFLICT (oaiid) ";
         sql+="DO NOTHING";
 
+        //String sql = "INSERT INTO records (id, oaiid, pid, visible) VALUES (nextval('oaiprovider'), ?, ?, ?)";
+        //sql+="ON CONFLICT (oaiid) ";
+        //sql+="DO UPDATE SET ";
+        //sql+="oaiid = ?, pid = ?, deleted = ?, visible = ? ";
+        //sql+="WHERE oaiid = ?";
+
         try {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, object.getOaiid());
