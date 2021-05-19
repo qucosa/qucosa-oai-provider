@@ -96,9 +96,9 @@ public class RecordController {
 
             if (oaiRecord == null) {
                 logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                        HttpStatus.BAD_REQUEST, "Record transport mapping failed.", null).responseToString());
+                        HttpStatus.BAD_REQUEST, "Oai record mapping failed.", null).responseToString());
 
-                return new ResponseEntity("Record transport mapping failed.", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity("Oai record mapping failed.", HttpStatus.BAD_REQUEST);
             }
 
             if (oaiRecord.isValidateXmlSchema()) {
