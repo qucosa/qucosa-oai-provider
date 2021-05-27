@@ -95,7 +95,7 @@ public class RecordController {
             OaiRecord oaiRecord = om.readValue(input, OaiRecord.class);
 
             if (oaiRecord == null) {
-                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                logger.error(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                         HttpStatus.BAD_REQUEST, "Oai record mapping failed.", null).responseToString());
 
                 return new ResponseEntity("Oai record mapping failed.", HttpStatus.BAD_REQUEST);
@@ -136,7 +136,7 @@ public class RecordController {
             Format format = format(oaiRecord);
 
             if (format == null) {
-                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                logger.error(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                         HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).responseToString());
 
                 return new ResponseEntity("Cannot save format because properties are failed.", HttpStatus.NOT_ACCEPTABLE);
@@ -145,7 +145,7 @@ public class RecordController {
             Record record = record(oaiRecord, format);
 
             if (record == null) {
-                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                logger.error(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                         HttpStatus.NOT_ACCEPTABLE, "Cannot find or save record.", null).responseToString());
 
                 return new ResponseEntity("Cannot find or save record.", HttpStatus.NOT_ACCEPTABLE);
@@ -162,18 +162,18 @@ public class RecordController {
                     disseminationService.update(oaiRecord.getDissemination());
                 }
             } catch (SaveFailed e) {
-                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                logger.error(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                         HttpStatus.NOT_ACCEPTABLE, "Cannot save dissemination.", null).responseToString());
 
                 return new ResponseEntity("Cannot save dissemination.", HttpStatus.NOT_ACCEPTABLE);
             } catch (UpdateFailed updateFailed) {
-                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                logger.error(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                         HttpStatus.NOT_ACCEPTABLE, "Cannot update exists dissemination.", null).responseToString());
 
                 return new ResponseEntity("Cannot update exists dissemination.", HttpStatus.NOT_ACCEPTABLE);
             }
         } catch (IOException e) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+            logger.error(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
                     HttpStatus.BAD_REQUEST, null, e).responseToString());
 
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
@@ -194,13 +194,13 @@ public class RecordController {
             try {
                 updatedRecord = recordService.updateRecord(record, oaiid);
             } catch (UpdateFailed e) {
-                logger.info(new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{oaiid}",
+                logger.error(new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{oaiid}",
                         HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
 
                 return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
             }
         } catch (IOException e) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{oaiid}",
+            logger.error(new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{oaiid}",
                     HttpStatus.BAD_REQUEST, "Bad request input.", e).responseToString());
 
             return new ResponseEntity("Bad request input.", HttpStatus.BAD_REQUEST);
@@ -224,7 +224,7 @@ public class RecordController {
                     try {
                         recordService.delete(record);
                     } catch (DeleteFailed deleteFailed) {
-                        logger.info(new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{oaiid}",
+                        logger.error(new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{oaiid}",
                                 HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).responseToString());
 
                         return new ResponseEntity(deleteFailed.getMessage(), HttpStatus.NOT_ACCEPTABLE);
