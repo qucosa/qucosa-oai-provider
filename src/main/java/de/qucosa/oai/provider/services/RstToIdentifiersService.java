@@ -17,7 +17,6 @@
 package de.qucosa.oai.provider.services;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
 
 import java.util.Collection;
@@ -31,7 +30,7 @@ public class RstToIdentifiersService {
         this.dao = dao;
     }
 
-    public Collection<RstToIdentifiers> saveAndSetIdentifier(Collection<RstToIdentifiers> objects) throws SaveFailed {
+    public Collection<RstToIdentifiers> saveAndSetIdentifier(Collection<RstToIdentifiers> objects) {
         return dao.saveAndSetIdentifier(objects);
     }
 }

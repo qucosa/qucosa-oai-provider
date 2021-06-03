@@ -16,10 +16,6 @@
 package de.qucosa.oai.provider.services;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import org.springframework.stereotype.Service;
 
@@ -37,36 +33,36 @@ public class FormatService {
         this.dao = dao;
     }
 
-    public Format saveFormat(Format format) throws SaveFailed {
+    public Format saveFormat(Format format) {
         return dao.saveAndSetIdentifier(format);
     }
 
-    public Collection<Format> saveFormats(List<Format> formats) throws SaveFailed {
+    public Collection<Format> saveFormats(List<Format> formats) {
         return dao.saveAndSetIdentifier(formats);
     }
 
-    public Format updateFormat(Format input, String mdprefix) throws UpdateFailed {
+    public Format updateFormat(Format input, String mdprefix) {
 
         if (!input.getMdprefix().equals(mdprefix)) {
-            throw new UpdateFailed("Cannot update format.");
+            //throw new UpdateFailed("Cannot update format.");
         }
 
         return dao.update(input);
     }
 
-    public Format findById(String id) throws NotFound {
+    public Format findById(String id) {
         return dao.findById(id);
     }
 
-    public Collection<Format> find(String column, String value) throws NotFound {
+    public Collection<Format> find(String column, String value) {
         return dao.findByPropertyAndValue(column, value);
     }
 
-    public Collection<Format> findAll() throws NotFound {
+    public Collection<Format> findAll() {
         return dao.findAll();
     }
 
-    public void delete(Format format) throws DeleteFailed {
+    public void delete(Format format) {
         dao.delete(format);
     }
 }

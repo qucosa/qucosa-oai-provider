@@ -17,7 +17,6 @@
 package de.qucosa.oai.provider.services.views;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhListByToken;
 
 import java.util.Collection;
@@ -31,7 +30,7 @@ public class OaiPmhListByTokenService {
         this.dao = dao;
     }
 
-    public Collection<OaiPmhListByToken> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<OaiPmhListByToken> findRowsByMultipleValues(String clause, String... values) {
         return dao.findRowsByMultipleValues(clause, values);
     }
 }
