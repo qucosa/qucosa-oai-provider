@@ -25,7 +25,7 @@ import java.sql.Timestamp;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResumptionToken implements Serializable, HasIdentifier {
+public class ResumptionToken implements Serializable, Identifiable {
 
     @JsonProperty("tokenId")
     private String tokenId;

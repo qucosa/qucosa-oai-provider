@@ -25,7 +25,7 @@ import java.sql.Timestamp;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Dissemination implements Serializable, HasIdentifier {
+public class Dissemination implements Serializable, Identifiable {
     @JsonProperty("dissid")
     private Long dissId;
 

@@ -17,7 +17,7 @@ package de.qucosa.oai.provider.persistence.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class SetsToRecord implements HasIdentifier {
+public class SetsToRecord implements Identifiable {
     private Long idSet;
 
     private Long idRecord;

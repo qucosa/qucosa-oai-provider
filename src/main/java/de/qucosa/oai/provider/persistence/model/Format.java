@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Format implements Serializable, HasIdentifier {
+public class Format implements Serializable, Identifiable {
     @JsonProperty("formatid")
     private Long formatId;
 

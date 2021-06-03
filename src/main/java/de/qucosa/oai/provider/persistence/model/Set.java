@@ -26,7 +26,7 @@ import java.io.Serializable;
 @XmlRootElement(name = "set")
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Set implements Serializable, HasIdentifier {
+public class Set implements Serializable, Identifiable {
     @JsonProperty("setid")
     private Long setId;
 

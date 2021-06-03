@@ -16,7 +16,7 @@
 
 package de.qucosa.oai.provider.persistence.model;
 
-public class RstToIdentifiers implements HasIdentifier {
+public class RstToIdentifiers implements Identifiable {
     private String rstId;
 
     private Long recordId;
