@@ -15,44 +15,44 @@
  */
 package de.qucosa.oai.provider.persistence;
 
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
-import de.qucosa.oai.provider.persistence.model.HasIdentifier;
+import de.qucosa.oai.provider.persistence.model.Identifiable;
 
 import java.util.Collection;
 
-@SuppressWarnings("RedundantThrows")
-public interface Dao<T extends HasIdentifier> {
+public interface Dao<T extends Identifiable> {
 
-    T saveAndSetIdentifier(T object) throws SaveFailed;
+    T saveAndSetIdentifier(T object);
 
-    Collection<T> saveAndSetIdentifier(Collection<T> objects) throws SaveFailed;
+    Collection<T> saveAndSetIdentifier(Collection<T> objects);
 
-    T update(T object) throws UpdateFailed;
+    T update(T object);
 
-    Collection<T> update() throws UpdateFailed;
+    Collection<T> update();
 
-    Collection<T> findAll() throws NotFound;
+    /**
+     * Find all records.
+     *
+     * @return Collection of all record in the database.
+     */
+    Collection<T> findAll();
 
-    T findById(String id) throws NotFound;
+    T findById(String id);
 
-    Collection<T> findByPropertyAndValue(String property, String value) throws NotFound;
+    Collection<T> findByPropertyAndValue(String property, String value);
 
-    T findByMultipleValues(String clause, String... values) throws NotFound;
+    T findByMultipleValues(String clause, String... values);
 
-    Collection<T> findRowsByMultipleValues(String clause, String... values) throws NotFound;
+    Collection<T> findRowsByMultipleValues(String clause, String... values);
 
-    Collection<T> findLastRowsByProperty() throws NotFound;
+//    Collection<T> findLastRowsByProperty();
 
-    Collection<T> findFirstRowsByProperty(String property, int limit) throws NotFound;
+    Collection<T> findFirstRowsByProperty(String property, int limit);
 
-    void delete() throws DeleteFailed;
+    void delete();
 
-    void delete(String ident) throws DeleteFailed;
+    void delete(String ident);
 
-    void delete(T object) throws DeleteFailed;
+    void delete(T object);
 }
 
 
