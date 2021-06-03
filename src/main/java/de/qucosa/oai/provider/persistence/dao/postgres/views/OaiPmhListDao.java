@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.persistence.model.views.OaiPmhList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,14 +86,14 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     }
 
     @Override
-    public Collection<OaiPmhList> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<OaiPmhList> findByPropertyAndValue(String property, String value) {
 
         if (property == null || property.isEmpty()) {
-            throw new NotFound("Property param failed.");
+            //throw new NotFound("Property param failed.");
         }
 
         if (value == null || value.isEmpty()) {
-            throw new NotFound("Value param failed.");
+            //throw new NotFound("Value param failed.");
         }
 
         Collection<OaiPmhList> oaiPmhList = new ArrayList<>();
@@ -112,10 +111,10 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
             resultSet.close();
 
             if (oaiPmhList.isEmpty()) {
-                throw new NotFound("Not found data in view oai_pmh_list.");
+                //throw new NotFound("Not found data in view oai_pmh_list.");
             }
         } catch (SQLException | JsonParseException | JsonMappingException e) {
-            throw new NotFound("DATA-TYPE-ERROR: Not found data in view oai_pmh_list.", e);
+            //throw new NotFound("DATA-TYPE-ERROR: Not found data in view oai_pmh_list.", e);
         } catch (IOException ignored) {
         }
 
@@ -128,7 +127,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
     }
 
     @Override
-    public Collection<OaiPmhList> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<OaiPmhList> findRowsByMultipleValues(String clause, String... values) {
         Collection<OaiPmhList> oaiPmhList = new ArrayList<>();
         String sql = "SELECT * FROM oai_pmh_list WHERE format_id = ? AND visible = true";
 
@@ -160,21 +159,16 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
             resultSet.close();
 
             if (oaiPmhList.isEmpty()) {
-                throw new NotFound("Not found data in view oai_pmh_list.");
+                //throw new NotFound("Not found data in view oai_pmh_list.");
             }
         } catch (SQLException | IOException e) {
-            throw new NotFound("SQL-ERROR: Not found data in view oai_pmh_list.", e);
+            //throw new NotFound("SQL-ERROR: Not found data in view oai_pmh_list.", e);
         } catch (DatatypeConfigurationException e) {
-            throw new NotFound("DATA-TYPE-ERROR: Not found data in view oai_pmh_list.", e);
+            //throw new NotFound("DATA-TYPE-ERROR: Not found data in view oai_pmh_list.", e);
         }
 
 
         return oaiPmhList;
-    }
-
-    @Override
-    public Collection<OaiPmhList> findLastRowsByProperty() {
-        return new ArrayList<>();
     }
 
     @Override

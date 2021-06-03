@@ -16,10 +16,6 @@
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -53,19 +49,17 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Dissemination saveAndSetIdentifier(Dissemination object) throws SaveFailed {
+    public Dissemination saveAndSetIdentifier(Dissemination object) {
         Dissemination selectDiss = null;
 
         if (object.getRecordId() == null || object.getRecordId().isEmpty()
                 || object.getFormatId() == null || object.getFormatId() == 0) {
-            throw new SaveFailed("Cannot save dissemination because record or format failed.");
+            //throw new SaveFailed("Cannot save dissemination because record or format failed.");
         }
 
-        try {
             selectDiss = this.findByMultipleValues(
                     "id_record=? AND id_format=?",
                     object.getRecordId(), String.valueOf(object.getFormatId()));
-        } catch (NotFound ignore) { }
 
         if (selectDiss != null) {
             return null;
@@ -87,23 +81,24 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SaveFailed("Cannot save dissemination.");
+                //throw new SaveFailed("Cannot save dissemination.");
             }
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
 
                 if (!generatedKeys.next()) {
-                    throw new SaveFailed("Creating dissemination failed, no ID obtained.");
+                    //throw new SaveFailed("Creating dissemination failed, no ID obtained.");
                 }
 
                 object.setIdentifier(generatedKeys.getLong("id"));
             }
 
             ps.close();
-            return object;
         } catch (SQLException e) {
-            throw new SaveFailed("SQL Error", e);
+            //throw new SaveFailed("SQL Error", e);
         }
+
+        return object;
     }
 
     @Override
@@ -112,7 +107,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Dissemination update(Dissemination object) throws UpdateFailed {
+    public Dissemination update(Dissemination object) {
         String sql = "UPDATE disseminations" +
                 " SET id_format = ?, lastmoddate = ?, xmldata = ?, id_record = ?, deleted = ?" +
                 " WHERE id_format = ? AND id_record = ?";
@@ -134,10 +129,10 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             connection.commit();
 
             if (updatedRows == 0) {
-                throw new UpdateFailed("Cannot update dissemination.");
+                //throw new UpdateFailed("Cannot update dissemination.");
             }
         } catch (SQLException e) {
-            throw new UpdateFailed("SQL-ERROR: Cannot update dissemination.", e);
+            //throw new UpdateFailed("SQL-ERROR: Cannot update dissemination.", e);
         }
 
         return object;
@@ -159,7 +154,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Collection<Dissemination> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Dissemination> findByPropertyAndValue(String property, String value) {
         String sql = "SELECT id, id_format, lastmoddate, xmldata, id_record, deleted FROM disseminations" +
                 " WHERE " + property + " = ?";
         Collection<Dissemination> disseminations = new ArrayList<>();
@@ -183,23 +178,24 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             resultSet.close();
 
             if (disseminations.size() == 0) {
-                throw new NotFound("Cannot found dissemination. UID " + value + " does not exists.");
+                //throw new NotFound("Cannot found dissemination. UID " + value + " does not exists.");
             }
         } catch (SQLException e) {
-            throw new NotFound(e.getMessage(), e);
+            //throw new NotFound(e.getMessage(), e);
         }
 
         return disseminations;
     }
 
     @Override
-    public Dissemination findByMultipleValues(String clause, String... values) throws NotFound {
-        clause = clause.replace("%s", "?");
+    public Dissemination findByMultipleValues(String clause, String... values) {
 
         if (values == null) {
-            throw new NotFound("Cannot find dissemination because parameters failed.");
+            //throw new NotFound("Cannot find dissemination because parameters failed.");
         }
 
+        clause = clause.replace("%s", "?");
+        Dissemination dissemination = null;
         String sql = "SELECT id, id_format, lastmoddate, xmldata, id_record, deleted FROM disseminations WHERE " + clause;
 
         try {
@@ -211,16 +207,17 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             }
 
             ResultSet resultSet = ps.executeQuery();
-            Dissemination dissemination = null;
 
             while (resultSet.next()) {
                 dissemination = disseminationData(resultSet);
             }
 
-            return dissemination;
+
         } catch (SQLException e) {
-            throw new NotFound("Connat find dissemination.", e);
+            //throw new NotFound("Connat find dissemination.", e);
         }
+
+        return dissemination;
     }
 
     @Override
@@ -229,12 +226,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Collection<Dissemination> findLastRowsByProperty() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public Collection<Dissemination> findFirstRowsByProperty(String property, int limit) throws NotFound {
+    public Collection<Dissemination> findFirstRowsByProperty(String property, int limit) {
         Collection<Dissemination> disseminations = new ArrayList<>();
         String sql = "SELECT * FROM disseminations order by " + property + " ASC";
 
@@ -253,10 +245,10 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             resultSet.close();
 
             if (disseminations.isEmpty()) {
-                throw new NotFound("Not fownd data rows.");
+                //throw new NotFound("Not fownd data rows.");
             }
         } catch (SQLException e) {
-            throw new NotFound("SQL-ERROR: Not fownd data rows.", e);
+            //throw new NotFound("SQL-ERROR: Not fownd data rows.", e);
         }
 
         return disseminations;
@@ -271,7 +263,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     public void delete(String ident) { }
 
     @Override
-    public void delete(Dissemination object) throws DeleteFailed {
+    public void delete(Dissemination object) {
         String sql = "DELETE FROM disseminations WHERE id = ?";
 
         try {
@@ -280,10 +272,10 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             int deleteRows = statement.executeUpdate();
 
             if (deleteRows == 0) {
-                throw new DeleteFailed("Cannot delete dissemination.");
+                //throw new DeleteFailed("Cannot delete dissemination.");
             }
         } catch (SQLException e) {
-            throw new DeleteFailed("SQL-ERROR: Cannot delete dissemination.", e);
+            //throw new DeleteFailed("SQL-ERROR: Cannot delete dissemination.", e);
         }
     }
 

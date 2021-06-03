@@ -17,10 +17,6 @@ package de.qucosa.oai.provider.persistence.dao.postgres;
 
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Record;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -54,32 +50,23 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public Record saveAndSetIdentifier(Record object) throws SaveFailed {
+    public Record saveAndSetIdentifier(Record object) {
         String sql = "INSERT INTO records (id, oaiid, pid, visible) VALUES (nextval('oaiprovider'), ?, ?, ?)";
         sql+="ON CONFLICT (oaiid) ";
         sql+="DO NOTHING";
-
-        //String sql = "INSERT INTO records (id, oaiid, pid, visible) VALUES (nextval('oaiprovider'), ?, ?, ?)";
-        //sql+="ON CONFLICT (oaiid) ";
-        //sql+="DO UPDATE SET ";
-        //sql+="oaiid = ?, pid = ?, deleted = ?, visible = ? ";
-        //sql+="WHERE oaiid = ?";
 
         try {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, object.getOaiid());
             ps.setString(2, object.getPid());
             ps.setBoolean(3, object.isVisible());
-            int affectedRows = ps.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new SaveFailed("Creating record failed, no rows affected.");
-            }
+            ps.executeUpdate();
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
 
                 if (!generatedKeys.next()) {
-                    throw new SaveFailed("Creating record failed, no ID obtained.");
+                    // FIXME log.warn();
+                    return null;
                 }
 
                 object.setIdentifier(generatedKeys.getLong("id"));
@@ -87,7 +74,8 @@ public class RecordDao<T extends Record> implements Dao<Record> {
 
             ps.close();
         } catch (SQLException e) {
-            throw new SaveFailed(e.getMessage());
+            // FIXME log.error();
+            throw new RuntimeException(e);
         }
 
         return object;
@@ -99,7 +87,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public Record update(Record object) throws UpdateFailed {
+    public Record update(Record object) {
         String sql = "UPDATE records SET deleted = ? WHERE oaiid = ?";
 
         try {
@@ -109,12 +97,12 @@ public class RecordDao<T extends Record> implements Dao<Record> {
             int updatedRows = ps.executeUpdate();
 
             if (updatedRows == 0) {
-                throw new UpdateFailed("Cannot update record.");
+                //throw new UpdateFailed("Cannot update record.");
             }
 
             ps.close();
         } catch (SQLException e) {
-            throw new UpdateFailed(e.getMessage());
+            //throw new UpdateFailed(e.getMessage());
         }
 
         return object;
@@ -126,7 +114,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public Collection<Record> findAll() throws NotFound {
+    public Collection<Record> findAll() {
         Collection<Record> records = new ArrayList<>();
         String sql = "SELECT * FROM records WHERE visible = true";
 
@@ -147,7 +135,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
             resultSet.close();
             stmt.close();
         } catch (SQLException e) {
-            throw new NotFound(e.getMessage());
+            //throw new NotFound(e.getMessage());
         }
 
         return records;
@@ -159,7 +147,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public Collection<Record> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Record> findByPropertyAndValue(String property, String value) {
         Record record = new Record();
         Collection<Record> records = new ArrayList<>();
         String sql = "SELECT * FROM records WHERE " + property + " = ? AND visible = true";
@@ -198,10 +186,10 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public Collection<Record> findRowsByMultipleValues(String clause, String... values) throws NotFound {
+    public Collection<Record> findRowsByMultipleValues(String clause, String... values) {
 
         if (values.length == 0 || values.length > 3) {
-            throw new NotFound("The values parameter may only has one to three values.");
+            //throw new NotFound("The values parameter may only has one to three values.");
         }
 
         Collection<Record> records = new ArrayList<>();
@@ -247,17 +235,12 @@ public class RecordDao<T extends Record> implements Dao<Record> {
                 return records;
             }
         } catch (SQLException e) {
-            throw new NotFound("SQL ERROR: Canot found records.", e);
+            //throw new NotFound("SQL ERROR: Canot found records.", e);
         } catch (DatatypeConfigurationException e) {
             e.printStackTrace();
         }
 
         return records;
-    }
-
-    @Override
-    public Collection<Record> findLastRowsByProperty() {
-        return new ArrayList<>();
     }
 
     @Override
@@ -271,7 +254,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
     }
 
     @Override
-    public void delete(String ident) throws DeleteFailed {
+    public void delete(String ident) {
         String sql = "DELETE FROM records WHERE oaiid = ?";
 
         try {
@@ -280,10 +263,10 @@ public class RecordDao<T extends Record> implements Dao<Record> {
             int deletedRows = statement.executeUpdate();
 
             if (deletedRows == 0) {
-                throw new DeleteFailed("Cannot delete record.");
+                //throw new DeleteFailed("Cannot delete record.");
             }
         } catch (SQLException e) {
-            throw new DeleteFailed("SQL-ERROR: Cannot delete record.", e);
+            //throw new DeleteFailed("SQL-ERROR: Cannot delete record.", e);
         }
     }
 

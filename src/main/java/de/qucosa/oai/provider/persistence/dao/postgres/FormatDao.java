@@ -16,10 +16,6 @@
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Format;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -51,7 +47,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public Format saveAndSetIdentifier(Format object) throws SaveFailed {
+    public Format saveAndSetIdentifier(Format object) {
         String sql = "INSERT INTO formats (id, mdprefix, schemaurl, namespace) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (mdprefix) ";
@@ -65,7 +61,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SaveFailed("Cannot save format.");
+                //throw new SaveFailed("Cannot save format.");
             }
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
@@ -80,14 +76,14 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             ps.close();
 
         } catch (SQLException e) {
-            throw new SaveFailed("Cannot save format.", e);
+            //throw new SaveFailed("Cannot save format.", e);
         }
 
         return object;
     }
 
     @Override
-    public Collection<Format> saveAndSetIdentifier(Collection<Format> objects) throws SaveFailed {
+    public Collection<Format> saveAndSetIdentifier(Collection<Format> objects) {
         String sql = "INSERT INTO formats (id, mdprefix, schemaurl, namespace) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (mdprefix) ";
@@ -110,13 +106,13 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             int[] insertRows = ps.executeBatch();
 
             if (insertRows.length == 0) {
-                throw new SaveFailed("Creating formats failed, no rows affected.");
+                //throw new SaveFailed("Creating formats failed, no rows affected.");
             }
 
             try (ResultSet result = ps.getGeneratedKeys()) {
 
                 if (!result.next()) {
-                    throw new SaveFailed("Creating formats failed, no ID obtained.");
+                    //throw new SaveFailed("Creating formats failed, no ID obtained.");
                 }
 
                 do {
@@ -127,14 +123,14 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             connection.commit();
             ps.close();
         } catch (SQLException e) {
-            throw new SaveFailed(e.getMessage());
+            //throw new SaveFailed(e.getMessage());
         }
 
         return output;
     }
 
     @Override
-    public Format update(Format object) throws UpdateFailed {
+    public Format update(Format object) {
         String sql = "UPDATE formats SET schemaurl = ?, namespace = ? where mdprefix = ? AND deleted = FALSE";
 
         try {
@@ -148,12 +144,12 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             connection.commit();
 
             if (updateRows == 0) {
-                throw new UpdateFailed("Cannot update format.");
+                //throw new UpdateFailed("Cannot update format.");
             }
 
             ps.close();
         } catch (SQLException e) {
-            throw new UpdateFailed(e.getMessage());
+            //throw new UpdateFailed(e.getMessage());
         }
 
         return object;
@@ -165,7 +161,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public Collection<Format> findAll() throws NotFound {
+    public Collection<Format> findAll() {
         String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats";
         Collection<Format> formats = new ArrayList<>();
 
@@ -183,7 +179,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             resultSet.close();
             stmt.close();
         } catch (SQLException e) {
-            throw new NotFound(e.getMessage());
+            //throw new NotFound(e.getMessage());
         }
 
 
@@ -191,7 +187,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public Format findById(String id) throws NotFound {
+    public Format findById(String id) {
         String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats where id = ?";
         Format format = new Format();
 
@@ -204,14 +200,14 @@ public class FormatDao<T extends Format> implements Dao<Format> {
                 format = formatData(resultSet);
             }
         } catch (SQLException e) {
-            throw new NotFound("Format with id (" + id + ") not found.", e);
+            //throw new NotFound("Format with id (" + id + ") not found.", e);
         }
 
         return format;
     }
 
     @Override
-    public Collection<Format> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Format> findByPropertyAndValue(String property, String value) {
         String sql = "SELECT id, mdprefix, schemaurl, namespace, deleted FROM formats where " + property + " = ?";
         Collection<Format> formats = new ArrayList<>();
 
@@ -228,7 +224,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             ps.close();
 
         } catch (SQLException e) {
-            throw new NotFound(e.getMessage());
+            //throw new NotFound(e.getMessage());
         }
 
         return formats;
@@ -241,11 +237,6 @@ public class FormatDao<T extends Format> implements Dao<Format> {
 
     @Override
     public Collection<Format> findRowsByMultipleValues(String clause, String... values) {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public Collection<Format> findLastRowsByProperty() {
         return new ArrayList<>();
     }
 
@@ -265,7 +256,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
     }
 
     @Override
-    public void delete(Format object) throws DeleteFailed {
+    public void delete(Format object) {
         String sql = "DELETE FROM formats where mdprefix = ?";
 
         try {
@@ -274,10 +265,10 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             int deleteRows = statement.executeUpdate();
 
             if (deleteRows == 0) {
-                throw new DeleteFailed("Cannot delete format " + object.getMdprefix() + ".");
+                //throw new DeleteFailed("Cannot delete format " + object.getMdprefix() + ".");
             }
         } catch (SQLException e) {
-            throw new DeleteFailed(e.getMessage(), e);
+            //throw new DeleteFailed(e.getMessage(), e);
         }
     }
 
