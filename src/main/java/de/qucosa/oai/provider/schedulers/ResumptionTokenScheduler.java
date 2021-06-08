@@ -16,7 +16,6 @@
 
 package de.qucosa.oai.provider.schedulers;
 
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
 import de.qucosa.oai.provider.services.ResumptionTokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +38,12 @@ public class ResumptionTokenScheduler {
     public void reportCronAct() {
 
         if (tokenService != null) {
+            tokenService.delete();
 
-            try {
-                tokenService.delete();
+            /*try {
             } catch (DeleteFailed deleteFailed) {
                 logger.error(deleteFailed.getMessage(), deleteFailed);
-            }
+            }*/
         }
     }
 }
