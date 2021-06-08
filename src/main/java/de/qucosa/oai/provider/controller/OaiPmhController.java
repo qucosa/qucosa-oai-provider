@@ -269,23 +269,23 @@ public class OaiPmhController {
             logger.info(errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND));
         }
 
-        try {
+        //try {
             oaiPmhDataBuilderFactory.setOaiPmhListByToken(
                     oaiPmhListByTokenService.findRowsByMultipleValues(
                             "rst_id = %s AND format = %s", resumptionTokenObj.getTokenId(),
                             String.valueOf(resumptionTokenObj.getFormatId()))
             );
-        } catch (NotFound notFound) {
+        /*} catch (NotFound notFound) {
             logger.info(errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND));
             return oaiError(request, "noRecordsMatch");
-        }
+        }*/
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
 
     private ResponseEntity getOaiPmhList(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory, String metadataPrefix,
                                          String from, String until, HttpServletRequest request) throws Exception {
-        try {
+        //try {
 
             if (format == null) {
                 format = restTemplate.getForObject(
@@ -310,10 +310,10 @@ public class OaiPmhController {
                         oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
                 );
             }
-        } catch (NotFound notFound) {
+        /*} catch (NotFound notFound) {
             logger.info(errorDetails(notFound,  "findAll", "GET:findAll", HttpStatus.NOT_FOUND));
             return oaiError(request, "noRecordsMatch");
-        }
+        }*/
 
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(oaiPmhDataBuilderFactory.oaiPmhData()), HttpStatus.OK);
     }
@@ -381,7 +381,7 @@ public class OaiPmhController {
 
         oaiPmhDataBuilderFactory.setIdentifier(identifier);
 
-        try {
+        //try {
             format = restTemplate.getForObject(
                     UriComponentsBuilder.fromUriString(appUrl + ":" + serverPort + "/formats/format")
                             .queryParam("mdprefix", metadataPrefix)
@@ -399,10 +399,10 @@ public class OaiPmhController {
             oaiPmhDataBuilderFactory.setOaiPmhList(
                     oaiPmhListService.findByPropertyAndValue("format_id", String.valueOf(format.getFormatId()))
             );
-        } catch (NotFound notFound) {
+        /*} catch (NotFound notFound) {
             logger.info(errorDetails(notFound, "getRecord", "GET:findAll", HttpStatus.NOT_FOUND));
             return oaiError(request, "idDoesNotExist");
-        }
+        }*/
 
         Document result;
 

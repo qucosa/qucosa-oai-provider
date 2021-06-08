@@ -17,11 +17,6 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.ErrorDetails;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.SetService;
 import org.slf4j.Logger;
@@ -40,7 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @RequestMapping("/sets")
 @RestController
@@ -58,15 +52,13 @@ public class SetController {
     @ResponseBody
     public ResponseEntity findAll() throws JsonProcessingException {
         Collection<Set> sets = new ArrayList<>();
+        sets = setService.findAll();
 
-        try {
-            sets = setService.findAll();
+        /*try {
         } catch (NotFound e) {
             logger.info(new ErrorDetails(this.getClass().getName(), "findAll", "GET:sets",
                     HttpStatus.NOT_FOUND, e.getMessage(), e).responseToString());
-            /*return new ErrorDetails(this.getClass().getName(), "findAll", "GET:sets",
-                    HttpStatus.NOT_FOUND, e.getMessage(), e).response();*/
-        }
+        }*/
 
         return new ResponseEntity<>(sets, HttpStatus.OK);
     }
@@ -76,49 +68,47 @@ public class SetController {
     public ResponseEntity find(@PathVariable String setspec) {
         Set set = new Set();
 
-        try {
+        //try {
             Collection<Set> sets = setService.find("setspec", setspec);
 
             if (!sets.isEmpty()) {
                 set = sets.iterator().next();
-                logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
-                        HttpStatus.NOT_FOUND, "Set with setspec " + setspec + " is does not exists.", null).responseToString());
-                /*return new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
-                        HttpStatus.NOT_FOUND, "Set with setspec " + setspec + " is does not exists.", null).response();*/
+                //logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
+                //        HttpStatus.NOT_FOUND, "Set with setspec " + setspec + " is does not exists.", null).responseToString());
             }
 
-        } catch (NotFound | JsonProcessingException ignored) { }
+        //} catch (NotFound | JsonProcessingException ignored) { }
 
         return new ResponseEntity<>(set, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity save(@RequestBody String input) throws JsonProcessingException {
+    public ResponseEntity save(@RequestBody String input) {
         Object output = null;
         ObjectMapper om = new ObjectMapper();
 
         try {
             output = setService.saveSet(om.readValue(input, Set.class));
         } catch (IOException e) {
+            //output = setService.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
 
-            try {
-                output = setService.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
+            /*try {
             } catch (SaveFailed e1) {
                 logger.error("Cannot save set collections.", e1);
-            } catch (IOException e1) {
+            }*/
+        }
+        /*catch (IOException e1) {
                 logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:sets",
                         HttpStatus.BAD_REQUEST, "", e).responseToString());
 
                 return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
             }
-        } catch (SaveFailed e) {
-            logger.error("Cannot save set object.", e);
-        }
+        }*/
 
         if (output == null) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:sets",
-                    HttpStatus.NOT_ACCEPTABLE, "Cannot save set objects.", null).responseToString());
+            //logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:sets",
+            //        HttpStatus.NOT_ACCEPTABLE, "Cannot save set objects.", null).responseToString());
 
             return new ResponseEntity("Cannot save set objects.", HttpStatus.NOT_ACCEPTABLE);
         }
@@ -130,15 +120,15 @@ public class SetController {
     @ResponseBody
     public ResponseEntity update(@RequestBody Set input, @PathVariable String setspec) throws JsonProcessingException {
         Set set;
+        set = setService.updateSet(input, setspec);
 
-        try {
-            set = setService.updateSet(input, setspec);
+        /*try {
         } catch (UpdateFailed e) {
             logger.info(new ErrorDetails(this.getClass().getName(), "update", "PUT:sets/" + setspec,
                     HttpStatus.NOT_ACCEPTABLE, null, e).responseToString());
 
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-        }
+        }*/
 
         return new ResponseEntity<>(set, HttpStatus.OK);
     }
@@ -146,15 +136,15 @@ public class SetController {
     @RequestMapping(method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity delete(@RequestBody Set input) throws JsonProcessingException {
+        setService.delete(input);
 
-        try {
-            setService.delete(input);
+        /*try {
         } catch (DeleteFailed deleteFailed) {
             logger.info(new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/",
                     HttpStatus.BAD_REQUEST, deleteFailed.getMessage(), deleteFailed).responseToString());
 
             return new ResponseEntity(deleteFailed.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        }*/
 
         return new ResponseEntity<>(true, HttpStatus.OK);
     }

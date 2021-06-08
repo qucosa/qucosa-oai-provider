@@ -18,10 +18,6 @@ package de.qucosa.oai.provider.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.ErrorDetails;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.services.DisseminationService;
 import org.slf4j.Logger;
@@ -63,13 +59,13 @@ public class DisseminationController {
         Collection<Dissemination> disseminations = new ArrayList<>();
 
         if (uid == null && formatId == null) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:disseminations",
-                    HttpStatus.BAD_REQUEST, "Parameter uid or formatId failed.", null).responseToString());
+            /*logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:disseminations",
+                    HttpStatus.BAD_REQUEST, "Parameter uid or formatId failed.", null).responseToString());*/
 
             return new ResponseEntity("Parameter uid or formatId failed.", HttpStatus.BAD_REQUEST);
         }
 
-        try {
+        //try {
 
             if (uid != null && formatId == null) {
                 disseminations = disseminationService.findByPropertyAndValue("id_record", uid);
@@ -86,12 +82,12 @@ public class DisseminationController {
                         String.valueOf(formatId));
                 disseminations.add(dissemination);
             }
-        } catch (NotFound e) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:disseminations" + uid,
-                    HttpStatus.NOT_FOUND, e.getMessage(), e).responseToString());
+        //} catch (NotFound e) {
+            /*logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:disseminations" + uid,
+                    HttpStatus.NOT_FOUND, e.getMessage(), e).responseToString());*/
 
-            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+            //return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        //}
 
         return new ResponseEntity<>(disseminations, HttpStatus.OK);
     }
@@ -99,16 +95,16 @@ public class DisseminationController {
     @GetMapping(value = "/earliest", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity findEarliest() throws JsonProcessingException {
-        Collection<Dissemination> disseminations;
+        Collection<Dissemination> disseminations = null;
 
-        try {
+        /*try {
             disseminations = disseminationService.findFirstRowsByProperty("lastmoddate", 1);
         } catch (NotFound notFound) {
             logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:findEarliest/earliest",
                     HttpStatus.NOT_FOUND, notFound.getMessage(), notFound).responseToString());
 
             return new ResponseEntity(notFound.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        }*/
 
         return new ResponseEntity<>(disseminations, HttpStatus.OK);
     }
@@ -127,12 +123,13 @@ public class DisseminationController {
                     HttpStatus.BAD_REQUEST, "", e).responseToString());
 
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (SaveFailed e) {
+        }
+        /*catch (SaveFailed e) {
             logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:disseminations",
                     HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
 
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-        }
+        }*/
 
         return new ResponseEntity<>(dissemination, HttpStatus.OK);
     }
@@ -141,15 +138,15 @@ public class DisseminationController {
     @ResponseBody
     public ResponseEntity update(@RequestBody Dissemination input) throws JsonProcessingException {
         Dissemination dissemination;
+        dissemination = disseminationService.update(input);
 
-        try {
-            dissemination = disseminationService.update(input);
+        /*try {
         } catch (UpdateFailed updateFailed) {
             logger.info(new ErrorDetails(this.getClass().getName(), "update", "PUT:disseminations",
                     HttpStatus.NOT_ACCEPTABLE, updateFailed.getMessage(), updateFailed).responseToString());
 
             return new ResponseEntity(updateFailed.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-        }
+        }*/
 
         return new ResponseEntity<>(dissemination, HttpStatus.OK);
     }
@@ -157,15 +154,15 @@ public class DisseminationController {
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity delete(@RequestBody Dissemination input) throws JsonProcessingException {
+        disseminationService.delete(input);
 
-        try {
-            disseminationService.delete(input);
+        /*try {
         } catch (DeleteFailed deleteFailed) {
             logger.info(new ErrorDetails(this.getClass().getName(), "delete", "DELETE:disseminations",
                     HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).responseToString());
 
             return new ResponseEntity(deleteFailed.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-        }
+        }*/
 
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
