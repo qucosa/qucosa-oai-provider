@@ -15,7 +15,7 @@
  */
 package de.qucosa.oai.provider.persistence.model;
 
-public interface HasIdentifier {
+public interface Identifiable {
     void setIdentifier(Object identifier);
 
     Object getIdentifier();
