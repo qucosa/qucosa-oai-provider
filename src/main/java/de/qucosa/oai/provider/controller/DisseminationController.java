@@ -17,7 +17,6 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.services.DisseminationService;
 import org.slf4j.Logger;
@@ -119,8 +118,8 @@ public class DisseminationController {
             dissemination = om.readValue(input, Dissemination.class);
             dissemination = disseminationService.saveDissemination(dissemination);
         } catch (IOException e) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:disseminations",
-                    HttpStatus.BAD_REQUEST, "", e).responseToString());
+            //logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:disseminations",
+            //        HttpStatus.BAD_REQUEST, "", e).responseToString());
 
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

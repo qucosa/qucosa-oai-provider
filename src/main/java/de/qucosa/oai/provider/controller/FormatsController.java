@@ -17,7 +17,6 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.FormatService;
 import org.slf4j.Logger;
@@ -74,19 +73,19 @@ public class FormatsController {
                                @RequestParam(value = "formatId", required = false) Long formatId) throws JsonProcessingException {
 
         if (mdprefix == null && formatId == null) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "find",
+            /*logger.info(new ErrorDetails(this.getClass().getName(), "find",
                     "GET:formats/format",
                     HttpStatus.BAD_REQUEST, "You must set mdprefix or formatId request paramter.",
-                    null).responseToString());
+                    null).responseToString());*/
 
             return new ResponseEntity("Missing mdprefix or formatId request paramter.", HttpStatus.BAD_REQUEST);
         }
 
         if (mdprefix != null && formatId != null) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "find",
+            /*logger.info(new ErrorDetails(this.getClass().getName(), "find",
                     "GET:formats/format?formatId=" + formatId + "&mdprefix=" + mdprefix,
                     HttpStatus.BAD_REQUEST, "Setting from mdprefix and formatid is not allowed.",
-                    null).responseToString());
+                    null).responseToString());*/
 
             return new ResponseEntity("Setting from mdprefix and formatid is not allowed.", HttpStatus.BAD_REQUEST);
         }
@@ -133,8 +132,8 @@ public class FormatsController {
             try {
                 output = formatService.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
             } catch (IOException e1) {
-                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
-                        HttpStatus.BAD_REQUEST, "", e).responseToString());
+                //logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
+                //        HttpStatus.BAD_REQUEST, "", e).responseToString());
 
                 return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
             }

@@ -17,7 +17,6 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.api.OaiError;
 import de.qucosa.oai.provider.api.builders.oaipmh.OaiPmhDataBuilderFactory;
 import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
@@ -128,7 +127,7 @@ public class OaiPmhController {
                                   HttpServletRequest request) throws TransformerException, XmlDomParserException, JsonProcessingException {
 
         if (verb == null || verb.isEmpty() || !verbs.contains(verb)) {
-            logger.info(errorDetails(new RuntimeException("badVerb"), "findAll", "GET:findAll", HttpStatus.BAD_REQUEST));
+            //logger.info(errorDetails(new RuntimeException("badVerb"), "findAll", "GET:findAll", HttpStatus.BAD_REQUEST));
             return oaiError(request, "badVerb");
         }
 
@@ -149,7 +148,7 @@ public class OaiPmhController {
                     output = getOaiPmhList(oaiPmhDataBuilderFactory, metadataPrefix, from, until, request);
                 }
             } catch (Exception e) {
-                logger.info(errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND));
+                //logger.info(errorDetails(e, "findAll", "GET:findAll", HttpStatus.NOT_FOUND));
                 return oaiError(request, "noRecordsMatch");
             }
         }
@@ -242,9 +241,9 @@ public class OaiPmhController {
                 resumptionTokenObj = resumptionTokenService.findById(resumptionToken);
 
                 if (resumptionTokenObj.getTokenId() == null) {
-                    logger.info(errorDetails(
+                    /*logger.info(errorDetails(
                             new RuntimeException(""), "getOaiPmhListByToken", "GET:findAll",
-                            HttpStatus.BAD_REQUEST));
+                            HttpStatus.BAD_REQUEST));*/
                     return oaiError(request, "badResumptionToken");
                 }
             }
@@ -264,9 +263,9 @@ public class OaiPmhController {
             oaiPmhDataBuilderFactory.setResumptionToken(resumptionTokenObj);
             oaiPmhDataBuilderFactory.setFormat(format);
         } catch (SaveFailed saveFailed) {
-            logger.info(errorDetails(saveFailed, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_ACCEPTABLE));
+            //logger.info(errorDetails(saveFailed, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_ACCEPTABLE));
         } catch (NotFound | NoSuchAlgorithmException notFound) {
-            logger.info(errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND));
+            //logger.info(errorDetails(notFound, "getOaiPmhListByToken", "GET:findAll", HttpStatus.NOT_FOUND));
         }
 
         //try {
@@ -323,10 +322,10 @@ public class OaiPmhController {
         return new ResponseEntity<>(DocumentXmlUtils.resultXml(error.getOaiErrorXml()), HttpStatus.OK);
     }
 
-    private String errorDetails(Exception e, String method, String requestMethodAndApth, HttpStatus status) throws JsonProcessingException {
+    /*private String errorDetails(Exception e, String method, String requestMethodAndApth, HttpStatus status) throws JsonProcessingException {
         return new ErrorDetails(this.getClass().getName(), method, requestMethodAndApth, status, e.getMessage(), e)
                 .responseToString();
-    }
+    }*/
 
     private ResponseEntity getListSets(OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory, HttpServletRequest request) throws Exception {
         Collection<Set> sets = restTemplate.exchange(appUrl + ":" + serverPort + "/sets",
@@ -336,9 +335,9 @@ public class OaiPmhController {
         oaiPmhDataBuilderFactory.setSets(sets);
 
         if (sets.size() == 0) {
-            logger.info(errorDetails(
+            /*logger.info(errorDetails(
                     new RuntimeException("noSetHierarchy"), "getListSets",
-                    "GET:findAll", HttpStatus.NOT_FOUND));
+                    "GET:findAll", HttpStatus.NOT_FOUND));*/
             return oaiError(request, "noSetHierarchy");
         }
 
@@ -353,9 +352,9 @@ public class OaiPmhController {
                         new ParameterizedTypeReference<Collection<Format>>() {}).getBody());
 
         if (oaiPmhDataBuilderFactory.getFormats().size() == 0) {
-            logger.info(errorDetails(
+            /*logger.info(errorDetails(
                     new RuntimeException("noMetadataFormats"), "getListMetadataFormats",
-                    "GET:findAll", HttpStatus.NOT_FOUND));
+                    "GET:findAll", HttpStatus.NOT_FOUND));*/
             return oaiError(request, "noMetadataFormats");
         }
 
@@ -374,8 +373,8 @@ public class OaiPmhController {
     private ResponseEntity getRecord(String metadataPrefix, String identifier, OaiPmhDataBuilderFactory oaiPmhDataBuilderFactory, HttpServletRequest request) throws Exception {
 
         if (identifier == null || identifier.isEmpty()) {
-            logger.info(errorDetails(new Exception("Identyfier parameter failed."), "getRecord",
-                    "GET:findAll", HttpStatus.NOT_FOUND));
+            //logger.info(errorDetails(new Exception("Identyfier parameter failed."), "getRecord",
+            //        "GET:findAll", HttpStatus.NOT_FOUND));
             return oaiError(request, "badArgument");
         }
 
@@ -389,9 +388,9 @@ public class OaiPmhController {
                     Format.class);
 
             if (format.getFormatId() == null) {
-                logger.info(errorDetails(
+                /*logger.info(errorDetails(
                         new RuntimeException("cannotDisseminateFormat"), "getRecord",
-                        "GET:findAll", HttpStatus.NOT_FOUND));
+                        "GET:findAll", HttpStatus.NOT_FOUND));*/
                 return oaiError(request, "cannotDisseminateFormat");
             }
 
@@ -409,7 +408,7 @@ public class OaiPmhController {
         try {
             result = oaiPmhDataBuilderFactory.oaiPmhData();
         } catch (NullPointerException e) {
-            logger.info(errorDetails(e, "getRecord", "GET:findAll", HttpStatus.NOT_FOUND));
+            //logger.info(errorDetails(e, "getRecord", "GET:findAll", HttpStatus.NOT_FOUND));
             return oaiError(request, "idDoesNotExist");
         }
 

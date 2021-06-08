@@ -17,7 +17,6 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.ErrorDetails;
 import de.qucosa.oai.provider.api.exceptions.XmlDomParserException;
 import de.qucosa.oai.provider.api.validators.xml.XmlSchemaValidator;
 import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
@@ -91,8 +90,8 @@ public class RecordController {
             OaiRecord oaiRecord = om.readValue(input, OaiRecord.class);
 
             if (oaiRecord == null) {
-                logger.error(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                        HttpStatus.BAD_REQUEST, "Oai record mapping failed.", null).responseToString());
+                //logger.error(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                //        HttpStatus.BAD_REQUEST, "Oai record mapping failed.", null).responseToString());
 
                 return new ResponseEntity("Oai record mapping failed.", HttpStatus.BAD_REQUEST);
             }
@@ -109,20 +108,20 @@ public class RecordController {
                         try {
 
                             if (!schemaValidator.isValid()) {
-                                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                                        HttpStatus.NOT_ACCEPTABLE, "This xml has not valid schema.", null).responseToString());
+                                //logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                                //        HttpStatus.NOT_ACCEPTABLE, "This xml has not valid schema.", null).responseToString());
 
                                 return new ResponseEntity("This xml has not valid schema.", HttpStatus.BAD_REQUEST);
                             }
                         } catch (XPathExpressionException e) {
-                            logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
+                            //logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                            //        HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
 
                             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
                         }
                     } catch (XmlDomParserException e) {
-                        logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                                HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
+                        //logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                        //        HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
 
                         return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
                     }
@@ -132,8 +131,8 @@ public class RecordController {
             Format format = format(oaiRecord);
 
             if (format == null) {
-                logger.error(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                        HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).responseToString());
+                //logger.error(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+                //        HttpStatus.NOT_ACCEPTABLE, "Cannot save format because properties are failed.", null).responseToString());
 
                 return new ResponseEntity("Cannot save format because properties are failed.", HttpStatus.NOT_ACCEPTABLE);
             }
@@ -172,8 +171,8 @@ public class RecordController {
                 return new ResponseEntity("Cannot update exists dissemination.", HttpStatus.NOT_ACCEPTABLE);
             }*/
         } catch (IOException e) {
-            logger.error(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
-                    HttpStatus.BAD_REQUEST, null, e).responseToString());
+            //logger.error(new ErrorDetails(this.getClass().getName(), "save", "POST:save",
+            //        HttpStatus.BAD_REQUEST, null, e).responseToString());
 
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
@@ -199,8 +198,8 @@ public class RecordController {
                 return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
             }*/
         } catch (IOException e) {
-            logger.error(new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{oaiid}",
-                    HttpStatus.BAD_REQUEST, "Bad request input.", e).responseToString());
+            //logger.error(new ErrorDetails(this.getClass().getName(), "update", "PUT:update/{oaiid}",
+            //        HttpStatus.BAD_REQUEST, "Bad request input.", e).responseToString());
 
             return new ResponseEntity("Bad request input.", HttpStatus.BAD_REQUEST);
         }
@@ -233,8 +232,8 @@ public class RecordController {
         //} catch (NotFound ignored) { }
 
         if (record == null) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{oaiid}",
-                    HttpStatus.NOT_FOUND, "Cannot found record.", null).responseToString());
+            //logger.info(new ErrorDetails(this.getClass().getName(), "delete", "DELETE:delete/{oaiid}",
+            //        HttpStatus.NOT_FOUND, "Cannot found record.", null).responseToString());
 
             return new ResponseEntity("Cannot found record.", HttpStatus.NOT_FOUND);
         }
@@ -285,8 +284,8 @@ public class RecordController {
             Collection<Record> records = recordService.findRecord("oaiid", oaiid);
 
             if (records == null) {
-                logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:find/{oaiid}",
-                        HttpStatus.NOT_FOUND, "Cannot found record.", null).responseToString());
+                //logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:find/{oaiid}",
+                //        HttpStatus.NOT_FOUND, "Cannot found record.", null).responseToString());
 
                 return new ResponseEntity("Cannot found record.", HttpStatus.NOT_FOUND);
             }
