@@ -17,10 +17,12 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.AppErrorHandle;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.FormatService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,9 +38,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @RequestMapping("/formats")
 @RestController
@@ -54,17 +54,8 @@ public class FormatsController {
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity findAll() throws JsonProcessingException {
-        Collection<Format> formats = new ArrayList<>();
-        formats = formatService.findAll();
-
-        /*try {
-        } catch (NotFound e) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "findAll", "GET:formats",
-                    HttpStatus.NOT_FOUND, "", e).responseToString());
-        }*/
-
-        return new ResponseEntity<>(formats, HttpStatus.OK);
+    public ResponseEntity findAll() {
+        return new ResponseEntity<>(formatService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping(value = "/format", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -73,48 +64,49 @@ public class FormatsController {
                                @RequestParam(value = "formatId", required = false) Long formatId) throws JsonProcessingException {
 
         if (mdprefix == null && formatId == null) {
-            /*logger.info(new ErrorDetails(this.getClass().getName(), "find",
-                    "GET:formats/format",
-                    HttpStatus.BAD_REQUEST, "You must set mdprefix or formatId request paramter.",
-                    null).responseToString());*/
-
-            return new ResponseEntity("Missing mdprefix or formatId request paramter.", HttpStatus.BAD_REQUEST);
+            AppErrorHandle aeh = new AppErrorHandle()
+                    .level(Level.ERROR)
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .message("Missing mdprefix or formatId request paramter.")
+                    .logger(logger);
+            aeh.logError();
+            return aeh.httpResponse();
         }
 
         if (mdprefix != null && formatId != null) {
-            /*logger.info(new ErrorDetails(this.getClass().getName(), "find",
-                    "GET:formats/format?formatId=" + formatId + "&mdprefix=" + mdprefix,
-                    HttpStatus.BAD_REQUEST, "Setting from mdprefix and formatid is not allowed.",
-                    null).responseToString());*/
-
-            return new ResponseEntity("Setting from mdprefix and formatid is not allowed.", HttpStatus.BAD_REQUEST);
+            AppErrorHandle aeh = new AppErrorHandle()
+                    .level(Level.ERROR)
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .message("Setting from mdprefix and formatid is not allowed.")
+                    .logger(logger);
+            aeh.logError();
+            return aeh.httpResponse();
         }
 
         Collection<Format> formats;
         Format format = new Format();
 
-        //try {
+        if (mdprefix != null) {
+            formats = formatService.find("mdprefix", mdprefix);
 
-            if (mdprefix != null) {
-                formats = formatService.find("mdprefix", mdprefix);
-
-                if (formats.isEmpty()) {
-                    return new ResponseEntity<>(format, HttpStatus.OK);
-                }
-
+            if (!formats.isEmpty()) {
                 format = formats.iterator().next();
             }
+        }
 
-            if (formatId != null) {
-                format = formatService.findById(String.valueOf(formatId));
-            }
+        if (formatId != null) {
+            format = formatService.findById(String.valueOf(formatId));
+        }
 
-        /*} catch (NotFound e) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:formats/" + mdprefix,
-                    HttpStatus.NOT_FOUND, "", e).responseToString());
-
-            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
-        }*/
+        if (format.getMdprefix().isEmpty()) {
+            AppErrorHandle aeh = new AppErrorHandle()
+                    .logger(logger)
+                    .level(Level.WARN)
+                    .httpStatus(HttpStatus.NOT_FOUND)
+                    .message("Cannot found format.");
+            aeh.logWarn();
+            aeh.httpResponse();
+        }
 
         return new ResponseEntity<>(format, HttpStatus.OK);
     }
@@ -122,34 +114,21 @@ public class FormatsController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity save(@RequestBody String input) throws JsonProcessingException {
-        Object output;
+        Object output = new Format();
         ObjectMapper om = new ObjectMapper();
 
         try {
             output = formatService.saveFormat(om.readValue(input, Format.class));
         } catch (IOException e) {
-
-            try {
-                output = formatService.saveFormats(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Format.class)));
-            } catch (IOException e1) {
-                //logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
-                //        HttpStatus.BAD_REQUEST, "", e).responseToString());
-
-                return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-            }
-            /*catch (SaveFailed saveFailed) {
-                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
-                        HttpStatus.NOT_ACCEPTABLE, saveFailed.getMessage(), saveFailed).responseToString());
-
-                return new ResponseEntity(saveFailed.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-            }*/
+            AppErrorHandle aeh = new AppErrorHandle()
+                    .logger(logger)
+                    .level(Level.ERROR)
+                    .exception(e)
+                    .message("The format input object is bad.")
+                    .httpStatus(HttpStatus.BAD_REQUEST);
+            aeh.logError();
+            return aeh.httpResponse();
         }
-        /*catch (SaveFailed e) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:formats",
-                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
-
-            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-        }*/
 
         return new ResponseEntity<>(output, HttpStatus.OK);
     }
@@ -157,16 +136,17 @@ public class FormatsController {
     @RequestMapping(value = "{mdprefix}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity update(@RequestBody Format input, @PathVariable String mdprefix) throws JsonProcessingException {
-        Format format;
-        format = formatService.updateFormat(input, mdprefix);
+        Format format = formatService.updateFormat(input);
 
-        /*try {
-        } catch (UpdateFailed e) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "update", "PUT:formats/" + mdprefix,
-                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e).responseToString());
-
-            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-        }*/
+        if (format == null) {
+            AppErrorHandle aeh = new AppErrorHandle()
+                    .logger(logger)
+                    .level(Level.ERROR)
+                    .message("Cannot update format " + input.getMdprefix())
+                    .httpStatus(HttpStatus.BAD_REQUEST);
+            aeh.logError();
+            aeh.httpResponse();
+        }
 
         return new ResponseEntity<>(format, HttpStatus.OK);
     }
@@ -175,15 +155,6 @@ public class FormatsController {
     @ResponseBody
     public ResponseEntity delete(@RequestBody Format input) throws JsonProcessingException {
         formatService.delete(input);
-
-        /*try {
-        } catch (DeleteFailed deleteFailed) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "delete", "DELETE:formats",
-                    HttpStatus.NOT_ACCEPTABLE, deleteFailed.getMessage(), deleteFailed).responseToString());
-
-            return new ResponseEntity(deleteFailed.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-        }*/
-
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
 }
