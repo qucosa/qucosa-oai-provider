@@ -41,12 +41,7 @@ public class FormatService {
         return dao.saveAndSetIdentifier(formats);
     }
 
-    public Format updateFormat(Format input, String mdprefix) {
-
-        if (!input.getMdprefix().equals(mdprefix)) {
-            //throw new UpdateFailed("Cannot update format.");
-        }
-
+    public Format updateFormat(Format input) {
         return dao.update(input);
     }
 
