@@ -15,8 +15,12 @@
  */
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
+import de.qucosa.oai.provider.AppErrorHandle;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.model.Format;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -30,6 +34,8 @@ import java.util.Collection;
 
 @Repository
 public class FormatDao<T extends Format> implements Dao<Format> {
+    private Logger logger = LoggerFactory.getLogger(FormatDao.class);
+
     private final Connection connection;
 
     @Autowired
@@ -58,16 +64,14 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             ps.setString(1, object.getMdprefix());
             ps.setString(2, object.getSchemaUrl());
             ps.setString(3, object.getNamespace());
-            int affectedRows = ps.executeUpdate();
-
-            if (affectedRows == 0) {
-                //throw new SaveFailed("Cannot save format.");
-            }
+            ps.executeUpdate();
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
 
                 if (!generatedKeys.next()) {
-                    throw new SQLException("Creating format failed, no ID obtained.");
+                    AppErrorHandle aeh = new AppErrorHandle().logger(logger).level(Level.WARN)
+                            .message("Cannot save format " + object.getMdprefix());
+                    return null;
                 }
 
                 object.setIdentifier(generatedKeys.getLong("id"));
@@ -76,7 +80,10 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             ps.close();
 
         } catch (SQLException e) {
-            //throw new SaveFailed("Cannot save format.", e);
+            AppErrorHandle aeh = new AppErrorHandle().logger(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.logError();
+            throw new RuntimeException(e);
         }
 
         return object;
@@ -84,49 +91,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
 
     @Override
     public Collection<Format> saveAndSetIdentifier(Collection<Format> objects) {
-        String sql = "INSERT INTO formats (id, mdprefix, schemaurl, namespace) ";
-        sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
-        sql+="ON CONFLICT (mdprefix) ";
-        sql+="DO NOTHING";
-        Collection<Format> output = new ArrayList<>();
-
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-            connection.setAutoCommit(false);
-
-            for (Format format : objects) {
-                ps.clearParameters();
-                ps.setString(1, format.getMdprefix());
-                ps.setString(2, format.getSchemaUrl());
-                ps.setString(3, format.getNamespace());
-                ps.addBatch();
-            }
-
-            ps.clearParameters();
-            int[] insertRows = ps.executeBatch();
-
-            if (insertRows.length == 0) {
-                //throw new SaveFailed("Creating formats failed, no rows affected.");
-            }
-
-            try (ResultSet result = ps.getGeneratedKeys()) {
-
-                if (!result.next()) {
-                    //throw new SaveFailed("Creating formats failed, no ID obtained.");
-                }
-
-                do {
-                    output.add(formatData(result));
-                } while(result.next());
-            }
-
-            connection.commit();
-            ps.close();
-        } catch (SQLException e) {
-            //throw new SaveFailed(e.getMessage());
-        }
-
-        return output;
+        return new ArrayList<>();
     }
 
     @Override
@@ -144,12 +109,19 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             connection.commit();
 
             if (updateRows == 0) {
-                //throw new UpdateFailed("Cannot update format.");
+                AppErrorHandle aeh = new AppErrorHandle().logger(logger).level(Level.WARN)
+                        .message("Cannot update format " + object.getMdprefix());
+                aeh.logWarn();
+
+                return null;
             }
 
             ps.close();
         } catch (SQLException e) {
-            //throw new UpdateFailed(e.getMessage());
+            AppErrorHandle aeh = new AppErrorHandle().logger(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.logError();
+            throw new RuntimeException(e);
         }
 
         return object;
@@ -179,9 +151,11 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             resultSet.close();
             stmt.close();
         } catch (SQLException e) {
-            //throw new NotFound(e.getMessage());
+            AppErrorHandle aeh = new AppErrorHandle().logger(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.logError();
+            throw new RuntimeException(e);
         }
-
 
         return formats;
     }
@@ -200,7 +174,10 @@ public class FormatDao<T extends Format> implements Dao<Format> {
                 format = formatData(resultSet);
             }
         } catch (SQLException e) {
-            //throw new NotFound("Format with id (" + id + ") not found.", e);
+            AppErrorHandle aeh = new AppErrorHandle().logger(logger).level(Level.ERROR).message(e.getMessage())
+                    .exception(e);
+            aeh.logError();
+            throw new RuntimeException(e);
         }
 
         return format;
@@ -222,9 +199,11 @@ public class FormatDao<T extends Format> implements Dao<Format> {
 
             resultSet.close();
             ps.close();
-
         } catch (SQLException e) {
-            //throw new NotFound(e.getMessage());
+            AppErrorHandle aeh = new AppErrorHandle().logger(logger).level(Level.ERROR).message(e.getMessage())
+                    .exception(e);
+            aeh.logError();
+            throw new RuntimeException(e);
         }
 
         return formats;
@@ -265,10 +244,14 @@ public class FormatDao<T extends Format> implements Dao<Format> {
             int deleteRows = statement.executeUpdate();
 
             if (deleteRows == 0) {
-                //throw new DeleteFailed("Cannot delete format " + object.getMdprefix() + ".");
+                AppErrorHandle aeh = new AppErrorHandle().logger(logger).level(Level.WARN)
+                        .message("Cannot delete format " + object.getMdprefix());
             }
         } catch (SQLException e) {
-            //throw new DeleteFailed(e.getMessage(), e);
+            AppErrorHandle aeh = new AppErrorHandle().logger(logger).level(Level.ERROR).message(e.getMessage())
+                    .exception(e);
+            aeh.logError();
+            throw new RuntimeException(e);
         }
     }
 
