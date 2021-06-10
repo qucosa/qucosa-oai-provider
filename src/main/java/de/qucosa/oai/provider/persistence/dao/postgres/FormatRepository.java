@@ -33,13 +33,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class FormatDao<T extends Format> implements Dao<Format> {
-    private Logger logger = LoggerFactory.getLogger(FormatDao.class);
+public class FormatRepository<T extends Format> implements Dao<Format> {
+    private Logger logger = LoggerFactory.getLogger(FormatRepository.class);
 
     private final Connection connection;
 
     @Autowired
-    public FormatDao(Connection connection) {
+    public FormatRepository(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -48,7 +48,7 @@ public class FormatDao<T extends Format> implements Dao<Format> {
         this.connection = connection;
     }
 
-    public FormatDao() {
+    public FormatRepository() {
         this.connection = null;
     }
 
