@@ -78,6 +78,16 @@ public class AppErrorHandle {
         }
     }
 
+    public void logWarn() {
+        ErrorDetails errorDetails = new ErrorDetails(message, level, httpStatus);
+
+        try {
+            logger.warn(errorDetails.errorDetails());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
     @JsonAutoDetect
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ErrorDetails {
