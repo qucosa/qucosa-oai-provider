@@ -16,8 +16,9 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.qucosa.oai.provider.AppErrorHandle;
+import de.qucosa.oai.provider.AppErrorHandler;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.FormatService;
 import org.slf4j.Logger;
@@ -58,29 +59,27 @@ public class FormatsController {
         return new ResponseEntity<>(formatService.findAll(), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/format", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/format", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
     @ResponseBody
     public ResponseEntity find(@RequestParam(value = "mdprefix", required = false) String mdprefix,
-                               @RequestParam(value = "formatId", required = false) Long formatId) throws JsonProcessingException {
+                                         @RequestParam(value = "formatId", required = false) Long formatId) throws JsonProcessingException {
 
         if (mdprefix == null && formatId == null) {
-            AppErrorHandle aeh = new AppErrorHandle()
+            AppErrorHandler aeh = new AppErrorHandler(logger)
                     .level(Level.ERROR)
                     .httpStatus(HttpStatus.BAD_REQUEST)
-                    .message("Missing mdprefix or formatId request paramter.")
-                    .logger(logger);
-            aeh.logError();
-            return aeh.httpResponse();
+                    .message("Missing mdprefix or formatId request parameter.");
+            aeh.log();
+            return new ResponseEntity<>(aeh.message(), aeh.httpStatus());
         }
 
         if (mdprefix != null && formatId != null) {
-            AppErrorHandle aeh = new AppErrorHandle()
+            AppErrorHandler aeh = new AppErrorHandler(logger)
                     .level(Level.ERROR)
                     .httpStatus(HttpStatus.BAD_REQUEST)
-                    .message("Setting from mdprefix and formatid is not allowed.")
-                    .logger(logger);
-            aeh.logError();
-            return aeh.httpResponse();
+                    .message("Setting of mdprefix and formatid is not allowed.");
+            aeh.log();
+            return new ResponseEntity<>(aeh.message(), aeh.httpStatus());
         }
 
         Collection<Format> formats;
@@ -99,16 +98,15 @@ public class FormatsController {
         }
 
         if (format.getMdprefix().isEmpty()) {
-            AppErrorHandle aeh = new AppErrorHandle()
-                    .logger(logger)
+            AppErrorHandler aeh = new AppErrorHandler(logger)
                     .level(Level.WARN)
                     .httpStatus(HttpStatus.NOT_FOUND)
                     .message("Cannot found format.");
-            aeh.logWarn();
-            aeh.httpResponse();
+            aeh.log();
+            return new ResponseEntity<>(aeh.message(), aeh.httpStatus());
         }
 
-        return new ResponseEntity<>(format, HttpStatus.OK);
+        return new ResponseEntity<>(format.getFormatId().toString(), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -120,7 +118,7 @@ public class FormatsController {
         try {
             output = formatService.saveFormat(om.readValue(input, Format.class));
         } catch (IOException e) {
-            AppErrorHandle aeh = new AppErrorHandle()
+            AppErrorHandler aeh = new AppErrorHandler()
                     .logger(logger)
                     .level(Level.ERROR)
                     .exception(e)
@@ -139,7 +137,7 @@ public class FormatsController {
         Format format = formatService.updateFormat(input);
 
         if (format == null) {
-            AppErrorHandle aeh = new AppErrorHandle()
+            AppErrorHandler aeh = new AppErrorHandler()
                     .logger(logger)
                     .level(Level.ERROR)
                     .message("Cannot update format " + input.getMdprefix())

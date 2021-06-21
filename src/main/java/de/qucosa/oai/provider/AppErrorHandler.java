@@ -28,7 +28,10 @@ import org.slf4j.event.Level;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class AppErrorHandle {
+import static org.slf4j.event.Level.ERROR;
+import static org.slf4j.event.Level.WARN;
+
+public class AppErrorHandler {
     private Logger logger;
 
     private Exception exception;
@@ -39,74 +42,70 @@ public class AppErrorHandle {
 
     private HttpStatus httpStatus;
 
-    public AppErrorHandle logger(Logger logger) {
+    public AppErrorHandler(Logger logger) {
+        this.logger = logger;
+    }
+
+    @Deprecated
+    public AppErrorHandler logger(Logger logger) {
         this.logger = logger;
         return this;
     }
 
-    public AppErrorHandle exception(Exception exception) {
+    public AppErrorHandler exception(Exception exception) {
         this.exception = exception;
         return this;
     }
 
-    public AppErrorHandle message(String message) {
+    public AppErrorHandler message(String message) {
         this.message = message;
         return this;
     }
 
-    public AppErrorHandle level(Level level) {
+    public String message() {
+        return message;
+    }
+
+    public AppErrorHandler level(Level level) {
         this.level = level;
         return this;
     }
 
-    public AppErrorHandle httpStatus(HttpStatus httpStatus) {
+    public AppErrorHandler httpStatus(HttpStatus httpStatus) {
         this.httpStatus = httpStatus;
         return this;
     }
 
-    public ResponseEntity httpResponse() {
-        return new ResponseEntity(message, httpStatus);
+    public void log() {
+        if (level.equals(ERROR)) {
+            logger.error(message);
+        } else if (level.equals(WARN)) {
+            logger.warn(message);
+        }
+        if (exception != null) logger.debug("Exception thrown", exception);
     }
 
-    public void logError() {
-        ErrorDetails errorDetails = new ErrorDetails(message, level, httpStatus);
-
-        try {
-            logger.error(errorDetails.errorDetails());
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void logWarn() {
-        ErrorDetails errorDetails = new ErrorDetails(message, level, httpStatus);
-
-        try {
-            logger.warn(errorDetails.errorDetails());
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+    public HttpStatus httpStatus() {
+        return httpStatus;
     }
 
     @JsonAutoDetect
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class ErrorDetails {
+    private static class ErrorDetails {
         @JsonProperty("exception")
         private Exception exception;
 
         @JsonProperty("message")
-        private String message;
+        private final String message;
 
         @JsonProperty("level")
-        private Level level;
+        private final Level level;
 
         @JsonProperty("httpStatus")
-        private HttpStatus httpStatus;
+        private final HttpStatus httpStatus;
 
         public ErrorDetails(String message, Level level, HttpStatus httpStatus) {
-            this.message = message;
-            this.level = level;
-            this.httpStatus = httpStatus;
+            this(null, message, level, httpStatus);
         }
 
         public ErrorDetails(Exception exception, String message, Level level, HttpStatus httpStatus) {
