@@ -17,7 +17,7 @@ package de.qucosa.oai.provider.config;
 
 import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.dao.postgres.DisseminationDao;
+import de.qucosa.oai.provider.persistence.dao.postgres.DisseminationRepository;
 import de.qucosa.oai.provider.persistence.dao.postgres.FormatRepository;
 import de.qucosa.oai.provider.persistence.dao.postgres.RecordDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.ResumptionTokenDao;
@@ -122,7 +122,7 @@ public class ApplicationConfig {
 
     @Bean
     public Dao<Dissemination> disseminationDao() throws SQLException {
-        return new DisseminationDao<>(connection());
+        return new DisseminationRepository<>(connection());
     }
 
     @Bean
