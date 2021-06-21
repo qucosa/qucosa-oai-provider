@@ -18,15 +18,9 @@
 
 package de.qucosa.oai.provider;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import static org.slf4j.event.Level.ERROR;
 import static org.slf4j.event.Level.WARN;
@@ -87,37 +81,5 @@ public class AppErrorHandler {
 
     public HttpStatus httpStatus() {
         return httpStatus;
-    }
-
-    @JsonAutoDetect
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private static class ErrorDetails {
-        @JsonProperty("exception")
-        private Exception exception;
-
-        @JsonProperty("message")
-        private final String message;
-
-        @JsonProperty("level")
-        private final Level level;
-
-        @JsonProperty("httpStatus")
-        private final HttpStatus httpStatus;
-
-        public ErrorDetails(String message, Level level, HttpStatus httpStatus) {
-            this(null, message, level, httpStatus);
-        }
-
-        public ErrorDetails(Exception exception, String message, Level level, HttpStatus httpStatus) {
-            this.exception = exception;
-            this.message = message;
-            this.level = level;
-            this.httpStatus = httpStatus;
-        }
-
-        public String errorDetails() throws JsonProcessingException {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.writeValueAsString(this);
-        }
     }
 }

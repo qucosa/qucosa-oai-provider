@@ -16,7 +16,6 @@
 package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.qucosa.oai.provider.AppErrorHandler;
 import de.qucosa.oai.provider.persistence.model.Format;
@@ -70,7 +69,7 @@ public class FormatsController {
                     .httpStatus(HttpStatus.BAD_REQUEST)
                     .message("Missing mdprefix or formatId request parameter.");
             aeh.log();
-            return new ResponseEntity<>(aeh.message(), aeh.httpStatus());
+            return new ResponseEntity(aeh.message(), aeh.httpStatus());
         }
 
         if (mdprefix != null && formatId != null) {
@@ -79,7 +78,7 @@ public class FormatsController {
                     .httpStatus(HttpStatus.BAD_REQUEST)
                     .message("Setting of mdprefix and formatid is not allowed.");
             aeh.log();
-            return new ResponseEntity<>(aeh.message(), aeh.httpStatus());
+            return new ResponseEntity(aeh.message(), aeh.httpStatus());
         }
 
         Collection<Format> formats;
@@ -118,14 +117,11 @@ public class FormatsController {
         try {
             output = formatService.saveFormat(om.readValue(input, Format.class));
         } catch (IOException e) {
-            AppErrorHandler aeh = new AppErrorHandler()
-                    .logger(logger)
-                    .level(Level.ERROR)
-                    .exception(e)
+            AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR).exception(e)
                     .message("The format input object is bad.")
                     .httpStatus(HttpStatus.BAD_REQUEST);
-            aeh.logError();
-            return aeh.httpResponse();
+            aeh.log();
+            return new ResponseEntity(aeh.message(), aeh.httpStatus());
         }
 
         return new ResponseEntity<>(output, HttpStatus.OK);
@@ -137,13 +133,11 @@ public class FormatsController {
         Format format = formatService.updateFormat(input);
 
         if (format == null) {
-            AppErrorHandler aeh = new AppErrorHandler()
-                    .logger(logger)
-                    .level(Level.ERROR)
+            AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR)
                     .message("Cannot update format " + input.getMdprefix())
                     .httpStatus(HttpStatus.BAD_REQUEST);
-            aeh.logError();
-            aeh.httpResponse();
+            aeh.log();
+            return new ResponseEntity(aeh.message(), aeh.httpStatus());
         }
 
         return new ResponseEntity<>(format, HttpStatus.OK);

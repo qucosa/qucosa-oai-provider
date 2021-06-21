@@ -82,11 +82,9 @@ public class FormatRepository<T extends Format> implements Dao<Format> {
             ps.close();
 
         } catch (SQLException e) {
-            AppErrorHandler aeh = new AppErrorHandler(logger)
-                    .exception(e)
-                    .message(e.getMessage())
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
                     .level(Level.ERROR);
-            aeh.logError();
+            aeh.log();
             throw new RuntimeException(e);
         }
 
@@ -113,18 +111,18 @@ public class FormatRepository<T extends Format> implements Dao<Format> {
             connection.commit();
 
             if (updateRows == 0) {
-                AppErrorHandler aeh = new AppErrorHandler().logger(logger).level(Level.WARN)
+                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.WARN)
                         .message("Cannot update format " + object.getMdprefix());
-                aeh.logWarn();
+                aeh.log();
 
                 return null;
             }
 
             ps.close();
         } catch (SQLException e) {
-            AppErrorHandler aeh = new AppErrorHandler().logger(logger).exception(e).message(e.getMessage())
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
                     .level(Level.ERROR);
-            aeh.logError();
+            aeh.log();
             throw new RuntimeException(e);
         }
 
@@ -155,9 +153,9 @@ public class FormatRepository<T extends Format> implements Dao<Format> {
             resultSet.close();
             stmt.close();
         } catch (SQLException e) {
-            AppErrorHandler aeh = new AppErrorHandler().logger(logger).exception(e).message(e.getMessage())
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
                     .level(Level.ERROR);
-            aeh.logError();
+            aeh.log();
             throw new RuntimeException(e);
         }
 
@@ -178,9 +176,9 @@ public class FormatRepository<T extends Format> implements Dao<Format> {
                 format = formatData(resultSet);
             }
         } catch (SQLException e) {
-            AppErrorHandler aeh = new AppErrorHandler().logger(logger).level(Level.ERROR).message(e.getMessage())
+            AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR).message(e.getMessage())
                     .exception(e);
-            aeh.logError();
+            aeh.log();
             throw new RuntimeException(e);
         }
 
@@ -204,9 +202,9 @@ public class FormatRepository<T extends Format> implements Dao<Format> {
             resultSet.close();
             ps.close();
         } catch (SQLException e) {
-            AppErrorHandler aeh = new AppErrorHandler().logger(logger).level(Level.ERROR).message(e.getMessage())
+            AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR).message(e.getMessage())
                     .exception(e);
-            aeh.logError();
+            aeh.log();
             throw new RuntimeException(e);
         }
 
@@ -248,13 +246,14 @@ public class FormatRepository<T extends Format> implements Dao<Format> {
             int deleteRows = statement.executeUpdate();
 
             if (deleteRows == 0) {
-                AppErrorHandler aeh = new AppErrorHandler().logger(logger).level(Level.WARN)
+                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.WARN)
                         .message("Cannot delete format " + object.getMdprefix());
+                aeh.log();
             }
         } catch (SQLException e) {
-            AppErrorHandler aeh = new AppErrorHandler().logger(logger).level(Level.ERROR).message(e.getMessage())
+            AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR).message(e.getMessage())
                     .exception(e);
-            aeh.logError();
+            aeh.log();
             throw new RuntimeException(e);
         }
     }
