@@ -34,13 +34,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class DisseminationDao<T extends Dissemination> implements Dao<Dissemination> {
-    private final Logger logger = LoggerFactory.getLogger(DisseminationDao.class);
+public class DisseminationRepository<T extends Dissemination> implements Dao<Dissemination> {
+    private final Logger logger = LoggerFactory.getLogger(DisseminationRepository.class);
 
     private final Connection connection;
 
     @Autowired
-    public DisseminationDao(Connection connection) {
+    public DisseminationRepository(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -49,7 +49,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
         this.connection = connection;
     }
 
-    public DisseminationDao() {
+    public DisseminationRepository() {
         this.connection = null;
     }
 
