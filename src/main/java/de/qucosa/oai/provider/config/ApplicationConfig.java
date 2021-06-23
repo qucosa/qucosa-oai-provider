@@ -22,7 +22,7 @@ import de.qucosa.oai.provider.persistence.dao.postgres.FormatRepository;
 import de.qucosa.oai.provider.persistence.dao.postgres.RecordDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.ResumptionTokenDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.RstToIdentifiersDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.SetDao;
+import de.qucosa.oai.provider.persistence.dao.postgres.SetRepository;
 import de.qucosa.oai.provider.persistence.dao.postgres.SetsToRecordDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.views.OaiPmhListByTokenDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.views.OaiPmhListDao;
@@ -85,14 +85,14 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public Dao<Set> setDao() throws SQLException {
-        return new SetDao<>(connection());
+    public Dao<Set> setRepository() throws SQLException {
+        return new SetRepository<>(connection());
     }
 
     @Bean
     public SetService setService() throws SQLException {
         SetService setService = new SetService();
-        setService.setDao(setDao());
+        setService.setDao(setRepository());
         return setService;
     }
 
@@ -121,14 +121,14 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public Dao<Dissemination> disseminationDao() throws SQLException {
+    public Dao<Dissemination> disseminationRepository() throws SQLException {
         return new DisseminationRepository<>(connection());
     }
 
     @Bean
     public DisseminationService disseminationService() throws SQLException {
         DisseminationService disseminationService = new DisseminationService();
-        disseminationService.setDao(disseminationDao());
+        disseminationService.setDao(disseminationRepository());
         return disseminationService;
     }
 
