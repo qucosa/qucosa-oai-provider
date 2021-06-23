@@ -193,11 +193,6 @@ public class DisseminationRepository<T extends Dissemination> implements Dao<Dis
             }
 
             resultSet.close();
-
-            //Fixme remove from respository and add check in controller
-            if (disseminations.size() == 0) {
-                //throw new NotFound("Cannot found dissemination. UID " + value + " does not exists.");
-            }
         } catch (SQLException e) {
             AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
                     .level(Level.ERROR);
@@ -271,9 +266,11 @@ public class DisseminationRepository<T extends Dissemination> implements Dao<Dis
 
             resultSet.close();
 
-            //Fixme remove from respository and add check in controller
             if (disseminations.isEmpty()) {
-                //throw new NotFound("Not fownd data rows.");
+                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.WARN)
+                        .message("Cannot found dissemnations.");
+                aeh.log();
+                return null;
             }
         } catch (SQLException e) {
             AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
