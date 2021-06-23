@@ -301,7 +301,7 @@ public class DisseminationRepository<T extends Dissemination> implements Dao<Dis
 
             if (deleteRows == 0) {
                 AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.WARN)
-                        .message("Cannot delete dissemination.");
+                        .message("Cannot delete dissemination for record " + object.getRecordId());
                 aeh.log();
             }
         } catch (SQLException e) {
