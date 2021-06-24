@@ -17,10 +17,12 @@ package de.qucosa.oai.provider.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.qucosa.oai.provider.AppErrorHandler;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.SetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,7 +35,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 
 @RequestMapping("/sets")
@@ -51,15 +52,7 @@ public class SetController {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity findAll() throws JsonProcessingException {
-        Collection<Set> sets = new ArrayList<>();
-        sets = setService.findAll();
-
-        /*try {
-        } catch (NotFound e) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "findAll", "GET:sets",
-                    HttpStatus.NOT_FOUND, e.getMessage(), e).responseToString());
-        }*/
-
+        Collection<Set> sets = setService.findAll();
         return new ResponseEntity<>(sets, HttpStatus.OK);
     }
 
@@ -67,17 +60,11 @@ public class SetController {
     @ResponseBody
     public ResponseEntity find(@PathVariable String setspec) {
         Set set = new Set();
+        Collection<Set> sets = setService.find("setspec", setspec);
 
-        //try {
-            Collection<Set> sets = setService.find("setspec", setspec);
-
-            if (!sets.isEmpty()) {
-                set = sets.iterator().next();
-                //logger.info(new ErrorDetails(this.getClass().getName(), "find", "GET:sets/" + setspec,
-                //        HttpStatus.NOT_FOUND, "Set with setspec " + setspec + " is does not exists.", null).responseToString());
-            }
-
-        //} catch (NotFound | JsonProcessingException ignored) { }
+        if (!sets.isEmpty()) {
+            set = sets.iterator().next();
+        }
 
         return new ResponseEntity<>(set, HttpStatus.OK);
     }
@@ -85,32 +72,22 @@ public class SetController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity save(@RequestBody String input) {
-        Object output = null;
+        Object output;
         ObjectMapper om = new ObjectMapper();
 
         try {
             output = setService.saveSet(om.readValue(input, Set.class));
         } catch (IOException e) {
-            //output = setService.saveSets(om.readValue(input, om.getTypeFactory().constructCollectionType(List.class, Set.class)));
-
-            /*try {
-            } catch (SaveFailed e1) {
-                logger.error("Cannot save set collections.", e1);
-            }*/
+            AppErrorHandler aeh = new AppErrorHandler(logger)
+                    .level(Level.ERROR)
+                    .httpStatus(HttpStatus.BAD_REQUEST)
+                    .message("Cannot parse JSON input.");
+            aeh.log();
+            return new ResponseEntity<>(aeh.message(), aeh.httpStatus());
         }
-        /*catch (IOException e1) {
-                logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:sets",
-                        HttpStatus.BAD_REQUEST, "", e).responseToString());
-
-                return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-            }
-        }*/
 
         if (output == null) {
-            //logger.info(new ErrorDetails(this.getClass().getName(), "save", "POST:sets",
-            //        HttpStatus.NOT_ACCEPTABLE, "Cannot save set objects.", null).responseToString());
-
-            return new ResponseEntity("Cannot save set objects.", HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity("Cannot save set objects.", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>(output, HttpStatus.OK);
@@ -119,16 +96,11 @@ public class SetController {
     @RequestMapping(value = "{setspec}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity update(@RequestBody Set input, @PathVariable String setspec) throws JsonProcessingException {
-        Set set;
-        set = setService.updateSet(input, setspec);
+        Set set = setService.updateSet(input, setspec);
 
-        /*try {
-        } catch (UpdateFailed e) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "update", "PUT:sets/" + setspec,
-                    HttpStatus.NOT_ACCEPTABLE, null, e).responseToString());
-
-            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
-        }*/
+        if (set == null) {
+            return new ResponseEntity("Cannot update set objects.", HttpStatus.BAD_REQUEST);
+        }
 
         return new ResponseEntity<>(set, HttpStatus.OK);
     }
@@ -137,15 +109,6 @@ public class SetController {
     @ResponseBody
     public ResponseEntity delete(@RequestBody Set input) throws JsonProcessingException {
         setService.delete(input);
-
-        /*try {
-        } catch (DeleteFailed deleteFailed) {
-            logger.info(new ErrorDetails(this.getClass().getName(), "delete", "DELETE:sets/",
-                    HttpStatus.BAD_REQUEST, deleteFailed.getMessage(), deleteFailed).responseToString());
-
-            return new ResponseEntity(deleteFailed.getMessage(), HttpStatus.BAD_REQUEST);
-        }*/
-
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
 }
