@@ -36,10 +36,6 @@ public class SetService {
         return dao.saveAndSetIdentifier(input);
     }
 
-    public Collection<Set> saveSets(List<Set> input) {
-        return dao.saveAndSetIdentifier(input);
-    }
-
     public Collection<Set> findAll() {
         return dao.findAll();
     }
