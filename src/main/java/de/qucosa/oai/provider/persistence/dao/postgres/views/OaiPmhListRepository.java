@@ -36,14 +36,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
+public class OaiPmhListRepository<T extends OaiPmhList> implements Dao<OaiPmhList> {
 
     private Connection connection;
 
     private ObjectMapper om;
 
     @Autowired
-    public OaiPmhListDao(Connection connection) {
+    public OaiPmhListRepository(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -53,7 +53,7 @@ public class OaiPmhListDao<T extends OaiPmhList> implements Dao<OaiPmhList> {
         om = new ObjectMapper();
     }
 
-    public OaiPmhListDao() { }
+    public OaiPmhListRepository() { }
 
     @Override
     public OaiPmhList saveAndSetIdentifier(OaiPmhList object) {

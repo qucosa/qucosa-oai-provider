@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<OaiPmhListByToken> {
+public class OaiPmhListByTokenRepository<T extends OaiPmhListByToken> implements Dao<OaiPmhListByToken> {
 
     private Connection connection;
 
@@ -43,7 +43,7 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
     private ObjectMapper om;
 
     @Autowired
-    public OaiPmhListByTokenDao(Connection connection) {
+    public OaiPmhListByTokenRepository(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -53,7 +53,7 @@ public class OaiPmhListByTokenDao<T extends OaiPmhListByToken> implements Dao<Oa
         om = new ObjectMapper();
     }
 
-    public OaiPmhListByTokenDao() { }
+    public OaiPmhListByTokenRepository() { }
 
 
     @Override
