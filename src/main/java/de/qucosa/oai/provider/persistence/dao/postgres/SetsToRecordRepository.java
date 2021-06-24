@@ -34,12 +34,12 @@ import java.util.Collection;
 import java.util.List;
 
 @Repository
-public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord>, Identifiable {
+public class SetsToRecordRepository<T extends SetsToRecord> implements Dao<SetsToRecord>, Identifiable {
 
     private final Connection connection;
 
     @Autowired
-    public SetsToRecordDao(Connection connection) {
+    public SetsToRecordRepository(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -48,7 +48,7 @@ public class SetsToRecordDao<T extends SetsToRecord> implements Dao<SetsToRecord
         this.connection = connection;
     }
 
-    public SetsToRecordDao() {
+    public SetsToRecordRepository() {
         this.connection = null;
     }
 

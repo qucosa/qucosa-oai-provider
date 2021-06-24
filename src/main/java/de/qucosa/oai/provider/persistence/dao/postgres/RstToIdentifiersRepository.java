@@ -28,11 +28,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstToIdentifiers> {
+public class RstToIdentifiersRepository<T extends RstToIdentifiers> implements Dao<RstToIdentifiers> {
     private final Connection connection;
 
     @Autowired
-    public RstToIdentifiersDao(Connection connection) {
+    public RstToIdentifiersRepository(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -41,7 +41,7 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
         this.connection = connection;
     }
 
-    public RstToIdentifiersDao() {
+    public RstToIdentifiersRepository() {
         this.connection = null;
     }
 
