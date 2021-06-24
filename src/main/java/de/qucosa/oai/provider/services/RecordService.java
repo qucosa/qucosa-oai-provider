@@ -44,8 +44,8 @@ public class RecordService {
         return dao.update(record);
     }
 
-    public void delete(Record record) {
-        dao.delete(record.getOaiid());
+    public void delete(String oaiid) {
+        dao.delete(oaiid);
     }
 
     public Collection<Record> findRecord(String column, String oaiid) {
