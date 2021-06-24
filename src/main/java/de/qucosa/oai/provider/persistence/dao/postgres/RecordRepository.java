@@ -31,12 +31,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class RecordDao<T extends Record> implements Dao<Record> {
+public class RecordRepository<T extends Record> implements Dao<Record> {
 
     private final Connection connection;
 
     @Autowired
-    public RecordDao(Connection connection) {
+    public RecordRepository(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -45,7 +45,7 @@ public class RecordDao<T extends Record> implements Dao<Record> {
         this.connection = connection;
     }
 
-    public RecordDao() {
+    public RecordRepository() {
         this.connection = null;
     }
 
