@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class ResumptionRepository<T extends ResumptionToken> implements Dao<ResumptionToken> {
+public class ResumptionTokenRepository<T extends ResumptionToken> implements Dao<ResumptionToken> {
     private final Connection connection;
 
     @Value("${resumptiontoken.expiration.time}")
@@ -41,7 +41,7 @@ public class ResumptionRepository<T extends ResumptionToken> implements Dao<Resu
     private String expiriesHoursUnit;
 
     @Autowired
-    public ResumptionRepository(Connection connection) {
+    public ResumptionTokenRepository(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -50,7 +50,7 @@ public class ResumptionRepository<T extends ResumptionToken> implements Dao<Resu
         this.connection = connection;
     }
 
-    public ResumptionRepository() {
+    public ResumptionTokenRepository() {
         this.connection = null;
     }
 
