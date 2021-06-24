@@ -19,7 +19,7 @@ import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.dao.postgres.DisseminationRepository;
 import de.qucosa.oai.provider.persistence.dao.postgres.FormatRepository;
-import de.qucosa.oai.provider.persistence.dao.postgres.RecordDao;
+import de.qucosa.oai.provider.persistence.dao.postgres.RecordRepository;
 import de.qucosa.oai.provider.persistence.dao.postgres.ResumptionTokenDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.RstToIdentifiersDao;
 import de.qucosa.oai.provider.persistence.dao.postgres.SetRepository;
@@ -97,14 +97,14 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public Dao<Record> recordDao() throws SQLException {
-        return new RecordDao<>(connection());
+    public Dao<Record> recordRepository() throws SQLException {
+        return new RecordRepository<>(connection());
     }
 
     @Bean
     public RecordService recordService() throws SQLException {
         RecordService recordService = new RecordService();
-        recordService.setDao(recordDao());
+        recordService.setDao(recordRepository());
         return recordService;
     }
 
