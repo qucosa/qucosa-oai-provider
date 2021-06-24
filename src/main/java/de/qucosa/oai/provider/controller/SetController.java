@@ -93,10 +93,10 @@ public class SetController {
         return new ResponseEntity<>(output, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "{setspec}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity update(@RequestBody Set input, @PathVariable String setspec) throws JsonProcessingException {
-        Set set = setService.updateSet(input, setspec);
+    public ResponseEntity update(@RequestBody Set input) throws JsonProcessingException {
+        Set set = setService.updateSet(input);
 
         if (set == null) {
             return new ResponseEntity("Cannot update set objects.", HttpStatus.BAD_REQUEST);
