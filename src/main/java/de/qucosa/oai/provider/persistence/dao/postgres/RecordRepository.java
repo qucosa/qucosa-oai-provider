@@ -15,9 +15,13 @@
  */
 package de.qucosa.oai.provider.persistence.dao.postgres;
 
+import de.qucosa.oai.provider.AppErrorHandler;
 import de.qucosa.oai.provider.api.utils.DateTimeConverter;
 import de.qucosa.oai.provider.persistence.Dao;
 import de.qucosa.oai.provider.persistence.model.Record;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -32,6 +36,7 @@ import java.util.Collection;
 
 @Repository
 public class RecordRepository<T extends Record> implements Dao<Record> {
+    private final Logger logger = LoggerFactory.getLogger(RecordRepository.class);
 
     private final Connection connection;
 
@@ -65,7 +70,10 @@ public class RecordRepository<T extends Record> implements Dao<Record> {
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
 
                 if (!generatedKeys.next()) {
-                    // FIXME log.warn();
+                    AppErrorHandler aeh = new AppErrorHandler(logger)
+                            .level(Level.WARN)
+                            .message("Cannot save record " + object.getOaiid());
+                    aeh.log();
                     return null;
                 }
 
@@ -74,7 +82,9 @@ public class RecordRepository<T extends Record> implements Dao<Record> {
 
             ps.close();
         } catch (SQLException e) {
-            // FIXME log.error();
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
             throw new RuntimeException(e);
         }
 
@@ -97,12 +107,19 @@ public class RecordRepository<T extends Record> implements Dao<Record> {
             int updatedRows = ps.executeUpdate();
 
             if (updatedRows == 0) {
-                //throw new UpdateFailed("Cannot update record.");
+                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.WARN)
+                        .message("Cannot update record " + object.getOaiid());
+                aeh.log();
+
+                return null;
             }
 
             ps.close();
         } catch (SQLException e) {
-            //throw new UpdateFailed(e.getMessage());
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
 
         return object;
@@ -135,7 +152,10 @@ public class RecordRepository<T extends Record> implements Dao<Record> {
             resultSet.close();
             stmt.close();
         } catch (SQLException e) {
-            //throw new NotFound(e.getMessage());
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
 
         return records;
@@ -173,8 +193,11 @@ public class RecordRepository<T extends Record> implements Dao<Record> {
 
             resultSet.close();
             ps.close();
-        } catch (SQLException ignore) {
-            //throw new NotFound("SQL-ERROR: Cannot found record.", e);
+        } catch (SQLException e) {
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
 
         return records;
@@ -189,7 +212,10 @@ public class RecordRepository<T extends Record> implements Dao<Record> {
     public Collection<Record> findRowsByMultipleValues(String clause, String... values) {
 
         if (values.length == 0 || values.length > 3) {
-            //throw new NotFound("The values parameter may only has one to three values.");
+            AppErrorHandler aeh = new AppErrorHandler(logger)
+                    .level(Level.ERROR)
+                    .message("The values parameter may only has one to three values.");
+            aeh.log();
         }
 
         Collection<Record> records = new ArrayList<>();
@@ -230,14 +256,12 @@ public class RecordRepository<T extends Record> implements Dao<Record> {
             }
 
             resultSet.close();
-
-            if (records.isEmpty()) {
-                return records;
-            }
-        } catch (SQLException e) {
-            //throw new NotFound("SQL ERROR: Canot found records.", e);
-        } catch (DatatypeConfigurationException e) {
-            e.printStackTrace();
+            pst.close();
+        } catch (SQLException | DatatypeConfigurationException e) {
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
 
         return records;
@@ -263,10 +287,15 @@ public class RecordRepository<T extends Record> implements Dao<Record> {
             int deletedRows = statement.executeUpdate();
 
             if (deletedRows == 0) {
-                //throw new DeleteFailed("Cannot delete record.");
+                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.WARN)
+                        .message("Cannot delete record " + ident);
+                aeh.log();
             }
         } catch (SQLException e) {
-            //throw new DeleteFailed("SQL-ERROR: Cannot delete record.", e);
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
     }
 
