@@ -186,10 +186,6 @@ public class RecordRepository<T extends Record> implements Dao<Record> {
                 records.add(record);
             }
 
-            if (records.size() == 0) {
-                return null;
-            }
-
             resultSet.close();
             ps.close();
         } catch (SQLException e) {
