@@ -44,16 +44,8 @@ public class SetService {
         return dao.findByPropertyAndValue(column, setspec);
     }
 
-    public Set updateSet(Set input, String setspec) {
-        Set output;
-
-        if (!input.getSetSpec().equals(setspec)) {
-            //throw new UpdateFailed("Cannot update set.");
-        }
-
-        output = dao.update(input);
-
-        return output;
+    public Set updateSet(Set input) {
+        return dao.update(input);
     }
 
     public void delete(Set set) {
