@@ -110,7 +110,6 @@ public class RecordRepository<T extends Record> implements Dao<Record> {
                 AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.WARN)
                         .message("Cannot update record " + object.getOaiid());
                 aeh.log();
-
                 return null;
             }
 
