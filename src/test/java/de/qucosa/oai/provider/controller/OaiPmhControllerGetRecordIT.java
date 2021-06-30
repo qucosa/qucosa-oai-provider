@@ -19,7 +19,6 @@ package de.qucosa.oai.provider.controller;
 import de.qucosa.oai.provider.QucosaOaiProviderApplication;
 import de.qucosa.oai.provider.api.utils.DocumentXmlUtils;
 import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -49,6 +48,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import java.io.ByteArrayInputStream;
