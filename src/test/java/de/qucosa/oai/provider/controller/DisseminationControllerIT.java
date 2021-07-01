@@ -23,6 +23,7 @@ import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -162,11 +163,12 @@ class DisseminationControllerIT {
         MvcResult mvcResult = mvc.perform(
                 get("/disseminations?uid=qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isNotFound()).andReturn();
+                .andExpect(status().isOk()).andReturn();
         //Cannot found dissemination. UID qucosa:00000 does not exists.
         String response = mvcResult.getResponse().getContentAsString();
-        assertThat(response)
-                .isEqualTo("Cannot found dissemination. UID qucosa:00000 does not exists.");
+        Collection<Dissemination> disseminations = om.readValue(response,
+                om.getTypeFactory().constructCollectionType(List.class, Dissemination.class));
+        Assertions.assertTrue(disseminations.size() == 0);
     }
 
     @Test
@@ -223,10 +225,10 @@ class DisseminationControllerIT {
                 post("/disseminations")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(dissemination)))
-                .andExpect(status().isNotAcceptable()).andReturn();
+                .andExpect(status().isBadRequest()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("Cannot save dissemination because record or format failed.");
+        assertThat(response).isEqualTo("Dissemination object is invalid, record_id failed.");
     }
 
     @Test
@@ -240,10 +242,10 @@ class DisseminationControllerIT {
                 post("/disseminations")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(dissemination)))
-                .andExpect(status().isNotAcceptable()).andReturn();
+                .andExpect(status().isBadRequest()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("Cannot save dissemination because record or format failed.");
+        assertThat(response).isEqualTo("Dissemination object is invalid, format_id failed.");
     }
 
     /**
