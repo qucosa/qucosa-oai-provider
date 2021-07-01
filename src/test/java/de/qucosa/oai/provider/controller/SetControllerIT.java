@@ -179,7 +179,7 @@ public class SetControllerIT {
                 post("/sets")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(set)))
-                .andExpect(status().isNotAcceptable()).andReturn();
+                .andExpect(status().isBadRequest()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
         assertThat(response).isEqualTo("Cannot save set objects.");
@@ -208,35 +208,14 @@ public class SetControllerIT {
     }
 
     @Test
-    @DisplayName("Save an set collection, if this process successful then returns an collection object with saved sets.")
-    @Order(6)
-    public void saveSetCollectionIsSuccessful() throws Exception {
-        MvcResult mvcResult = mvc.perform(
-                post("/sets")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(sets)))
-                .andExpect(status().isOk()).andReturn();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(response).isNotEmpty();
-
-        List<Set> responseList = om.readValue(response,
-                om.getTypeFactory().constructCollectionType(List.class, Set.class));
-
-        assertThat(responseList).isNotNull();
-        assertThat(responseList.size()).isGreaterThan(0);
-        assertThat(responseList.size()).isEqualTo(2);
-    }
-
-    @Test
     @DisplayName("Update a exists set object is successful.")
-    @Order(7)
+    @Order(6)
     public void updateSet() throws Exception {
         Set set = setService.find("setspec", "ddc:610").iterator().next();
         set.setSetDescription("This set has a desc now.");
 
         MvcResult mvcResult = mvc.perform(
-                put("/sets/" + set.getSetSpec())
+                put("/sets")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(set)))
                 .andExpect(status().isOk()).andReturn();
@@ -251,13 +230,13 @@ public class SetControllerIT {
 
     @Test
     @DisplayName("Mark a set object as deleted.")
-    @Order(8)
+    @Order(7)
     public void markSetAsDeleted() throws Exception {
         Set set = setService.find("setspec", "ddc:610").iterator().next();
         set.setDeleted(true);
 
         MvcResult mvcResult = mvc.perform(
-                put("/sets/" + set.getSetSpec())
+                put("/sets")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(set)))
                 .andExpect(status().isOk()).andReturn();
@@ -272,13 +251,13 @@ public class SetControllerIT {
 
     @Test
     @DisplayName("Undo the set delete mark.")
-    @Order(9)
+    @Order(8)
     public void undoDeleteMarked() throws Exception {
         Set set = setService.find("setspec", "ddc:610").iterator().next();
         set.setDeleted(false);
 
         MvcResult mvcResult = mvc.perform(
-                put("/sets/" + set.getSetSpec())
+                put("/sets")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(set)))
                 .andExpect(status().isOk()).andReturn();
@@ -293,7 +272,7 @@ public class SetControllerIT {
 
     @Test
     @DisplayName("Delete set hard from the sets table.")
-    @Order(10)
+    @Order(9)
     public void hardDeleteSet() throws Exception {
         Set set = setService.find("setspec", "ddc:610").iterator().next();
 
@@ -306,23 +285,6 @@ public class SetControllerIT {
 
         assertThat(response).isNotEmpty();
         assertThat(Boolean.parseBoolean(response)).isTrue();
-    }
-
-    @Test
-    @DisplayName("Hard delete set was not successful and returns a error details object.")
-    @Order(11)
-    public void hardDeleteNotSuccessful() throws Exception {
-        Set set = sets.get(0);
-        set.setSetSpec("ddc:8000");
-
-        MvcResult mvcResult = mvc.perform(
-                delete("/sets")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(set)))
-                .andExpect(status().isBadRequest()).andReturn();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(response).isEqualTo("Cannot hard delete set.");
     }
 
     @AfterAll
