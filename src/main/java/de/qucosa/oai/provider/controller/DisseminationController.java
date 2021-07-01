@@ -115,6 +115,12 @@ public class DisseminationController {
                         .message("Dissemination object is invalid, record_id failed.");
                 return new ResponseEntity(aeh.message(), aeh.httpStatus());
             }
+
+            if (dissemination.getFormatId() == null || dissemination.getFormatId() == 0) {
+                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR).httpStatus(HttpStatus.BAD_REQUEST)
+                        .message("Dissemination object is invalid, format_id failed.");
+                return new ResponseEntity(aeh.message(), aeh.httpStatus());
+            }
         } catch (IOException e) {
             AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR).httpStatus(HttpStatus.BAD_REQUEST)
                     .message("Cannot parse JSON input.").exception(e);
