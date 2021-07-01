@@ -96,7 +96,7 @@ public class FormatsController {
             format = formatService.findById(String.valueOf(formatId));
         }
 
-        if (format.getMdprefix().isEmpty()) {
+        if (format.getFormatId() == null || format.getMdprefix().isEmpty()) {
             AppErrorHandler aeh = new AppErrorHandler(logger)
                     .level(Level.WARN)
                     .httpStatus(HttpStatus.NOT_FOUND)
@@ -105,7 +105,7 @@ public class FormatsController {
             return new ResponseEntity<>(aeh.message(), aeh.httpStatus());
         }
 
-        return new ResponseEntity<>(format.getFormatId().toString(), HttpStatus.OK);
+        return new ResponseEntity<>(format, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
