@@ -164,9 +164,9 @@ public class FormatControllerIT {
         MvcResult mvcResult = mvc.perform(
                 get("/formats/format?mdprefix=test")
                         .accept(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk()).andReturn();
-        Format responseFormat = om.readValue(mvcResult.getResponse().getContentAsString(), Format.class);
-        Assertions.assertNull(responseFormat.getFormatId());
+                .andExpect(status().isNotFound()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertEquals(response, "Cannot found format.");
     }
 
     @Test
@@ -199,10 +199,10 @@ public class FormatControllerIT {
                 post("/formats")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(format)))
-                .andExpect(status().isNotAcceptable()).andReturn();
+                .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("Cannot save format.");
+        Assertions.assertEquals(response, "");
     }
 
     @Test
@@ -239,10 +239,10 @@ public class FormatControllerIT {
                 put("/formats/test")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(format)))
-                .andExpect(status().isNotAcceptable()).andReturn();
+                .andExpect(status().isBadRequest()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("Cannot update format.");
+        assertThat(response).isEqualTo("Cannot update format test.");
     }
 
     @Test
@@ -303,23 +303,6 @@ public class FormatControllerIT {
 
         assertThat(response).isNotEmpty();
         assertThat(Boolean.parseBoolean(response)).isTrue();
-    }
-
-    @Test
-    @DisplayName("Hard delete format from table is not successful because the mdprefix is wrong.")
-    @Order(11)
-    public void hardDeleteNotSuccessful() throws Exception {
-        Format format = formatService.find("mdprefix", "xmetadissplus").iterator().next();
-        format.setMdprefix("test");
-
-        MvcResult mvcResult = mvc.perform(
-                delete("/formats")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(format)))
-                .andExpect(status().isNotAcceptable()).andReturn();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(response).isEqualTo("Cannot delete format test.");
     }
 
     @AfterAll
