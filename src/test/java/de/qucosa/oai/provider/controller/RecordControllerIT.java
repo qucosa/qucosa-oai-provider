@@ -20,6 +20,7 @@ import de.qucosa.oai.provider.QucosaOaiProviderApplication;
 import de.qucosa.oai.provider.persistence.model.OaiRecord;
 import de.qucosa.oai.provider.persistence.model.Record;
 import de.qucosa.oai.provider.services.RecordService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -190,10 +191,9 @@ public class RecordControllerIT {
         MvcResult mvcResult = mvc.perform(
                 get("/records/qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isNotFound()).andReturn();
+                .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(response).isEqualTo("Cannot found record.");
+        Assertions.assertEquals(response, "");
     }
 
     @Test
@@ -204,7 +204,7 @@ public class RecordControllerIT {
         record.setDeleted(true);
 
         MvcResult mvcResult = mvc.perform(
-                put("/records/qucosa:32394")
+                put("/records")
                         .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
                 .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
@@ -225,33 +225,16 @@ public class RecordControllerIT {
         record.setOaiid("qucosa:00000");
 
         MvcResult mvcResult = mvc.perform(
-                put("/records/qucosa:00000")
+                put("/records")
                         .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
-                .andExpect(status().isNotAcceptable()).andReturn();
+                .andExpect(status().isOk()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(response).isEqualTo("Cannot update record.");
-    }
-
-    @Test
-    @DisplayName("Update record is not successful because oaiid parameter and object oaiid are unequal.")
-    @Order(8)
-    public void updateFailed_2() throws Exception {
-        Record record = new Record();
-        record.setOaiid("qucosa:00000");
-
-        MvcResult mvcResult = mvc.perform(
-                put("/records/qucosa:00001")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE).content(om.writeValueAsString(record)))
-                .andExpect(status().isNotAcceptable()).andReturn();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(response).isEqualTo("Unequal oaiid parameter with record object oaiid.");
+        Assertions.assertEquals(response, "");
     }
 
     @Test
     @DisplayName("Save oai record input from camel service.")
-    @Order(9)
+    @Order(8)
     public void saveRecordInput() throws Exception {
         OaiRecord oaiRecord = om.readValue(getClass()
                 .getResourceAsStream("/oai-record.json"), OaiRecord.class);
@@ -263,7 +246,7 @@ public class RecordControllerIT {
 
     @Test
     @DisplayName("Delete record from table.")
-    @Order(10)
+    @Order(9)
     public void isDeleted() throws Exception {
         MvcResult mvcResult = mvc.perform(
                 delete("/records/qucosa:32394")
@@ -272,19 +255,5 @@ public class RecordControllerIT {
         String response = mvcResult.getResponse().getContentAsString();
         assertThat(response).isNotEmpty();
         assertThat(Boolean.parseBoolean(response)).isTrue();
-    }
-
-    @Test
-    @DisplayName("Delete record is not successful because uid parameter is does not exists in racords table.")
-    @Order(11)
-    public void isNotDeleted() throws Exception {
-        MvcResult mvcResult = mvc.perform(
-                delete("/records/qucosa:00000")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(new Record())))
-                .andExpect(status().isNotFound()).andReturn();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(response).isEqualTo("Cannot found record.");
     }
 }
