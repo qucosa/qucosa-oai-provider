@@ -193,15 +193,15 @@ public class RecordController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "{oaiid}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity update(@RequestBody String input, @PathVariable String oaiid) throws JsonProcessingException {
+    public ResponseEntity update(@RequestBody String input) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
         Record updatedRecord;
 
         try {
             Record record = om.readValue(input, Record.class);
-            updatedRecord = recordService.updateRecord(record, oaiid);
+            updatedRecord = recordService.updateRecord(record);
         } catch (IOException e) {
             AppErrorHandler aeh = new AppErrorHandler(logger)
                     .level(Level.ERROR)
