@@ -35,12 +35,7 @@ public class RecordService {
         return dao.saveAndSetIdentifier(record);
     }
 
-    public Record updateRecord(Record record, String oaiId) {
-
-        if (!record.getOaiid().equals(oaiId) || oaiId.isEmpty()) {
-            //throw new UpdateFailed("Unequal oaiid parameter with record object oaiid.");
-        }
-
+    public Record updateRecord(Record record) {
         return dao.update(record);
     }
 
