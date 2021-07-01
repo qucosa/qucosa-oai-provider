@@ -134,7 +134,7 @@ public class FormatsController {
 
         if (format == null) {
             AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR)
-                    .message("Cannot update format " + input.getMdprefix())
+                    .message("Cannot update format " + input.getMdprefix() + ".")
                     .httpStatus(HttpStatus.BAD_REQUEST);
             aeh.log();
             return new ResponseEntity(aeh.message(), aeh.httpStatus());
