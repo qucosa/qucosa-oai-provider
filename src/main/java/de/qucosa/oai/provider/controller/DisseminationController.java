@@ -105,16 +105,24 @@ public class DisseminationController {
     @ResponseBody
     public ResponseEntity save(@RequestBody String input) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
-        Dissemination dissemination;
+        Dissemination dissemination = null;
 
         try {
-            dissemination = disseminationService.saveDissemination(om.readValue(input, Dissemination.class));
+            dissemination = om.readValue(input, Dissemination.class);
+
+            if (dissemination.getRecordId() == null || dissemination.getRecordId().isEmpty()) {
+                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR).httpStatus(HttpStatus.BAD_REQUEST)
+                        .message("Dissemination object is invalid, record_id failed.");
+                return new ResponseEntity(aeh.message(), aeh.httpStatus());
+            }
         } catch (IOException e) {
             AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR).httpStatus(HttpStatus.BAD_REQUEST)
                     .message("Cannot parse JSON input.").exception(e);
             aeh.log();
             return new ResponseEntity(aeh.message(), aeh.httpStatus());
         }
+
+        dissemination = disseminationService.saveDissemination(dissemination);
 
         return new ResponseEntity<>(dissemination, HttpStatus.OK);
     }
