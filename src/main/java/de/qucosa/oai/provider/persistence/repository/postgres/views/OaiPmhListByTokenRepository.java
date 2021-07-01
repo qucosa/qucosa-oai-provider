@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package de.qucosa.oai.provider.persistence.dao.postgres.views;
+package de.qucosa.oai.provider.persistence.repository.postgres.views;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
