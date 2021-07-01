@@ -214,11 +214,10 @@ class DisseminationControllerIT {
     }
 
     @Test
-    @DisplayName("Save dissemination is not successful because record failed.")
+    @DisplayName("Save dissemination is not successful because record_id or format:id failed.")
     @Order(5)
     public void saveDisseminationWithoutRecord() throws Exception {
         Dissemination dissemination = disseminations.get(2);
-        dissemination.setFormatId(format.getFormatId());
         dissemination.setRecordId(null);
 
         MvcResult mvcResult = mvc.perform(
@@ -228,24 +227,7 @@ class DisseminationControllerIT {
                 .andExpect(status().isBadRequest()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
 
-        assertThat(response).isEqualTo("Dissemination object is invalid, record_id failed.");
-    }
-
-    @Test
-    @DisplayName("Save dissemination is not successful because format failed.")
-    @Order(6)
-    public void saveDisseminationWithoutFormat() throws Exception {
-        Dissemination dissemination = disseminations.get(2);
-        dissemination.setFormatId(0L);
-
-        MvcResult mvcResult = mvc.perform(
-                post("/disseminations")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(dissemination)))
-                .andExpect(status().isBadRequest()).andReturn();
-        String response = mvcResult.getResponse().getContentAsString();
-
-        assertThat(response).isEqualTo("Dissemination object is invalid, format_id failed.");
+        assertThat(response).isEqualTo("Dissemination object is invalid, record_id or format_id failed.");
     }
 
     /**
@@ -253,7 +235,7 @@ class DisseminationControllerIT {
      */
     @Test
     @DisplayName("Update dissemination object with delete property for mark object as deleted.")
-    @Order(7)
+    @Order(6)
     public void updateDissemination() throws Exception {
         Dissemination dissemination = disseminationService.findByMultipleValues(
                 "id_record = %s AND id_format = %s",
@@ -281,7 +263,7 @@ class DisseminationControllerIT {
      */
     @Test
     @DisplayName("Delete dissemination from table.")
-    @Order(8)
+    @Order(7)
     public void deleteDissemination() throws Exception {
         Dissemination dissemination = disseminationService.findByMultipleValues(
                 "id_record = %s AND id_format = %s",

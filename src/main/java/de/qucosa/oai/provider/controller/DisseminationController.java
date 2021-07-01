@@ -110,15 +110,10 @@ public class DisseminationController {
         try {
             dissemination = om.readValue(input, Dissemination.class);
 
-            if (dissemination.getRecordId() == null || dissemination.getRecordId().isEmpty()) {
+            if (dissemination.getRecordId() == null || dissemination.getRecordId().isEmpty() ||
+                    dissemination.getFormatId() == null || dissemination.getFormatId() == 0) {
                 AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR).httpStatus(HttpStatus.BAD_REQUEST)
-                        .message("Dissemination object is invalid, record_id failed.");
-                return new ResponseEntity(aeh.message(), aeh.httpStatus());
-            }
-
-            if (dissemination.getFormatId() == null || dissemination.getFormatId() == 0) {
-                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR).httpStatus(HttpStatus.BAD_REQUEST)
-                        .message("Dissemination object is invalid, format_id failed.");
+                        .message("Dissemination object is invalid, record_id or format_id failed.");
                 return new ResponseEntity(aeh.message(), aeh.httpStatus());
             }
         } catch (IOException e) {
