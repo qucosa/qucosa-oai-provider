@@ -22,8 +22,8 @@ import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.services.DisseminationService;
 import de.qucosa.oai.provider.services.FormatService;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -40,7 +40,6 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -52,6 +51,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import testdata.TestData;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -59,13 +59,10 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -163,12 +160,15 @@ class DisseminationControllerIT {
     @DisplayName("Find not disseminations because record uid is wrong / not exists in database.")
     @Order(2)
     public void findNotDisseminations() throws Exception {
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 get("/disseminations?uid=qucosa:00000")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_FOUND.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot found dissemination. UID qucosa:00000 does not exists.")));
+                .andExpect(status().isOk()).andReturn();
+        //Cannot found dissemination. UID qucosa:00000 does not exists.
+        String response = mvcResult.getResponse().getContentAsString();
+        Collection<Dissemination> disseminations = om.readValue(response,
+                om.getTypeFactory().constructCollectionType(List.class, Dissemination.class));
+        Assertions.assertTrue(disseminations.size() == 0);
     }
 
     @Test
@@ -214,36 +214,20 @@ class DisseminationControllerIT {
     }
 
     @Test
-    @DisplayName("Save dissemination is not successful because record failed.")
+    @DisplayName("Save dissemination is not successful because record_id or format:id failed.")
     @Order(5)
     public void saveDisseminationWithoutRecord() throws Exception {
         Dissemination dissemination = disseminations.get(2);
-        dissemination.setFormatId(format.getFormatId());
         dissemination.setRecordId(null);
 
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 post("/disseminations")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(dissemination)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because record or format failed.")));
-    }
+                .andExpect(status().isBadRequest()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
 
-    @Test
-    @DisplayName("Save dissemination is not successful because format failed.")
-    @Order(6)
-    public void saveDisseminationWithoutFormat() throws Exception {
-        Dissemination dissemination = disseminations.get(2);
-        dissemination.setFormatId(0L);
-
-        mvc.perform(
-                post("/disseminations")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(dissemination)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", containsString(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot save dissemination because record or format failed.")));
+        assertThat(response).isEqualTo("Dissemination object is invalid, record_id or format_id failed.");
     }
 
     /**
@@ -251,7 +235,7 @@ class DisseminationControllerIT {
      */
     @Test
     @DisplayName("Update dissemination object with delete property for mark object as deleted.")
-    @Order(7)
+    @Order(6)
     public void updateDissemination() throws Exception {
         Dissemination dissemination = disseminationService.findByMultipleValues(
                 "id_record = %s AND id_format = %s",
@@ -279,7 +263,7 @@ class DisseminationControllerIT {
      */
     @Test
     @DisplayName("Delete dissemination from table.")
-    @Order(8)
+    @Order(7)
     public void deleteDissemination() throws Exception {
         Dissemination dissemination = disseminationService.findByMultipleValues(
                 "id_record = %s AND id_format = %s",

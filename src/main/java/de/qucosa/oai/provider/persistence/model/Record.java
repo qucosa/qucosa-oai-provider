@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Record implements Serializable, HasIdentifier {
+public class Record implements Serializable, Identifiable {
     @JsonProperty("recordId")
     private Long recordId;
 

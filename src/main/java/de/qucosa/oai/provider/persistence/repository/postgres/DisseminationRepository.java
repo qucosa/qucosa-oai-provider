@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.qucosa.oai.provider.persistence.dao.postgres;
+package de.qucosa.oai.provider.persistence.repository.postgres;
 
+import de.qucosa.oai.provider.AppErrorHandler;
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -34,12 +34,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class DisseminationDao<T extends Dissemination> implements Dao<Dissemination> {
+public class DisseminationRepository<T extends Dissemination> implements Dao<Dissemination> {
+    private final Logger logger = LoggerFactory.getLogger(DisseminationRepository.class);
 
     private final Connection connection;
 
     @Autowired
-    public DisseminationDao(Connection connection) {
+    public DisseminationRepository(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -48,28 +49,30 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
         this.connection = connection;
     }
 
-    public DisseminationDao() {
+    public DisseminationRepository() {
         this.connection = null;
     }
 
     @Override
-    public Dissemination saveAndSetIdentifier(Dissemination object) throws SaveFailed {
+    public Dissemination saveAndSetIdentifier(Dissemination object) {
         Dissemination selectDiss = null;
 
         if (object.getRecordId() == null || object.getRecordId().isEmpty()
                 || object.getFormatId() == null || object.getFormatId() == 0) {
-            throw new SaveFailed("Cannot save dissemination because record or format failed.");
+            AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR)
+                    .message("Cannot save dissemination because record or format failed.");
+            aeh.log();
         }
 
-        try {
-            selectDiss = this.findByMultipleValues(
-                    "id_record=? AND id_format=?",
-                    object.getRecordId(), String.valueOf(object.getFormatId()));
-        } catch (NotFound ignore) { }
+        selectDiss = this.findByMultipleValues(
+                "id_record=? AND id_format=?",
+                object.getRecordId(), String.valueOf(object.getFormatId()));
 
         if (selectDiss != null) {
+            AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR)
+                    .message("Cannot save dissemination because data row is exists.");
+            aeh.log();
             return null;
-            //throw new SaveFailed("Cannot save dissemination because data row is exists.");
         }
 
         String sql = "INSERT INTO disseminations (id, id_format, lastmoddate, xmldata, id_record) VALUES " +
@@ -84,26 +87,29 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             ps.setTimestamp(2, object.getLastmoddate());
             ps.setSQLXML(3, sqlxml);
             ps.setString(4, object.getRecordId());
-            int affectedRows = ps.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new SaveFailed("Cannot save dissemination.");
-            }
+            ps.executeUpdate();
 
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
 
                 if (!generatedKeys.next()) {
-                    throw new SaveFailed("Creating dissemination failed, no ID obtained.");
+                    AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR)
+                            .message("Creating dissemination failed, no ID obtained.");
+                    aeh.log();
+                    return null;
                 }
 
                 object.setIdentifier(generatedKeys.getLong("id"));
             }
 
             ps.close();
-            return object;
         } catch (SQLException e) {
-            throw new SaveFailed("SQL Error", e);
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
+
+        return object;
     }
 
     @Override
@@ -112,7 +118,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Dissemination update(Dissemination object) throws UpdateFailed {
+    public Dissemination update(Dissemination object) {
         String sql = "UPDATE disseminations" +
                 " SET id_format = ?, lastmoddate = ?, xmldata = ?, id_record = ?, deleted = ?" +
                 " WHERE id_format = ? AND id_record = ?";
@@ -134,10 +140,16 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             connection.commit();
 
             if (updatedRows == 0) {
-                throw new UpdateFailed("Cannot update dissemination.");
+                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.WARN)
+                        .message("Cannot update dissemnation for record " + object.getRecordId());
+                aeh.log();
+                return null;
             }
         } catch (SQLException e) {
-            throw new UpdateFailed("SQL-ERROR: Cannot update dissemination.", e);
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
 
         return object;
@@ -159,7 +171,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Collection<Dissemination> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Dissemination> findByPropertyAndValue(String property, String value) {
         String sql = "SELECT id, id_format, lastmoddate, xmldata, id_record, deleted FROM disseminations" +
                 " WHERE " + property + " = ?";
         Collection<Dissemination> disseminations = new ArrayList<>();
@@ -181,25 +193,28 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             }
 
             resultSet.close();
-
-            if (disseminations.size() == 0) {
-                throw new NotFound("Cannot found dissemination. UID " + value + " does not exists.");
-            }
         } catch (SQLException e) {
-            throw new NotFound(e.getMessage(), e);
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
 
         return disseminations;
     }
 
     @Override
-    public Dissemination findByMultipleValues(String clause, String... values) throws NotFound {
-        clause = clause.replace("%s", "?");
+    public Dissemination findByMultipleValues(String clause, String... values) {
 
         if (values == null) {
-            throw new NotFound("Cannot find dissemination because parameters failed.");
+            AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR)
+                    .message("Cannot find dissemination because parameters failed.");
+            aeh.log();
+            return null;
         }
 
+        clause = clause.replace("%s", "?");
+        Dissemination dissemination = null;
         String sql = "SELECT id, id_format, lastmoddate, xmldata, id_record, deleted FROM disseminations WHERE " + clause;
 
         try {
@@ -211,16 +226,20 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             }
 
             ResultSet resultSet = ps.executeQuery();
-            Dissemination dissemination = null;
 
             while (resultSet.next()) {
                 dissemination = disseminationData(resultSet);
             }
 
-            return dissemination;
+
         } catch (SQLException e) {
-            throw new NotFound("Connat find dissemination.", e);
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
+
+        return dissemination;
     }
 
     @Override
@@ -229,12 +248,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     }
 
     @Override
-    public Collection<Dissemination> findLastRowsByProperty() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public Collection<Dissemination> findFirstRowsByProperty(String property, int limit) throws NotFound {
+    public Collection<Dissemination> findFirstRowsByProperty(String property, int limit) {
         Collection<Dissemination> disseminations = new ArrayList<>();
         String sql = "SELECT * FROM disseminations order by " + property + " ASC";
 
@@ -253,10 +267,16 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             resultSet.close();
 
             if (disseminations.isEmpty()) {
-                throw new NotFound("Not fownd data rows.");
+                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.WARN)
+                        .message("Cannot found dissemnations.");
+                aeh.log();
+                return null;
             }
         } catch (SQLException e) {
-            throw new NotFound("SQL-ERROR: Not fownd data rows.", e);
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
 
         return disseminations;
@@ -271,7 +291,7 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
     public void delete(String ident) { }
 
     @Override
-    public void delete(Dissemination object) throws DeleteFailed {
+    public void delete(Dissemination object) {
         String sql = "DELETE FROM disseminations WHERE id = ?";
 
         try {
@@ -280,10 +300,15 @@ public class DisseminationDao<T extends Dissemination> implements Dao<Disseminat
             int deleteRows = statement.executeUpdate();
 
             if (deleteRows == 0) {
-                throw new DeleteFailed("Cannot delete dissemination.");
+                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.WARN)
+                        .message("Cannot delete dissemination for record " + object.getRecordId());
+                aeh.log();
             }
         } catch (SQLException e) {
-            throw new DeleteFailed("SQL-ERROR: Cannot delete dissemination.", e);
+            AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.ERROR).message(e.getMessage())
+                    .exception(e);
+            aeh.log();
+            throw new RuntimeException(e);
         }
     }
 

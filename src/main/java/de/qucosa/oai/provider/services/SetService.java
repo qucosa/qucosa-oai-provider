@@ -16,10 +16,6 @@
 package de.qucosa.oai.provider.services;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
 import org.springframework.stereotype.Component;
 
@@ -36,35 +32,23 @@ public class SetService {
         this.dao = dao;
     }
 
-    public Set saveSet(Set input) throws SaveFailed {
+    public Set saveSet(Set input) {
         return dao.saveAndSetIdentifier(input);
     }
 
-    public Collection<Set> saveSets(List<Set> input) throws SaveFailed {
-        return dao.saveAndSetIdentifier(input);
-    }
-
-    public Collection<Set> findAll() throws NotFound {
+    public Collection<Set> findAll() {
         return dao.findAll();
     }
 
-    public Collection<Set> find(String column, String setspec) throws NotFound {
+    public Collection<Set> find(String column, String setspec) {
         return dao.findByPropertyAndValue(column, setspec);
     }
 
-    public Set updateSet(Set input, String setspec) throws UpdateFailed {
-        Set output;
-
-        if (!input.getSetSpec().equals(setspec)) {
-            throw new UpdateFailed("Cannot update set.");
-        }
-
-        output = dao.update(input);
-
-        return output;
+    public Set updateSet(Set input) {
+        return dao.update(input);
     }
 
-    public void delete(Set set) throws DeleteFailed {
+    public void delete(Set set) {
         dao.delete(set);
     }
 }

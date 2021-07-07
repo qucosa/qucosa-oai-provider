@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package de.qucosa.oai.provider.persistence.dao.postgres;
+package de.qucosa.oai.provider.persistence.repository.postgres;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.ResumptionToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<ResumptionToken> {
+public class ResumptionTokenRepository<T extends ResumptionToken> implements Dao<ResumptionToken> {
     private final Connection connection;
 
     @Value("${resumptiontoken.expiration.time}")
@@ -44,7 +41,7 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     private String expiriesHoursUnit;
 
     @Autowired
-    public ResumptionTokenDao(Connection connection) {
+    public ResumptionTokenRepository(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -53,12 +50,12 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
         this.connection = connection;
     }
 
-    public ResumptionTokenDao() {
+    public ResumptionTokenRepository() {
         this.connection = null;
     }
 
     @Override
-    public ResumptionToken saveAndSetIdentifier(ResumptionToken object) throws SaveFailed {
+    public ResumptionToken saveAndSetIdentifier(ResumptionToken object) {
         String sql = "INSERT INTO resumption_tokens (token_id, expiration_date, cursor, format_id)" +
                 " VALUES (?, ?, ?, ?)" +
                 " ON CONFLICT (token_id)" +
@@ -73,11 +70,11 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
             int affectedRows = statement.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SaveFailed("Cannot save resumption token (" + object.getTokenId() + ").");
+                //throw new SaveFailed("Cannot save resumption token (" + object.getTokenId() + ").");
             }
 
         } catch (SQLException e) {
-            throw new SaveFailed("Cannot save resumption token (" + object.getTokenId() + ").", e);
+            //throw new SaveFailed("Cannot save resumption token (" + object.getTokenId() + ").", e);
         }
 
         return object;
@@ -104,7 +101,7 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public ResumptionToken findById(String id) throws NotFound {
+    public ResumptionToken findById(String id) {
         String sql = "SELECT token_id, expiration_date, cursor, format_id FROM resumption_tokens WHERE token_id = ?";
         ResumptionToken resumptionToken = new ResumptionToken();
 
@@ -122,7 +119,7 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
 
             resultSet.close();
         } catch (SQLException e) {
-            throw new NotFound("Resumption token " + id + " not found.", e);
+            //throw new NotFound("Resumption token " + id + " not found.", e);
         }
 
         return resumptionToken;
@@ -144,24 +141,19 @@ public class ResumptionTokenDao<T extends ResumptionToken> implements Dao<Resump
     }
 
     @Override
-    public Collection<ResumptionToken> findLastRowsByProperty() {
-        return new ArrayList<>();
-    }
-
-    @Override
     public Collection<ResumptionToken> findFirstRowsByProperty(String property, int limit) {
         return new ArrayList<>();
     }
 
     @Override
-    public void delete() throws DeleteFailed {
+    public void delete() {
         String sql = "DELETE FROM resumption_tokens where expiration_date < NOW() - INTERVAL '" + expiriesHours + " " + expiriesHoursUnit + "'";
 
         try {
             Statement statement = connection.createStatement();
             statement.executeUpdate(sql);
         } catch (SQLException e) {
-            throw new DeleteFailed("Cannot delete resumptionToken row.", e);
+            //throw new DeleteFailed("Cannot delete resumptionToken row.", e);
         }
     }
 

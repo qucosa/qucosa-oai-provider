@@ -20,7 +20,6 @@ import de.qucosa.oai.provider.QucosaOaiProviderApplication;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Set;
 import de.qucosa.oai.provider.services.FormatService;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,7 +38,6 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -51,18 +49,17 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import testdata.TestData;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -167,9 +164,9 @@ public class FormatControllerIT {
         MvcResult mvcResult = mvc.perform(
                 get("/formats/format?mdprefix=test")
                         .accept(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk()).andReturn();
-        Format responseFormat = om.readValue(mvcResult.getResponse().getContentAsString(), Format.class);
-        Assertions.assertNull(responseFormat.getFormatId());
+                .andExpect(status().isNotFound()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertEquals(response, "Cannot found format.");
     }
 
     @Test
@@ -198,13 +195,14 @@ public class FormatControllerIT {
     public void formatNotSaved() throws Exception {
         Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
 
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 post("/formats")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(format)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot save format.")));
+                .andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        Assertions.assertEquals(response, "");
     }
 
     @Test
@@ -237,13 +235,14 @@ public class FormatControllerIT {
         Format format = formatService.find("mdprefix", "oai_dc").iterator().next();
         format.setMdprefix("test");
 
-        mvc.perform(
+        MvcResult mvcResult = mvc.perform(
                 put("/formats/test")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(om.writeValueAsString(format)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot update format.")));
+                .andExpect(status().isBadRequest()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).isEqualTo("Cannot update format test.");
     }
 
     @Test
@@ -304,22 +303,6 @@ public class FormatControllerIT {
 
         assertThat(response).isNotEmpty();
         assertThat(Boolean.parseBoolean(response)).isTrue();
-    }
-
-    @Test
-    @DisplayName("Hard delete format from table is not successful because the mdprefix is wrong.")
-    @Order(11)
-    public void hardDeleteNotSuccessful() throws Exception {
-        Format format = formatService.find("mdprefix", "xmetadissplus").iterator().next();
-        format.setMdprefix("test");
-
-        mvc.perform(
-                delete("/formats")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(om.writeValueAsString(format)))
-                .andExpect(status().isNotAcceptable())
-                .andExpect(jsonPath("$.httpStatus", is(HttpStatus.NOT_ACCEPTABLE.name())))
-                .andExpect(jsonPath("$.errorMsg", is("Cannot delete format " + format.getMdprefix() + ".")));
     }
 
     @AfterAll

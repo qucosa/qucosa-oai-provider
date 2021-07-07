@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package de.qucosa.oai.provider.persistence.dao.postgres;
+package de.qucosa.oai.provider.persistence.repository.postgres;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.RstToIdentifiers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -29,11 +28,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Repository
-public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstToIdentifiers> {
+public class RstToIdentifiersRepository<T extends RstToIdentifiers> implements Dao<RstToIdentifiers> {
     private final Connection connection;
 
     @Autowired
-    public RstToIdentifiersDao(Connection connection) {
+    public RstToIdentifiersRepository(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -42,7 +41,7 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
         this.connection = connection;
     }
 
-    public RstToIdentifiersDao() {
+    public RstToIdentifiersRepository() {
         this.connection = null;
     }
 
@@ -52,7 +51,7 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
     }
 
     @Override
-    public Collection<RstToIdentifiers> saveAndSetIdentifier(Collection<RstToIdentifiers> objects) throws SaveFailed {
+    public Collection<RstToIdentifiers> saveAndSetIdentifier(Collection<RstToIdentifiers> objects) {
         String sql = "INSERT INTO rst_to_identifiers (record_id, rst_id)" +
                 " VALUES (?, ?)";
 
@@ -71,13 +70,13 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
             int[] insertRows = pst.executeBatch();
 
             if (insertRows.length != objects.size()) {
-                throw new SaveFailed("Not all rows saved.");
+                //throw new SaveFailed("Not all rows saved.");
             }
 
             connection.commit();
             pst.close();
         } catch (SQLException e) {
-            throw new SaveFailed(e.getMessage());
+            //throw new SaveFailed(e.getMessage());
         }
 
         return null;
@@ -115,11 +114,6 @@ public class RstToIdentifiersDao<T extends RstToIdentifiers> implements Dao<RstT
 
     @Override
     public Collection<RstToIdentifiers> findRowsByMultipleValues(String clause, String... values) {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public Collection<RstToIdentifiers> findLastRowsByProperty() {
         return new ArrayList<>();
     }
 

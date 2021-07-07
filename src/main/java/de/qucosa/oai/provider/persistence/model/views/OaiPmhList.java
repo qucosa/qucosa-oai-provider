@@ -19,7 +19,7 @@ package de.qucosa.oai.provider.persistence.model.views;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.qucosa.oai.provider.persistence.model.HasIdentifier;
+import de.qucosa.oai.provider.persistence.model.Identifiable;
 import de.qucosa.oai.provider.persistence.model.Set;
 
 import java.io.Serializable;
@@ -30,7 +30,7 @@ import java.util.Collection;
 @SuppressWarnings("unused")
 @JsonAutoDetect
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OaiPmhList implements Serializable, HasIdentifier {
+public class OaiPmhList implements Serializable, Identifiable {
 
     // column record_id
     @JsonProperty("recordId")

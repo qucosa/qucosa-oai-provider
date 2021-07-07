@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.qucosa.oai.provider.persistence.dao.postgres;
+package de.qucosa.oai.provider.persistence.repository.postgres;
 
+import de.qucosa.oai.provider.AppErrorHandler;
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -34,12 +34,13 @@ import java.util.Collection;
 import java.util.List;
 
 @Repository
-public class SetDao<T extends Set> implements Dao<Set> {
+public class SetRepository<T extends Set> implements Dao<Set> {
+    private final Logger logger = LoggerFactory.getLogger(SetRepository.class);
 
     private final Connection connection;
 
     @Autowired
-    public SetDao(Connection connection) {
+    public SetRepository(Connection connection) {
 
         if (connection == null) {
             throw new IllegalArgumentException("Connection cannot be null");
@@ -48,12 +49,12 @@ public class SetDao<T extends Set> implements Dao<Set> {
         this.connection = connection;
     }
 
-    public SetDao() {
+    public SetRepository() {
         connection = null;
     }
 
     @Override
-    public Set saveAndSetIdentifier(Set object) throws SaveFailed {
+    public Set saveAndSetIdentifier(Set object) {
 
         String sql = "INSERT INTO sets (id, setspec, setname, setdescription) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
@@ -73,7 +74,11 @@ public class SetDao<T extends Set> implements Dao<Set> {
             try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
 
                 if (!generatedKeys.next()) {
-                    throw new SQLException("Creating Set failed, no ID obtained.");
+                    AppErrorHandler aeh = new AppErrorHandler(logger)
+                            .level(Level.WARN)
+                            .message("Cannot save set " + object.getSetSpec());
+                    aeh.log();
+                    return null;
                 }
 
                 object.setIdentifier(generatedKeys.getLong("id"));
@@ -81,14 +86,17 @@ public class SetDao<T extends Set> implements Dao<Set> {
 
             ps.close();
         } catch (SQLException e) {
-            throw new SaveFailed("Creating Set failed, no ID obtained.", e);
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
 
         return object;
     }
 
     @Override
-    public Collection<Set> saveAndSetIdentifier(Collection<Set> objects) throws SaveFailed {
+    public Collection<Set> saveAndSetIdentifier(Collection<Set> objects) {
         String sql = "INSERT INTO sets (id, setspec, setname, setdescription) ";
         sql+="VALUES (nextval('oaiprovider'), ?, ?, ?) ";
         sql+="ON CONFLICT (setspec) ";
@@ -109,16 +117,15 @@ public class SetDao<T extends Set> implements Dao<Set> {
             }
 
             ps.clearParameters();
-            int[] insertRows = ps.executeBatch();
-
-            if (insertRows.length == 0) {
-                throw new SaveFailed("Creating Sets failed, no rows affected.");
-            }
+            ps.executeBatch();
 
             try (ResultSet result = ps.getGeneratedKeys()) {
 
                 if (!result.next()) {
-                    throw new SaveFailed("Creating Set failed, no ID obtained.");
+                    AppErrorHandler aeh = new AppErrorHandler(logger)
+                            .level(Level.WARN)
+                            .message("Cannot save set.");
+                    aeh.log();
                 }
 
                 do {
@@ -129,14 +136,17 @@ public class SetDao<T extends Set> implements Dao<Set> {
             connection.commit();
             ps.close();
         } catch (SQLException e) {
-            throw new SaveFailed(e.getMessage());
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
 
         return output;
     }
 
     @Override
-    public Set update(Set object) throws UpdateFailed {
+    public Set update(Set object) {
         String sql = "UPDATE sets SET setname = ?, setdescription = ? where setspec = ? AND deleted = FALSE";
 
         try {
@@ -150,12 +160,18 @@ public class SetDao<T extends Set> implements Dao<Set> {
             connection.commit();
 
             if (updateRows == 0) {
-                throw new UpdateFailed("Update set is failed, no affected rows.");
+                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.WARN)
+                        .message("Cannot update set " + object.getSetSpec());
+                aeh.log();
+                return null;
             }
 
             ps.close();
         } catch (SQLException e) {
-            throw new UpdateFailed(e.getMessage());
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
 
         return object;
@@ -167,7 +183,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public Collection<Set> findAll() throws NotFound {
+    public Collection<Set> findAll() {
         String sql = "SELECT id, setspec, setname, setdescription, deleted FROM sets";
         Collection<Set> sets = new ArrayList<>();
 
@@ -185,7 +201,10 @@ public class SetDao<T extends Set> implements Dao<Set> {
                 return sets;
             }
         } catch (SQLException e) {
-            throw new NotFound("SQL-ERROR: Cannot found sets.", e);
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
 
         return sets;
@@ -197,7 +216,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public Collection<Set> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Set> findByPropertyAndValue(String property, String value) {
         String sql = "SELECT id, setspec,setname, setdescription, deleted FROM sets where " + property + " = ?";
         Collection<Set> sets = new ArrayList<>();
 
@@ -214,7 +233,10 @@ public class SetDao<T extends Set> implements Dao<Set> {
             resultSet.close();
             ps.close();
         } catch (SQLException e) {
-            throw new NotFound(e.getMessage());
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
 
         return sets;
@@ -227,11 +249,6 @@ public class SetDao<T extends Set> implements Dao<Set> {
 
     @Override
     public Collection<Set> findRowsByMultipleValues(String clause, String... values) {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public Collection<Set> findLastRowsByProperty() {
         return new ArrayList<>();
     }
 
@@ -251,7 +268,7 @@ public class SetDao<T extends Set> implements Dao<Set> {
     }
 
     @Override
-    public void delete(Set object) throws DeleteFailed {
+    public void delete(Set object) {
         String sql = "DELETE FROM sets WHERE setspec = ?";
 
         try {
@@ -260,10 +277,15 @@ public class SetDao<T extends Set> implements Dao<Set> {
             int del = statement.executeUpdate();
 
             if (del == 0) {
-                throw new DeleteFailed("Cannot hard delete set.");
+                AppErrorHandler aeh = new AppErrorHandler(logger).level(Level.WARN)
+                        .message("Cannot delete set " + object.getSetSpec());
+                aeh.log();
             }
         } catch (SQLException e) {
-            throw new DeleteFailed("Cannot hard delete set.", e);
+            AppErrorHandler aeh = new AppErrorHandler(logger).exception(e).message(e.getMessage())
+                    .level(Level.ERROR);
+            aeh.log();
+            throw new RuntimeException(e);
         }
     }
 

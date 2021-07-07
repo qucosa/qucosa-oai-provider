@@ -17,9 +17,6 @@
 package de.qucosa.oai.provider.services;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
 import de.qucosa.oai.provider.persistence.model.SetsToRecord;
 import org.springframework.stereotype.Component;
 
@@ -35,19 +32,19 @@ public class SetsToRecordService {
         this.dao = dao;
     }
 
-    public SetsToRecord saveAndSetIdentifier(SetsToRecord object) throws SaveFailed {
+    public SetsToRecord saveAndSetIdentifier(SetsToRecord object) {
         return dao.saveAndSetIdentifier(object);
     }
 
-    public SetsToRecord findByMultipleValues(String clause, String... values) throws NotFound {
+    public SetsToRecord findByMultipleValues(String clause, String... values) {
         return dao.findByMultipleValues(clause, values);
     }
 
-    public Collection findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection findByPropertyAndValue(String property, String value) {
         return dao.findByPropertyAndValue(property, value);
     }
 
-    public void delete(SetsToRecord setsToRecord) throws DeleteFailed {
+    public void delete(SetsToRecord setsToRecord) {
         dao.delete(setsToRecord);
     }
 }

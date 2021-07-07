@@ -17,15 +17,15 @@ package de.qucosa.oai.provider.config;
 
 import de.qucosa.oai.provider.config.json.XmlNamespacesConfig;
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.dao.postgres.DisseminationDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.FormatDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.RecordDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.ResumptionTokenDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.RstToIdentifiersDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.SetDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.SetsToRecordDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.views.OaiPmhListByTokenDao;
-import de.qucosa.oai.provider.persistence.dao.postgres.views.OaiPmhListDao;
+import de.qucosa.oai.provider.persistence.repository.postgres.DisseminationRepository;
+import de.qucosa.oai.provider.persistence.repository.postgres.FormatRepository;
+import de.qucosa.oai.provider.persistence.repository.postgres.RecordRepository;
+import de.qucosa.oai.provider.persistence.repository.postgres.ResumptionTokenRepository;
+import de.qucosa.oai.provider.persistence.repository.postgres.RstToIdentifiersRepository;
+import de.qucosa.oai.provider.persistence.repository.postgres.SetRepository;
+import de.qucosa.oai.provider.persistence.repository.postgres.SetsToRecordRepository;
+import de.qucosa.oai.provider.persistence.repository.postgres.views.OaiPmhListByTokenRepository;
+import de.qucosa.oai.provider.persistence.repository.postgres.views.OaiPmhListRepository;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import de.qucosa.oai.provider.persistence.model.Format;
 import de.qucosa.oai.provider.persistence.model.Record;
@@ -85,110 +85,110 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public Dao<Set> setDao() throws SQLException {
-        return new SetDao<>(connection());
+    public Dao<Set> setRepository() throws SQLException {
+        return new SetRepository<>(connection());
     }
 
     @Bean
     public SetService setService() throws SQLException {
         SetService setService = new SetService();
-        setService.setDao(setDao());
+        setService.setDao(setRepository());
         return setService;
     }
 
     @Bean
-    public Dao<Record> recordDao() throws SQLException {
-        return new RecordDao<>(connection());
+    public Dao<Record> recordRepository() throws SQLException {
+        return new RecordRepository<>(connection());
     }
 
     @Bean
     public RecordService recordService() throws SQLException {
         RecordService recordService = new RecordService();
-        recordService.setDao(recordDao());
+        recordService.setDao(recordRepository());
         return recordService;
     }
 
     @Bean
-    public Dao<Format> formatDao() throws SQLException {
-        return new FormatDao<>(connection());
+    public Dao<Format> formatRepository() throws SQLException {
+        return new FormatRepository<>(connection());
     }
 
     @Bean
     public FormatService formatService() throws SQLException {
         FormatService formatService = new FormatService();
-        formatService.setDao(formatDao());
+        formatService.setDao(formatRepository());
         return  formatService;
     }
 
     @Bean
-    public Dao<Dissemination> disseminationDao() throws SQLException {
-        return new DisseminationDao<>(connection());
+    public Dao<Dissemination> disseminationRepository() throws SQLException {
+        return new DisseminationRepository<>(connection());
     }
 
     @Bean
     public DisseminationService disseminationService() throws SQLException {
         DisseminationService disseminationService = new DisseminationService();
-        disseminationService.setDao(disseminationDao());
+        disseminationService.setDao(disseminationRepository());
         return disseminationService;
     }
 
     @Bean
-    public Dao<SetsToRecord> setsToRecordDao() throws SQLException {
-        return new SetsToRecordDao<>(connection());
+    public Dao<SetsToRecord> setsToRecordRepository() throws SQLException {
+        return new SetsToRecordRepository<>(connection());
     }
 
     @Bean
     public SetsToRecordService setsToRecordService() throws SQLException {
         SetsToRecordService setsToRecordService = new SetsToRecordService();
-        setsToRecordService.setDao(setsToRecordDao());
+        setsToRecordService.setDao(setsToRecordRepository());
         return setsToRecordService;
     }
 
     @Bean
-    public Dao<ResumptionToken> resumptionTokenDao() throws SQLException {
-        return new ResumptionTokenDao<>(connection());
+    public Dao<ResumptionToken> resumptionTokenRepository() throws SQLException {
+        return new ResumptionTokenRepository<>(connection());
     }
 
     @Bean
     public ResumptionTokenService resumptionTokenService() throws SQLException {
         ResumptionTokenService resumptionTokenService = new ResumptionTokenService();
-        resumptionTokenService.setDao(resumptionTokenDao());
+        resumptionTokenService.setDao(resumptionTokenRepository());
         return resumptionTokenService;
     }
 
     @Bean
-    public Dao<RstToIdentifiers> rstToIdentifiersDao() throws SQLException {
-        return new RstToIdentifiersDao<>(connection());
+    public Dao<RstToIdentifiers> rstToIdentifiersRepository() throws SQLException {
+        return new RstToIdentifiersRepository<>(connection());
     }
 
     @Bean
     public RstToIdentifiersService rstToIdentifiersService() throws SQLException {
         RstToIdentifiersService rstToIdentifiersService = new RstToIdentifiersService();
-        rstToIdentifiersService.setDao(rstToIdentifiersDao());
+        rstToIdentifiersService.setDao(rstToIdentifiersRepository());
         return rstToIdentifiersService;
     }
 
     @Bean
-    public Dao<OaiPmhListByToken> oaiPmhListByTokenDao() throws SQLException {
-        return new OaiPmhListByTokenDao<>(connection());
+    public Dao<OaiPmhListByToken> oaiPmhListByTokenRepository() throws SQLException {
+        return new OaiPmhListByTokenRepository<>(connection());
     }
 
     @Bean
     public OaiPmhListByTokenService oaiPmhListsService() throws SQLException {
         OaiPmhListByTokenService oaiPmhListsService = new OaiPmhListByTokenService();
-        oaiPmhListsService.setDao(oaiPmhListByTokenDao());
+        oaiPmhListsService.setDao(oaiPmhListByTokenRepository());
         return oaiPmhListsService;
     }
 
     @Bean
-    public Dao<OaiPmhList> oaiPmhListDao() throws SQLException {
-        return new OaiPmhListDao<>(connection());
+    public Dao<OaiPmhList> oaiPmhListRepository() throws SQLException {
+        return new OaiPmhListRepository<>(connection());
     }
 
     @Bean
     public OaiPmhListService oaiPmhListService() throws SQLException {
         OaiPmhListService oaiPmhListService = new OaiPmhListService();
-        oaiPmhListService.setDao(oaiPmhListDao());
+        oaiPmhListService.setDao(oaiPmhListRepository());
         return oaiPmhListService;
     }
 

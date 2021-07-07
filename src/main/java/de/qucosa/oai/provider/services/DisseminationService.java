@@ -16,10 +16,6 @@
 package de.qucosa.oai.provider.services;
 
 import de.qucosa.oai.provider.persistence.Dao;
-import de.qucosa.oai.provider.persistence.exceptions.DeleteFailed;
-import de.qucosa.oai.provider.persistence.exceptions.NotFound;
-import de.qucosa.oai.provider.persistence.exceptions.SaveFailed;
-import de.qucosa.oai.provider.persistence.exceptions.UpdateFailed;
 import de.qucosa.oai.provider.persistence.model.Dissemination;
 import org.springframework.stereotype.Service;
 
@@ -35,27 +31,27 @@ public class DisseminationService {
         this.dao = dao;
     }
 
-    public Dissemination saveDissemination(Dissemination dissemination) throws SaveFailed {
+    public Dissemination saveDissemination(Dissemination dissemination) {
         return dao.saveAndSetIdentifier(dissemination);
     }
 
-    public Dissemination update(Dissemination dissemination) throws UpdateFailed {
+    public Dissemination update(Dissemination dissemination) {
         return dao.update(dissemination);
     }
 
-    public Dissemination findByMultipleValues(String clause, String... values) throws NotFound {
+    public Dissemination findByMultipleValues(String clause, String... values) {
         return dao.findByMultipleValues(clause, values);
     }
 
-    public Collection<Dissemination> findByPropertyAndValue(String property, String value) throws NotFound {
+    public Collection<Dissemination> findByPropertyAndValue(String property, String value) {
         return dao.findByPropertyAndValue(property, value);
     }
 
-    public Collection<Dissemination> findFirstRowsByProperty(String property, int limit) throws NotFound {
+    public Collection<Dissemination> findFirstRowsByProperty(String property, int limit) {
         return dao.findFirstRowsByProperty(property, limit);
     }
 
-    public void delete(Dissemination dissemination) throws DeleteFailed {
+    public void delete(Dissemination dissemination) {
         dao.delete(dissemination);
     }
 }
